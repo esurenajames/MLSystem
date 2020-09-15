@@ -1,0 +1,14 @@
+RewriteEngine on
+RewriteCond $1 !^(index\.php|resources|robots\.txt)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php/$1 [L,QSA]
+RewriteCond %{REQUEST_METHOD} ^TRACE
+<IfModule mod_headers.c>
+Header add Cache-Control:  "no-store, no-cache, must-revalidate"
+</IfModule>
+
+php_value upload_max_filesize 128M
+php_value post_max_size 128M
+php_value max_execution_time 300
+php_value max_input_time 300
