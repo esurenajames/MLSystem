@@ -237,6 +237,142 @@ class loanapplication_model extends CI_Model
     return $data;
   }
 
+  function displayComments($ID)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $query_string = $this->db->query("SELECT  AC.ApplicationId
+                                              , AC.Comment
+                                              , AC.CreatedBy
+                                              , DATE_FORMAT(AC.DateCreated, '%b %d, %Y %r') as DateCreated
+                                              FROM Application_has_Comments AC
+                                                    WHERE AC.ApplicationId = $ID
+    ");
+    $data = $query_string->result_array();
+    return $data;
+  }
+
+  function displayRequirements($ID)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $query_string = $this->db->query("SELECT  AR.ApplicationId
+                                              , AR.RequirementId
+                                              , R.Name
+                                              , AR.CreatedBy
+                                              , S.Description
+                                              , DATE_FORMAT(AR.DateCreated, '%b %d, %Y %r') as DateCreated
+                                              FROM Application_has_Requirements AR
+                                                    INNER JOIN R_Requirements R
+                                                      ON R.RequirementId = AR.RequirementId
+                                                    INNER JOIN r_status S
+                                                      ON S.StatusId = AR.StatusId
+                                                     WHERE AR.ApplicationId = $ID
+    ");
+    $data = $query_string->result_array();
+    return $data;
+  }
+
+  function displayIncomes($ID)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $query_string = $this->db->query("SELECT  AI.ApplicationId
+                                              , AI.Source
+                                              , AI.IncomeId
+                                              , AI.Details
+                                              , AI.Amount
+                                              , AI.CreatedBy
+                                              , AI.StatusId
+                                              , S.Description
+                                              , DATE_FORMAT(AI.DateCreated, '%b %d, %Y %r') as DateCreated
+                                              FROM Application_has_MonthlyIncome AI
+                                                  INNER JOIN r_status S
+                                                    ON S.StatusId = AI.StatusId
+                                                    WHERE AI.ApplicationId = $ID
+    ");
+    $data = $query_string->result_array();
+    return $data;
+  }
+
+  function displayExpenses($ID)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $query_string = $this->db->query("SELECT  AE.ApplicationId
+                                              , AE.Source
+                                              , AE.ExpenseId
+                                              , AE.Details
+                                              , AE.Amount
+                                              , AE.CreatedBy
+                                              , AE.StatusId
+                                              , S.Description
+                                              , DATE_FORMAT(AE.DateCreated, '%b %d, %Y %r') as DateCreated
+                                              FROM Application_has_MonthlyExpenses AE
+                                                  INNER JOIN r_status S
+                                                    ON S.StatusId = AE.StatusId
+                                                    WHERE AE.ApplicationId = $ID
+    ");
+    $data = $query_string->result_array();
+    return $data;
+  }
+
+  function displayObligations($ID)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $query_string = $this->db->query("SELECT  AO.ApplicationId
+                                              , AO.Source
+                                              , AO.MonthlyObligationId
+                                              , AO.Details
+                                              , AO.Amount
+                                              , AO.CreatedBy
+                                              , AO.StatusId
+                                              , S.Description
+                                              , DATE_FORMAT(AO.DateCreated, '%b %d, %Y %r') as DateCreated
+                                              FROM Application_has_MonthlyObligation AO
+                                                INNER JOIN r_status S
+                                                    ON S.StatusId = AO.StatusId
+                                                    WHERE AO.ApplicationId = $ID
+    ");
+    $data = $query_string->result_array();
+    return $data;
+  }
+
+  function countExpense($data)
+  {
+    $query_string = $this->db->query("SELECT  * 
+                                              FROM Application_has_MonthlyExpenses
+                                                WHERE Source = '".$data['Source']."'
+                                                AND Details = '".$data['Detail']."'
+                                                AND Amount = '".$data['Amount']."'
+                                                AND ApplicationId = '".$data['Id']."'
+    ");
+    $data = $query_string->num_rows();
+    return $data;
+  }
+
+  function countObligation($data)
+  {
+    $query_string = $this->db->query("SELECT  * 
+                                              FROM Application_has_MonthlyObligation
+                                                WHERE Source = '".$data['Source']."'
+                                                AND Details = '".$data['Detail']."'
+                                                AND Amount = '".$data['Amount']."'
+                                                AND ApplicationId = '".$data['Id']."'
+    ");
+    $data = $query_string->num_rows();
+    return $data;
+  }
+
+  function countMonthlyIncome($data)
+  {
+    $query_string = $this->db->query("SELECT  * 
+                                              FROM Application_has_MonthlyIncome
+                                                WHERE Source = '".$data['Source']."'
+                                                AND Details = '".$data['Detail']."'
+                                                AND Amount = '".$data['Amount']."'
+                                                AND ApplicationId = '".$data['Id']."'
+    ");
+    $data = $query_string->num_rows();
+    return $data;
+  }
+
   function getApprovers($ID)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
@@ -269,5 +405,115 @@ class loanapplication_model extends CI_Model
     $data = $query->row_array();
     return $data;
   }
+
+  function updateStatus($input)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $DateNow = date("Y-m-d H:i:s");
+
+    if($input['Type'] == 'Obligations')
+    {
+      $ObligationDetail = $this->db->query("SELECT  Source
+                                                  FROM Application_has_MonthlyObligation
+                                                    WHERE MonthlyObligationId = ".$input['Id']."
+      ")->row_array();
+
+      // update status
+        $set = array(
+          'StatusId' => $input['updateType'],
+          'UpdatedBy' => $EmployeeNumber,
+          'DateUpdated' => $DateNow,
+        );
+        $condition = array(
+          'MonthlyObligationId' => $input['Id']
+        );
+        $table = 'Application_has_MonthlyObligation';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      // insert into logs
+        if($input['updateType'] == 2)
+        {
+          $Description = 'Re-activated ' .$ObligationDetail['Source']. ' at the system setup'; // main log
+        }
+        else if($input['updateType'] == 6)
+        {
+          $Description = 'Deactivated ' .$ObligationDetail['Source']. '  at the system setup'; // main log
+        }
+        $data2 = array(
+          'Description'   => $Description,
+          'CreatedBy'     => $EmployeeNumber,
+          'DateCreated'   => $DateNow
+        );
+        $this->db->insert('R_Logs', $data2);
+    }
+    else if($input['Type'] == 'Expenses')
+    {
+      $ExpenseDetail = $this->db->query("SELECT  Source
+                                                  FROM Application_has_MonthlyExpenses
+                                                    WHERE ExpenseId = ".$input['Id']."
+      ")->row_array();
+
+      // update status
+        $set = array(
+          'StatusId' => $input['updateType'],
+          'UpdatedBy' => $EmployeeNumber,
+          'DateUpdated' => $DateNow,
+        );
+        $condition = array(
+          'ExpenseId' => $input['Id']
+        );
+        $table = 'Application_has_MonthlyExpenses';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      // insert into logs
+        if($input['updateType'] == 2)
+        {
+          $Description = 'Re-activated ' .$ExpenseDetail['Source']. ' at the system setup'; // main log
+        }
+        else if($input['updateType'] == 6)
+        {
+          $Description = 'Deactivated ' .$ExpenseDetail['Source']. '  at the system setup'; // main log
+        }
+        $data2 = array(
+          'Description'   => $Description,
+          'CreatedBy'     => $EmployeeNumber,
+          'DateCreated'   => $DateNow
+        );
+        $this->db->insert('R_Logs', $data2);
+    }
+    else if($input['Type'] == 'Incomes')
+    {
+      $IncomeDetail = $this->db->query("SELECT  Source
+                                                  FROM Application_has_MonthlyIncome
+                                                    WHERE IncomeId = ".$input['Id']."
+      ")->row_array();
+
+      // update status
+        $set = array(
+          'StatusId' => $input['updateType'],
+          'UpdatedBy' => $EmployeeNumber,
+          'DateUpdated' => $DateNow,
+        );
+        $condition = array(
+          'IncomeId' => $input['Id']
+        );
+        $table = 'Application_has_MonthlyIncome';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      // insert into logs
+        if($input['updateType'] == 2)
+        {
+          $Description = 'Re-activated ' .$IncomeDetail['Source']. ' at the system setup'; // main log
+        }
+        else if($input['updateType'] == 6)
+        {
+          $Description = 'Deactivated ' .$IncomeDetail['Source']. '  at the system setup'; // main log
+        }
+        $data2 = array(
+          'Description'   => $Description,
+          'CreatedBy'     => $EmployeeNumber,
+          'DateCreated'   => $DateNow
+        );
+        $this->db->insert('R_Logs', $data2);
+    }
+  }
+
 
 }

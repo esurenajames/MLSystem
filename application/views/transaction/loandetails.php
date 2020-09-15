@@ -12,6 +12,168 @@
     </ol>
   </section>
 
+  <div class="modal fade" id="modalComment">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="modalComment">Add Comment</h4>
+        </div>
+        <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddComment/<?php print_r($detail['ApplicationId']) ?>" method="post">
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-12">
+                <label>Comment</label>
+                <textarea class="form-control" name="Comment"></textarea>
+                <input type="hidden" id="txtComment">
+                <input type="hidden" name="FormType" id="txtFormType" value="1">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+
+  <div class="modal fade" id="modalObligation">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="modalObligation">Add Obligation</h4>
+        </div>
+        <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddObligation/<?php print_r($detail['ApplicationId']) ?>" method="post">
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-12">
+                <label>Obligation</label>
+                <input type="text" class="form-control" name="Obligation">
+                <input type="hidden" id="txtObligation">
+                <input type="hidden" name="FormType" id="txtFormType" value="1">
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <label>Detail</label>
+                <textarea class="form-control" name="Detail"></textarea>
+                <input type="hidden" id="txtDetail">
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <label>Amount</label>
+                <input type="number" class="form-control" name="Amount">
+                <input type="hidden" id="txtAmount">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+
+  <div class="modal fade" id="modalExpense">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="modalExpense">Add Expense</h4>
+        </div>
+        <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddExpense/<?php print_r($detail['ApplicationId']) ?>" method="post">
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-12">
+                <label>Expense</label>
+                <input type="text" class="form-control" name="Expense">
+                <input type="hidden" id="txtExpense">
+                <input type="hidden" name="FormType" id="txtFormType" value="1">
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <label>Detail</label>
+                <textarea class="form-control" name="Detail"></textarea>
+                <input type="hidden" id="txtDetail">
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <label>Amount</label>
+                <input type="number" class="form-control" name="Amount">
+                <input type="hidden" id="txtAmount">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+
+  <div class="modal fade" id="modalIncome">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="modalIncome">Add Other Source of Income</h4>
+        </div>
+        <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddIncome/<?php print_r($detail['ApplicationId']) ?>" method="post">
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-12">
+                <label>Source</label>
+                <input type="text" class="form-control" name="Source">
+                <input type="hidden" id="txtSource">
+                <input type="hidden" name="FormType" id="txtFormType" value="1">
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <label>Detail</label>
+                <textarea class="form-control" name="Detail"></textarea>
+                <input type="hidden" id="txtDetail">
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <label>Amount</label>
+                <input type="number" class="form-control" name="Amount">
+                <input type="hidden" id="txtAmount">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+
   <section class="content">
   	<!-- BORROWER DETAILS -->
 	    <div class="box">
@@ -267,7 +429,7 @@
               </div>
               <div class="tab-pane" id="tabIncome">
               	<h4>Sources of Income</h4>
-              	<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modelRepayment">Add Comment</a>
+              	<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalIncome">Add Comment</a>
               	<br>
               	<br>
                 <table id="dtblIncome" class="table table-bordered table-hover" style="width: 100%">
@@ -288,7 +450,7 @@
               <div class="tab-pane" id="tabExpense">
               	<h4>Monthly Expenses</h4>
               	<br>
-              	<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modelRepayment">Add Comment</a>
+              	<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalExpense">Add Comment</a>
               	<br>
               	<br>
                 <table id="dtblExpense" class="table table-bordered table-hover" style="width: 100%">
@@ -330,16 +492,16 @@
               <div class="tab-pane" id="tabComments">
               	<h4>Comments</h4>
               	<br>
-              	<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modelRepayment">Add Comment</a>
+              	<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalComment">Add Comment</a>
               	<br>
               	<br>
                 <table id="dtblComments" class="table table-bordered table-hover" style="width: 100%">
                   <thead>
                   <tr>
                     <th>#</th>
-                    <th>Description</th>
-                    <th>File Attachment</th>
-                    <th>Status</th>
+                    <th>Comment</th>
+                    <th>By</th>
+                    <th>Date Creation</th>
                     <th>Action</th>
                   </tr>
                   </thead>
@@ -383,19 +545,126 @@
     "order": [[3, "asc"]]
   });
   $('#dtblRequirements').DataTable({
-    "order": [[3, "asc"]]
+    "pageLength": 10,
+    "ajax": { url: '<?php echo base_url()."/datatables_controller/displayRequirements/"; ?><?php print_r($detail['ApplicationId']) ?>', type: 'POST', "dataSrc": "" },
+    "columns": [  
+      { data: "ApplicationId", "render": function (data, type, b) {
+          rowNumber = rowNumber + 1;
+          return rowNumber;
+        }
+      }
+      , { data: "Name" }
+      , { data: "Description" }
+      , { data: "DateCreated" }
+    ],
+    // "aoColumnDefs": [{ "bVisible": false, "aTargets": [7] }],
+    "order": [[0, "desc"]]
   });
   $('#dtblComments').DataTable({
-    "order": [[3, "asc"]]
+    "pageLength": 10,
+    "ajax": { url: '<?php echo base_url()."/datatables_controller/displayComments/"; ?><?php print_r($detail['ApplicationId']) ?>', type: 'POST', "dataSrc": "" },
+    "columns": [  
+      { data: "ApplicationId", "render": function (data, type, b) {
+          rowNumber = rowNumber + 1;
+          return rowNumber;
+        }
+      }
+      , { data: "Comment" }
+      , { data: "CreatedBy" }
+      , { data: "DateCreated" }
+    ],
+    // "aoColumnDefs": [{ "bVisible": false, "aTargets": [7] }],
+    "order": [[0, "desc"]]
   });
   $('#dtblIncome').DataTable({
-    "order": [[3, "asc"]]
+    "pageLength": 10,
+    "ajax": { url: '<?php echo base_url()."/datatables_controller/displayIncomes/"; ?><?php print_r($detail['ApplicationId']) ?>', type: 'POST', "dataSrc": "" },
+    "columns": [  
+      { data: "ApplicationId", "render": function (data, type, b) {
+          rowNumber = rowNumber + 1;
+          return rowNumber;
+        }
+      }
+      , { data: "Source" }
+      , { data: "Details" }
+      , { data: "Amount" }
+      , { data: "Description" }
+      , {
+          data: "StatusId", "render": function (data, type, row) {
+          if(row.StatusId == 2){
+              return '<a onclick="confirm(\'Are you sure you want to deactivate this Income?\', \''+row.IncomeId+'\', 6, \'Incomes\')" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a> <a onclick="Edit('+row.IncomeId+')" data-toggle="modal" data-target="#modalNewBank" class="btn btn-info" title="Edit"><span class="fa fa-edit"></span></a>';
+            }
+            else if(row.StatusId == 6){
+              return '<a onclick="confirm(\'Are you sure you want to re-activate this Income?\', \''+row.IncomeId+'\', 2, \'Incomes\')" class="btn btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
+            }
+            else{
+              return "N/A";
+            }
+          }
+        },
+    ],
+    // "aoColumnDefs": [{ "bVisible": false, "aTargets": [7] }],
+    "order": [[0, "desc"]]
   });
   $('#dtblExpense').DataTable({
-    "order": [[3, "asc"]]
+    "pageLength": 10,
+    "ajax": { url: '<?php echo base_url()."/datatables_controller/displayExpenses/"; ?><?php print_r($detail['ApplicationId']) ?>', type: 'POST', "dataSrc": "" },
+    "columns": [  
+      { data: "ApplicationId", "render": function (data, type, b) {
+          rowNumber = rowNumber + 1;
+          return rowNumber;
+        }
+      }
+      , { data: "Source" }
+      , { data: "Details" }
+      , { data: "Amount" }
+      , { data: "Description" }
+      , {
+          data: "StatusId", "render": function (data, type, row) {
+          if(row.StatusId == 2){
+              return '<a onclick="confirm(\'Are you sure you want to deactivate this Expense?\', \''+row.ExpenseId+'\', 6, \'Expenses\')" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a> <a onclick="Edit('+row.ExpenseId+')" data-toggle="modal" data-target="#modalNewBank" class="btn btn-info" title="Edit"><span class="fa fa-edit"></span></a>';
+            }
+            else if(row.StatusId == 6){
+              return '<a onclick="confirm(\'Are you sure you want to re-activate this Expense?\', \''+row.ExpenseId+'\', 2, \'Expenses\')" class="btn btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
+            }
+            else{
+              return "N/A";
+            }
+          }
+        },
+    ],
+    // "aoColumnDefs": [{ "bVisible": false, "aTargets": [7] }],
+    "order": [[0, "desc"]]
   });
   $('#dtblObligations').DataTable({
-    "order": [[3, "asc"]]
+    "pageLength": 10,
+    "ajax": { url: '<?php echo base_url()."/datatables_controller/displayObligations/"; ?><?php print_r($detail['ApplicationId']) ?>', type: 'POST', "dataSrc": "" },
+    "columns": [  
+      { data: "ApplicationId", "render": function (data, type, b) {
+          rowNumber = rowNumber + 1;
+          return rowNumber;
+        }
+      }
+      , { data: "Source" }
+      , { data: "Details" }
+      , { data: "Amount" }
+      , { data: "Description" }
+      , {
+          data: "StatusId", "render": function (data, type, row) {
+          if(row.StatusId == 2){
+              return '<a onclick="confirm(\'Are you sure you want to deactivate this Obligation?\', \''+row.MonthlyObligationId+'\', 6, \'Obligations\')" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a> <a onclick="Edit('+row.MonthlyObligationId+')" data-toggle="modal" data-target="#modalObligation" class="btn btn-info" title="Edit"><span class="fa fa-edit"></span></a>';
+            }
+            else if(row.StatusId == 6){
+              return '<a onclick="confirm(\'Are you sure you want to re-activate this Obligation?\', \''+row.MonthlyObligationId+'\', 2, \'Obligations\')" class="btn btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
+            }
+            else{
+              return "N/A";
+            }
+          }
+        },
+    ],
+    // "aoColumnDefs": [{ "bVisible": false, "aTargets": [7] }],
+    "order": [[0, "desc"]]
   });
   var rowNumber = 0;
   $('#dtblHistory').DataTable({
@@ -425,6 +694,92 @@
     {
       $('#divPenalty').hide();
     }
+  }
+
+  function confirm(Text, Id, updateType, Type)
+  { 
+    swal({
+      title: 'Confirm',
+      text: Text,
+      type: 'info',
+      showCancelButton: true,
+      buttonsStyling: false,
+      confirmButtonClass: 'btn btn-success',
+      confirmButtonText: 'Confirm',
+      cancelButtonClass: 'btn btn-secondary'
+    }).then(function(){
+      $.ajax({                
+          url: "<?php echo base_url();?>" + "/loanapplication_controller/updateStatus",
+          method: "POST",
+          data:   {
+                    Id : Id
+                    , updateType : updateType
+                    , Type : Type
+                  },
+          beforeSend: function(){
+              $('.loading').show();
+          },
+          success: function(data)
+          {
+            swal({
+              title: 'Success!',
+              text: 'Net Income Status successfully updated!',
+              type: 'success',
+              buttonsStyling: false,
+              confirmButtonClass: 'btn btn-primary'
+            });
+            location.reload();
+          },
+          error: function (response) 
+          {
+            swal({
+              title: 'Warning!',
+              text: 'Something went wrong, please contact the administrator or refresh page!',
+              type: 'warning',
+              buttonsStyling: false,
+              confirmButtonClass: 'btn btn-primary'
+            });
+          }
+      });
+    });
+  }
+
+  function Edit(Id)
+  {
+    $.ajax({
+      url: '<?php echo base_url()?>' + "/loanapplication_controller/getObligationDetails",
+      type: "POST",
+      async: false,
+      data: {
+        Id : Id
+      },
+      dataType: "JSON",
+      beforeSend: function(){
+          $('.loading').show();
+      },
+      success: function(data)
+      {
+        $('#txtObligation').val(data['Obligation']);
+        $('#txtDetail').val(data['Details']);
+        $('#txtAmount').val(data['Amount']);
+        $('#txtMonthlyObligationId').val(Id);
+        $('#txtFormType').val(2);
+      },
+
+      error: function()
+      {
+        setTimeout(function() {
+          swal({
+            title: 'Warning!',
+            text: 'Something went wrong, please contact the administrator or refresh page!',
+            type: 'warning',
+            buttonsStyling: false,
+            confirmButtonClass: 'btn btn-primary'
+          });
+          // location.reload();
+        }, 2000);
+      }
+    });
   }
 
 

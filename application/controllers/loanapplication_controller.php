@@ -303,10 +303,161 @@ class loanapplication_controller extends CI_Controller {
     redirect('home/loanDetailApproval/' . $this->uri->segment(3));
   }
 
+  function AddComment()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $DateNow = date("Y-m-d H:i:s");
+    if ($_POST['FormType'] == 1) // add Comment
+    {
+        // insert Comment
+          $insertComment = array(
+             'ApplicationId'              => $this->uri->segment(3)
+            , 'Comment'                   => htmlentities($_POST['Comment'], ENT_QUOTES)
+            , 'CreatedBy'                 => $EmployeeNumber
+            , 'UpdatedBy'                 => $EmployeeNumber
+          );
+          $insertCommentTable = 'Application_has_Comments';
+          $this->maintenance_model->insertFunction($insertComment, $insertCommentTable);
+        // notification
+          $this->session->set_flashdata('alertTitle','Success!'); 
+          $this->session->set_flashdata('alertText','Comment successfully Added!'); 
+          $this->session->set_flashdata('alertType','success'); 
+          redirect('home/loandetail/'. $this->uri->segment(3));
+    }
+  }
+
+  function AddObligation()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $DateNow = date("Y-m-d H:i:s");
+    if ($_POST['FormType'] == 1) // add Obligation
+    {
+        // insert Obligation Details
+          $insertObligation = array(
+             'ApplicationId'              => $this->uri->segment(3)
+            , 'Source'                    => htmlentities($_POST['Obligation'], ENT_QUOTES)
+            , 'Details'                   => htmlentities($_POST['Detail'], ENT_QUOTES)
+            , 'Amount'                    => htmlentities($_POST['Amount'], ENT_QUOTES)
+            , 'StatusId'                  => 2
+            , 'CreatedBy'                 => $EmployeeNumber
+            , 'UpdatedBy'                 => $EmployeeNumber
+          );
+          $insertObligationTable = 'application_has_monthlyobligation';
+          $this->maintenance_model->insertFunction($insertObligation, $insertObligationTable);
+        // notification
+          $this->session->set_flashdata('alertTitle','Success!'); 
+          $this->session->set_flashdata('alertText','Obligation successfully Added!'); 
+          $this->session->set_flashdata('alertType','success'); 
+          redirect('home/loandetail/'. $this->uri->segment(3));
+    }
+  }
+
+  function AddExpense()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $DateNow = date("Y-m-d H:i:s");
+    if ($_POST['FormType'] == 1) // add Expense
+    {
+      $data = array(
+        'Source'                 => htmlentities($_POST['Expense'], ENT_QUOTES)
+        , 'Details'              => htmlentities($_POST['Detail'], ENT_QUOTES)
+        , 'Amount'               => htmlentities($_POST['Amount'], ENT_QUOTES)
+      );
+      $query = $this->loanapplication_model->countExpense($data);
+      print_r($query);
+      if($query == 0) // not existing
+      {
+        // insert Expense details
+          $insertExpense = array(
+            'ApplicationId'               => $this->uri->segment(3)
+            , 'Source'                    => htmlentities($_POST['Expense'], ENT_QUOTES)
+            , 'Details'                   => htmlentities($_POST['Detail'], ENT_QUOTES)
+            , 'Amount'                    => htmlentities($_POST['Amount'], ENT_QUOTES)
+            , 'StatusId'                  => 2
+            , 'CreatedBy'                 => $EmployeeNumber
+            , 'UpdatedBy'                 => $EmployeeNumber
+          );
+          $insertExpenseTable = 'application_has_monthlyexpenses';
+          $this->maintenance_model->insertFunction($insertExpense, $insertExpenseTable);
+        // notification
+          $this->session->set_flashdata('alertTitle','Success!'); 
+          $this->session->set_flashdata('alertText','Expense details successfully recorded!'); 
+          $this->session->set_flashdata('alertType','success'); 
+          redirect('home/loandetail/'. $this->uri->segment(3));
+      }
+      else
+      {
+        // notification
+          $this->session->set_flashdata('alertTitle','Warning!'); 
+          $this->session->set_flashdata('alertText','Expense details already existing!'); 
+          $this->session->set_flashdata('alertType','warning'); 
+          redirect('home/loandetail'. $this->uri->segment(3));
+      }
+    }
+  }
+
+  function Addincome()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $DateNow = date("Y-m-d H:i:s");
+    if ($_POST['FormType'] == 1) // add Income
+    {
+      $data = array(
+        'Source'                 => htmlentities($_POST['Source'], ENT_QUOTES)
+        , 'Details'              => htmlentities($_POST['Detail'], ENT_QUOTES)
+        , 'Amount'               => htmlentities($_POST['Amount'], ENT_QUOTES)
+      );
+      $query = $this->loanapplication_model->countMonthlyIncome($data);
+      print_r($query);
+      if($query == 0) // not existing
+      {
+        // insert Income details
+          $insertExpense = array(
+            'ApplicationId'               => $this->uri->segment(3)
+            , 'Source'                    => htmlentities($_POST['Source'], ENT_QUOTES)
+            , 'Details'                   => htmlentities($_POST['Detail'], ENT_QUOTES)
+            , 'Amount'                    => htmlentities($_POST['Amount'], ENT_QUOTES)
+            , 'StatusId'                  => 2
+            , 'CreatedBy'                 => $EmployeeNumber
+            , 'UpdatedBy'                 => $EmployeeNumber
+          );
+          $insertExpenseTable = 'application_has_monthlyIncome';
+          $this->maintenance_model->insertFunction($insertExpense, $insertExpenseTable);
+        // notification
+          $this->session->set_flashdata('alertTitle','Success!'); 
+          $this->session->set_flashdata('alertText','Source of Income details successfully recorded!'); 
+          $this->session->set_flashdata('alertType','success'); 
+          redirect('home/loandetail/'. $this->uri->segment(3));
+      }
+      else
+      {
+        // notification
+          $this->session->set_flashdata('alertTitle','Warning!'); 
+          $this->session->set_flashdata('alertText','Source of Income details already existing!'); 
+          $this->session->set_flashdata('alertType','warning'); 
+          redirect('home/loandetail'. $this->uri->segment(3));
+      }
+    }
+  }
+
   function getTenure()
   {
     $output = $this->loanapplication_model->getTenure($this->input->post('Id'));
     $this->output->set_output(print(json_encode($output)));
     exit();
   }
+
+  function updateStatus()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $input = array( 
+      'Id' => htmlentities($this->input->post('Id'), ENT_QUOTES)
+      , 'updateType' => htmlentities($this->input->post('updateType'), ENT_QUOTES)
+      , 'Type' => htmlentities($this->input->post('Type'), ENT_QUOTES)
+    );
+
+    $query = $this->loanapplication_model->updateStatus($input);
+  }
+
+  
 }

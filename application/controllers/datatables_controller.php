@@ -266,4 +266,59 @@ class datatables_controller extends CI_Controller {
 		echo json_encode($result);
 	}
 
+	function displayComments()
+	{
+		$Id = $this->uri->segment(3);
+		$result = $this->loanApplication_model->displayComments($Id);
+		foreach($result as $key=>$row)
+		{
+			$result[$key]['CreatedBy'] = $this->maintenance_model->getUserCreated($row['CreatedBy']);
+		}
+		echo json_encode($result);
+	}
+
+	function displayRequirements()
+	{
+		$Id = $this->uri->segment(3);
+		$result = $this->loanApplication_model->displayRequirements($Id);
+		foreach($result as $key=>$row)
+		{
+			$result[$key]['CreatedBy'] = $this->maintenance_model->getUserCreated($row['CreatedBy']);
+		}
+		echo json_encode($result);
+	}
+
+	function displayIncomes()
+	{
+		$Id = $this->uri->segment(3);
+		$result = $this->loanApplication_model->displayincomes($Id);
+		foreach($result as $key=>$row)
+		{
+			$result[$key]['CreatedBy'] = $this->maintenance_model->getUserCreated($row['CreatedBy']);
+		}
+		echo json_encode($result);
+	}
+
+	function displayExpenses()
+	{
+		$Id = $this->uri->segment(3);
+		$result = $this->loanApplication_model->displayExpenses($Id);
+		foreach($result as $key=>$row)
+		{
+			$result[$key]['CreatedBy'] = $this->maintenance_model->getUserCreated($row['CreatedBy']);
+		}
+		echo json_encode($result);
+	}
+
+	function displayObligations()
+	{
+		$Id = $this->uri->segment(3);
+		$result = $this->loanApplication_model->displayObligations($Id);
+		foreach($result as $key=>$row)
+		{
+			$result[$key]['CreatedBy'] = $this->maintenance_model->getUserCreated($row['CreatedBy']);
+		}
+		echo json_encode($result);
+	}
+
 }
