@@ -60,6 +60,8 @@
           </ul>
         </li>
 
+        <li <?php if($sidebar == 'BorrowerManagement' && $sidebarMenu == 'BorrowerManagement'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/borrowers"><i class="fa fa-dashboard"></i>Borrower Management</a></li>
+
 
         <!-- <?php if(in_array('3', $access) || in_array('1', $access)) { ?>
           <li><a href="<?php echo base_url();?>home/Customers"><i class="fa fa-users"></i> <span>Clients</span></a></li>
