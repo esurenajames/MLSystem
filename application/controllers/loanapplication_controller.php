@@ -161,7 +161,7 @@ class loanapplication_controller extends CI_Controller {
             'Details'               => $_POST['Details'][$count],
             'CreatedBy'             => $EmployeeNumber
           );
-          $auditTable = 'application_has_monthlyexpenses';
+          $auditTable = 'application_has_monthlyexpense';
           $this->maintenance_model->insertFunction($insertData, $auditTable);
         }
       }
@@ -229,7 +229,7 @@ class loanapplication_controller extends CI_Controller {
               'StatusId'              => 5,
               'CreatedBy'             => $EmployeeNumber
             );
-            $auditTable = 'application_has_approvers';
+            $auditTable = 'application_has_approver';
             $this->maintenance_model->insertFunction($insertData, $auditTable);
           }
         }
@@ -264,7 +264,7 @@ class loanapplication_controller extends CI_Controller {
         'ApplicationId'   => $this->uri->segment(3),
         'ApproverNumber'  => $EmployeeNumber
       );
-      $table = 'application_has_approvers';
+      $table = 'application_has_approver';
       $this->maintenance_model->updateFunction1($set, $condition, $table);
 
       $insertData = array(
@@ -285,7 +285,7 @@ class loanapplication_controller extends CI_Controller {
         'ApplicationId'   => $this->uri->segment(3),
         'ApproverNumber'  => $EmployeeNumber
       );
-      $table = 'application_has_approvers';
+      $table = 'application_has_approver';
       $this->maintenance_model->updateFunction1($set, $condition, $table);
 
       $insertData = array(
@@ -309,20 +309,75 @@ class loanapplication_controller extends CI_Controller {
     $DateNow = date("Y-m-d H:i:s");
     if ($_POST['FormType'] == 1) // add Comment
     {
-        // insert Comment
-          $insertComment = array(
-             'ApplicationId'              => $this->uri->segment(3)
-            , 'Comment'                   => htmlentities($_POST['Comment'], ENT_QUOTES)
-            , 'CreatedBy'                 => $EmployeeNumber
-            , 'UpdatedBy'                 => $EmployeeNumber
-          );
-          $insertCommentTable = 'Application_has_Comments';
-          $this->maintenance_model->insertFunction($insertComment, $insertCommentTable);
-        // notification
-          $this->session->set_flashdata('alertTitle','Success!'); 
-          $this->session->set_flashdata('alertText','Comment successfully Added!'); 
-          $this->session->set_flashdata('alertType','success'); 
-          redirect('home/loandetail/'. $this->uri->segment(3));
+      // insert Comment
+        $insertComment = array(
+           'ApplicationId'              => $this->uri->segment(3)
+          , 'Comment'                   => htmlentities($_POST['Comment'], ENT_QUOTES)
+          , 'CreatedBy'                 => $EmployeeNumber
+          , 'UpdatedBy'                 => $EmployeeNumber
+        );
+        $insertCommentTable = 'Application_has_Comments';
+        $this->maintenance_model->insertFunction($insertComment, $insertCommentTable);
+
+      $path = './uploads/';
+
+      $config = array(
+        'upload_path' => $path,
+        'allowed_types' => 'jpg|jpeg|png|pdf|xlsx|docx|xls',
+        'overwrite' => 1
+      );
+
+      $this->load->library('upload', $config);
+
+      $files = $_FILES['Attachment'];
+      $fileName = "";
+      $images = array();
+      foreach ($files['name'] as $key => $image) 
+      {
+        $file_ext = pathinfo($image, PATHINFO_EXTENSION);
+        $_FILES['Attachment[]']['name']= $files['name'][$key];
+        $_FILES['Attachment[]']['type']= $files['type'][$key];
+        $_FILES['Attachment[]']['tmp_name']= $files['tmp_name'][$key];
+        $_FILES['Attachment[]']['error']= $files['error'][$key];
+        $_FILES['Attachment[]']['size']= $files['size'][$key];
+        $uniq_id = uniqid();
+        $fileName = $uniq_id.'.'.$file_ext;
+        $fileName = str_replace(" ","_",$fileName);
+
+        $config['file_name'] = $fileName;
+        $Title = $_FILES['Attachment[]']['name'];
+
+        $this->upload->initialize($config);
+        if ($this->upload->do_upload('Attachment[]')) 
+        {
+          $this->upload->data();
+          // get generated application id
+            $getData = array(
+              'table'                 => 'Application_has_Comments'
+              , 'column'              => 'CommentId'
+              , 'CreatedBy'           => $EmployeeNumber
+            );
+            $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+            $insertComment = array(
+              'CommentId'                 => $generatedId['CommentId']
+              , 'FileName'                  => $fileName
+              , 'Title'                     => $Title
+              , 'CreatedBy'                 => $EmployeeNumber
+              , 'UpdatedBy'                 => $EmployeeNumber
+            );
+            $insertCommentTable = 'comments_has_attachments';
+            $this->maintenance_model->insertFunction($insertComment, $insertCommentTable);
+        }
+        else
+        {
+            $fileName = "";
+        }
+      }
+      // notification
+        $this->session->set_flashdata('alertTitle','Success!'); 
+        $this->session->set_flashdata('alertText','Comment successfully Added!'); 
+        $this->session->set_flashdata('alertType','success'); 
+        redirect('home/loandetail/'. $this->uri->segment(3));
     }
   }
 
@@ -362,6 +417,7 @@ class loanapplication_controller extends CI_Controller {
         'Source'                 => htmlentities($_POST['Expense'], ENT_QUOTES)
         , 'Details'              => htmlentities($_POST['Detail'], ENT_QUOTES)
         , 'Amount'               => htmlentities($_POST['Amount'], ENT_QUOTES)
+        , 'ID'                    => $this->uri->segment(3)
       );
       $query = $this->loanapplication_model->countExpense($data);
       print_r($query);
@@ -377,7 +433,7 @@ class loanapplication_controller extends CI_Controller {
             , 'CreatedBy'                 => $EmployeeNumber
             , 'UpdatedBy'                 => $EmployeeNumber
           );
-          $insertExpenseTable = 'application_has_monthlyexpenses';
+          $insertExpenseTable = 'application_has_monthlyexpense';
           $this->maintenance_model->insertFunction($insertExpense, $insertExpenseTable);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 

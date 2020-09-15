@@ -196,12 +196,12 @@ class loanapplication_model extends CI_Model
                                               , A.ApplicationId
                                               , LS.IsApprovable
                                               , (SELECT COUNT(*) 
-                                                    FROM application_has_approvers
+                                                    FROM application_has_approver
                                                       WHERE ApplicationId = A.ApplicationId
                                                       AND StatusId = 5
                                               ) as PendingApprovers
                                               , (SELECT COUNT(*) 
-                                                    FROM application_has_approvers
+                                                    FROM application_has_approver
                                                       WHERE ApplicationId = A.ApplicationId
                                                       AND StatusId != 6
                                               ) as ProcessedApprovers
@@ -237,14 +237,17 @@ class loanapplication_model extends CI_Model
     return $data;
   }
 
-  function displayComments($ID)
+  function getLoanComments($ID)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $query_string = $this->db->query("SELECT  AC.ApplicationId
                                               , AC.Comment
                                               , AC.CreatedBy
                                               , DATE_FORMAT(AC.DateCreated, '%b %d, %Y %r') as DateCreated
+                                              , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as Name
                                               FROM Application_has_Comments AC
+                                                INNER JOIN r_employee EMP
+                                                  ON EMP.EmployeeNumber = AC.CreatedBy
                                                     WHERE AC.ApplicationId = $ID
     ");
     $data = $query_string->result_array();
@@ -271,7 +274,7 @@ class loanapplication_model extends CI_Model
     return $data;
   }
 
-  function displayIncomes($ID)
+  function getIncome($ID)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $query_string = $this->db->query("SELECT  AI.ApplicationId
@@ -283,16 +286,19 @@ class loanapplication_model extends CI_Model
                                               , AI.StatusId
                                               , S.Description
                                               , DATE_FORMAT(AI.DateCreated, '%b %d, %Y %r') as DateCreated
+                                              , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as Name
                                               FROM Application_has_MonthlyIncome AI
-                                                  INNER JOIN r_status S
-                                                    ON S.StatusId = AI.StatusId
+                                                INNER JOIN r_status S
+                                                  ON S.StatusId = AI.StatusId
+                                                LEFT JOIN R_Employee EMP
+                                                  ON EMP.EmployeeNumber = AI.CreatedBy
                                                     WHERE AI.ApplicationId = $ID
     ");
     $data = $query_string->result_array();
     return $data;
   }
 
-  function displayExpenses($ID)
+  function getExpenses($ID)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $query_string = $this->db->query("SELECT  AE.ApplicationId
@@ -304,16 +310,19 @@ class loanapplication_model extends CI_Model
                                               , AE.StatusId
                                               , S.Description
                                               , DATE_FORMAT(AE.DateCreated, '%b %d, %Y %r') as DateCreated
-                                              FROM Application_has_MonthlyExpenses AE
-                                                  INNER JOIN r_status S
-                                                    ON S.StatusId = AE.StatusId
+                                              , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as Name
+                                              FROM Application_has_MonthlyExpense AE
+                                                INNER JOIN r_status S
+                                                  ON S.StatusId = AE.StatusId
+                                                LEFT JOIN R_Employee EMP
+                                                  ON EMP.EmployeeNumber = AE.CreatedBy
                                                     WHERE AE.ApplicationId = $ID
     ");
     $data = $query_string->result_array();
     return $data;
   }
 
-  function displayObligations($ID)
+  function getLoanObligations($ID)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $query_string = $this->db->query("SELECT  AO.ApplicationId
@@ -325,9 +334,12 @@ class loanapplication_model extends CI_Model
                                               , AO.StatusId
                                               , S.Description
                                               , DATE_FORMAT(AO.DateCreated, '%b %d, %Y %r') as DateCreated
+                                              , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as Name
                                               FROM Application_has_MonthlyObligation AO
                                                 INNER JOIN r_status S
-                                                    ON S.StatusId = AO.StatusId
+                                                  ON S.StatusId = AO.StatusId
+                                                LEFT JOIN R_Employee EMP
+                                                  ON EMP.EmployeeNumber = AO.CreatedBy
                                                     WHERE AO.ApplicationId = $ID
     ");
     $data = $query_string->result_array();
@@ -337,11 +349,11 @@ class loanapplication_model extends CI_Model
   function countExpense($data)
   {
     $query_string = $this->db->query("SELECT  * 
-                                              FROM Application_has_MonthlyExpenses
+                                              FROM Application_has_MonthlyExpense
                                                 WHERE Source = '".$data['Source']."'
                                                 AND Details = '".$data['Detail']."'
                                                 AND Amount = '".$data['Amount']."'
-                                                AND ApplicationId = '".$data['Id']."'
+                                                AND ApplicationId = '".$data['ID']."'
     ");
     $data = $query_string->num_rows();
     return $data;
@@ -381,7 +393,7 @@ class loanapplication_model extends CI_Model
                                               , S.Description
                                               , S.StatusId
                                               FROM t_application A
-                                                    INNER JOIN application_has_approvers AHA
+                                                    INNER JOIN application_has_approver AHA
                                                       ON AHA.ApplicationId = A.ApplicationId
                                                     INNER JOIN r_employee EMP
                                                       ON EMP.EmployeeNumber = AHA.ApproverNumber
@@ -448,7 +460,7 @@ class loanapplication_model extends CI_Model
     else if($input['Type'] == 'Expenses')
     {
       $ExpenseDetail = $this->db->query("SELECT  Source
-                                                  FROM Application_has_MonthlyExpenses
+                                                  FROM Application_has_MonthlyExpense
                                                     WHERE ExpenseId = ".$input['Id']."
       ")->row_array();
 
@@ -461,7 +473,7 @@ class loanapplication_model extends CI_Model
         $condition = array(
           'ExpenseId' => $input['Id']
         );
-        $table = 'Application_has_MonthlyExpenses';
+        $table = 'Application_has_MonthlyExpense';
         $this->maintenance_model->updateFunction1($set, $condition, $table);
       // insert into logs
         if($input['updateType'] == 2)

@@ -20,7 +20,7 @@
             <span aria-hidden="true">&times;</span></button>
           <h4 class="modal-title" id="modalComment">Add Comment</h4>
         </div>
-        <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddComment/<?php print_r($detail['ApplicationId']) ?>" method="post">
+        <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddComment/<?php print_r($detail['ApplicationId']) ?>" method="post" enctype="multipart/form-data">
           <div class="modal-body">
             <div class="row">
               <div class="col-md-12">
@@ -28,6 +28,8 @@
                 <textarea class="form-control" name="Comment"></textarea>
                 <input type="hidden" id="txtComment">
                 <input type="hidden" name="FormType" id="txtFormType" value="1">
+                <label>Document Attachment</label>
+                <input type="file" name="Attachment[]" multiple="" id="Attachment" accept=".jpeg, .jpg, .png">
               </div>
             </div>
           </div>
@@ -319,7 +321,7 @@
               <li><a href="#tabPenalty" data-toggle="tab" title="Penalty Settings"><span class="fa fa-institution"></span></a></li>
               <li><a href="#tabCollateral" data-toggle="tab" title="Loan Collateral"><span class="fa fa-navicon "></span></a></li>
               <li><a href="#tabRequirements" data-toggle="tab" title="Loan Requirements"><span class="fa fa-clipboard "></span></a></li>
-              <li><a href="#tabIncome" data-toggle="tab" title="Sources of Income"><span class="fa fa-credit-card "></span></a></li>
+              <li><a href="#tabIncome" data-toggle="tab" title="Sources of Other Income"><span class="fa fa-credit-card "></span></a></li>
               <li><a href="#tabExpense" data-toggle="tab" title="Monthly Expense"><span class="fa fa-database "></span></a></li>
               <li><a href="#tabObligations" data-toggle="tab" title="Monthly Obligation"><span class="fa fa-certificate "></span></a></li>
               <li><a href="#tabComments" data-toggle="tab" title="Comments"><span class="fa fa-comment "></span></a></li>
@@ -428,8 +430,8 @@
                 </table>
               </div>
               <div class="tab-pane" id="tabIncome">
-              	<h4>Sources of Income</h4>
-              	<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalIncome">Add Comment</a>
+              	<h4>Sources of Other Income</h4>
+              	<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalIncome">Add Income</a>
               	<br>
               	<br>
                 <table id="dtblIncome" class="table table-bordered table-hover" style="width: 100%">
@@ -440,17 +442,36 @@
                     <th>Details</th>
                     <th>Amount</th>
                     <th>Status</th>
+                    <th>Created By</th>
+                    <th>Date Creation</th>
                     <th>Action</th>
                   </tr>
                   </thead>
                   <tbody>
+                    <?php 
+                      $rowNumber = 0;
+                      foreach ($income as $value) 
+                      {
+                        $rowNumber = $rowNumber + 1;
+                        echo "<tr>";
+                        echo "<td>".$rowNumber."</td>";
+                        echo "<td>".$value['Source']."</td>";
+                        echo "<td>".$value['Details']."</td>";
+                        echo "<td>".number_format($value['Amount'], 2)."</td>";
+                        echo "<td>".$value['Description']."</td>";
+                        echo "<td>".$value['Name']."</td>";
+                        echo "<td>".$value['DateCreated']."</td>";
+                        echo '<td><a class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a> <a class="btn btn-default btn-sm" title="Download"><span class="fa fa-download"></span></a> <a class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a></td> ';
+                        echo "</tr>";
+                      }
+                    ?>
                   </tbody>
                 </table>
               </div>
               <div class="tab-pane" id="tabExpense">
               	<h4>Monthly Expenses</h4>
               	<br>
-              	<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalExpense">Add Comment</a>
+              	<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalExpense">Add Expense</a>
               	<br>
               	<br>
                 <table id="dtblExpense" class="table table-bordered table-hover" style="width: 100%">
@@ -461,17 +482,36 @@
                     <th>Details</th>
                     <th>Amount</th>
                     <th>Status</th>
+                    <th>Created By</th>
+                    <th>Date Creation</th>
                     <th>Action</th>
                   </tr>
                   </thead>
                   <tbody>
+                    <?php 
+                      $rowNumber = 0;
+                      foreach ($expense as $value) 
+                      {
+                        $rowNumber = $rowNumber + 1;
+                        echo "<tr>";
+                        echo "<td>".$rowNumber."</td>";
+                        echo "<td>".$value['Source']."</td>";
+                        echo "<td>".$value['Details']."</td>";
+                        echo "<td>".number_format($value['Amount'], 2)."</td>";
+                        echo "<td>".$value['Description']."</td>";
+                        echo "<td>".$value['DateCreated']."</td>";
+                        echo "<td>".$value['DateCreated']."</td>";
+                        echo '<td><a class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a> <a class="btn btn-default btn-sm" title="Download"><span class="fa fa-download"></span></a> <a class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a></td> ';
+                        echo "</tr>";
+                      }
+                    ?>
                   </tbody>
                 </table>
               </div>
               <div class="tab-pane" id="tabObligations">
               	<h4>Monthly Obligations</h4>
               	<br>
-              	<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modelRepayment">Add Comment</a>
+              	<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalObligation">Add Obligations</a>
               	<br>
               	<br>
                 <table id="dtblObligations" class="table table-bordered table-hover" style="width: 100%">
@@ -482,10 +522,29 @@
                     <th>Details</th>
                     <th>Amount</th>
                     <th>Status</th>
+                    <th>Created By</th>
+                    <th>Date Creation</th>
                     <th>Action</th>
                   </tr>
                   </thead>
                   <tbody>
+                    <?php 
+                      $rowNumber = 0;
+                      foreach ($obligations as $value) 
+                      {
+                        $rowNumber = $rowNumber + 1;
+                        echo "<tr>";
+                        echo "<td>".$rowNumber."</td>";
+                        echo "<td>".$value['Source']."</td>";
+                        echo "<td>".$value['Details']."</td>";
+                        echo "<td>".number_format($value['Amount'], 2)."</td>";
+                        echo "<td>".$value['Description']."</td>";
+                        echo "<td>".$value['DateCreated']."</td>";
+                        echo "<td>".$value['DateCreated']."</td>";
+                        echo '<td><a class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a> <a class="btn btn-default btn-sm" title="Download"><span class="fa fa-download"></span></a> <a class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a></td> ';
+                        echo "</tr>";
+                      }
+                    ?>
                   </tbody>
                 </table>
               </div>
@@ -506,6 +565,20 @@
                   </tr>
                   </thead>
                   <tbody>
+                    <?php 
+                      $rowNumber = 0;
+                      foreach ($comments as $value) 
+                      {
+                        $rowNumber = $rowNumber + 1;
+                        echo "<tr>";
+                        echo "<td>".$rowNumber."</td>";
+                        echo "<td>".$value['Comment']."</td>";
+                        echo "<td>".$value['Name']."</td>";
+                        echo "<td>".$value['DateCreated']."</td>";
+                        echo '<td><a class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a> <a class="btn btn-default btn-sm" title="Download"><span class="fa fa-download"></span></a> <a class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a></td> ';
+                        echo "</tr>";
+                      }
+                    ?>
                   </tbody>
                 </table>
               </div>
@@ -560,109 +633,20 @@
     // "aoColumnDefs": [{ "bVisible": false, "aTargets": [7] }],
     "order": [[0, "desc"]]
   });
+
   $('#dtblComments').DataTable({
-    "pageLength": 10,
-    "ajax": { url: '<?php echo base_url()."/datatables_controller/displayComments/"; ?><?php print_r($detail['ApplicationId']) ?>', type: 'POST', "dataSrc": "" },
-    "columns": [  
-      { data: "ApplicationId", "render": function (data, type, b) {
-          rowNumber = rowNumber + 1;
-          return rowNumber;
-        }
-      }
-      , { data: "Comment" }
-      , { data: "CreatedBy" }
-      , { data: "DateCreated" }
-    ],
     // "aoColumnDefs": [{ "bVisible": false, "aTargets": [7] }],
     "order": [[0, "desc"]]
   });
   $('#dtblIncome').DataTable({
-    "pageLength": 10,
-    "ajax": { url: '<?php echo base_url()."/datatables_controller/displayIncomes/"; ?><?php print_r($detail['ApplicationId']) ?>', type: 'POST', "dataSrc": "" },
-    "columns": [  
-      { data: "ApplicationId", "render": function (data, type, b) {
-          rowNumber = rowNumber + 1;
-          return rowNumber;
-        }
-      }
-      , { data: "Source" }
-      , { data: "Details" }
-      , { data: "Amount" }
-      , { data: "Description" }
-      , {
-          data: "StatusId", "render": function (data, type, row) {
-          if(row.StatusId == 2){
-              return '<a onclick="confirm(\'Are you sure you want to deactivate this Income?\', \''+row.IncomeId+'\', 6, \'Incomes\')" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a> <a onclick="Edit('+row.IncomeId+')" data-toggle="modal" data-target="#modalNewBank" class="btn btn-info" title="Edit"><span class="fa fa-edit"></span></a>';
-            }
-            else if(row.StatusId == 6){
-              return '<a onclick="confirm(\'Are you sure you want to re-activate this Income?\', \''+row.IncomeId+'\', 2, \'Incomes\')" class="btn btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
-            }
-            else{
-              return "N/A";
-            }
-          }
-        },
-    ],
     // "aoColumnDefs": [{ "bVisible": false, "aTargets": [7] }],
     "order": [[0, "desc"]]
   });
   $('#dtblExpense').DataTable({
-    "pageLength": 10,
-    "ajax": { url: '<?php echo base_url()."/datatables_controller/displayExpenses/"; ?><?php print_r($detail['ApplicationId']) ?>', type: 'POST', "dataSrc": "" },
-    "columns": [  
-      { data: "ApplicationId", "render": function (data, type, b) {
-          rowNumber = rowNumber + 1;
-          return rowNumber;
-        }
-      }
-      , { data: "Source" }
-      , { data: "Details" }
-      , { data: "Amount" }
-      , { data: "Description" }
-      , {
-          data: "StatusId", "render": function (data, type, row) {
-          if(row.StatusId == 2){
-              return '<a onclick="confirm(\'Are you sure you want to deactivate this Expense?\', \''+row.ExpenseId+'\', 6, \'Expenses\')" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a> <a onclick="Edit('+row.ExpenseId+')" data-toggle="modal" data-target="#modalNewBank" class="btn btn-info" title="Edit"><span class="fa fa-edit"></span></a>';
-            }
-            else if(row.StatusId == 6){
-              return '<a onclick="confirm(\'Are you sure you want to re-activate this Expense?\', \''+row.ExpenseId+'\', 2, \'Expenses\')" class="btn btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
-            }
-            else{
-              return "N/A";
-            }
-          }
-        },
-    ],
     // "aoColumnDefs": [{ "bVisible": false, "aTargets": [7] }],
     "order": [[0, "desc"]]
   });
   $('#dtblObligations').DataTable({
-    "pageLength": 10,
-    "ajax": { url: '<?php echo base_url()."/datatables_controller/displayObligations/"; ?><?php print_r($detail['ApplicationId']) ?>', type: 'POST', "dataSrc": "" },
-    "columns": [  
-      { data: "ApplicationId", "render": function (data, type, b) {
-          rowNumber = rowNumber + 1;
-          return rowNumber;
-        }
-      }
-      , { data: "Source" }
-      , { data: "Details" }
-      , { data: "Amount" }
-      , { data: "Description" }
-      , {
-          data: "StatusId", "render": function (data, type, row) {
-          if(row.StatusId == 2){
-              return '<a onclick="confirm(\'Are you sure you want to deactivate this Obligation?\', \''+row.MonthlyObligationId+'\', 6, \'Obligations\')" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a> <a onclick="Edit('+row.MonthlyObligationId+')" data-toggle="modal" data-target="#modalObligation" class="btn btn-info" title="Edit"><span class="fa fa-edit"></span></a>';
-            }
-            else if(row.StatusId == 6){
-              return '<a onclick="confirm(\'Are you sure you want to re-activate this Obligation?\', \''+row.MonthlyObligationId+'\', 2, \'Obligations\')" class="btn btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
-            }
-            else{
-              return "N/A";
-            }
-          }
-        },
-    ],
     // "aoColumnDefs": [{ "bVisible": false, "aTargets": [7] }],
     "order": [[0, "desc"]]
   });
