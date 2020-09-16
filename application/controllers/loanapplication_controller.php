@@ -384,9 +384,20 @@ class loanapplication_controller extends CI_Controller {
   function AddObligation()
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $ObligationDetail = $this->loanapplication_model->getObligationDetails($_POST['MonthlyObligationId']);
     $DateNow = date("Y-m-d H:i:s");
     if ($_POST['FormType'] == 1) // add Obligation
     {
+      $data = array(
+        'Source'                     => htmlentities($_POST['Obligation'], ENT_QUOTES)
+        , 'Details'                  => htmlentities($_POST['Detail'], ENT_QUOTES)
+        , 'Amount'                   => htmlentities($_POST['Amount'], ENT_QUOTES)
+        , 'ApplicationId'            => $this->uri->segment(3)
+      );
+      $query = $this->loanapplication_model->countObligation($data);
+      print_r($query);
+      if($query == 0) // not existing
+      {
         // insert Obligation Details
           $insertObligation = array(
              'ApplicationId'              => $this->uri->segment(3)
@@ -404,28 +415,124 @@ class loanapplication_controller extends CI_Controller {
           $this->session->set_flashdata('alertText','Obligation successfully Added!'); 
           $this->session->set_flashdata('alertType','success'); 
           redirect('home/loandetail/'. $this->uri->segment(3));
+      }
+      else
+      {
+        // notification
+          $this->session->set_flashdata('alertTitle','Warning!'); 
+          $this->session->set_flashdata('alertText','Obligation already existing!'); 
+          $this->session->set_flashdata('alertType','warning'); 
+          redirect('home/loandetail/'. $this->uri->segment(3));
+      }
+    }
+    else if($_POST['FormType'] == 2) // edit Obligation Details 
+    {
+      $data = array(
+        'Source'                    => htmlentities($_POST['Obligation'], ENT_QUOTES)
+        , 'Details'                 => htmlentities($_POST['Detail'], ENT_QUOTES)
+        , 'Amount'                  => htmlentities($_POST['Amount'], ENT_QUOTES)
+        , 'ApplicationId'           => $this->uri->segment(3)
+      );
+      $query = $this->loanapplication_model->countObligation($data);
+      if($query == 0)
+      {
+        if($ObligationDetail['Source'] != htmlentities($_POST['Obligation'], ENT_QUOTES))
+        {
+          // add into audit table
+            $auditDetail = 'Updated details of  '.$ObligationDetail['Source'].' to '.htmlentities($_POST['Obligation'], ENT_QUOTES);
+            $insertAudit = array(
+              'Description' => $auditDetail,
+              'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'R_Logs';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+          // update function
+            $set = array( 
+              'Source' => htmlentities($_POST['Obligation'], ENT_QUOTES)
+            );
+            $condition = array( 
+              'MonthlyObligationId' => $_POST['MonthlyObligationId']
+            );
+            $table = 'application_has_monthlyobligation';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+        }
+        if($ObligationDetail['Details'] != htmlentities($_POST['Detail'], ENT_QUOTES))
+        {
+          // add into audit table
+            $auditDetail = 'Updated details of  '.$ObligationDetail['Details'].' to '.htmlentities($_POST['Detail'], ENT_QUOTES);
+            $insertAudit = array(
+              'Description' => $auditDetail,
+              'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'R_Logs';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+          // update function
+            $set = array(
+              'Details' => htmlentities($_POST['Detail'], ENT_QUOTES)
+            );
+            $condition = array(
+              'MonthlyObligationId' => $_POST['MonthlyObligationId']
+            );
+            $table = 'application_has_monthlyobligation';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+        }
+        if($ObligationDetail['Amount'] != htmlentities($_POST['Amount'], ENT_QUOTES))
+        {
+          // add into audit table
+            $auditDetail = 'Updated details of  '.$ObligationDetail['Amount'].' to '.htmlentities($_POST['Amount'], ENT_QUOTES);
+            $insertAudit = array(
+              'Description' => $auditDetail,
+              'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'R_Logs';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+          // update function
+            $set = array( 
+              'Amount' => htmlentities($_POST['Amount'], ENT_QUOTES)
+            );
+            $condition = array( 
+              'MonthlyObligationId' => $_POST['MonthlyObligationId']
+            );
+            $table = 'application_has_monthlyobligation';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+        }
+        // notif
+          $this->session->set_flashdata('alertTitle','Success!'); 
+          $this->session->set_flashdata('alertText','Obligation details successfully updated!'); 
+          $this->session->set_flashdata('alertType','success'); 
+          redirect('home/loandetail/'. $this->uri->segment(3));
+      }
+    }
+    else // if existing
+    {
+      // notif
+      $this->session->set_flashdata('alertTitle','Warning!'); 
+      $this->session->set_flashdata('alertText','Obligation details already existing!'); 
+      $this->session->set_flashdata('alertType','warning'); 
+      redirect('home/loandetail/'. $this->uri->segment(3));
     }
   }
 
   function AddExpense()
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $ExpenseDetail = $this->loanapplication_model->getExpenseDetails($_POST['ExpenseId']);
     $DateNow = date("Y-m-d H:i:s");
-    if ($_POST['FormType'] == 1) // add Expense
+    if ($_POST['FormTypeExpense'] == 1) // add Expense
     {
       $data = array(
-        'Source'                 => htmlentities($_POST['Expense'], ENT_QUOTES)
-        , 'Details'              => htmlentities($_POST['Detail'], ENT_QUOTES)
-        , 'Amount'               => htmlentities($_POST['Amount'], ENT_QUOTES)
-        , 'ID'                    => $this->uri->segment(3)
+        'Source'                     => htmlentities($_POST['Expense'], ENT_QUOTES)
+        , 'Details'                  => htmlentities($_POST['Detail'], ENT_QUOTES)
+        , 'Amount'                   => htmlentities($_POST['Amount'], ENT_QUOTES)
+        , 'ApplicationId'            => $this->uri->segment(3)
       );
       $query = $this->loanapplication_model->countExpense($data);
       print_r($query);
       if($query == 0) // not existing
       {
-        // insert Expense details
+        // insert Expense Details
           $insertExpense = array(
-            'ApplicationId'               => $this->uri->segment(3)
+             'ApplicationId'              => $this->uri->segment(3)
             , 'Source'                    => htmlentities($_POST['Expense'], ENT_QUOTES)
             , 'Details'                   => htmlentities($_POST['Detail'], ENT_QUOTES)
             , 'Amount'                    => htmlentities($_POST['Amount'], ENT_QUOTES)
@@ -433,11 +540,11 @@ class loanapplication_controller extends CI_Controller {
             , 'CreatedBy'                 => $EmployeeNumber
             , 'UpdatedBy'                 => $EmployeeNumber
           );
-          $insertExpenseTable = 'application_has_monthlyexpense';
+          $insertExpenseTable = 'application_has_Expense';
           $this->maintenance_model->insertFunction($insertExpense, $insertExpenseTable);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
-          $this->session->set_flashdata('alertText','Expense details successfully recorded!'); 
+          $this->session->set_flashdata('alertText','Expense successfully Added!'); 
           $this->session->set_flashdata('alertType','success'); 
           redirect('home/loandetail/'. $this->uri->segment(3));
       }
@@ -445,9 +552,87 @@ class loanapplication_controller extends CI_Controller {
       {
         // notification
           $this->session->set_flashdata('alertTitle','Warning!'); 
-          $this->session->set_flashdata('alertText','Expense details already existing!'); 
+          $this->session->set_flashdata('alertText','Expense already existing!'); 
           $this->session->set_flashdata('alertType','warning'); 
-          redirect('home/loandetail'. $this->uri->segment(3));
+          redirect('home/loandetail/'. $this->uri->segment(3));
+      }
+    }
+    else if($_POST['FormTypeExpense'] == 2) // edit Expense Details 
+    {
+      $data = array(
+        'Source'                    => htmlentities($_POST['Expense'], ENT_QUOTES)
+        , 'Details'                 => htmlentities($_POST['Detail'], ENT_QUOTES)
+        , 'Amount'                  => htmlentities($_POST['Amount'], ENT_QUOTES)
+        , 'ApplicationId'           => $this->uri->segment(3)
+      );
+      $query = $this->loanapplication_model->countExpense($data);
+      if($query == 0)
+      {
+        if($ExpenseDetail['Source'] != htmlentities($_POST['Expense'], ENT_QUOTES))
+        {
+          // add into audit table
+            $auditDetail = 'Updated details of  '.$ExpenseDetail['Source'].' to '.htmlentities($_POST['Expense'], ENT_QUOTES);
+            $insertAudit = array(
+              'Description' => $auditDetail,
+              'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'R_Logs';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+          // update function
+            $set = array( 
+              'Source' => htmlentities($_POST['Expense'], ENT_QUOTES)
+            );
+            $condition = array( 
+              'ExpenseId' => $_POST['ExpenseId']
+            );
+            $table = 'application_has_Expense';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+        }
+        if($ExpenseDetail['Details'] != htmlentities($_POST['Detail'], ENT_QUOTES))
+        {
+          // add into audit table
+            $auditDetail = 'Updated details of  '.$ExpenseDetail['Details'].' to '.htmlentities($_POST['Detail'], ENT_QUOTES);
+            $insertAudit = array(
+              'Description' => $auditDetail,
+              'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'R_Logs';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+          // update function
+            $set = array(
+              'Details' => htmlentities($_POST['Detail'], ENT_QUOTES)
+            );
+            $condition = array(
+              'ExpenseId' => $_POST['ExpenseId']
+            );
+            $table = 'application_has_Expense';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+        }
+        if($ExpenseDetail['Amount'] != htmlentities($_POST['Amount'], ENT_QUOTES))
+        {
+          // add into audit table
+            $auditDetail = 'Updated details of  '.$ExpenseDetail['Amount'].' to '.htmlentities($_POST['Amount'], ENT_QUOTES);
+            $insertAudit = array(
+              'Description' => $auditDetail,
+              'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'R_Logs';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+          // update function
+            $set = array( 
+              'Amount' => htmlentities($_POST['Amount'], ENT_QUOTES)
+            );
+            $condition = array( 
+              'ExpenseId' => $_POST['ExpenseId']
+            );
+            $table = 'application_has_Expense';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+        }
+        // notif
+          $this->session->set_flashdata('alertTitle','Success!'); 
+          $this->session->set_flashdata('alertText','Expense details successfully updated!'); 
+          $this->session->set_flashdata('alertType','success'); 
+          redirect('home/loandetail/'. $this->uri->segment(3));
       }
     }
   }
@@ -455,6 +640,7 @@ class loanapplication_controller extends CI_Controller {
   function Addincome()
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $IncomeDetail = $this->loanapplication_model->getIncomeDetails($_POST['IncomeId']);
     $DateNow = date("Y-m-d H:i:s");
     if ($_POST['FormType'] == 1) // add Income
     {
@@ -468,7 +654,7 @@ class loanapplication_controller extends CI_Controller {
       if($query == 0) // not existing
       {
         // insert Income details
-          $insertExpense = array(
+          $insertIncome = array(
             'ApplicationId'               => $this->uri->segment(3)
             , 'Source'                    => htmlentities($_POST['Source'], ENT_QUOTES)
             , 'Details'                   => htmlentities($_POST['Detail'], ENT_QUOTES)
@@ -477,8 +663,8 @@ class loanapplication_controller extends CI_Controller {
             , 'CreatedBy'                 => $EmployeeNumber
             , 'UpdatedBy'                 => $EmployeeNumber
           );
-          $insertExpenseTable = 'application_has_monthlyIncome';
-          $this->maintenance_model->insertFunction($insertExpense, $insertExpenseTable);
+          $insertIncomeTable = 'application_has_monthlyIncome';
+          $this->maintenance_model->insertFunction($insertIncome, $insertIncomeTable);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Source of Income details successfully recorded!'); 
@@ -494,6 +680,224 @@ class loanapplication_controller extends CI_Controller {
           redirect('home/loandetail'. $this->uri->segment(3));
       }
     }
+    else if($_POST['FormType'] == 2) // edit Income Details 
+    {
+      $data = array(
+        'Source'                    => htmlentities($_POST['Source'], ENT_QUOTES)
+        , 'Details'                 => htmlentities($_POST['Detail'], ENT_QUOTES)
+        , 'Amount'                  => htmlentities($_POST['Amount'], ENT_QUOTES)
+        , 'ApplicationId'           => $this->uri->segment(3)
+      );
+      $query = $this->loanapplication_model->countExpense($data);
+      if($query == 0)
+      {
+        if($IncomeDetail['Source'] != htmlentities($_POST['Source'], ENT_QUOTES))
+        {
+          // add into audit table
+            $auditDetail = 'Updated details of  '.$IncomeDetail['Source'].' to '.htmlentities($_POST['Source'], ENT_QUOTES);
+            $insertAudit = array(
+              'Description' => $auditDetail,
+              'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'R_Logs';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+          // update function
+            $set = array( 
+              'Source' => htmlentities($_POST['Source'], ENT_QUOTES)
+            );
+            $condition = array( 
+              'IncomeId' => $_POST['IncomeId']
+            );
+            $table = 'application_has_MonthlyIncome';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+        }
+        if($IncomeDetail['Details'] != htmlentities($_POST['Detail'], ENT_QUOTES))
+        {
+          // add into audit table
+            $auditDetail = 'Updated details of  '.$IncomeDetail['Details'].' to '.htmlentities($_POST['Detail'], ENT_QUOTES);
+            $insertAudit = array(
+              'Description' => $auditDetail,
+              'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'R_Logs';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+          // update function
+            $set = array(
+              'Details' => htmlentities($_POST['Detail'], ENT_QUOTES)
+            );
+            $condition = array(
+              'IncomeId' => $_POST['IncomeId']
+            );
+            $table = 'application_has_monthlyincome';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+        }
+        if($IncomeDetail['Amount'] != htmlentities($_POST['Amount'], ENT_QUOTES))
+        {
+          // add into audit table
+            $auditDetail = 'Updated details of  '.$IncomeDetail['Amount'].' to '.htmlentities($_POST['Amount'], ENT_QUOTES);
+            $insertAudit = array(
+              'Description' => $auditDetail,
+              'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'R_Logs';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+          // update function
+            $set = array( 
+              'Amount' => htmlentities($_POST['Amount'], ENT_QUOTES)
+            );
+            $condition = array( 
+              'IncomeId' => $_POST['IncomeId']
+            );
+            $table = 'application_has_MonthlyIncome';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+        }
+        // notif
+          $this->session->set_flashdata('alertTitle','Success!'); 
+          $this->session->set_flashdata('alertText','Source of Income details successfully updated!'); 
+          $this->session->set_flashdata('alertType','success'); 
+          redirect('home/loandetail/'. $this->uri->segment(3));
+      }
+    }
+  }
+
+  function AddRequirement()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $RequirementDetail = $this->loanapplication_model->getRequirementDetails($_POST['RequirementId']);
+    $DateNow = date("Y-m-d H:i:s");
+    if ($_POST['FormType'] == 1) // add Requirement
+    {
+      $data = array(
+        'RequirementId'                 => htmlentities($_POST['Requirements'], ENT_QUOTES)
+      );
+      $query = $this->loanapplication_model->countRequirement($data);
+      print_r($query);
+      if($query == 0) // not existing
+      {
+        // insert Requirement details
+          $insertRequirement = array(
+            'ApplicationId'               => $this->uri->segment(3)
+            , 'RequirementId'             => htmlentities($_POST['Requirements'], ENT_QUOTES)
+            , 'StatusId'                  => 5
+            , 'CreatedBy'                 => $EmployeeNumber
+            , 'UpdatedBy'                 => $EmployeeNumber
+          );
+          $insertRequirementTable = 'application_has_requirements';
+          $this->maintenance_model->insertFunction($insertRequirement, $insertRequirementTable);
+        // notification
+          $this->session->set_flashdata('alertTitle','Success!'); 
+          $this->session->set_flashdata('alertText','Requirement successfully recorded!'); 
+          $this->session->set_flashdata('alertType','success'); 
+          redirect('home/loandetail/'. $this->uri->segment(3));
+      }
+      else
+      {
+        // notification
+          $this->session->set_flashdata('alertTitle','Warning!'); 
+          $this->session->set_flashdata('alertText','Requirement already existing!'); 
+          $this->session->set_flashdata('alertType','warning'); 
+          redirect('home/loandetail'. $this->uri->segment(3));
+      }
+    }
+    else if($_POST['FormType'] == 2) // edit Income Details 
+    {
+      $data = array(
+        'Source'                    => htmlentities($_POST['Source'], ENT_QUOTES)
+        , 'Details'                 => htmlentities($_POST['Detail'], ENT_QUOTES)
+        , 'Amount'                  => htmlentities($_POST['Amount'], ENT_QUOTES)
+        , 'ApplicationId'           => $this->uri->segment(3)
+      );
+      $query = $this->loanapplication_model->countExpense($data);
+      if($query == 0)
+      {
+        if($IncomeDetail['Source'] != htmlentities($_POST['Source'], ENT_QUOTES))
+        {
+          // add into audit table
+            $auditDetail = 'Updated details of  '.$IncomeDetail['Source'].' to '.htmlentities($_POST['Source'], ENT_QUOTES);
+            $insertAudit = array(
+              'Description' => $auditDetail,
+              'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'R_Logs';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+          // update function
+            $set = array( 
+              'Source' => htmlentities($_POST['Source'], ENT_QUOTES)
+            );
+            $condition = array( 
+              'IncomeId' => $_POST['IncomeId']
+            );
+            $table = 'application_has_MonthlyIncome';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+        }
+        if($IncomeDetail['Details'] != htmlentities($_POST['Detail'], ENT_QUOTES))
+        {
+          // add into audit table
+            $auditDetail = 'Updated details of  '.$IncomeDetail['Details'].' to '.htmlentities($_POST['Detail'], ENT_QUOTES);
+            $insertAudit = array(
+              'Description' => $auditDetail,
+              'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'R_Logs';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+          // update function
+            $set = array(
+              'Details' => htmlentities($_POST['Detail'], ENT_QUOTES)
+            );
+            $condition = array(
+              'IncomeId' => $_POST['IncomeId']
+            );
+            $table = 'application_has_monthlyincome';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+        }
+        if($IncomeDetail['Amount'] != htmlentities($_POST['Amount'], ENT_QUOTES))
+        {
+          // add into audit table
+            $auditDetail = 'Updated details of  '.$IncomeDetail['Amount'].' to '.htmlentities($_POST['Amount'], ENT_QUOTES);
+            $insertAudit = array(
+              'Description' => $auditDetail,
+              'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'R_Logs';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+          // update function
+            $set = array( 
+              'Amount' => htmlentities($_POST['Amount'], ENT_QUOTES)
+            );
+            $condition = array( 
+              'IncomeId' => $_POST['IncomeId']
+            );
+            $table = 'application_has_MonthlyIncome';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+        }
+        // notif
+          $this->session->set_flashdata('alertTitle','Success!'); 
+          $this->session->set_flashdata('alertText','Source of Income details successfully updated!'); 
+          $this->session->set_flashdata('alertType','success'); 
+          redirect('home/loandetail/'. $this->uri->segment(3));
+      }
+    }
+  }
+
+  function getObligationDetails()
+  {
+    $output = $this->loanapplication_model->getObligationDetails($this->input->post('Id'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getExpenseDetails()
+  {
+    $output = $this->loanapplication_model->getExpenseDetails($this->input->post('Id'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getIncomeDetails()
+  {
+    $output = $this->loanapplication_model->getIncomeDetails($this->input->post('Id'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
   }
 
   function getTenure()

@@ -261,7 +261,6 @@ class loanapplication_model extends CI_Model
     $query_string = $this->db->query("SELECT  AR.ApplicationId
                                               , AR.RequirementId
                                               , R.Name
-                                              , AR.CreatedBy
                                               , S.Description
                                               , DATE_FORMAT(AR.DateCreated, '%b %d, %Y %r') as DateCreated
                                               FROM Application_has_Requirements AR
@@ -398,9 +397,9 @@ class loanapplication_model extends CI_Model
     $query_string = $this->db->query("SELECT  * 
                                               FROM Application_has_Expense
                                                 WHERE Source = '".$data['Source']."'
-                                                AND Details = '".$data['Detail']."'
+                                                AND Details = '".$data['Details']."'
                                                 AND Amount = '".$data['Amount']."'
-                                                AND ApplicationId = '".$data['ID']."'
+                                                AND ApplicationId = '".$data['ApplicationId']."'
     ");
     $data = $query_string->num_rows();
     return $data;
@@ -411,9 +410,9 @@ class loanapplication_model extends CI_Model
     $query_string = $this->db->query("SELECT  * 
                                               FROM Application_has_MonthlyObligation
                                                 WHERE Source = '".$data['Source']."'
-                                                AND Details = '".$data['Detail']."'
+                                                AND Details = '".$data['Details']."'
                                                 AND Amount = '".$data['Amount']."'
-                                                AND ApplicationId = '".$data['Id']."'
+                                                AND ApplicationId = '".$data['ApplicationId']."'
     ");
     $data = $query_string->num_rows();
     return $data;
@@ -424,12 +423,76 @@ class loanapplication_model extends CI_Model
     $query_string = $this->db->query("SELECT  * 
                                               FROM Application_has_MonthlyIncome
                                                 WHERE Source = '".$data['Source']."'
-                                                AND Details = '".$data['Detail']."'
+                                                AND Details = '".$data['Details']."'
                                                 AND Amount = '".$data['Amount']."'
-                                                AND ApplicationId = '".$data['Id']."'
+                                                AND ApplicationId = '".$data['ApplicationId']."'
     ");
     $data = $query_string->num_rows();
     return $data;
+  }
+
+  function countRequirement($data)
+  {
+    $query_string = $this->db->query("SELECT  * 
+                                              FROM Application_has_Requirements
+                                                WHERE RequirementId = '".$data['Requirementid']."'
+                                                AND ApplicationId = '".$data['ApplicationId']."'
+    ");
+    $data = $query_string->num_rows();
+    return $data;
+  }
+
+  function getObligationDetails($Id)
+  {
+    $query_string = $this->db->query("SELECT  ApplicationId
+                                              , MonthlyObligationId
+                                              , Source
+                                              , Amount
+                                              , Details
+                                              FROM Application_has_MonthlyObligation 
+                                                WHERE MonthlyObligationId = '$Id'
+    ");
+    $ObligationDetail = $query_string->row_array();
+    return $ObligationDetail;
+  }
+
+  function getExpenseDetails($Id)
+  {
+    $query_string = $this->db->query("SELECT  ApplicationId
+                                              , ExpenseId
+                                              , Source
+                                              , Amount
+                                              , Details
+                                              FROM Application_has_Expense 
+                                                WHERE ExpenseId = '$Id'
+    ");
+    $ExpenseDetail = $query_string->row_array();
+    return $ExpenseDetail;
+  }
+
+  function getIncomeDetails($Id)
+  {
+    $query_string = $this->db->query("SELECT  ApplicationId
+                                              , IncomeId
+                                              , Source
+                                              , Amount
+                                              , Details
+                                              FROM Application_has_MonthlyIncome 
+                                                WHERE IncomeId = '$Id'
+    ");
+    $IncomeDetail = $query_string->row_array();
+    return $IncomeDetail;
+  }
+
+  function getRequirementDetails($Id)
+  {
+    $query_string = $this->db->query("SELECT  ApplicationId
+                                              , RequirementId
+                                              FROM Application_has_Requirements 
+                                                WHERE RequirementId = '$Id'
+    ");
+    $RequirementDetail = $query_string->row_array();
+    return $RequirementDetail;
   }
 
   function getApprovers($ID)
@@ -573,6 +636,30 @@ class loanapplication_model extends CI_Model
         $this->db->insert('R_Logs', $data2);
     }
   }
+
+    function getRequirements($Id)
+    {
+      $query = $this->db->query("SELECT DISTINCT RequirementId
+                                          , R.Name
+                                          , Description
+                                          , IsMandatory
+                                          FROM r_requirements R
+                                            INNER JOIN Requirement_has_type RT
+                                            ON R.RequirementTypeId = RT.RequirementTypeId
+                                            WHERE R.StatusId = 1 
+                                            AND requirementId NOT IN (SELECT RequirementId FROM Application_has_Requirements AR WHERE AR.ApplicationId = $Id )
+                                            AND RT.RequirementTypeId = (SELECT DISTINCT RR.RequirementTypeId FROM r_requirements RR
+                                                                            INNER JOIN Application_has_Requirements AHR 
+                                                                              ON AHR.RequirementId = RR.requirementId
+                                                                                WHERE AHR.ApplicationId = $Id)
+      ");
+      $output = '<option selected disabled value="">Select Requirement Type</option>';
+      foreach ($query->result() as $row)
+      {
+        $output .= '<option value="'.$row->RequirementId.'">'.$row->Name.'</option>';
+      }
+      return $output;
+    }
 
 
 }
