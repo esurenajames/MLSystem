@@ -73,7 +73,7 @@ class loanapplication_controller extends CI_Controller {
         'BorrowerMonthlyIncome'     => $_POST['BorrowerMonthlySalary'],
         'SpouseMonthlyIncome'       => $_POST['SpouseMonthlySalary'],
 
-        'IsPenalized'               => $_POST['IsPenalized'],
+        'IsPenalized'               => isset($_POST['IsPenalized']),
         'PenaltyType'               => $_POST['PenaltyType'],
         'PenaltyAmount'             => $_POST['PenaltyAmount'],
         'GracePeriod'               => $_POST['GracePeriod'],

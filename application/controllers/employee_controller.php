@@ -1088,9 +1088,9 @@ class employee_controller extends CI_Controller {
       $path = './borrowerpicture';
       $config = array
       (
-      'upload_path' => $path,
-      'allowed_types' => 'png|jpg|jpeg',
-      'overwrite' => 1
+        'upload_path' => $path,
+        'allowed_types' => 'png|jpg|jpeg',
+        'overwrite' => 1
       );
       
       $this->load->library('upload', $config);

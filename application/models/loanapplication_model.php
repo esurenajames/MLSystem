@@ -88,6 +88,7 @@ class loanapplication_model extends CI_Model
                                         AND BHE.StatusId = 1
                                         AND BHC.IsPrimary = 1
                                         AND BHC.StatusId = 1
+                                        AND BHP.StatusId = 1
     ");
 
     $data = $query->row_array();
@@ -269,6 +270,52 @@ class loanapplication_model extends CI_Model
                                                     INNER JOIN r_status S
                                                       ON S.StatusId = AR.StatusId
                                                      WHERE AR.ApplicationId = $ID
+    ");
+    $data = $query_string->result_array();
+    return $data;
+  }
+
+  function getCollateralType($ID)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $query_string = $this->db->query("SELECT  Name
+                                              , CollateralTypeId
+                                              FROM R_CollateralType
+                                                WHERE StatusId = 1 
+    ");
+    $data = $query_string->result_array();
+    return $data;
+  }
+
+  function getCollateralStatus($ID)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $query_string = $this->db->query("SELECT  Name
+                                              , CollateralStatusId
+                                              FROM r_collateralStatus
+                                                WHERE StatusId = 1 
+    ");
+    $data = $query_string->result_array();
+    return $data;
+  }
+
+  function getCollateral($ID)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $query_string = $this->db->query("SELECT  CONCAT(LPAD(C.CollateralId, 4, 0)) as ReferenceNo
+                                              , C.ProductName
+                                              , C.Value
+                                              , DATE_FORMAT(C.DateRegistered, '%b %d, %Y %r') as DateRegistered
+                                              , CT.Name as CollateralType
+                                              , CS.Name as CurrentStatus
+                                              FROM R_Collaterals C
+                                                INNER JOIN application_has_collaterals AHC
+                                                  ON AHC.CollateralId = C.CollateralId
+                                                INNER JOIN r_collateralStatus CS
+                                                  ON CS.CollateralStatusId = C.StatusId
+                                                INNER JOIN R_CollateralType CT
+                                                  ON CT.CollateralTypeId = C.CollateralTypeId
+                                                    WHERE AHC.ApplicationId = $ID
     ");
     $data = $query_string->result_array();
     return $data;

@@ -611,16 +611,16 @@
                   </div>
                   <div class="col-md-4">
                     <div class="form-group">
-                        <div class="form-group">
-                          <label>Date of Birth <span class="text-red">*</span></label>
-                          <div class="input-group date">
-                            <div class="input-group-addon">
-                              <i class="fa fa-calendar"></i>
-                            </div>
-                            <input type="text" placeholder="Date of Birth" class="form-control" name="DateOfBirth" required="" id="DateOfBirth">
+                      <div class="form-group">
+                        <label>Date of Birth <span class="text-red">*</span></label>
+                        <div class="input-group date">
+                          <div class="input-group-addon">
+                            <i class="fa fa-calendar"></i>
                           </div>
-                          <!-- /.input group -->
+                          <input type="text" placeholder="Date of Birth" class="form-control" name="DateOfBirth" required="" id="DateOfBirth">
                         </div>
+                        <!-- /.input group -->
+                      </div>
                     </div>
                   </div>
                   <div class="col-md-3">
@@ -875,16 +875,16 @@
             <?php
               if($detail['FileName'] == null)
               {
-                echo '<img src="'.base_url().'borrowerpicture/default.gif" class="profile-user-img img-responsive img-circle" alt="User Image" style="width: 100px">';
+                echo '<img src="'.base_url().'/borrowerpicture/default.gif" class="profile-user-img img-responsive img-circle" alt="User Image" style="width: 100px">';
               }
               else
               {
-                echo '<img class="profile-user-img img-responsive img-circle" src="'.base_url().'borrowerpicture/'. $detail["FileName"].'" class="user-image" alt="User Image">';
+                echo '<img class="profile-user-img img-responsive img-circle" src="'.base_url().'/borrowerpicture/'. $detail["FileName"].'" class="user-image" alt="User Image">';
               }
             ?>
             <h3 class="profile-username text-center"><?php print_r($detail['Salutation'] . ' ' . $detail['LastName'] . ', ' . $detail['FirstName'] . ' '  . $detail['MiddleInitial']) ?></h3>
 
-            <p class="text-muted text-center"><?php print_r($detail['BorrowerNumber']); ?></p>
+            <p class="text-muted text-center"><?php print_r($detail['FileName']); ?></p>
 
             <ul class="list-group list-group-unbordered">
               <li class="list-group-item">
