@@ -44,6 +44,101 @@
     <!-- /.modal-dialog -->
   </div>
 
+  <div class="modal fade" id="modalCollateral">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="CollateralType"></h4>
+        </div>
+        <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddComment/<?php print_r($detail['ApplicationId']) ?>" method="post" enctype="multipart/form-data">
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-12">
+                <label>Type</label>
+                <select class="form-control" name="CollateralType" onchange="collateralTypeChange(this.value)">
+                  <?php 
+                    foreach ($collateralType as $value) 
+                    {
+                      echo "<option value='".$value['CollateralTypeId']."'>".$value['Name']."</option>";
+                    }
+                  ?>
+                </select>
+              </div>
+              <div class="col-md-12">
+                <label>Product Name</label>
+                <input type="text" name="ProductName" class="form-control">
+              </div>
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>Register Date <span class="text-red">*</span></label>
+                  <div class="input-group date">
+                    <div class="input-group-addon">
+                      <i class="fa fa-calendar"></i>
+                    </div>
+                    <input type="text" placeholder="Register Date" class="form-control" name="dateRegistered" required="" id="dateRegistered">
+                  </div>
+                  <!-- /.input group -->
+                </div>
+              </div>
+              <div class="col-md-12">
+                <label>Value</label>
+                <input type="number" name="CollateralValue" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label>Current Status</label>
+                <select class="form-control" name="CollateralType">
+                  <?php 
+                    foreach ($collateralStatus as $value) 
+                    {
+                      echo "<option value='".$value['CollateralStatusId']."'>".$value['Name']."</option>";
+                    }
+                  ?>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Date Acquired <span class="text-red">*</span></label>
+                  <div class="input-group date">
+                    <div class="input-group-addon">
+                      <i class="fa fa-calendar"></i>
+                    </div>
+                    <input type="text" placeholder="DateDate Acquired" class="form-control" name="dateAcquired" required="" id="dateAcquired">
+                  </div>
+                  <!-- /.input group -->
+                </div>
+              </div>
+            </div>
+            <div id="divAutomobiles">
+              <h5>Automobile Details</h5>
+              <div class="row">
+                <div class="col-md-4">
+                  <label>Registration Number</label>
+                  <input type="text" class="form-control" name="RegistrationNo">
+                </div>
+                <div class="col-md-4">
+                  <label>Mileage</label>
+                  <input type="text" class="form-control" name="Mileage">
+                </div>
+                <div class="col-md-4">
+                  <label>Engine Number</label>
+                  <input type="text" class="form-control" name="EngineNo">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+
   <div class="modal fade" id="modalObligation">
     <div class="modal-dialog modal-md">
       <div class="modal-content">
@@ -185,20 +280,20 @@
 		    <div class="box-body">
 		      <div class="row">
 		      	<div class="col-md-2">
-		          <?php
-		            if($detail['FileName'] == null)
-		            {
-		              echo '<img src="'.base_url().'borrowerpicture/default.gif" class="profile-user-img img-responsive img-circle" alt="User Image" style="width: 100px">';
-		            }
-		            else
-		            {
-		              echo '<img class="profile-user-img img-responsive img-circle" src="'.base_url().'borrowerpicture/'. $detail["FileName"].'" class="user-image" alt="User Image">';
-		            }
-		          ?>
+              <?php
+                if($detail['FileName'] == null)
+                {
+                  echo '<img src="'.base_url().'/borrowerpicture/default.gif" class="profile-user-img img-responsive img-circle" alt="User Image" style="width: 100px">';
+                }
+                else
+                {
+                  echo '<img class="profile-user-img img-responsive img-circle" src="'.base_url().'/borrowerpicture/'. $detail["FileName"].'" class="user-image" alt="User Image">';
+                }
+              ?>
 		          <center><a href="">View</a> | <a href="">Edit</a></center>
 		      	</div>
 		      	<div class="col-md-4">
-		      		<label><?php print_r($detail['Name']) ?></label><br>
+		      		<label><?php print_r($detail['FileName']) ?></label><br>
 		      		<label><?php print_r($detail['BorrowerNumber']) ?></label><br>
 		      		<label>Date of Birth:</label> <?php print_r($detail['DOB'] . ' ' . $detail['Age'] . 'yrs old') ?> <br>
 		      		<label>Created By:</label> <?php print_r($detail['CreatedBy']) ?><br>
@@ -392,7 +487,7 @@
               </div>
               <div class="tab-pane" id="tabCollateral">
               	<h4>Collateral</h4>
-              	<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modelRepayment">Add Collateral</a>
+              	<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalCollateral">Add Collateral</a>
               	<br>
               	<br>
                 <table id="dtblCollateral" class="table table-bordered table-hover" style="width: 100%">
@@ -408,6 +503,21 @@
                   </tr>
                   </thead>
                   <tbody>
+                    <?php 
+                      $rowNumber = 0;
+                      foreach ($collateral as $value) 
+                      {
+                        echo "<tr>";
+                        echo "<td>".$value['ReferenceNo']."</td>";
+                        echo "<td>".$value['ProductName']."</td>";
+                        echo "<td>".$value['CurrentStatus']."</td>";
+                        echo "<td>".number_format($value['Value'], 2)."</td>";
+                        echo "<td>".$value['CollateralType']."</td>";
+                        echo "<td>".$value['DateRegistered']."</td>";
+                        echo '<td><a class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a> <a class="btn btn-default btn-sm" title="Download"><span class="fa fa-download"></span></a> <a class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a></td> ';
+                        echo "</tr>";
+                      }
+                    ?>
                   </tbody>
                 </table>
               </div>
@@ -610,13 +720,47 @@
       confirmButtonClass: 'btn btn-primary'
     });
   }
+
+  $('#dateAcquired').daterangepicker({
+      "startDate": moment().format('DD MMM YY'),
+      "singleDatePicker": true,
+      "showDropdowns": true,
+      "timePicker": false,
+      "linkedCalendars": false,
+      "showCustomRangeLabel": false,
+      "showCustomRangeLabel": false,
+      // "maxDate": Start,
+      "opens": "up",
+      "locale": {
+          format: 'DD MMM YYYY',
+      },
+  }, function(start, end, label){
+  });
+
+  $('#dateRegistered').daterangepicker({
+      "startDate": moment().format('DD MMM YY'),
+      "singleDatePicker": true,
+      "showDropdowns": true,
+      "timePicker": false,
+      "linkedCalendars": false,
+      "showCustomRangeLabel": false,
+      "showCustomRangeLabel": false,
+      // "maxDate": Start,
+      "opens": "up",
+      "locale": {
+          format: 'DD MMM YYYY',
+      },
+  }, function(start, end, label){
+  });
 	
   $('#dtblRepayment').DataTable({
     "order": [[3, "asc"]]
   });
+
   $('#dtblCollateral').DataTable({
     "order": [[3, "asc"]]
   });
+
   $('#dtblRequirements').DataTable({
     "pageLength": 10,
     "ajax": { url: '<?php echo base_url()."/datatables_controller/displayRequirements/"; ?><?php print_r($detail['ApplicationId']) ?>', type: 'POST', "dataSrc": "" },
@@ -650,6 +794,7 @@
     // "aoColumnDefs": [{ "bVisible": false, "aTargets": [7] }],
     "order": [[0, "desc"]]
   });
+
   var rowNumber = 0;
   $('#dtblHistory').DataTable({
     "pageLength": 10,
@@ -764,6 +909,18 @@
         }, 2000);
       }
     });
+  }
+
+  function collateralTypeChange(value)
+  {
+    if(value == 1) // automobiles
+    {
+      $('#divAutomobiles').slideUp();
+    }
+    else
+    {
+      $('#divAutomobiles').slideDown();
+    }
   }
 
 

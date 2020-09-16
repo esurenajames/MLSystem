@@ -483,7 +483,7 @@
                     {
                       data: "StatusId", "render": function (data, type, row) {
                       if(row.StatusId == 1){
-                          return '<a href="'+baseUrl+'/home/BorrowerDetails/'+row.BorrowerId+'" class="btn btn-default" title="View"><span class="fa fa-info-circle"></span></a> <a href="'+baseUrl+'/home/LoanApplication/" class="btn btn-success" title="Create Loan"><span class="fa fa-plus-square"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this borrower?\', \''+row.BorrowerId+'\', 2, \'BorrowerUpdate\')" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a>';
+                          return '<a href="<?php echo base_url();?>home/BorrowerDetails/'+row.BorrowerId+'" class="btn btn-default" title="View"><span class="fa fa-info-circle"></span></a> <a href="<?php echo base_url();?>home/LoanApplication/" class="btn btn-success" title="Create Loan"><span class="fa fa-plus-square"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this borrower?\', \''+row.BorrowerId+'\', 2, \'BorrowerUpdate\')" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a>';
                         }
                         else
                         {
