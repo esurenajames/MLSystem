@@ -311,7 +311,7 @@ class loanapplication_model extends CI_Model
                                               , S.Description
                                               , DATE_FORMAT(AE.DateCreated, '%b %d, %Y %r') as DateCreated
                                               , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as Name
-                                              FROM Application_has_MonthlyExpense AE
+                                              FROM Application_has_Expense AE
                                                 INNER JOIN r_status S
                                                   ON S.StatusId = AE.StatusId
                                                 LEFT JOIN R_Employee EMP
@@ -349,7 +349,7 @@ class loanapplication_model extends CI_Model
   function countExpense($data)
   {
     $query_string = $this->db->query("SELECT  * 
-                                              FROM Application_has_MonthlyExpense
+                                              FROM Application_has_Expense
                                                 WHERE Source = '".$data['Source']."'
                                                 AND Details = '".$data['Detail']."'
                                                 AND Amount = '".$data['Amount']."'
@@ -460,7 +460,7 @@ class loanapplication_model extends CI_Model
     else if($input['Type'] == 'Expenses')
     {
       $ExpenseDetail = $this->db->query("SELECT  Source
-                                                  FROM Application_has_MonthlyExpense
+                                                  FROM Application_has_Expense
                                                     WHERE ExpenseId = ".$input['Id']."
       ")->row_array();
 
@@ -473,7 +473,7 @@ class loanapplication_model extends CI_Model
         $condition = array(
           'ExpenseId' => $input['Id']
         );
-        $table = 'Application_has_MonthlyExpense';
+        $table = 'Application_has_Expense';
         $this->maintenance_model->updateFunction1($set, $condition, $table);
       // insert into logs
         if($input['updateType'] == 2)
