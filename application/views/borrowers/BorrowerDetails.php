@@ -884,7 +884,7 @@
             ?>
             <h3 class="profile-username text-center"><?php print_r($detail['Salutation'] . ' ' . $detail['LastName'] . ', ' . $detail['FirstName'] . ' '  . $detail['MiddleInitial']) ?></h3>
 
-            <p class="text-muted text-center"><?php print_r($detail['FileName']); ?></p>
+            <p class="text-muted text-center"><?php print_r($detail['BorrowerNumber']); ?></p>
 
             <ul class="list-group list-group-unbordered">
               <li class="list-group-item">

@@ -321,7 +321,7 @@
 		          <center><a href="">View</a> | <a href="">Edit</a></center>
 		      	</div>
 		      	<div class="col-md-4">
-		      		<label><?php print_r($detail['FileName']) ?></label><br>
+		      		<label><?php print_r($detail['Name']) ?></label><br>
 		      		<label><?php print_r($detail['BorrowerNumber']) ?></label><br>
 		      		<label>Date of Birth:</label> <?php print_r($detail['DOB'] . ' ' . $detail['Age'] . 'yrs old') ?> <br>
 		      		<label>Created By:</label> <?php print_r($detail['CreatedBy']) ?><br>
