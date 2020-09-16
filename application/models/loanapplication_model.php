@@ -55,6 +55,11 @@ class loanapplication_model extends CI_Model
                                       , L.Name as LoanType
                                       , D.Name as DisbursedBy
                                       , A.ApprovalType
+
+                                      , A.IsPenalized
+                                      , A.PenaltyType
+                                      , A.PenaltyAmount
+                                      , A.GracePeriod
                                       FROM T_Application A
                                         INNER JOIN Application_Has_Status LS
                                           ON A.StatusId = LS.LoanStatusId
@@ -83,12 +88,12 @@ class loanapplication_model extends CI_Model
                                         LEFT JOIN R_RepaymentCycle RC
                                           ON RC.RepaymentId = A.RepaymentId
                                         WHERE A.ApplicationId = $Id
-                                        AND AHI.StatusId = 1
-                                        AND BHE.IsPrimary = 1
-                                        AND BHE.StatusId = 1
-                                        AND BHC.IsPrimary = 1
-                                        AND BHC.StatusId = 1
-                                        AND BHP.StatusId = 1
+                                        -- AND AHI.StatusId = 1
+                                        -- AND BHE.IsPrimary = 1
+                                        -- AND BHE.StatusId = 1
+                                        -- AND BHC.IsPrimary = 1
+                                        -- AND BHC.StatusId = 1
+                                        -- AND BHP.StatusId = 1
     ");
 
     $data = $query->row_array();
@@ -262,6 +267,8 @@ class loanapplication_model extends CI_Model
                                               , AR.RequirementId
                                               , R.Name
                                               , S.Description
+                                              , AR.ApplicationRequirementId
+                                              , AR.StatusId
                                               , DATE_FORMAT(AR.DateCreated, '%b %d, %Y %r') as DateCreated
                                               FROM Application_has_Requirements AR
                                                     INNER JOIN R_Requirements R
@@ -301,7 +308,7 @@ class loanapplication_model extends CI_Model
   function getCollateral($ID)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $query_string = $this->db->query("SELECT  CONCAT(LPAD(C.CollateralId, 4, 0)) as ReferenceNo
+    $query_string = $this->db->query("SELECT  CONCAT('CLR-', LPAD(C.CollateralId, 4, 0)) as ReferenceNo
                                               , C.ProductName
                                               , C.Value
                                               , DATE_FORMAT(C.DateRegistered, '%b %d, %Y %r') as DateRegistered

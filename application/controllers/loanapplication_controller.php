@@ -129,6 +129,7 @@ class loanapplication_controller extends CI_Controller {
         'InterestType'              => $_POST['interestType'],
         'Amount'                    => $_POST['interestAmount'],
         'Frequency'                 => $_POST['interestFrequency'],
+        'StatusId'                  => 2,
         'CreatedBy'                 => $EmployeeNumber
       );
       $auditTable = 'application_has_interests';
@@ -143,6 +144,7 @@ class loanapplication_controller extends CI_Controller {
             'Source'                => $_POST['MISourceIncome'][$count],
             'Amount'                => $_POST['MIAmount'][$count],
             'Details'               => $_POST['MIDetails'][$count],
+            'StatusId'              => 2,
             'CreatedBy'             => $EmployeeNumber
           );
           $auditTable = 'application_has_monthlyincome';
@@ -159,9 +161,10 @@ class loanapplication_controller extends CI_Controller {
             'Source'                => $_POST['SourceExpenses'][$count],
             'Amount'                => $_POST['Amount'][$count],
             'Details'               => $_POST['Details'][$count],
+            'StatusId'              => 2,
             'CreatedBy'             => $EmployeeNumber
           );
-          $auditTable = 'application_has_monthlyexpense';
+          $auditTable = 'application_has_expense';
           $this->maintenance_model->insertFunction($insertData, $auditTable);
         }
       }
@@ -175,6 +178,7 @@ class loanapplication_controller extends CI_Controller {
             'Source'                => $_POST['SourceObligations'][$count],
             'Amount'                => $_POST['ObligationAmount'][$count],
             'Details'               => $_POST['ObligationDetails'][$count],
+            'StatusId'              => 2,
             'CreatedBy'             => $EmployeeNumber
           );
           $auditTable = 'application_has_monthlyobligation';
@@ -191,6 +195,7 @@ class loanapplication_controller extends CI_Controller {
             $insertData = array(
               'ApplicationId'         => $generatedId['ApplicationId'],
               'ChargeId'              => $_POST['ChargeId'][$count],
+              'StatusId'              => 2,
               'CreatedBy'             => $EmployeeNumber
             );
             $auditTable = 'application_has_charges';
@@ -208,6 +213,7 @@ class loanapplication_controller extends CI_Controller {
             $insertData = array(
               'ApplicationId'         => $generatedId['ApplicationId'],
               'RequirementId'         => $_POST['RequirementId'][$count],
+              'StatusId'              => 5,
               'CreatedBy'             => $EmployeeNumber
             );
             $auditTable = 'application_has_requirements';
@@ -877,6 +883,126 @@ class loanapplication_controller extends CI_Controller {
           redirect('home/loandetail/'. $this->uri->segment(3));
       }
     }
+  }
+
+  function uploadRequirements()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $DateNow = date("Y-m-d H:i:s");
+    $path = './uploads/';
+    $config = array(
+      'upload_path' => $path,
+      'allowed_types' => 'jpg|jpeg|png|pdf|xlsx|docx|xls',
+      'overwrite' => 1
+    );
+    $this->load->library('upload', $config);
+    $files = $_FILES['RequirementFiles'];
+    $fileName = "";
+    $images = array();
+    foreach ($files['name'] as $key => $image) 
+    {
+      $file_ext = pathinfo($image, PATHINFO_EXTENSION);
+      $_FILES['RequirementFiles[]']['name']= $files['name'][$key];
+      $_FILES['RequirementFiles[]']['type']= $files['type'][$key];
+      $_FILES['RequirementFiles[]']['tmp_name']= $files['tmp_name'][$key];
+      $_FILES['RequirementFiles[]']['error']= $files['error'][$key];
+      $_FILES['RequirementFiles[]']['size']= $files['size'][$key];
+      $uniq_id = uniqid();
+      $fileName = $uniq_id.'.'.$file_ext;
+      $fileName = str_replace(" ","_",$fileName);
+
+      $config['file_name'] = $fileName;
+      $Title = $_FILES['RequirementFiles[]']['name'];
+
+      $this->upload->initialize($config);
+      if ($this->upload->do_upload('RequirementFiles[]')) 
+      {
+        $this->upload->data();
+        // update all attachmments deactivated
+          $set = array( 
+            'StatusId' => 0
+          );
+          $condition = array( 
+            'ApplicationRequirementId' => $_POST['ApplicationRequirementId']
+          );
+          $table = 'requirements_has_attachments';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+        // insert attachments
+          $insertComment = array(
+            'ApplicationRequirementId'    => $_POST['ApplicationRequirementId']
+            , 'FileName'                  => $fileName
+            , 'Title'                     => $Title
+            , 'CreatedBy'                 => $EmployeeNumber
+            , 'UpdatedBy'                 => $EmployeeNumber
+          );
+          $insertCommentTable = 'requirements_has_attachments';
+          $this->maintenance_model->insertFunction($insertComment, $insertCommentTable);
+        // update as submitted
+          $set = array( 
+            'StatusId' => 7
+          );
+          $condition = array( 
+            'ApplicationRequirementId' => $_POST['ApplicationRequirementId']
+          );
+          $table = 'application_has_requirements';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+      else
+      {
+          $fileName = "";
+      }
+    }
+    // notification
+      $this->session->set_flashdata('alertTitle','Success!'); 
+      $this->session->set_flashdata('alertText','Requirement successfully uploaded!'); 
+      $this->session->set_flashdata('alertType','success'); 
+      redirect('home/loandetail/'. $this->uri->segment(3));
+  }
+
+  function addCollateral()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $DateNow = date("Y-m-d H:i:s");
+    // interest details
+      $string1 = strtotime($_POST['dateRegistered']);
+      $varDateRegistered = date('Y-m-d', $string1);
+      $string2 = strtotime($_POST['dateAcquired']);
+      $varDateAcquired = date('Y-m-d', $string2);
+      $insertData = array(
+        'ProductName'          => $_POST['ProductName'],
+        'Value'                => $_POST['CollateralValue'],
+        'DateRegistered'       => $varDateRegistered,
+        'CollateralTypeId'     => $_POST['CollateralTypeId'],
+        'DateAcquired'         => $varDateAcquired,
+        'RegistrationNo'       => $_POST['RegistrationNo'],
+        'Mileage'              => $_POST['Mileage'],
+        'EngineNo'             => $_POST['EngineNo'],
+        'StatusId'             => $_POST['CollateralStatusId'],
+        'CreatedBy'            => $EmployeeNumber
+      );
+      $auditTable = 'r_collaterals';
+      $this->maintenance_model->insertFunction($insertData, $auditTable);
+    // get generated application id
+      $getData = array(
+        'table'                 => 'r_collaterals'
+        , 'column'              => 'CollateralId'
+        , 'CreatedBy'           => $EmployeeNumber
+      );
+      $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+    // insert collateral into loan
+      $insertData2 = array(
+        'CollateralId'         => $generatedId['CollateralId'],
+        'ApplicationId'        => $this->uri->segment(3),
+        'CreatedBy'            => $EmployeeNumber
+      );
+      $auditTable2 = 'application_has_Collaterals';
+      $this->maintenance_model->insertFunction($insertData2, $auditTable2);
+    // notif
+      $this->session->set_flashdata('alertTitle','Success!'); 
+      $this->session->set_flashdata('alertText','Collateral successfully added!'); 
+      $this->session->set_flashdata('alertType','success'); 
+      redirect('home/loandetail/'. $this->uri->segment(3));
+
   }
 
   function getObligationDetails()

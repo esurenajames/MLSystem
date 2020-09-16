@@ -12,6 +12,35 @@
     </ol>
   </section>
 
+  <div class="modal fade" id="modalUpload">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="modalComment">Add Comment</h4>
+        </div>
+        <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/uploadRequirements/<?php print_r($detail['ApplicationId']) ?>" method="post" enctype="multipart/form-data">
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-12">
+                <label>Document Attachment</label>
+                <input type="file" name="RequirementFiles[]" multiple="" accept=".jpeg, .jpg, .png">
+                <input type="hidden" name="ApplicationRequirementId" id="txtApplicationRequirementId">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+
   <div class="modal fade" id="modalComment">
     <div class="modal-dialog modal-md">
       <div class="modal-content">
@@ -50,14 +79,14 @@
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="CollateralType"></h4>
+          <h4 class="modal-title" id="CollateralTitle"></h4>
         </div>
-        <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddComment/<?php print_r($detail['ApplicationId']) ?>" method="post" enctype="multipart/form-data">
+        <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/addCollateral/<?php print_r($detail['ApplicationId']) ?>" method="post" enctype="multipart/form-data">
           <div class="modal-body">
             <div class="row">
               <div class="col-md-12">
                 <label>Type</label>
-                <select class="form-control" name="CollateralType" onchange="collateralTypeChange(this.value)">
+                <select class="form-control" name="CollateralTypeId" onchange="collateralTypeChange(this.value)">
                   <?php 
                     foreach ($collateralType as $value) 
                     {
@@ -88,7 +117,7 @@
               </div>
               <div class="col-md-6">
                 <label>Current Status</label>
-                <select class="form-control" name="CollateralType">
+                <select class="form-control" name="CollateralStatusId">
                   <?php 
                     foreach ($collateralStatus as $value) 
                     {
@@ -125,6 +154,12 @@
                   <label>Engine Number</label>
                   <input type="text" class="form-control" name="EngineNo">
                 </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <label>Document Attachment</label>
+                <input type="file" name="Attachment[]" multiple="" accept=".jpeg, .jpg, .png, .pdf">
               </div>
             </div>
           </div>
@@ -503,32 +538,37 @@
               	<h4>Penalty Settings</h4>
               	<div class="row">
 	                <div class="col-md-12">
-	                  <label></label>
-	                  <label><input id='chkPenalty' onclick='onchangeIsPenalized()' type='checkbox'> Enable Late Repayment Penalty?</label>
+	                  <label><input id='chkPenalty' onclick='onchangeIsPenalized()' <?php if($detail['IsPenalized']) echo "checked"; else { echo "";} ?>  type='checkbox'> Enable Late Repayment Penalty?</label>
 	                </div>
 	                <br>
-	                <div id="divPenalty" style="display: none">
-	                  <div class="col-md-4">
-	                    <label>Penalty Type</label>
-	                    <select class="form-control" id="selectPenaltyType" onchange="onchangePenaltyType()" name="PenaltyType">
-	                      <option>Flat Rate</option>
-	                      <option>Percentage</option>
-	                    </select>
-	                  </div>
-	                  <div class="col-md-4">
-	                    <label id="inputLblPenaltyType">Amount</label>
-	                    <input type="number" min="0" class="form-control" name="PenaltyAmount" id="txtPenaltyAmount">
-	                  </div>
-	                  <div class="col-md-4">
-	                    <label>Grace Period</label>
-	                    <input type="number" min="0" class="form-control" name="PenaltyAmount" id="txtPenaltyAmount">
-	                  </div>
-	                </div>
               	</div>
+                <div class="row">
+                  <div id="divPenalty" style="display: <?php if($detail['IsPenalized']) echo ""; else { echo "none";} ?>">
+                    <div class="col-md-4">
+                      <label>Penalty Type</label>
+                      <select class="form-control" id="selectPenaltyType" onchange="onchangePenaltyType()" name="PenaltyType">
+                        <option>Flat Rate</option>
+                        <option>Percentage</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4">
+                      <label id="inputLblPenaltyType">Amount</label>
+                      <input type="number" min="0" class="form-control" name="PenaltyAmount" id="txtPenaltyAmount">
+                    </div>
+                    <div class="col-md-4">
+                      <label>Grace Period</label>
+                      <input type="number" min="0" class="form-control" name="PenaltyAmount" id="txtPenaltyAmount">
+                    </div>
+                  </div>
+                  <div class="pull-right">
+                    <br>
+                    <a class="btn btn-sm btn-primary">Save Changes</a>
+                  </div>
+                </div>
               </div>
               <div class="tab-pane" id="tabCollateral">
               	<h4>Collateral</h4>
-              	<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalCollateral">Add Collateral</a>
+              	<a class="btn btn-primary btn-sm pull-right" onclick="onCollateralChange(1)" data-toggle="modal" data-target="#modalCollateral">Add Collateral</a>
               	<br>
               	<br>
                 <table id="dtblCollateral" class="table table-bordered table-hover" style="width: 100%">
@@ -572,6 +612,7 @@
                   <tr>
                     <th>#</th>
                     <th>Name</th>
+                    <th>Date Creation</th>
                     <th>Status</th>
                     <th>Action</th>
                   </tr>
@@ -579,14 +620,23 @@
                   <tbody>
                     <?php 
                       $rowNumber = 0;
-                      foreach ($requirement as $value) 
+                      foreach ($requirementList as $value) 
                       {
                         $rowNumber = $rowNumber + 1;
                         echo "<tr>";
                         echo "<td>".$rowNumber."</td>";
                         echo "<td>".$value['Name']."</td>";
+                        echo "<td>".$value['DateCreated']."</td>";
                         echo "<td>".$value['Description']."</td>";
-                        echo '<td><a class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a> <a class="btn data-toggle="modal" data-target="#modalIncome" btn-success btn-sm" title="Upload"><span class="fa fa-check"></span></a> <a class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a></td>  ';
+                        if($value['StatusId'] == 7) // submitted
+                        {
+                          $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationRequirementId'].')" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a> <a class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
+                        }
+                        else
+                        {
+                          $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationRequirementId'].')" class="btn btn-success btn-sm" title="Upload"><span class="fa fa-upload"></span></a> <a class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
+                        }
+                        echo '<td>'.$action.'</td>';
                         echo "</tr>";
                       }
                     ?>
@@ -628,9 +678,7 @@
                         if($value['StatusId'] == 2)
                         {
                           $status = "<span class='badge bg-green'>Active</span>";
-                          $action = '<a onclick="EditIncome(\''.$value['IncomeId'].'\')" data-toggle="modal" data-target="#modalIncome" class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a>
-                        <a class="btn btn-default btn-sm" title="Download"><span class="fa fa-download"></span></a>
-                        <a onclick="confirm(\'Are you sure you want to deactivate this Income Source record?\', \''.$value['IncomeId'].'\', 6, \'Incomes\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                          $action = '<a onclick="EditIncome(\''.$value['IncomeId'].'\')" data-toggle="modal" data-target="#modalIncome" class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this Income Source record?\', \''.$value['IncomeId'].'\', 6, \'Incomes\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
                         }
                         else
                         {
@@ -680,9 +728,7 @@
                         if($value['StatusId'] == 2)
                         {
                           $status = "<span class='badge bg-green'>Active</span>";
-                          $action = '<a onclick="EditExpense(\''.$value['ExpenseId'].'\')" data-toggle="modal" data-target="#modalExpense" class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a>
-                        <a class="btn btn-default btn-sm" title="Download"><span class="fa fa-download"></span></a>
-                        <a onclick="confirm(\'Are you sure you want to deactivate this Expense record?\', \''.$value['ExpenseId'].'\', 6, \'Expenses\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                          $action = '<a onclick="EditExpense(\''.$value['ExpenseId'].'\')" data-toggle="modal" data-target="#modalExpense" class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this expense record?\', \''.$value['ExpenseId'].'\', 6, \'Expenses\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
                         }
                         else
                         {
@@ -732,9 +778,7 @@
                         if($value['StatusId'] == 2)
                         {
                           $status = "<span class='badge bg-green'>Active</span>";
-                          $action = '<a onclick="EditObligation(\''.$value['MonthlyObligationId'].'\')" data-toggle="modal" data-target="#modalObligation" class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a>
-                        <a class="btn btn-default btn-sm" title="Download"><span class="fa fa-download"></span></a>
-                        <a onclick="confirm(\'Are you sure you want to deactivate this Obligation record?\', \''.$value['MonthlyObligationId'].'\', 6, \'Obligations\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                          $action = '<a onclick="EditObligation(\''.$value['MonthlyObligationId'].'\')" data-toggle="modal" data-target="#modalObligation" class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this obligation record?\', \''.$value['MonthlyObligationId'].'\', 6, \'Obligations\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
                         }
                         else
                         {
@@ -1056,12 +1100,29 @@
   {
     if(value == 1) // automobiles
     {
-      $('#divAutomobiles').slideUp();
+      $('#divAutomobiles').slideDown();
     }
     else
     {
-      $('#divAutomobiles').slideDown();
+      $('#divAutomobiles').slideUp();
     }
+  }
+
+  function onCollateralChange(value)
+  {
+    if(value == 1) // add collateral
+    {
+      $('#CollateralTitle').html('Add Collateral');
+    }
+    else
+    {
+      $('#CollateralTitle').html('Edit Collateral');
+    }
+  }
+
+  function uploadRequirementsChange(value)
+  {
+    $('#txtApplicationRequirementId').val(value)
   }
 
 

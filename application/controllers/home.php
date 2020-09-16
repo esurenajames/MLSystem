@@ -366,7 +366,7 @@ class home extends CI_Controller {
 		$data['payments'] = $this->loanapplication_model->getPayments($Id);
 		$data['approvers'] = $this->loanapplication_model->getApprovers($Id);
 		$data['comments'] = $this->loanapplication_model->getLoanComments($Id);
-		$data['requirement'] = $this->loanapplication_model->displayrequirements($Id);
+		$data['requirementList'] = $this->loanapplication_model->displayRequirements($Id);
 		$data['LoanHistory'] = $this->loanapplication_model->displayLoanHistory($Id);
 		$data['obligations'] = $this->loanapplication_model->getLoanObligations($Id);
 		$data['expense'] = $this->loanapplication_model->getExpenses($Id);
