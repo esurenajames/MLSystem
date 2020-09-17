@@ -324,6 +324,14 @@ class loanapplication_controller extends CI_Controller {
         );
         $insertCommentTable = 'Application_has_Comments';
         $this->maintenance_model->insertFunction($insertComment, $insertCommentTable);
+        // insert Application_has_notification
+          $insertNotification = array(
+            'Description'                   => 'Added a comment to the Source of Other Income tab '
+            , 'ApplicationId'               => $this->uri->segment(3)
+            , 'CreatedBy'                   => $EmployeeNumber
+          );
+          $insertNotificationTable = 'Application_has_Notifications';
+          $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
 
       $path = './uploads/';
 
@@ -390,7 +398,7 @@ class loanapplication_controller extends CI_Controller {
   function AddObligation()
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $ObligationDetail = $this->loanapplication_model->getObligationDetails($_POST['MonthlyObligationId']);
+    $ApplicationDetail = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $this->uri->segment(3));
     $DateNow = date("Y-m-d H:i:s");
     if ($_POST['FormType'] == 1) // add Obligation
     {
@@ -416,6 +424,39 @@ class loanapplication_controller extends CI_Controller {
           );
           $insertObligationTable = 'application_has_monthlyobligation';
           $this->maintenance_model->insertFunction($insertObligation, $insertObligationTable);
+        // get generated application id
+          $getData = array(
+            'table'                 => 'application_has_monthlyobligation'
+            , 'column'              => 'MonthlyObligationId'
+            , 'CreatedBy'           => $EmployeeNumber
+          );
+          $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+          $ObligationDetail = $this->maintenance_model->selectSpecific('application_has_monthlyobligation', 'MonthlyObligationId', $generatedId['MonthlyObligationId']);
+        // insert Application_has_notification
+          $ObligationName = htmlentities($_POST['Obligation'], ENT_QUOTES);
+          $insertNotification = array(
+            'Description'                   => 'Added '.$ObligationName.' to the Obligations tab '
+            , 'ApplicationId'               => $this->uri->segment(3)
+            , 'CreatedBy'                   => $EmployeeNumber
+          );
+          $insertNotificationTable = 'Application_has_Notifications';
+          $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
+        // Insert Employee_has_Notifications
+          $auditDetail = ' Added ' .$ObligationName. ' to Reference #' .$ApplicationDetail['TransactionNumber'];
+          $insertData = array(
+            'Description' => $auditDetail
+            , 'CreatedBy' => $EmployeeNumber
+          );
+          $auditTable = 'Employee_has_Notifications';
+          $this->maintenance_model->insertFunction($insertData, $auditTable);
+        // Insert Main Logs
+          $auditDetail = ' Added ' .$ObligationDetail['Source']. ' to Reference #' .$ApplicationDetail['TransactionNumber'];
+          $insertData = array(
+            'Description' => $auditDetail
+            , 'CreatedBy' => $EmployeeNumber
+          );
+          $auditTable = 'R_Logs';
+          $this->maintenance_model->insertFunction($insertData, $auditTable);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Obligation successfully Added!'); 
@@ -445,12 +486,21 @@ class loanapplication_controller extends CI_Controller {
         if($ObligationDetail['Source'] != htmlentities($_POST['Obligation'], ENT_QUOTES))
         {
           // add into audit table
-            $auditDetail = 'Updated details of  '.$ObligationDetail['Source'].' to '.htmlentities($_POST['Obligation'], ENT_QUOTES);
+            $auditDetail = 'Updated details of  '.$ObligationDetail['Source'];
             $insertAudit = array(
               'Description' => $auditDetail,
               'CreatedBy' => $EmployeeNumber
             );
             $auditTable = 'R_Logs';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+            // add into Application_has_notifications
+            $auditDetail = 'Updated details of '.$ObligationDetail['Source'].' to ' .htmlentities($_POST['Obligation'], ENT_QUOTES). 'at the Obligation tab ';
+            $insertAudit = array(
+              'ApplicationId'  => $this->uri->segment(3)
+              , 'Description' => $auditDetail
+              , 'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'Application_has_Notifications';
             $this->maintenance_model->insertFunction($insertAudit, $auditTable);
           // update function
             $set = array( 
@@ -472,6 +522,15 @@ class loanapplication_controller extends CI_Controller {
             );
             $auditTable = 'R_Logs';
             $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+            // add into Application_has_notifications
+            $auditDetail = 'Updated details of '.$ObligationDetail['Source'].' at the Obligation tab ';
+            $insertAudit = array(
+              'ApplicationId'  => $this->uri->segment(3)
+              , 'Description' => $auditDetail
+              , 'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'Application_has_Notifications';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
           // update function
             $set = array(
               'Details' => htmlentities($_POST['Detail'], ENT_QUOTES)
@@ -491,6 +550,15 @@ class loanapplication_controller extends CI_Controller {
               'CreatedBy' => $EmployeeNumber
             );
             $auditTable = 'R_Logs';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+            // add into Application_has_notifications
+            $auditDetail = 'Updated details of '.$ObligationDetail['Source'].' at the Obligation tab ';
+            $insertAudit = array(
+              'ApplicationId'  => $this->uri->segment(3)
+              , 'Description' => $auditDetail
+              , 'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'Application_has_Notifications';
             $this->maintenance_model->insertFunction($insertAudit, $auditTable);
           // update function
             $set = array( 
@@ -522,6 +590,7 @@ class loanapplication_controller extends CI_Controller {
   function AddExpense()
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $ApplicationDetail = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $this->uri->segment(3));
     $ExpenseDetail = $this->loanapplication_model->getExpenseDetails($_POST['ExpenseId']);
     $DateNow = date("Y-m-d H:i:s");
     if ($_POST['FormTypeExpense'] == 1) // add Expense
@@ -548,6 +617,39 @@ class loanapplication_controller extends CI_Controller {
           );
           $insertExpenseTable = 'application_has_Expense';
           $this->maintenance_model->insertFunction($insertExpense, $insertExpenseTable);
+        // get generated application id
+          $getData = array(
+            'table'                 => 'application_has_Expense'
+            , 'column'              => 'ExpenseId'
+            , 'CreatedBy'           => $EmployeeNumber
+          );
+          $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+          $ExpenseDetail = $this->maintenance_model->selectSpecific('application_has_Expense', 'ExpenseId', $generatedId['ExpenseId']);
+        // insert Application_has_notification
+          $ExpenseName = htmlentities($_POST['Expense'], ENT_QUOTES);
+          $insertNotification = array(
+            'Description'                   => 'Added '.$ExpenseName.' to the Expense tab '
+            , 'ApplicationId'               => $this->uri->segment(3)
+            , 'CreatedBy'                   => $EmployeeNumber
+          );
+          $insertNotificationTable = 'Application_has_Notifications';
+          $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
+        // Insert Employee_has_Notifications
+          $auditDetail = ' Added ' .$ExpenseName. ' to Reference #' .$ApplicationDetail['TransactionNumber'];
+          $insertData = array(
+            'Description' => $auditDetail
+            , 'CreatedBy' => $EmployeeNumber
+          );
+          $auditTable = 'Employee_has_Notifications';
+          $this->maintenance_model->insertFunction($insertData, $auditTable);
+        // Insert Main Logs
+          $auditDetail = ' Added ' .$ExpenseDetail['Source']. ' to Reference #' .$ApplicationDetail['TransactionNumber'];
+          $insertData = array(
+            'Description' => $auditDetail
+            , 'CreatedBy' => $EmployeeNumber
+          );
+          $auditTable = 'R_Logs';
+          $this->maintenance_model->insertFunction($insertData, $auditTable);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Expense successfully Added!'); 
@@ -584,6 +686,15 @@ class loanapplication_controller extends CI_Controller {
             );
             $auditTable = 'R_Logs';
             $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+            // add into Application_has_notifications
+            $auditDetail = 'Updated details of '.$ExpenseDetail['Source'].' to ' .htmlentities($_POST['Expense'], ENT_QUOTES). 'at the Expense tab ';
+            $insertAudit = array(
+              'ApplicationId'  => $this->uri->segment(3)
+              , 'Description' => $auditDetail
+              , 'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'Application_has_Notifications';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
           // update function
             $set = array( 
               'Source' => htmlentities($_POST['Expense'], ENT_QUOTES)
@@ -604,6 +715,15 @@ class loanapplication_controller extends CI_Controller {
             );
             $auditTable = 'R_Logs';
             $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+            // add into Application_has_notifications
+            $auditDetail = 'Updated details of '.$ExpenseDetail['Source'].' at the Expense tab ';
+            $insertAudit = array(
+              'ApplicationId'  => $this->uri->segment(3)
+              , 'Description' => $auditDetail
+              , 'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'Application_has_Notifications';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
           // update function
             $set = array(
               'Details' => htmlentities($_POST['Detail'], ENT_QUOTES)
@@ -623,6 +743,15 @@ class loanapplication_controller extends CI_Controller {
               'CreatedBy' => $EmployeeNumber
             );
             $auditTable = 'R_Logs';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+            // add into Application_has_notifications
+            $auditDetail = 'Updated details of '.$ExpenseDetail['Source'].' at the Expense tab ';
+            $insertAudit = array(
+              'ApplicationId'  => $this->uri->segment(3)
+              , 'Description' => $auditDetail
+              , 'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'Application_has_Notifications';
             $this->maintenance_model->insertFunction($insertAudit, $auditTable);
           // update function
             $set = array( 
@@ -646,6 +775,7 @@ class loanapplication_controller extends CI_Controller {
   function Addincome()
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $ApplicationDetail = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $this->uri->segment(3));
     $IncomeDetail = $this->loanapplication_model->getIncomeDetails($_POST['IncomeId']);
     $DateNow = date("Y-m-d H:i:s");
     if ($_POST['FormType'] == 1) // add Income
@@ -653,6 +783,7 @@ class loanapplication_controller extends CI_Controller {
       $data = array(
         'Source'                 => htmlentities($_POST['Source'], ENT_QUOTES)
         , 'Details'              => htmlentities($_POST['Detail'], ENT_QUOTES)
+        , 'ApplicationId'        => $this->uri->segment(3)
         , 'Amount'               => htmlentities($_POST['Amount'], ENT_QUOTES)
       );
       $query = $this->loanapplication_model->countMonthlyIncome($data);
@@ -671,6 +802,39 @@ class loanapplication_controller extends CI_Controller {
           );
           $insertIncomeTable = 'application_has_monthlyIncome';
           $this->maintenance_model->insertFunction($insertIncome, $insertIncomeTable);
+        // get generated application id
+          $getData = array(
+            'table'                 => 'application_has_monthlyIncome'
+            , 'column'              => 'IncomeId'
+            , 'CreatedBy'           => $EmployeeNumber
+          );
+          $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+          $ObligationDetail = $this->maintenance_model->selectSpecific('application_has_monthlyIncome', 'IncomeId', $generatedId['IncomeId']);
+        // insert Application_has_notification
+          $IncomeName = htmlentities($_POST['Source'], ENT_QUOTES);
+          $insertNotification = array(
+            'Description'                   => 'Added '.$IncomeName.' to the Source of Other Income tab '
+            , 'ApplicationId'               => $this->uri->segment(3)
+            , 'CreatedBy'                   => $EmployeeNumber
+          );
+          $insertNotificationTable = 'Application_has_Notifications';
+          $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
+        // Insert Employee_has_Notifications
+          $auditDetail = ' Added ' .$IncomeName. ' to Reference #' .$ApplicationDetail['TransactionNumber'];
+          $insertData = array(
+            'Description' => $auditDetail
+            , 'CreatedBy' => $EmployeeNumber
+          );
+          $auditTable = 'Employee_has_Notifications';
+          $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
+        // Insert Main Logs
+          $auditDetail = ' Added ' .$IncomeName. ' to Reference #' .$ApplicationDetail['TransactionNumber'];
+          $insertData = array(
+            'Description' => $auditDetail
+            , 'CreatedBy' => $EmployeeNumber
+          );
+          $auditTable = 'R_Logs';
+          $this->maintenance_model->insertFunction($insertData, $auditTable);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Source of Income details successfully recorded!'); 
@@ -707,6 +871,15 @@ class loanapplication_controller extends CI_Controller {
             );
             $auditTable = 'R_Logs';
             $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+            // add into Application_has_notifications
+            $auditDetail = 'Updated details of '.$IncomeDetail['Source'].' to ' .htmlentities($_POST['Source'], ENT_QUOTES). 'at the Other Source of Income tab ';
+            $insertAudit = array(
+              'ApplicationId'  => $this->uri->segment(3)
+              , 'Description' => $auditDetail
+              , 'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'Application_has_Notifications';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
           // update function
             $set = array( 
               'Source' => htmlentities($_POST['Source'], ENT_QUOTES)
@@ -727,6 +900,15 @@ class loanapplication_controller extends CI_Controller {
             );
             $auditTable = 'R_Logs';
             $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+            // add into Application_has_notifications
+            $auditDetail = 'Updated details of '.$IncomeDetail['Source'].' at the Other Source of Income tab ';
+            $insertAudit = array(
+              'ApplicationId'  => $this->uri->segment(3)
+              , 'Description' => $auditDetail
+              , 'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'Application_has_Notifications';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
           // update function
             $set = array(
               'Details' => htmlentities($_POST['Detail'], ENT_QUOTES)
@@ -746,6 +928,15 @@ class loanapplication_controller extends CI_Controller {
               'CreatedBy' => $EmployeeNumber
             );
             $auditTable = 'R_Logs';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+            // add into Application_has_notifications
+            $auditDetail = 'Updated details of '.$IncomeDetail['Source'].' at the Other Source of Income tab ';
+            $insertAudit = array(
+              'ApplicationId'  => $this->uri->segment(3)
+              , 'Description' => $auditDetail
+              , 'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'Application_has_Notifications';
             $this->maintenance_model->insertFunction($insertAudit, $auditTable);
           // update function
             $set = array( 
@@ -774,12 +965,22 @@ class loanapplication_controller extends CI_Controller {
     if ($_POST['FormType'] == 1) // add Requirement
     {
       $data = array(
-        'RequirementId'                 => htmlentities($_POST['Requirements'], ENT_QUOTES)
+        'RequirementId'                 => htmlentities($_POST['RequirementId'], ENT_QUOTES)
+        , 'ApplicationId'               => $this->uri->segment(3)
       );
       $query = $this->loanapplication_model->countRequirement($data);
       print_r($query);
       if($query == 0) // not existing
       {
+        // insert Application_has_notification
+          $RequirementName = $this->maintenance_model->selectSpecific('r_requirements', 'RequirementId', $_POST['Requirements']);
+          $insertNotification = array(
+            'Description'                   => 'Added '.$RequirementName['Name'].' to the Requirements tab '
+            , 'ApplicationId'               => $this->uri->segment(3)
+            , 'CreatedBy'                   => $EmployeeNumber
+          );
+          $insertNotificationTable = 'Application_has_Notifications';
+          $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
         // insert Requirement details
           $insertRequirement = array(
             'ApplicationId'               => $this->uri->segment(3)
@@ -805,7 +1006,7 @@ class loanapplication_controller extends CI_Controller {
           redirect('home/loandetail'. $this->uri->segment(3));
       }
     }
-    else if($_POST['FormType'] == 2) // edit Income Details 
+    else if($_POST['FormType'] == 2) // edit Requirement Details 
     {
       $data = array(
         'Source'                    => htmlentities($_POST['Source'], ENT_QUOTES)
@@ -1022,6 +1223,13 @@ class loanapplication_controller extends CI_Controller {
   function getIncomeDetails()
   {
     $output = $this->loanapplication_model->getIncomeDetails($this->input->post('Id'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getCollateralDetails()
+  {
+    $output = $this->loanapplication_model->getCollateralDetails($this->input->post('Id'));
     $this->output->set_output(print(json_encode($output)));
     exit();
   }

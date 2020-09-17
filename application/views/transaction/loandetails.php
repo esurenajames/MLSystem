@@ -86,7 +86,7 @@
             <div class="row">
               <div class="col-md-12">
                 <label>Type</label>
-                <select class="form-control" name="CollateralTypeId" onchange="collateralTypeChange(this.value)">
+                <select class="form-control" name="CollateralTypeId" id="SelectCollateralTypeId" onchange="collateralTypeChange(this.value)">
                   <?php 
                     foreach ($collateralType as $value) 
                     {
@@ -97,7 +97,8 @@
               </div>
               <div class="col-md-12">
                 <label>Product Name</label>
-                <input type="text" name="ProductName" class="form-control">
+                <input type="text" name="ProductName" class="form-control" id="txtProductName">
+                <input type="hidden" name="ProductName" class="form-control" id="txtCollateralId">
               </div>
               <div class="col-md-12">
                 <div class="form-group">
@@ -113,11 +114,11 @@
               </div>
               <div class="col-md-12">
                 <label>Value</label>
-                <input type="number" name="CollateralValue" class="form-control">
+                <input type="number" name="CollateralValue" id="txtCollaretalValue" class="form-control">
               </div>
               <div class="col-md-6">
                 <label>Current Status</label>
-                <select class="form-control" name="CollateralStatusId">
+                <select class="form-control" name="CollateralStatusId" id="SelectCollateralStatus">
                   <?php 
                     foreach ($collateralStatus as $value) 
                     {
@@ -144,15 +145,15 @@
               <div class="row">
                 <div class="col-md-4">
                   <label>Registration Number</label>
-                  <input type="text" class="form-control" name="RegistrationNo">
+                  <input type="text" class="form-control" name="RegistrationNo" id="txtRegistrationNo">
                 </div>
                 <div class="col-md-4">
                   <label>Mileage</label>
-                  <input type="text" class="form-control" name="Mileage">
+                  <input type="text" class="form-control" name="Mileage" id="txtMileage">
                 </div>
                 <div class="col-md-4">
                   <label>Engine Number</label>
-                  <input type="text" class="form-control" name="EngineNo">
+                  <input type="text" class="form-control" name="EngineNo" id="txtEngineNo">
                 </div>
               </div>
             </div>
@@ -580,6 +581,7 @@
                     <th>Value</th>
                     <th>Type</th>
                     <th>Register Date</th>
+                    <th>Status</th>
                     <th>Action</th>
                   </tr>
                   </thead>
@@ -595,7 +597,7 @@
                         echo "<td>".number_format($value['Value'], 2)."</td>";
                         echo "<td>".$value['CollateralType']."</td>";
                         echo "<td>".$value['DateRegistered']."</td>";
-                        echo '<td><a class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a> <a class="btn btn-default btn-sm" title="Download"><span class="fa fa-download"></span></a> <a class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a></td> ';
+                        echo '<td><a class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalCollateral" title="Edit"><span class="fa fa-edit"></span></a> <a class="btn btn-default btn-sm" title="Download"><span class="fa fa-download"></span></a> <a class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a></td> ';
                         echo "</tr>";
                       }
                     ?>
@@ -628,14 +630,19 @@
                         echo "<td>".$value['Name']."</td>";
                         echo "<td>".$value['DateCreated']."</td>";
                         echo "<td>".$value['Description']."</td>";
-                        if($value['StatusId'] == 7) // submitted
+                         if ($value['StatusId'] == 7) // Pending 
+                         {
+                           $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationRequirementId'].')" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this requirement?\', \''.$value['ApplicationRequirementId'].'\', 6, \'Requirements\') class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
+                         }
+                         else if($value['StatusId'] == 2) // submitted
                         {
-                          $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationRequirementId'].')" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a> <a class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
+                          $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationRequirementId'].')" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this requirement?\', \''.$value['ApplicationRequirementId'].'\', 6, \'Requirements\') class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
                         }
-                        else
+                        else 
                         {
                           $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationRequirementId'].')" class="btn btn-success btn-sm" title="Upload"><span class="fa fa-upload"></span></a> <a class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
                         }
+
                         echo '<td>'.$action.'</td>';
                         echo "</tr>";
                       }
@@ -1077,6 +1084,50 @@
         $('#txtIncomeDetail').val(data['Details']);
         $('#txtIncomeAmount').val(data['Amount']);
         $('#txtIncomeId').val(IncomeId);
+        $('#txtFormTypeIncome').val(2);
+      },
+
+      error: function()
+      {
+        setTimeout(function() {
+          swal({
+            title: 'Warning!',
+            text: 'Something went wrong, please contact the administrator or refresh page!',
+            type: 'warning',
+            buttonsStyling: false,
+            confirmButtonClass: 'btn btn-primary'
+          });
+          // location.reload();
+        }, 2000);
+      }
+    });
+  }
+
+  function EditCollateral(CollateralId)
+  { 
+    $.ajax({
+      url: '<?php echo base_url()?>' + "/loanapplication_controller/getIncomeDetails",
+      type: "POST",
+      async: false,
+      data: {
+        Id : CollateralId
+      },
+      dataType: "JSON",
+      beforeSend: function(){
+          $('.loading').show();
+      },
+      success: function(data)
+      {
+        $('#SelectCollateralTypeId').val(data['Source']);
+        $('#txtProductName').val(data['Details']);
+        $('#dateRegistered').val(data['Details']);
+        $('#txtCollaretalValue').val(data['Details']);
+        $('#SelectCollateralStatus').val(data['Details']);
+        $('#dateAcquired').val(data['Details']);
+        $('#txtRegistrationNo').val(data['Details']);
+        $('#txtMileage').val(data['Details']);
+        $('#txtEngineNo').val(data['Details']);
+        $('#txtCollateralId').val(CollateralId);
         $('#txtFormTypeIncome').val(2);
       },
 

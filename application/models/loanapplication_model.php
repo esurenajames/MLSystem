@@ -442,7 +442,7 @@ class loanapplication_model extends CI_Model
   {
     $query_string = $this->db->query("SELECT  * 
                                               FROM Application_has_Requirements
-                                                WHERE RequirementId = '".$data['Requirementid']."'
+                                                WHERE RequirementId = '".$data['Requirement']."'
                                                 AND ApplicationId = '".$data['ApplicationId']."'
     ");
     $data = $query_string->num_rows();
@@ -502,6 +502,22 @@ class loanapplication_model extends CI_Model
     return $RequirementDetail;
   }
 
+  function getCollateralDetails($Id)
+  {
+    $query_string = $this->db->query("SELECT  ApplicationId
+                                              , CollateralId
+                                              , Source
+                                              , Amount
+                                              , Details
+                                              FROM application_has_collaterals AHC
+                                                INNER JOIN R_Collaterals C
+                                                ON R.CollateralId = AHC.CollateralId
+                                                WHERE ApplicationCollateralId = '$Id'
+    ");
+    $CollateralDetail = $query_string->row_array();
+    return $CollateralDetail;
+  }
+
   function getApprovers($ID)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
@@ -542,11 +558,12 @@ class loanapplication_model extends CI_Model
 
     if($input['Type'] == 'Obligations')
     {
+
       $ObligationDetail = $this->db->query("SELECT  Source
+                                                  , ApplicationId
                                                   FROM Application_has_MonthlyObligation
                                                     WHERE MonthlyObligationId = ".$input['Id']."
       ")->row_array();
-
       // update status
         $set = array(
           'StatusId' => $input['updateType'],
@@ -554,10 +571,26 @@ class loanapplication_model extends CI_Model
           'DateUpdated' => $DateNow,
         );
         $condition = array(
-          'MonthlyObligationId' => $input['Id']
+          'MonthlyObligationId' => $input['Id'],
         );
         $table = 'Application_has_MonthlyObligation';
         $this->maintenance_model->updateFunction1($set, $condition, $table);
+      // insert into Application_has_Notifications
+        if($input['updateType'] == 2)
+        {
+          $ObligationDescription = 'Re-activated ' .$ObligationDetail['Source']. ' of ' .$ObligationDetail['ApplicationId']. ' at the Obligation tab '; // Application Notification
+        }
+        else if($input['updateType'] == 6)
+        {
+          $ObligationDescription = 'Deactivated ' .$ObligationDetail['Source']. '  of ' .$ObligationDetail['ApplicationId']. ' at the Obligation tab '; // Application Notification
+        }
+        $data3 = array(
+          'Description'   => $ObligationDescription,
+          'ApplicationId' => $ObligationDetail['ApplicationId'],
+          'CreatedBy'     => $EmployeeNumber,
+          'DateCreated'   => $DateNow
+        );
+        $this->db->insert('Application_has_Notifications', $data3);
       // insert into logs
         if($input['updateType'] == 2)
         {
@@ -577,6 +610,7 @@ class loanapplication_model extends CI_Model
     else if($input['Type'] == 'Expenses')
     {
       $ExpenseDetail = $this->db->query("SELECT  Source
+                                                , ApplicationId
                                                   FROM Application_has_Expense
                                                     WHERE ExpenseId = ".$input['Id']."
       ")->row_array();
@@ -592,6 +626,22 @@ class loanapplication_model extends CI_Model
         );
         $table = 'Application_has_Expense';
         $this->maintenance_model->updateFunction1($set, $condition, $table);
+        // insert into Application_has_Notifications
+        if($input['updateType'] == 2)
+        {
+          $ExpenseDescription = 'Re-activated ' .$ExpenseDetail['Source']. ' of ' .$ExpenseDetail['ApplicationId']. ' at the Expense tab '; // Application Notification
+        }
+        else if($input['updateType'] == 6)
+        {
+          $ExpenseDescription = 'Deactivated ' .$ExpenseDetail['Source']. '  of ' .$ExpenseDetail['ApplicationId']. ' at the Expense tab '; // Application Notification
+        }
+        $data3 = array(
+          'Description'   => $ExpenseDescription,
+          'ApplicationId' => $ExpenseDetail['ApplicationId'],
+          'CreatedBy'     => $EmployeeNumber,
+          'DateCreated'   => $DateNow
+        );
+        $this->db->insert('Application_has_Notifications', $data3);
       // insert into logs
         if($input['updateType'] == 2)
         {
@@ -607,10 +657,26 @@ class loanapplication_model extends CI_Model
           'DateCreated'   => $DateNow
         );
         $this->db->insert('R_Logs', $data2);
+        // insert into Application_has_Notifications
+        if($input['updateType'] == 2)
+        {
+          $Description = 'Re-activated ' .$ExpenseDetail['Source']. ' of Expense # '; // Application Notification
+        }
+        else if($input['updateType'] == 6)
+        {
+          $Description = 'Deactivated ' .$ExpenseDetail['Source']. '  of Expense #'; // Application Notification
+        }
+        $data2 = array(
+          'Description'   => $Description,
+          'CreatedBy'     => $EmployeeNumber,
+          'DateCreated'   => $DateNow
+        );
+        $this->db->insert('Application_has_Notifications', $data2);
     }
     else if($input['Type'] == 'Incomes')
     {
       $IncomeDetail = $this->db->query("SELECT  Source
+                                                , ApplicationId
                                                   FROM Application_has_MonthlyIncome
                                                     WHERE IncomeId = ".$input['Id']."
       ")->row_array();
@@ -626,6 +692,22 @@ class loanapplication_model extends CI_Model
         );
         $table = 'Application_has_MonthlyIncome';
         $this->maintenance_model->updateFunction1($set, $condition, $table);
+        // insert into Application_has_Notifications
+        if($input['updateType'] == 2)
+        {
+          $IncomeDescription = 'Re-activated ' .$IncomeDetail['Source']. ' of ' .$IncomeDetail['ApplicationId']. ' at the Other Source of Income tab '; // Application Notification
+        }
+        else if($input['updateType'] == 6)
+        {
+          $IncomeDescription = 'Deactivated ' .$IncomeDetail['Source']. '  of ' .$IncomeDetail['ApplicationId']. ' at the Other Source of Income tab '; // Application Notification
+        }
+        $data3 = array(
+          'Description'   => $IncomeDescription,
+          'ApplicationId' => $IncomeDetail['ApplicationId'],
+          'CreatedBy'     => $EmployeeNumber,
+          'DateCreated'   => $DateNow
+        );
+        $this->db->insert('Application_has_Notifications', $data3);
       // insert into logs
         if($input['updateType'] == 2)
         {
@@ -642,31 +724,80 @@ class loanapplication_model extends CI_Model
         );
         $this->db->insert('R_Logs', $data2);
     }
-  }
-
-    function getRequirements($Id)
+    else if($input['Type'] == 'Requirements')
     {
-      $query = $this->db->query("SELECT DISTINCT RequirementId
-                                          , R.Name
-                                          , Description
-                                          , IsMandatory
-                                          FROM r_requirements R
-                                            INNER JOIN Requirement_has_type RT
-                                            ON R.RequirementTypeId = RT.RequirementTypeId
-                                            WHERE R.StatusId = 1 
-                                            AND requirementId NOT IN (SELECT RequirementId FROM Application_has_Requirements AR WHERE AR.ApplicationId = $Id )
-                                            AND RT.RequirementTypeId = (SELECT DISTINCT RR.RequirementTypeId FROM r_requirements RR
-                                                                            INNER JOIN Application_has_Requirements AHR 
-                                                                              ON AHR.RequirementId = RR.requirementId
-                                                                                WHERE AHR.ApplicationId = $Id)
-      ");
-      $output = '<option selected disabled value="">Select Requirement Type</option>';
-      foreach ($query->result() as $row)
-      {
-        $output .= '<option value="'.$row->RequirementId.'">'.$row->Name.'</option>';
-      }
-      return $output;
-    }
+      $RequirementDetail = $this->db->query("SELECT  ApplicationRequirementId
+                                                , ApplicationId
+                                                  FROM Application_has_Requirements
+                                                    WHERE ApplicationRequirementId = ".$input['Id']."
+      ")->row_array();
 
+      // update status
+        $set = array(
+          'StatusId' => $input['updateType'],
+          'UpdatedBy' => $EmployeeNumber,
+          'DateUpdated' => $DateNow,
+        );
+        $condition = array(
+          'ApplicationRequirementId' => $input['Id']
+        );
+        $table = 'Application_has_Requirements';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      // insert into logs
+        if($input['updateType'] == 2)
+        {
+          $Description = 'Re-activated ' .$RequirementDetail['ApplicationRequirementId']. ' at the system setup'; // main log
+        }
+        else if($input['updateType'] == 6)
+        {
+          $Description = 'Deactivated ' .$RequirementDetail['ApplicationRequirementId']. '  at the system setup'; // main log
+        }
+        $data2 = array(
+          'Description'   => $Description,
+          'CreatedBy'     => $EmployeeNumber,
+          'DateCreated'   => $DateNow
+        );
+        $this->db->insert('R_Logs', $data2);
+        // insert into Application_has_Notifications
+        if($input['updateType'] == 2)
+        {
+          $Description = 'Re-activated ' .$RequirementDetail['ApplicationRequirementId']. ' of Requirement # '; // Application Notification
+        }
+        else if($input['updateType'] == 6)
+        {
+          $Description = 'Deactivated ' .$RequirementDetail['ApplicationRequirementId']. '  of Requirement #'; // Application Notification
+        }
+        $data2 = array(
+          'Description'   => $Description,
+          'CreatedBy'     => $EmployeeNumber,
+          'DateCreated'   => $DateNow
+        );
+        $this->db->insert('Application_has_Notifications', $data2);
+    }
+  }
+  
+  function getRequirements($Id)
+  {
+    $query = $this->db->query("SELECT DISTINCT RequirementId
+                                        , R.Name
+                                        , Description
+                                        , IsMandatory
+                                        FROM r_requirements R
+                                          INNER JOIN Requirement_has_type RT
+                                          ON R.RequirementTypeId = RT.RequirementTypeId
+                                          WHERE R.StatusId = 1 
+                                          AND requirementId NOT IN (SELECT RequirementId FROM Application_has_Requirements AR WHERE AR.ApplicationId = $Id )
+                                          AND RT.RequirementTypeId = (SELECT DISTINCT RR.RequirementTypeId FROM r_requirements RR
+                                                                          INNER JOIN Application_has_Requirements AHR 
+                                                                            ON AHR.RequirementId = RR.requirementId
+                                                                              WHERE AHR.ApplicationId = $Id)
+    ");
+    $output = '<option selected disabled value="">Select Requirement Type</option>';
+    foreach ($query->result() as $row)
+    {
+      $output .= '<option value="'.$row->RequirementId.'">'.$row->Name.'</option>';
+    }
+    return $output;
+  } 
 
 }
