@@ -27,7 +27,7 @@
   <!-- Content Header (Page header) -->
   <section class="content-header">
     <h1>
-      Create Loan Application
+      Renew Application
     </h1>
     <ol class="breadcrumb">
       <li><a href="#" class="active"><i class="fa fa-dashboard"></i>Loans</a></li>
@@ -41,6 +41,7 @@
       <div class="box">
         <div class="box-header with-border">
           <h3 class="box-title">Loan Details</h3>
+          <input type="hidden" id="txtApplicationId" value="<?php print_r($this->uri->segment(3)) ?>">
         </div>
         <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/submitApplication" class="frmSubmit" method="post">
           <div class="box-body">
@@ -59,9 +60,20 @@
                     <div class="col-md-12">
                       <div class="form-group">
                         <label for="selectLoanType">Loan Type <span class="text-red">*</span></label><br>
-                        <select class="form-control select1" style="width: 100%" required="" onchange="loanSummary()" name="LoanTypeId" id="selectLoanType">
+                        <select class="form-control" style="width: 100%" required="" onchange="loanSummary()" name="LoanTypeId" id="selectLoanType">
                           <?php
-                            echo $LoanType;
+                            foreach ($LoanType as $value) 
+                            {
+                              if($detail['LoanId'] == $value['LoanId'])
+                              {
+                                $selected = 'selected';
+                              }
+                              else
+                              {
+                                $selected = '';                                
+                              }
+                              echo "<option ".$selected." value='".$value['LoanId']."'>".$value['Name']."</option>";
+                            }
                           ?>
                         </select>
                         <a href=""> Add/Edit Loan Products</a>
@@ -69,24 +81,24 @@
                     </div>
                     <div class="col-md-12">
                       <label></label>
-                      <label><input id='chkPenalty' name="IsPenalized" onclick='onchangeIsPenalized()' type='checkbox'> Enable Late Repayment Penalty?</label>
+                      <label><input id='chkPenalty' name="IsPenalized" onclick='onchangeIsPenalized()' <?php if($detail['IsPenalized']) echo "checked"; else { echo "";} ?> type='checkbox'> Enable Late Repayment Penalty?</label>
                     </div>
                     <br>
-                    <div id="divPenalty" style="display: none">
+                    <div id="divPenalty" style="display: <?php if($detail['IsPenalized']) echo ""; else { echo "none";} ?>">
                       <div class="col-md-4">
                         <label>Penalty Type</label>
                         <select class="form-control" id="selectPenaltyType" onchange="onchangePenaltyType()" name="PenaltyType">
-                          <option>Flat Rate</option>
-                          <option>Percentage</option>
+                          <option <?php if($detail['PenaltyType'] == 'Flat Rate') echo "selected"; else { echo "";} ?>>Flat Rate</option>
+                          <option<?php if($detail['PenaltyType'] == 'Percentage') echo "selected"; else { echo "";} ?>>Percentage</option>
                         </select>
                       </div>
                       <div class="col-md-4">
                         <label id="inputLblPenaltyType">Amount</label>
-                        <input type="number" min="0" class="form-control" name="PenaltyAmount" id="txtPenaltyAmount">
+                        <input type="number" value="<?php print_r($detail["PenaltyAmount"]) ?>" min="0" class="form-control" name="PenaltyAmount">
                       </div>
                       <div class="col-md-4">
                         <label>Grace Period</label>
-                        <input type="number" min="0" class="form-control" name="GracePeriod" id="txtPenaltyAmount">
+                        <input type="number" min="0" class="form-control" name="PenaltyAmount" value="<?php print_r($detail["GracePeriod"]) ?>">
                       </div>
                     </div>
                   </div>
@@ -100,10 +112,10 @@
                           <option value="Walk-in">Walk-in</option>
                           <option value="Through Agent">Through Agent</option>
                         </select>
-                        <div id="agentDiv" style="display: none">
+                        <div id="agentDiv" style="display: <?php if($detail['Source'] == 'Through Agent') {echo "";} else { echo "none";} ?>">
                           <br>
                           <label>Agent's Name<span class="text-red">*</span></label><br>
-                          <input type="text" class="form-control" id="txtAgentName" name="AgentName">
+                          <input type="text" class="form-control" value="<?php print_r($detail['SourceName']) ?>" id="txtAgentName" name="AgentName">
                         </div>
                       </div>
                     </div>
@@ -112,7 +124,18 @@
                         <label>Purpose<span class="text-red">*</span></label><br>
                         <select class="form-control" style="width: 100%" onchange="loanSummary()" id="selectPurpose" name="PurposeId">
                           <?php
-                            echo $Purpose;
+                            foreach ($Purpose as $value) 
+                            {
+                              if($detail['PurposeId'] == $value['PurposeId'])
+                              {
+                                $selected = 'selected';
+                              }
+                              else
+                              {
+                                $selected = '';                                
+                              }
+                              echo "<option ".$selected." value='".$value['PurposeId']."'>".$value['Name']."</option>";
+                            }
                           ?>
                         </select>
                         <a href=""> Add/Edit Purpose</a>
@@ -141,7 +164,18 @@
                         <label>Disbursed By<span class="text-red">*</span></label><br>
                         <select class="form-control" style="width: 100%" required="" id="selectDisbursedBy" onchange="loanSummary()" name="DisbursedBy">
                           <?php
-                            echo $disbursements;
+                            foreach ($disbursements as $value) 
+                            {
+                              if($detail['DisbursementId'] == $value['DisbursementId'])
+                              {
+                                $selected = 'selected';
+                              }
+                              else
+                              {
+                                $selected = '';                                
+                              }
+                              echo "<option ".$selected." value='".$value['DisbursementId']."'>".$value['Name']."</option>";
+                            }
                           ?>
                         </select>
                       </div>
@@ -149,33 +183,44 @@
                     <div class="col-md-6">
                       <div class="form-group">
                         <label>Principal Amount<span class="text-red">*</span></label><br>
-                        <input type="number" class="form-control" placeholder="Principal Amount" oninput="btnRemoveCharges(); loanSummary()" id="txtPrincipalAmount" name="PrincipalAmount">
+                        <input type="number" class="form-control" value="<?php print_r($detail["RawPrincipalAmount"]) ?>" placeholder="Principal Amount" oninput="btnRemoveCharges(); getTotalInterest(); loanSummary()" id="txtPrincipalAmount" name="PrincipalAmount">
                       </div>
                     </div>
                     <div class="col-md-6">
                       <div class="form-group">
                         <label>Term Type<span class="text-red">*</span></label><br>
-                        <select class="form-control" style="width: 100%" required="" onchange="getRepaymentDuration(); loanSummary()" name="TermType" id="selectTermType">
+                        <select class="form-control" style="width: 100%" required="" onchange="getRepaymentDuration(); getTotalInterest(); loanSummary()" name="TermType" id="selectTermType">
                           <option value="" disabled="">Select Term Type</option>
-                          <option>Days</option>
-                          <option>Weeks</option>
-                          <option selected="" >Months</option>
-                          <option>Years</option>
+                          <option <?php if($detail['TermType'] == 'Days') echo "selected"; else { echo "";} ?>>Days</option>
+                          <option <?php if($detail['TermType'] == 'Weeks') echo "selected"; else { echo "";} ?>>Weeks</option>
+                          <option <?php if($detail['TermType'] == 'Months') echo "selected"; else { echo "";} ?>>Months</option>
+                          <option <?php if($detail['TermType'] == 'Years') echo "selected"; else { echo "";} ?>>Years</option>
                         </select>
                       </div>
                     </div>
                     <div class="col-md-6">
                       <div class="form-group">
                         <label>Term<span class="text-red">*</span></label><br>
-                        <input type="number" class="form-control" oninput="getRepaymentDuration(); getPrincipalCollection(); getTotalCollection(); loanSummary()" name="TermNumber" id="txtTermNo">
+                        <input type="number" class="form-control" oninput="getRepaymentDuration();getTotalInterest(); getPrincipalCollection(); getTotalCollection(); loanSummary()" name="TermNumber" value="<?php print_r($detail["TermNo"]) ?>" id="txtTermNo">
                       </div>
                     </div>
                     <div class="col-md-6">
                       <div class="form-group">
                         <label>Repayment Cycle<span class="text-red">*</span></label><br>
-                        <select class="form-control" style="width: 100%" required="" onchange="getRepaymentDuration(); getPrincipalCollection(); getTotalCollection(); loanSummary()" name="RepaymentCycle" id="selectRepaymentType">
+                        <select class="form-control" style="width: 100%" required="" onchange="getRepaymentDuration();getTotalInterest(); getPrincipalCollection(); getTotalCollection(); loanSummary()" name="RepaymentCycle" id="selectRepaymentType">
                           <?php
-                            echo $repaymentCycle;
+                            foreach ($repaymentCycle as $value) 
+                            {
+                              if($detail['RepaymentId'] == $value['RepaymentId'])
+                              {
+                                $selected = 'selected';
+                              }
+                              else
+                              {
+                                $selected = '';                                
+                              }
+                              echo "<option ".$selected." value='".$value['RepaymentId']."'>".$value['Name']."</option>";
+                            }
                           ?>
                         </select>
                         <a href=""> Add/Edit Repayment Cycle</a>
@@ -184,7 +229,7 @@
                     <div class="col-md-6">
                       <div class="form-group">
                         <label>Number of Repayments<span class="text-red">*</span></label><br>
-                        <input type="number" min="0" class="form-control" onchange="getPrincipalCollection(); getTotalCollection(); loanSummary()" name="RepaymentsNumber" required="" id="txtRepayments">
+                        <input type="number" min="0" class="form-control" onchange="getPrincipalCollection(); getTotalCollection(); loanSummary()" name="RepaymentsNumber" required="" value="<?php print_r($detail["RepaymentNo"]) ?>" id="txtRepayments">
                       </div>
                     </div>
                   </div>
@@ -194,38 +239,52 @@
                     <div class="col-md-2">
                       <label>Interest Type</label>
                       <select class="form-control" id="selectInterestType" name="interestType" onchange="getTotalInterest(); loanSummary()">
-                        <option selected="">Flat Rate</option>
-                        <option>Percentage</option>
+                        <option <?php if($detail['InterestType'] == 'Flat Rate') echo "selected"; else { echo "";} ?>>Flat Rate</option>
+                        <option <?php if($detail['InterestType'] == 'Percentage') echo "selected"; else { echo "";} ?>>Percentage</option>
                       </select>
                     </div>
                     <div class="col-md-3">
                       <label>Interest Amount</label>
-                      <input type="number" class="form-control" id="txtInterest" name="interestAmount" onchange="getTotalInterest(); loanSummary()">
+                      <input type="number" class="form-control" id="txtInterest" value="<?php print_r($detail["Amount"]) ?>" name="interestAmount" onchange="getTotalInterest(); loanSummary()">
                     </div>
                     <div class="col-md-3">
                       <label>Interest Frequency</label>
                       <select class="form-control" id="selectInterestFrequency" name="interestFrequency" onchange="getTotalInterest(); loanSummary()">
-                        <option selected="" disabled="">Select Interest Frequency</option>
-                        <option>Per Day</option>
-                        <option>Per Week</option>
-                        <option>Per Month</option>
-                        <option>Per Year</option>
-                        <option>Per Loan</option>
+                        <optiondisabled="">Select Interest Frequency</option>
+                        <option <?php if($detail['Frequency'] == 'Per Day') echo "selected"; else { echo "";} ?>>Per Day</option>
+                        <option <?php if($detail['Frequency'] == 'Per Week') echo "selected"; else { echo "";} ?>>Per Week</option>
+                        <option <?php if($detail['Frequency'] == 'Per Month') echo "selected"; else { echo "";} ?>>Per Month</option>
+                        <option <?php if($detail['Frequency'] == 'Per Year') echo "selected"; else { echo "";} ?>>Per Year</option>
+                        <option <?php if($detail['Frequency'] == 'Per Loan') echo "selected"; else { echo "";} ?>>Per Loan</option>
                       </select>
                     </div>
                     <div class="col-md-2">
                       <label>Add-On Interest Rate</label>
-                      <h6 class="lblTotalInterest">Php 0.00</h6>
+                      <h6 class="lblTotalInterest"><?php print_r($detail["renewAddOnInterest"]) ?></h6>
                     </div>
                     <div class="col-md-2">
                       <label>Total Interest</label>
-                      <h6 class="lblFinalInterest">Php 0.00</h6>
+                      <h6 class="lblFinalInterest">
+                        <?php
+                          $TotalInterest = 0;
+                          if($detail['InterestType'] == 'Percentage')
+                          {
+                            $TotalInterest = ($detail['RawPrincipalAmount'] * ($detail['Amount']/100)) * $detail['TermNo'];
+                          }
+                          else
+                          {
+                            $TotalInterest = (($detail['Amount'])) * $detail['TermNo'];
+                          }
+                          $totalDue = $TotalInterest + $detail['RawPrincipalAmount'];
+                          print_r('Php '. number_format($TotalInterest, 2));
+                        ?>
+                      </h6>
                     </div>
                   </div>
                   <br>
-                  <h4>Additional Charges <small><a href=""> Add/Edit Additional Charges</a></small> <a class="btn btn-sm btn-primary pull-right" id="btnAddCharges" onclick="btnCharges()">Add Charges</a> <a class="btn btn-sm btn-primary pull-right" style="display: none" onclick="btnRemoveCharges()" id="btnRemoveCharges">Remove Charges</a></h4>
+                  <h4>Additional Charges <small><a href=""> Add/Edit Additional Charges</a></small> <a class="btn btn-sm btn-primary pull-right" id="btnAddCharges"  style="display: <?php if($charges['TotalCharges'] > 0) echo "none"; else { echo "";} ?>" onclick="btnCharges()">Add Charges</a> <a class="btn btn-sm btn-primary pull-right" style="display:  <?php if($charges['TotalCharges'] > 0) echo ""; else { echo "none";} ?>" onclick="btnRemoveCharges()" id="btnRemoveCharges">Remove Charges</a></h4>
                   <hr>
-                  <div id="divAdditionalCharges" style="display: none">
+                  <div id="divAdditionalCharges" style="display: <?php if($charges['TotalCharges'] > 0) echo ""; else { echo "none";} ?>">
                     <div class="row">
                       <div class="col-md-12">
                         <table id="example3" class="table table-bordered table-hover" style="width: 100%">
@@ -249,31 +308,31 @@
                   <div class="row">
                     <div class="col-md-4">
                       <label>Total Additional Charges</label>
-                      <h6 class="lblTotalAdditionalCharges">Php 0.00</h6>
+                      <h6 class="lblTotalAdditionalCharges">Php <?php print_r(number_format($charges['TotalCharges'], 2))?></h6>
                     </div>
                     <div class="col-md-4">
                       <label>Total Collections</label>
-                      <h6 class="lblTotalCollections">Php 0.00</h6>
+                      <h6 class="lblTotalCollections"><?php print_r($detail['TotalCollections']) ?></h6>
                     </div>
                     <div class="col-md-4">
                       <label>Total Cost of Loan</label>
-                      <h6 class="lblTotalLoanCost">Php 0.00</h6>
+                      <h6 class="lblTotalLoanCost">Php <?php print_r(number_format($TotalInterest + $charges['TotalCharges'], 2)) ?></h6>
                     </div>
                     <div class="col-md-4">
                       <label>Principal per Collection</label>
-                      <h6 class="lblPrincipalPerCollection">Php 0.00</h6>
+                      <h6 class="lblPrincipalPerCollection">Php <?php print_r(number_format($detail['RawPrincipalAmount'] / $detail['TotalCollections'], 2)) ?></h6>
                     </div>
                     <div class="col-md-4">
                       <label>Interest per Collection</label>
-                      <h6 class="lblInterestPerCollection">Php 0.00</h6>
+                      <h6 class="lblInterestPerCollection">Php <?php print_r(number_format($TotalInterest / $detail['TotalCollections'], 2)) ?></h6>
                     </div>
                     <div class="col-md-4">
                       <label>Payable per Collection</label>
-                      <h6 class="lblPayablePerCollection">Php 0.00</h6>
+                      <h6 class="lblPayablePerCollection">Php <?php print_r(number_format($detail['RawPrincipalAmount'] / $detail['TotalCollections'] + $TotalInterest / $detail['TotalCollections'], 2) ) ?></h6>
                     </div>
                     <div class="col-md-4">
                       <label>Net Loan Amount</label>
-                      <h6 class="lblNetLoanAmount">Php 0.00</h6>
+                      <h6 class="lblNetLoanAmount">Php <?php print_r(number_format($detail['RawPrincipalAmount'] - $charges['TotalCharges'], 2))?></h6>
                     </div>
                   </div>
                 </div>
@@ -283,8 +342,19 @@
                       <label>Select Borrower</label>
                       <select class="form-control select2" name="borrowerId" style="width: 100%" onchange="displayBorrowerDetails(this.value)" id="selectBorrowerNumber">
                         <?php
-                          echo $borrowerList;
-                        ?>
+                            foreach ($borrowerList as $value) 
+                            {
+                              if($detail['BorrowerId'] == $value['BorrowerId'])
+                              {
+                                $selected = 'selected';
+                              }
+                              else
+                              {
+                                $selected = '';                                
+                              }
+                              echo "<option ".$selected." value='".$value['BorrowerId']."'>".$value['Name']."</option>";
+                            }
+                          ?>
                       </select>
                     </div>
                     <div class="col-md-12">
@@ -349,7 +419,7 @@
                 </div>
                 <div id="SI" class="">
                   <div class="box-header with-border">
-                    <h3 class="box-title">Source of Other Income</h3> <button type="button" class="btn btn-primary pull-right" id="btnMonthlyIncome">Add Row</button>
+                    <h3 class="box-title">Sources of Other Income</h3> <button type="button" class="btn btn-primary pull-right" id="btnMonthlyIncome">Add Row</button>
                   </div>
                   <br>
                   <br>
@@ -364,13 +434,29 @@
                     </tr>
                     </thead>
                     <tbody>
+                      <?php
+                        $totalOtherSources = 0;
+                        $rowNumber = 0;
+                        foreach ($income as $value) 
+                        {
+                          $totalOtherSources = $totalOtherSources + $value['Amount'];
+                          $rowNumber = $rowNumber + 1;
+                          echo '<tr id="rowIncomeId'.$rowNumber.'" value="'.$rowNumber.'">';
+                          echo '<td id="rowNumber'.$rowNumber.'">'.$rowNumber.'</td>';
+                          echo '<td><input type="text" value="'.$value['Source'].'" class="form-control" name="MISourceIncome[]"><input type="hidden" required="" class="form-control" name="countMonthlyIncome[]" value="'.$rowNumber.'"></td>';
+                          echo '<td><input type="text" class="form-control" value="'.$value['Details'].'" name="MIDetails[]"></td>';
+                          echo '<td><input required="" type="text" class="form-control incomeAmount"  value="'.number_format($value['Amount'], 2).'" min="0"  placeholder="0.00" oninput="changeAmount(this.value, 1, '.$rowNumber.')" name="MIAmount[]"></td>';
+                          echo '<td><a id="' .$rowNumber. '" class="btn btnRemoveIncome btn-sm btn-danger" title="Remove"><span class="fa fa-minus"></span></a> </td>';
+                          echo "</tr>";
+                        }
+                      ?>
                     </tbody>
                     <tfoot>
                       <tr>
                         <td>Amount</td>
                         <td></td>
                         <td></td>
-                        <td><label class="lblTotalIncome">Php 0.00</label></td>
+                        <td><label class="lblTotalIncome"><?php echo 'Php ' . number_format($totalOtherSources, 2); ?></label></td>
                         <td></td>
                       </tr>
                     </tfoot>
@@ -393,13 +479,29 @@
                     </tr>
                     </thead>
                     <tbody>
+                      <?php 
+                        $TotalExpense = 0;
+                        $rowNumber = 0;
+                        foreach ($expense as $value) 
+                        {
+                          $TotalExpense = $TotalExpense + $value['Amount'];
+                          $rowNumber = $rowNumber + 1;
+                          echo '<tr id="rowExpenseId' .$rowNumber. '" value="' .$rowNumber. '">';
+                          echo '<td id="rowNumber' .$rowNumber. '">' .$rowNumber. '</td>';
+                          echo '<td><input type="text" value="'.$value['Source'].'" class="form-control" name="SourceExpenses[]"><input type="hidden" required="" class="form-control" name="countRow[]" value="' .$rowNumber. '"></td>';
+                          echo '<td><input type="text" value="'.$value['Details'].'" class="form-control" name="Details[]"></td>';
+                          echo '<td><input required="" type="number"  value="'.$value['Amount'].'" class="form-control expenseAmount" name="Amount[]" placeholder="0.00" oninput="changeAmount(this.value, 2, ' .$rowNumber. ')"></td>';
+                          echo '<td><a id="' .$rowNumber. '" class="btn btnRemoveExpense btn-sm btn-danger" title="Remove"><span class="fa fa-minus"></span></a> </td>';
+                          echo "</tr>";
+                        }
+                      ?>
                     </tbody>
                     <tfoot>
                       <tr>
                         <td>Amount</td>
                         <td></td>
                         <td></td>
-                        <td><label class="lblTotalExpense">Php 0.00</label></td>
+                        <td><label class="lblTotalExpense">Php <?php print_r(number_format($TotalExpense, 2)) ?></label></td>
                         <td></td>
                       </tr>
                     </tfoot>
@@ -422,13 +524,30 @@
                     </tr>
                     </thead>
                     <tbody>
+                      <?php 
+                        $totalObligation = 0;
+
+                        $rowNumber = 0;
+                        foreach ($obligations as $value) 
+                        {
+                          $totalObligation = $totalObligation + $value['Amount'];
+                          $rowNumber = $rowNumber + 1;
+                          echo '<tr id="rowObligationId' .$rowNumber. '" value="' .$rowNumber. '">';
+                          echo '<td id="rowNumber' .$rowNumber. '">' .$rowNumber. '</td>';
+                          echo '<td><input type="text" class="form-control" value="'.$value['Source'].'"  name="SourceObligations[]"><input type="hidden" required="" class="form-control" name="countObligationRow[]" value="' .$rowNumber. '"></td>';
+                          echo '<td><input type="text" class="form-control" value="'.$value['Details'].'"  name="ObligationDetails[]"></td>';
+                          echo '<td><input required="" type="text" value="'.$value['Amount'].'"  class="form-control obligationAmount" name="ObligationAmount[]" placeholder="0.00" oninput="changeAmount(this.value, 3, ' .$rowNumber. ')"></td>';
+                          echo '<td><a id="' .$rowNumber. '" class="btn btnRemoveObligation btn-sm btn-danger" title="Remove"><span class="fa fa-minus"></span></a> </td>';
+                          echo "</tr>";
+                        }
+                      ?>
                     </tbody>
                     <tfoot>
                       <tr>
                         <td>Amount</td>
                         <td></td>
                         <td></td>
-                        <td><label class="lblTotalObligation">Php 0.00</label></td>
+                        <td><label class="lblTotalObligation">Php <?php print_r(number_format($totalObligation, 2)) ?></label></td>
                         <td></td>
                       </tr>
                     </tfoot>
@@ -488,39 +607,39 @@
                     </div>
                     <div class="col-md-3">
                       <label>Add-On Interest Rate</label>
-                      <h6 class="lblTotalInterest">Php 0.00</h6>
+                      <h6 class="lblTotalInterest"><?php print_r($detail["renewAddOnInterest"]) ?></h6>
                     </div>
                     <div class="col-md-3">
                       <label>Total Interest</label>
-                      <h6 class="lblFinalInterest">Php 0.00</h6>
+                      <h6 class="lblFinalInterest">Php <?php print_r(number_format($TotalInterest, 2)) ?></h6>
                     </div>     
                     <div class="col-md-3">
                       <label>Total Additional Charges</label>
-                      <h6 class="lblTotalAdditionalCharges">Php 0.00</h6>
+                      <h6 class="lblTotalAdditionalCharges">Php <?php print_r(number_format($charges['TotalCharges'], 2))?></h6>
                     </div>
                     <div class="col-md-3">
                       <label>Total Collections</label>
-                      <h6 class="lblTotalCollections">Php 0.00</h6>
+                      <h6 class="lblTotalCollections"><?php print_r($detail['TotalCollections']) ?></h6>
                     </div>
                     <div class="col-md-3">
                       <label>Total Cost of Loan</label>
-                      <h6 class="lblTotalLoanCost">Php 0.00</h6>
+                      <h6 class="lblTotalLoanCost">Php <?php print_r(number_format($TotalInterest + $charges['TotalCharges'], 2)) ?></h6>
                     </div>
                     <div class="col-md-3">
                       <label>Principal per Collection</label>
-                      <h6 class="lblPrincipalPerCollection">Php 0.00</h6>
+                      <h6 class="lblPrincipalPerCollection">Php <?php print_r(number_format($detail['RawPrincipalAmount'] / $detail['TotalCollections'], 2)) ?></h6>
                     </div>
                     <div class="col-md-3">
                       <label>Interest per Collection</label>
-                      <h6 class="lblInterestPerCollection">Php 0.00</h6>
+                      <h6 class="lblInterestPerCollection">Php <?php print_r(number_format($TotalInterest / $detail['TotalCollections'], 2)) ?></h6>
                     </div>
                     <div class="col-md-3">
                       <label>Payable per Collection</label>
-                      <h6 class="lblPayablePerCollection">Php 0.00</h6>
+                      <h6 class="lblPayablePerCollection">Php <?php print_r(number_format($detail['RawPrincipalAmount'] / $detail['TotalCollections'] + $TotalInterest / $detail['TotalCollections'], 2) ) ?></h6>
                     </div>
                     <div class="col-md-3">
                       <label>Net Loan Amount</label>
-                      <h6 class="lblNetLoanAmount">Php 0.00</h6>
+                      <h6 class="lblNetLoanAmount">Php <?php print_r(number_format($detail['RawPrincipalAmount'] - $charges['TotalCharges'], 2))?></h6>
                     </div>
                   </div>
                   <h4>Borrower Detail</h4>
@@ -590,26 +709,26 @@
                     </div>
                     <div class="col-md-3">
                       <label>Total Monthly Household Income</label>
-                      <h6 id="lblHouseholdMonthlyIncome">Php 0.00</h6>
+                      <h6 id="lblHouseholdMonthlyIncome">Php <?php print_r(number_format($detail['BorrowerMonthlyIncome'] + $detail['SpouseMonthlyIncome'], 2)) ?></h6>
                     </div>
                     <div class="col-md-3">
                       <label>Total Sources of Other Income</label>
-                      <h6 class="lblTotalIncome">Php 0.00</h6>
+                      <h6 class="lblTotalIncome">Php <?php print_r(number_format($totalOtherSources, 2)) ?></h6>
                     </div>
                   </div>
                   <br>
                   <div class="row">
                     <div class="col-md-3">
                       <label>Total Monthly Expenses</label>
-                      <h6 class="lblTotalExpense">Php 0.00</h6>
+                      <h6 class="lblTotalExpense">Php <?php print_r(number_format($TotalExpense, 2)) ?></h6>
                     </div>
                     <div class="col-md-3">
                       <label>Total Monthly Obligations</label>
-                      <h6 class="lblTotalObligation">Php 0.00</h6>
+                      <h6 class="lblTotalObligation">Php <?php print_r(number_format($totalObligation, 2)) ?></h6>
                     </div>
                     <div class="col-md-3">
                       <label>Net Monthly Household Income</label>
-                      <h6 id="lblNetIncome">Php 0.00</h6>
+                      <h6 id="lblNetIncome">Php <?php print_r(number_format(($detail['BorrowerMonthlyIncome'] + $detail['SpouseMonthlyIncome'] + $totalOtherSources) - ($TotalExpense + $totalObligation), 2)) ?></h6>
                     </div>
                     <div class="col-md-3">
                       <label>Risk Assessment Level</label>
@@ -652,7 +771,7 @@
                       <div id="divLoanApproval" style="display: none">
                         <br>
                         <label>Approval Type</label>
-                        <select class="form-control" name="ApprovalType">
+                        <select class="form-control" id="selectApprovalType" name="ApprovalType">
                           <option>Heirarchical</option>
                           <option>Simultaenous</option>
                         </select>
@@ -695,7 +814,7 @@
 <?php $this->load->view('includes/footer'); ?>
 <script>
   // SUMMARY FOR MONTHLY HOUSEHOLD SALARY
-    var MonthlyHouseholdIncome = 0
+    var MonthlyHouseholdIncome = 0;
     var NetMonthlyIncome = 0;
     function monthlySalaries()
     {
@@ -781,15 +900,15 @@
     function loanSummary()
     {
       $('#lblLoanType').html($('#selectLoanType option:selected').data('city'));
-      $('#lblSource').html($('#selectSource option:selected'));
+      $('#lblSource').html($('#selectSource option:selected').val());
       $('#lblPurpose').html($('#selectPurpose option:selected').data('city'));
       $('#lblReleaseDate').html($('#loanReleaseDate').val());
       $('#lblDisbursedType').html($('#selectDisbursedBy option:selected').data('city'));
-      $('#lblPrincipalAmount').html($('#txtPrincipalAmount').val());
+      $('#lblPrincipalAmount').html('Php ' + parseInt($('#txtPrincipalAmount').val()).toLocaleString('en-US', {minimumFractionDigits: 2}));
       $('#lblTerm').html($('#txtTermNo').val() + ' '  + $('#selectTermType').val());
       $('#lblRepayments').html($('#txtRepayments').val() + ' ' + $('#selectRepaymentType option:selected').data('city'));
       $('#lblInterestType').html($('#selectInterestType').val());
-      $('#lblInterestAmount').html($('#txtInterest').val());
+      $('#lblInterestAmount').html($('#txtInterest').val() * $('#txtTermNo').val());
       $('#lblInterestFrequency').html($('#selectInterestFrequency').val());
     }
 
@@ -865,35 +984,6 @@
           $('.lblDOB').html(data['DateOfBirth']);
           $('.lblBorrowerStatus').html(data['StatusDescription']);
           $('.divBorrowerBtn').html('<a target="_blank" href="<?php echo base_url();?>home/BorrowerDetails/'+data['BorrowerId']+'">View Borrower Details</a>');
-
-          // $.ajax({
-          //   url: "<?php echo base_url();?>" + "/loanapplication_controller/getTenure",
-          //   type: "POST",
-          //   async: false,
-          //   data: {
-          //     Id : varBorrowerId
-          //   },
-          //   dataType: "JSON",
-          //   beforeSend: function(){
-          //       $('.loading').show();
-          //   },
-          //   success: function(data)
-          //   {
-          //     varTenure = data['AvgYears'];
-          //   },
-          //   error: function()
-          //   {
-          //     setTimeout(function() {
-          //       swal({
-          //         title: 'Warning!',
-          //         text: 'Something went wrong, please contact the administrator or refresh page!',
-          //         type: 'warning',
-          //         buttonsStyling: false,
-          //         confirmButtonClass: 'btn btn-primary'
-          //       });
-          //     }, 2000);
-          //   }
-          // });
         },
         error: function()
         {
@@ -910,7 +1000,6 @@
       });
     }
   // LOAN COMPUTATION
-    var varPrincipalAmount, varTermType, varTermNo, varRepaymentType, varRepaymentNo;
     function getTotalInterest()
     {
       computeRiskAssessment();
@@ -962,7 +1051,7 @@
           displayPayablePerCollection = parseInt(displayPrincipalPerCollection) + parseInt(displayInterestPerCollection);
           $('.lblPayablePerCollection').html('Php ' + parseInt(displayPayablePerCollection).toLocaleString('en-US', {minimumFractionDigits: 2}));
         // display net loan amount [loan amount - Processing Fee]
-          displayNetLoan = parseInt($('#txtPrincipalAmount').val()) - parseInt(displayTotal);
+          displayNetLoan = parseInt($('#txtPrincipalAmount').val()) - parseInt(displayTotalLoanCost);
           $('.lblNetLoanAmount').html('Php ' + parseInt(displayNetLoan).toLocaleString('en-US', {minimumFractionDigits: 2}));
       }
     }
@@ -1050,7 +1139,7 @@
           displayPrincipalPerCollection = $('#txtPrincipalAmount').val() / totalRepayments;
           $('.lblPrincipalPerCollection').html('Php ' + parseInt(displayPrincipalPerCollection).toLocaleString('en-US', {minimumFractionDigits: 2}));
         // display net loan amount [loan amount - Processing Fee]
-          displayNetLoan = parseInt($('#txtPrincipalAmount').val()) - parseInt(displayTotal);
+          displayNetLoan = parseInt($('#txtPrincipalAmount').val()) - parseInt(displayTotalLoanCost);
           $('.lblNetLoanAmount').html('Php ' + parseInt(displayNetLoan).toLocaleString('en-US', {minimumFractionDigits: 2}));
       }
     }
@@ -1071,7 +1160,7 @@
         displayPayablePerCollection = parseInt(displayPrincipalPerCollection) + parseInt(displayInterestPerCollection);
         $('.lblPayablePerCollection').html('Php ' + parseInt(displayPayablePerCollection).toLocaleString('en-US', {minimumFractionDigits: 2}));
       // display net loan amount [loan amount - Processing Fee]
-        displayNetLoan = parseInt($('#txtPrincipalAmount').val()) - parseInt(displayTotal);
+        displayNetLoan = parseInt($('#txtPrincipalAmount').val()) - parseInt(displayTotalLoanCost);
         $('.lblNetLoanAmount').html('Php ' + parseInt(displayNetLoan).toLocaleString('en-US', {minimumFractionDigits: 2}));
     }
 
@@ -1088,7 +1177,7 @@
         displayPayablePerCollection = parseInt(displayPrincipalPerCollection) + parseInt(displayInterestPerCollection);
         $('.lblPayablePerCollection').html('Php ' + parseInt(displayPayablePerCollection).toLocaleString('en-US', {minimumFractionDigits: 2}));
       // display net loan amount [loan amount - Processing Fee]
-        displayNetLoan = parseInt($('#txtPrincipalAmount').val()) - parseInt(displayTotal);
+        displayNetLoan = parseInt($('#txtPrincipalAmount').val()) - parseInt(displayTotalLoanCost);
         $('.lblNetLoanAmount').html('Php ' + parseInt(displayNetLoan).toLocaleString('en-US', {minimumFractionDigits: 2}));
     }
   // OTHERS
@@ -1100,7 +1189,7 @@
     var displayPrincipalPerCollection = 0;
     var displayInterestPerCollection = 0;
     var displayTotalLoanCost = 0;
-    var finalInterest = 0; // total interest
+    var finalInterest = '<?php print_r($TotalInterest) ?>'; // total interest
     var displayPayablePerCollection = 0;
     var displayTotalCollections = 0;
     var displayNetLoan = 0;
@@ -1343,7 +1432,6 @@
               var row = 0; 
               var isSelected = 0; 
               table.empty();
-              var total = 0;
               $.each(data, function (a, b) {
                 row = row + 1; 
 
@@ -1375,12 +1463,12 @@
                   "<td>"+b.Name+"</td>"+
                   "<td>"+amount+"</td>"+
                   "<td>"+
-                    "<input type='' name='ChargeNo[]' value='"+row+"'>"+
-                    "<input type='' name='ChargeId[]' value='"+b.ChargeId+"'>"+
-                    "<input type='' id='txtChargeAmount"+row+"' value='"+parseInt(b.Amount)+"'>"+
-                    "<input type='' name='IsSelected[]' id='isSelected"+row+"' value='"+isSelected+"'>"+
-                    "<input type='' class='chargeTotal[]' value='"+parseInt(total)+"'>"+
-                    "<input type='' id='txtChargeType"+row+"' value='"+b.ChargeType+"'> "+
+                    "<input type='hidden' name='ChargeNo[]' value='"+row+"'>"+
+                    "<input type='hidden' name='ChargeId[]' value='"+b.ChargeId+"'>"+
+                    "<input type='hidden' id='txtChargeAmount"+row+"' value='"+parseInt(b.Amount)+"'>"+
+                    "<input type='hidden' name='IsSelected[]' id='isSelected"+row+"' value='"+isSelected+"'>"+
+                    "<input type='hidden' class='chargeTotal[]' value='"+parseInt(total)+"'>"+
+                    "<input type='hidden' id='txtChargeType"+row+"' value='"+b.ChargeType+"'> "+
                     "Php "+parseInt(total).toLocaleString('en-US', {minimumFractionDigits: 2})+"</td>"+
                   "</tr>"
                 );
@@ -1400,7 +1488,7 @@
                 displayPayablePerCollection = parseInt(displayPrincipalPerCollection) + parseInt(displayInterestPerCollection);
                 $('.lblPayablePerCollection').html('Php ' + parseInt(displayPayablePerCollection).toLocaleString('en-US', {minimumFractionDigits: 2}));
               // display net loan amount [loan amount - Processing Fee]
-                displayNetLoan = parseInt($('#txtPrincipalAmount').val()) - parseInt(displayTotal);
+                displayNetLoan = parseInt($('#txtPrincipalAmount').val()) - parseInt(displayTotalLoanCost);
                 $('.lblNetLoanAmount').html('Php ' + parseInt(displayNetLoan).toLocaleString('en-US', {minimumFractionDigits: 2}));
             }
           },
@@ -1465,7 +1553,7 @@
         displayPayablePerCollection = parseInt(displayPrincipalPerCollection) + parseInt(displayInterestPerCollection);
         $('.lblPayablePerCollection').html('Php ' + parseInt(displayPayablePerCollection).toLocaleString('en-US', {minimumFractionDigits: 2}));
       // display net loan amount [loan amount - Processing Fee]
-        displayNetLoan = parseInt($('#txtPrincipalAmount').val()) - parseInt(displayTotal);
+        displayNetLoan = parseInt($('#txtPrincipalAmount').val()) - parseInt(displayTotalLoanCost);
         $('.lblNetLoanAmount').html('Php ' + parseInt(displayNetLoan).toLocaleString('en-US', {minimumFractionDigits: 2}));
     }
 
@@ -1479,18 +1567,33 @@
       displayTotalLoanCost = parseInt(finalInterest) + parseInt(displayTotal);
       $('.lblTotalLoanCost').html("Php " + parseInt(displayTotalLoanCost).toLocaleString('en-US', {minimumFractionDigits: 2}));
       // display net loan amount [loan amount - Processing Fee]
-        displayNetLoan = parseInt($('#txtPrincipalAmount').val()) - parseInt(displayTotal);
+        displayNetLoan = parseInt($('#txtPrincipalAmount').val()) - parseInt(displayTotalLoanCost);
         $('.lblNetLoanAmount').html('Php ' + parseInt(displayNetLoan).toLocaleString('en-US', {minimumFractionDigits: 2}));
     }
 
   $(function () {
-     $("#selectApprovers").on("select2:select", function (evt) {
+    $('#selectBorrowerNumber').val('<?php print_r($detail['BorrowerId']) ?>').change();
+    $('#selectSource').val('<?php print_r($detail['Source']) ?>').change();
+    $('#txtBorrowerMonthlySalary').val('<?php print_r($detail['BorrowerMonthlyIncome'])?>');
+    $('#txtSpouseMonthlySalary').val('<?php print_r($detail['SpouseMonthlyIncome'])?>');
+    $('#lblLoanType').html('<?php print_r($detail['LoanType'])?>');
+    $('#lblPurpose').html('<?php print_r($detail['PurposeName'])?>');
+    $('#lblReleaseDate').html('<?php print_r($detail['LoanReleaseDate']) ?>');
+    $('#lblDisbursedType').html('<?php print_r($detail['DisbursedBy']) ?>');
+    computeRiskAssessment();
+    $('#selectRequirementType').val('<?php print_r($detail['RequirementTypeId']) ?>').change();
+    $('#selectLoanStatus').val('<?php print_r($detail['StatusId']) ?>').change();
+    $('#selectApprovalType').val('<?php print_r($detail['ApprovalType']) ?>').change();
+    // $('#selectApprovalType').val('<?php print_r($detail['ApprovalType']) ?>').change();
+
+    $("#selectApprovers").on("select2:select", function (evt) {
       var element = evt.params.data.element;
       var $element = $(element);
       $element.detach();
       $(this).append($element);
       $(this).trigger("change");
     });
+
     $('.select2').select2();
 
     var MonthlyIncomeCount = 0;
@@ -1577,11 +1680,6 @@
         $('.lblTotalObligation').html('Php ' + parseInt(TotalObligation).toLocaleString('en-US', {minimumFractionDigits: 2}));
       });
 
-    function refreshPage(){
-      var url = '<?php echo base_url()."borrower_controller/getAllList/"; ?>';
-      UserTable.ajax.url(url).load();
-    }
-
     if("<?php print_r($this->session->flashdata('alertTitle')) ?>" != '')
     {
       swal({
@@ -1649,7 +1747,7 @@
     });
 
     $('#loanReleaseDate').daterangepicker({
-        "startDate": moment().format('DD MMM YY'),
+        "startDate": moment('<?php print_r($detail["rawLoanReleaseDate"]) ?>').format('DD MMM YY'),
         "singleDatePicker": true,
         "showDropdowns": true,
         "timePicker": false,
@@ -1663,6 +1761,270 @@
         },
     }, function(start, end, label){
     });
+
+    // charges
+      $('#divAdditionalCharges').slideDown();
+      $('#btnRemoveCharges').show();
+      $('#btnAddCharges').hide();
+      var table = $("#example3 tbody");
+      var PrincipalAmount = $('#txtPrincipalAmount').val();
+      var abns = [];
+      $.ajax({
+        url: "<?php echo base_url()?>/admin_controller/getCharges",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        beforeSend: function(){
+            $('.loading').show();
+        },
+        success: function(data)
+        {
+          if(data == 0)
+          {
+            table.empty();
+            table.append("<tr><td colspan='4'><center>No data available</center></td></tr>");
+          }
+          else
+          {
+            var rowsss = 0; 
+            var isSelected = 0; 
+            var total = 0;
+            table.empty();
+
+            $.ajax({
+              url: "<?php echo base_url()?>/loanapplication_controller/getChargeList",
+              type: "POST",
+              async: false,
+              data: {
+                Id : $('#txtApplicationId').val()
+              },
+              dataType: "JSON",
+              beforeSend: function(){
+                  $('.loading').show();
+              },
+              success: function(datas)
+              {
+
+                $.each(datas, function (a, b) {
+                  abns.push(b.ChargeId);
+                });
+
+
+                $.each(data, function (a, b) {
+                  rowsss = rowsss + 1;
+                  if(b.ChargeType == 'Percentage')
+                  {
+                    total = parseInt(b.Amount)/100 * parseInt(PrincipalAmount);
+                    amount = parseInt(b.Amount).toLocaleString('en-US', {minimumFractionDigits: 2}) + '%';
+                  }
+                  else
+                  {
+                    total = parseInt(b.Amount);
+                    amount = 'Php ' + parseInt(b.Amount).toLocaleString('en-US', {minimumFractionDigits: 2});
+                  }
+
+                  if(b.IsMandatory == 1)
+                  {
+                    checked = 'checked disabled'; 
+                    isSelected = 1;
+                  }
+                  else
+                  {
+                    checked = '';
+                    isSelected = 0;
+                    displayTotal = displayTotal + 0;
+                  }
+
+                  if(abns.includes(b.ChargeId))
+                  {
+                    checkeded = 'checked'; 
+                    isSelected = 1;
+                  }
+
+                  displayTotal = parseInt(displayTotal) + parseInt(total);
+
+                  table.append('<tr><td><center><label><input type="checkbox" id="selectCheck'+rowsss+'" onclick="chkSelect('+rowsss+')" class="checkCharges" '+checked+' '+checkeded+' value="'+rowsss+'"></label></center></td>' +
+                    "<td>"+b.Name+"</td>"+
+                    "<td>"+amount+"</td>"+
+                    "<td>"+
+                      "<input type='hidden' name='ChargeNo[]' value='"+rowsss+"'>"+
+                      "<input type='hidden' name='ChargeId[]' value='"+b.ChargeId+"'>"+
+                      "<input type='hidden' id='txtChargeAmount"+rowsss+"' value='"+parseInt(b.Amount)+"'>"+
+                      "<input type='hidden' name='IsSelected[]' id='isSelected"+rowsss+"' value='"+isSelected+"'>"+
+                      "<input type='hidden' class='chargeTotal[]' value='"+parseInt(total)+"'>"+
+                      "<input type='hidden' id='txtChargeType"+rowsss+"' value='"+b.ChargeType+"'> "+
+                      "Php "+parseInt(total).toLocaleString('en-US', {minimumFractionDigits: 2})+"</td>"+
+                    "</tr>"
+                  );
+                });
+
+                $('.lblTotalAdditionalCharges').html("Php " + parseInt(displayTotal).toLocaleString('en-US', {minimumFractionDigits: 2}))
+                // display Principal Per Collection [Loan Amount / Total Collection]
+                  displayPrincipalPerCollection = parseInt($('#txtPrincipalAmount').val()) / parseInt($('#txtTermNo').val() * $('#txtRepayments').val());
+                  $('.lblPrincipalPerCollection').html('Php ' + parseInt(displayPrincipalPerCollection).toLocaleString('en-US', {minimumFractionDigits: 2}));
+                // display interest per collection [Total Interest / Total Collections]
+                  displayInterestPerCollection = parseInt(finalInterest / parseInt($('#txtTermNo').val() * $('#txtRepayments').val()));
+                  $('.lblInterestPerCollection').html('Php ' + displayInterestPerCollection).toLocaleString('en-US', {minimumFractionDigits: 2});
+                // display Total Cost Loan [Processing Fees + Total Interest]
+                  displayTotalLoanCost = parseInt(displayTotal) + parseInt(finalInterest);
+                  $('.lblTotalLoanCost').html("Php " + parseInt(displayTotalLoanCost).toLocaleString('en-US', {minimumFractionDigits: 2}));
+                // display payable per collection [Principal Per Collection + Interest per Collection]
+                  displayPayablePerCollection = parseInt(displayPrincipalPerCollection) + parseInt(displayInterestPerCollection);
+                  $('.lblPayablePerCollection').html('Php ' + parseInt(displayPayablePerCollection).toLocaleString('en-US', {minimumFractionDigits: 2}));
+                // display net loan amount [loan amount - Processing Fee]
+                  displayNetLoan = parseInt($('#txtPrincipalAmount').val()) - parseInt(displayTotalLoanCost);
+                  $('.lblNetLoanAmount').html('Php ' + parseInt(displayNetLoan).toLocaleString('en-US', {minimumFractionDigits: 2}));
+              },
+              error: function()
+              {
+                setTimeout(function() {
+                  swal({
+                    title: 'Warning!',
+                    text: 'Something went wrong, please contact the administrator or refresh page!',
+                    type: 'warning',
+                    buttonsStyling: false,
+                    confirmButtonClass: 'btn btn-primary'
+                  });
+                  // location.reload();
+                }, 2000);
+              }
+            });
+          }
+        },
+        error: function()
+        {
+          setTimeout(function() {
+            swal({
+              title: 'Warning!',
+              text: 'Something went wrong, please contact the administrator or refresh page!',
+              type: 'warning',
+              buttonsStyling: false,
+              confirmButtonClass: 'btn btn-primary'
+            });
+            // location.reload();
+          }, 2000);
+        }
+      });
+    
+    // requirements
+      var table = $("#dtblRequirement tbody");
+      var selectedRequirementId = [];
+      $.ajax({
+        url: "<?php echo base_url();?>" + "/admin_controller/getRequirements",
+        type: "POST",
+        async: false,
+        data: {
+          Id : $('#selectRequirementType').val()
+        },
+        dataType: "JSON",
+        beforeSend: function(){
+            $('.loading').show();
+        },
+        success: function(data)
+        {
+          if(data == 0)
+          {
+            table.empty();
+            table.append("<tr><td colspan='3'><center>No data available</center></td>" +
+                "</tr>");
+          }
+          else
+          {
+            $.ajax({
+              url: "<?php echo base_url()?>/loanapplication_controller/getRequirementsList",
+              type: "POST",
+              async: false,
+              data: {
+                Id : $('#txtApplicationId').val()
+              },
+              dataType: "JSON",
+              beforeSend: function(){
+                  $('.loading').show();
+              },
+              success: function(datum)
+              {
+                $.each(datum, function (a, c) {
+                  selectedRequirementId.push(c.RequirementId);
+                });
+
+                var varDescription;
+                var rowCount = 0;
+                var isSelected = 0; 
+                var isCheckedd = 0;
+                table.empty();
+                $.each(data, function (a, b) {
+                  rowCount = rowCount + 1;
+                  if(b.IsMandatory == 1)
+                  {
+                    isCheckedd = 'disabled'; 
+                    isSelected = 1;
+                  }
+                  else
+                  {
+                    isCheckedd = '';
+                    isSelected = 0;
+                  }
+
+                  if(b.Description == null)
+                  {
+                    varDescription = 'N/A'
+                  }
+                  else
+                  {
+                    varDescription = b.Description
+                  }
+
+                  if(selectedRequirementId.includes(b.RequirementId))
+                  {
+                    selectedRequirement = 'checked'; 
+                    isSelected = 1;
+                  }
+                  else
+                  {
+                    selectedRequirement = '';
+                    isSelected = 0;
+                  }
+
+                  table.append("<tr><td><center><label><input onclick='chkRequirements("+rowCount+")' id='selectCheckReq"+rowCount+"' "+selectedRequirement+" "+isCheckedd+" type='checkbox' value='"+b.RequirementId+"'></label></center></td>" +
+                    "<td>"+b.Name+"</td>"+
+                    "<td>"+varDescription+
+                    "<input type='hidden' name='RequirementId[]' id='txtRequirementId"+rowCount+"' value='"+b.RequirementId+"'>"+
+                    "<input type='hidden' name='isRequirementSelected[]' id='isRequirementSelected"+rowCount+"' value='"+isSelected+"'>"+
+                    "<input type='hidden' name='RequirementNo[]' id='requirementRowCount"+rowCount+"' value='"+rowCount+"'>"+
+                    "</td>"+
+                    "</tr>");
+                });
+              },
+              error: function()
+              {
+                setTimeout(function() {
+                  swal({
+                    title: 'Warning!',
+                    text: 'Something went wrong, please contact the administrator or refresh page!',
+                    type: 'warning',
+                    buttonsStyling: false,
+                    confirmButtonClass: 'btn btn-primary'
+                  });
+                  // location.reload();
+                }, 2000);
+              }
+            });
+          }
+          $('#divRequirementList').slideDown();
+        },
+        error: function()
+        {
+          setTimeout(function() {
+            swal({
+              title: 'Warning!',
+              text: 'Something went wrong, please contact the administrator or refresh page!',
+              type: 'warning',
+              buttonsStyling: false,
+              confirmButtonClass: 'btn btn-primary'
+            });
+          }, 2000);
+        }
+      });
 
     $('#smartwizard').smartWizard({
       theme: 'dots',
@@ -1751,6 +2113,8 @@
     });
 
   })
+
+
 
 </script>
 

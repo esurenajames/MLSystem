@@ -57,7 +57,7 @@
     "pageLength": 10,
     "ajax": { url: '<?php echo base_url()."/datatables_controller/displayAllLoans/"; ?>', type: 'POST', "dataSrc": "" },
     "columns": [  { data: "TransactionNumber" }
-      , { data: "Name" }
+      , { data: "LoanName" }
       , { data: "BorrowerName" }
       , { data: "PrincipalAmount" }
       , { data: "InterestRate" }
@@ -74,7 +74,7 @@
         }
       }
       , { data: "StatusId", "render": function (data, type, b) {
-          return '<a class="btn btn-sm btn-default" href="<?php echo base_url(); ?>/home/loandetail/'+b.ApplicationId+'" title="View"><span class="fa fa-info-circle"></span></a>';
+          return '<a class="btn btn-sm btn-default" href="<?php echo base_url(); ?>home/loandetail/'+b.ApplicationId+'" title="View"><span class="fa fa-info-circle"></span></a> <a class="btn btn-sm btn-success" href="<?php echo base_url(); ?>home/Renew/'+b.ApplicationId+'" title="Re-New"><span class="fa fa-refresh"></span></a>';
         }
       }
     ],

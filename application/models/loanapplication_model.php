@@ -26,7 +26,7 @@ class loanapplication_model extends CI_Model
                                       , CASE
                                           WHEN A.DateApproved IS NULL
                                           THEN 'N/A'
-                                          ELSE DATE_FORMAT(A.DateApproved, '%b %d, %Y')
+                                          ELSE DATE_FORMAT(A.DateApproved, '%b %d, %Y %r')
                                         END as DateApproved
                                       , FORMAT(A.PrincipalAmount, 2) as PrincipalAmount
                                       , AHI.InterestType
@@ -43,7 +43,7 @@ class loanapplication_model extends CI_Model
                                         END as TotalInterest
                                       , AHI.Amount
                                       , A.PrincipalAmount as RawPrincipalAmount
-                                      , A.TermNo as TermNo
+                                      , A.TermNo
                                       , A.TermType
                                       , A.RepaymentNo
                                       , RC.Type
@@ -60,6 +60,44 @@ class loanapplication_model extends CI_Model
                                       , A.PenaltyType
                                       , A.PenaltyAmount
                                       , A.GracePeriod
+
+                                      , A.RepaymentId
+                                      , A.Source
+                                      , DATE_FORMAT(A.LoanReleaseDate, '%b %d, %Y') as LoanReleaseDate
+                                      , A.LoanReleaseDate as rawLoanReleaseDate
+                                      , CASE
+                                          WHEN AHI.InterestType = 'Percentage'
+                                          THEN CONCAT(AHI.Amount * A.TermNo, '%')
+                                          ELSE CONCAT('Php ', AHI.Amount)
+                                        END as renewAddOnInterest
+                                      , CASE
+                                          WHEN AHI.InterestType = 'Percentage'
+                                          THEN AHI.Amount/100 * A.TermNo
+                                          ELSE AHI.Amount
+                                        END as AddOnRate
+                                      , A.TermNo * A.RepaymentNo as TotalCollections
+                                      , B.BorrowerId
+                                      , A.LoanId
+                                      , A.PurposeId
+                                      , (SELECT COUNT(*)
+                                            FROM application_has_approver
+                                              WHERE ApplicationId = A.ApplicationId
+                                              AND StatusId = 5
+                                              AND ApproverNumber = '000002'
+                                      ) as IsApprover
+                                      , A.SourceName
+                                      , A.BorrowerMonthlyIncome
+                                      , A.SpouseMonthlyIncome
+                                      , P.Name as PurposeName
+                                      , (SELECT RHT.RequirementTypeId 
+                                                FROM Application_has_Requirements AHR
+                                                  INNER JOIN R_Requirements R
+                                                    ON R.RequirementId = AHR.RequirementId
+                                                  INNER JOIN Requirement_has_type RHT
+                                                    ON R.RequirementTypeId = RHT.RequirementTypeId
+                                                      WHERE AHR.ApplicationId = A.ApplicationId
+                                                      LIMIT 1
+                                      ) as RequirementTypeId
                                       FROM T_Application A
                                         INNER JOIN Application_Has_Status LS
                                           ON A.StatusId = LS.LoanStatusId
@@ -87,6 +125,8 @@ class loanapplication_model extends CI_Model
                                           ON AHI.ApplicationId = A.ApplicationId
                                         LEFT JOIN R_RepaymentCycle RC
                                           ON RC.RepaymentId = A.RepaymentId
+                                        LEFT JOIN R_Purpose P
+                                          ON P.PurposeId = A.PurposeId
                                         WHERE A.ApplicationId = $Id
                                         -- AND AHI.StatusId = 1
                                         -- AND BHE.IsPrimary = 1
@@ -130,15 +170,68 @@ class loanapplication_model extends CI_Model
   function getCharges($Id)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $query = $this->db->query("SELECT   SUM(C.Amount) as TotalCharges
+    $query = $this->db->query("SELECT  SUM(CASE
+                                            WHEN C.ChargeType = 'Flat Rate'
+                                                  THEN C.Amount
+                                                  ELSE C.Amount/100 * A.PrincipalAmount
+                                              END
+                                        ) as TotalCharges
                                         FROM Application_Has_Charges AHC
                                           INNER JOIN R_Charges C
                                             ON C.ChargeId = AHC.ChargeId
-                                          WHERE ApplicationId = $Id
-                                          AND AHC.StatusId = 1
+                                          INNER JOIN t_application A
+                                            ON A.ApplicationId = AHC.ApplicationId
+                                          WHERE A.ApplicationId = $Id
+                                          AND AHC.StatusId = 2
     ");
 
     $data = $query->row_array();
+    return $data;
+  }
+
+  function getBorrowerList()
+  {
+    $query = $this->db->query("SELECT   CONCAT(FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as Name
+                                        , BorrowerId
+                                        FROM R_Borrowers
+                                          WHERE StatusId = 1
+    ");
+
+    $data = $query->result_array();
+    return $data;
+  }
+
+  function getChargeList($Id)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $query = $this->db->query("SELECT   DISTINCT AHC.ChargeId
+                                        FROM Application_Has_Charges AHC
+                                          INNER JOIN R_Charges C
+                                            ON C.ChargeId = AHC.ChargeId
+                                          INNER JOIN t_application A
+                                            ON A.ApplicationId = AHC.ApplicationId
+                                          WHERE A.ApplicationId = $Id
+                                          AND AHC.StatusId = 2
+    ");
+
+    $data = $query->result_array();
+    return $data;
+  }
+
+  function getRequirementsList($Id)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $query = $this->db->query("SELECT R.RequirementId 
+                                      FROM Application_has_Requirements AHR
+                                        INNER JOIN R_Requirements R
+                                          ON R.RequirementId = AHR.RequirementId
+                                        INNER JOIN Requirement_has_type RHT
+                                          ON R.RequirementTypeId = RHT.RequirementTypeId
+                                            WHERE AHR.ApplicationId = $Id
+                                            AND AHR.StatusId = 5
+    ");
+
+    $data = $query->result_array();
     return $data;
   }
 
@@ -173,7 +266,7 @@ class loanapplication_model extends CI_Model
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $query_string = $this->db->query("SELECT  A.TransactionNumber
-                                              , L.Name
+                                              , L.Name as LoanName
                                               , CONCAT(B.FirstName, ' ', B.MiddleName, ' ', B.LastName, ', ', B.ExtName) as BorrowerName
                                               , FORMAT(A.PrincipalAmount, 2) PrincipalAmount
                                               , CASE
@@ -209,7 +302,7 @@ class loanapplication_model extends CI_Model
                                               , (SELECT COUNT(*) 
                                                     FROM application_has_approver
                                                       WHERE ApplicationId = A.ApplicationId
-                                                      AND StatusId != 6
+                                                      AND StatusId = 3
                                               ) as ProcessedApprovers
                                               FROM T_Application A
                                                 INNER JOIN R_Loans L 
@@ -311,9 +404,10 @@ class loanapplication_model extends CI_Model
     $query_string = $this->db->query("SELECT  CONCAT('CLR-', LPAD(C.CollateralId, 4, 0)) as ReferenceNo
                                               , C.ProductName
                                               , C.Value
-                                              , DATE_FORMAT(C.DateRegistered, '%b %d, %Y %r') as DateRegistered
+                                              , DATE_FORMAT(C.DateRegistered, '%b %d, %Y') as DateRegistered
                                               , CT.Name as CollateralType
                                               , CS.Name as CurrentStatus
+                                              , C.CollateralId
                                               FROM R_Collaterals C
                                                 INNER JOIN application_has_collaterals AHC
                                                   ON AHC.CollateralId = C.CollateralId
@@ -505,14 +599,20 @@ class loanapplication_model extends CI_Model
   function getCollateralDetails($Id)
   {
     $query_string = $this->db->query("SELECT  ApplicationId
-                                              , CollateralId
-                                              , Source
-                                              , Amount
-                                              , Details
+                                              , C.CollateralId
+                                              , C.CollateralTypeId
+                                              , C.StatusId
+                                              , C.ProductName
+                                              , C.Value
+                                              , DATE_FORMAT(C.DateRegistered, '%b %d, %Y') as DateRegistered
+                                              , DATE_FORMAT(C.DateAcquired, '%b %d, %Y') as DateAcquired
+                                              , C.RegistrationNo
+                                              , C.Mileage
+                                              , C.EngineNo
                                               FROM application_has_collaterals AHC
                                                 INNER JOIN R_Collaterals C
-                                                ON R.CollateralId = AHC.CollateralId
-                                                WHERE ApplicationCollateralId = '$Id'
+                                                ON C.CollateralId = AHC.CollateralId
+                                                WHERE C.CollateralId = $Id
     ");
     $CollateralDetail = $query_string->row_array();
     return $CollateralDetail;
@@ -799,5 +899,101 @@ class loanapplication_model extends CI_Model
     }
     return $output;
   } 
+
+
+
+  // RENEWAL OF LOANS
+    function getLoanTypes()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query_string = $this->db->query("SELECT LoanId
+                                        , Name
+                                          FROM R_Loans
+                                          WHERE StatusId = 1
+                                            ORDER BY Name ASC
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getPurpose()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query_string = $this->db->query("SELECT PurposeId
+                                        , Name
+                                          FROM R_Purpose
+                                          WHERE StatusId = 1
+                                            ORDER BY Name ASC
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getDisbursements()
+    {
+      $query = $this->db->query("SELECT   Name
+                                          , DisbursementId
+                                          FROM r_disbursement 
+                                          WHERE StatusId = 1
+      ");
+      $data = $query->result_array();
+      return $data;
+    }
+
+    function getRepaymentCycle()
+    {
+      $query = $this->db->query("SELECT   CASE
+                                          WHEN RHC.RepaymentId IS NULL
+                                                THEN RC.Type
+                                                ELSE GROUP_CONCAT(RHC.Date)
+                                              END as Name
+                                            , RC.RepaymentId
+                                          FROM r_repaymentcycle RC
+                                              LEFT JOIN  repaymentcycle_has_content RHC
+                                                  ON RC.RepaymentId = RHC.RepaymentId
+                                                    WHERE RC.StatusId = 1
+                                                    OR RHC.StatusId = 1
+                                                    GROUP BY RC.RepaymentId
+      ");
+      $data = $query->result_array();
+      return $data;
+    }
+
+    function getTotalApprovers($Id)
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT  (SELECT COUNT(*) 
+                                                FROM application_has_approver
+                                                  WHERE ApplicationId = A.ApplicationId
+                                                  AND StatusId = 5
+                                          ) as PendingApprovers
+                                          , (SELECT COUNT(*) 
+                                                FROM application_has_approver
+                                                  WHERE ApplicationId = A.ApplicationId
+                                                  AND StatusId = 3
+                                          ) as ProcessedApprovers
+                                          FROM T_Application A
+                                            INNER JOIN R_Loans L 
+                                              ON L.LoanId = A.LoanId
+                                            INNER JOIN R_Borrowers B
+                                              ON B.BorrowerId = A.BorrowerId
+                                            INNER JOIN Application_has_interests AHI
+                                              ON AHI.ApplicationId = A.ApplicationId
+                                            INNER JOIN Application_Has_Status LS
+                                              ON A.StatusId = LS.LoanStatusId
+                                            LEFT JOIN R_RepaymentCycle RC
+                                              ON RC.RepaymentId = A.RepaymentId
+                                                WHERE A.ApplicationId = $Id
+      ");
+
+      $data = $query->row_array();
+      return $data;
+    }
+
+
+
+
+
+
 
 }

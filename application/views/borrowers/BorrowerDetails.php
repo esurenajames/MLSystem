@@ -923,6 +923,7 @@
               <ul class="nav nav-tabs">
                 <!-- <li class="active"><a href="#tabLoanApplications" data-toggle="tab">Loan Applications</a></li> -->
                 <li class="active"><a href="#tabHistory" data-toggle="tab" title="History"><span class="fa fa-clipboard"></span></a></li>
+                <li><a href="#tabLoanApplications" data-toggle="tab" title="Loans"><span class="fa fa-list-alt"></span></a></li>
                 <li><a href="#tabReference" data-toggle="tab" title="Personal Reference"><span class="fa fa-users"></span></a></li>
                 <li><a href="#tabCoMaker" data-toggle="tab" title="Co-Maker Info"><span class="fa fa-link"></span></a></li>
                 <li><a href="#tabSpouseInfo" data-toggle="tab" title="Spouse Info"><span class="fa fa-male"></span><span class="fa fa-female"></span></a></li>
@@ -934,25 +935,6 @@
                 <li><a href="#Education" data-toggle="tab" title="Education"><span class="fa fa-book"></span></a></li>
               </ul>
               <div class="tab-content">
-                <!-- <div class="active tab-pane" id="tabLoanApplications">
-                  <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewPersonal">Add Loan Application</button>
-                  <br>
-                  <br>
-                  <br>
-                  <table id="example5" class="table table-bordered table-hover" style="width: 100%">
-                    <thead>
-                    <tr>
-                      <th>Loan Number</th>
-                      <th>Loan Type</th>
-                      <th>Status</th>
-                      <th>Created By</th>
-                      <th>Action</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                  </table>
-                </div> -->
                 <div class="active tab-pane" id="tabHistory">
                   <h4>HISTORY</h4>
                   <br>
@@ -982,6 +964,26 @@
                           }
                         }
                       ?>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="tab-pane" id="tabLoanApplications">
+                  <!-- <button type="button" class="btn btn-sm btn-primary pull-right">Add Loan Application</button> -->
+                  <br>
+                  <br>
+                  <br>
+                  <table id="dtblLoans" class="table table-bordered table-hover" style="width: 100%">
+                    <thead>
+                    <tr>
+                      <th>Reference No</th>
+                      <th>Loan Type</th>
+                      <th>Principal</th>
+                      <th>Status</th>
+                      <th>Created By</th>
+                      <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
                     </tbody>
                   </table>
                 </div>
@@ -1126,4 +1128,32 @@
       confirmButtonClass: 'btn btn-primary'
     });
   }
+
+  var TotalInterest = 0;
+  $('#dtblLoans').DataTable({
+    "pageLength": 10,
+    "ajax": { url: '<?php echo base_url()."/datatables_controller/displayAllLoans/"; ?>', type: 'POST', "dataSrc": "" },
+    "columns": [  { data: "TransactionNumber" }
+      , { data: "LoanName" }
+      , { data: "PrincipalAmount" }
+      , { data: "StatusId", "render": function (data, type, b) {
+          if(b.IsApprovable == 1)
+          {
+            return b.ProcessedApprovers+ '/' + b.PendingApprovers + ' in progress';
+          }
+          else
+          {
+            return b.StatusDescription;
+          }
+        }
+      }
+      , { data: "CreatedBy" }
+      , { data: "StatusId", "render": function (data, type, b) {
+          return '<a class="btn btn-sm btn-default" target="_blank" href="<?php echo base_url(); ?>home/loandetail/'+b.ApplicationId+'" title="View"><span class="fa fa-info-circle"></span></a> <a target="_blank" class="btn btn-sm btn-success" href="<?php echo base_url(); ?>home/Renew/'+b.ApplicationId+'" title="Re-New"><span class="fa fa-refresh"></span></a>';
+        }
+      }
+    ],
+    // "aoColumnDefs": [{ "bVisible": false, "aTargets": [7] }],
+    "order": [[0, "desc"]]
+  });
 </script>

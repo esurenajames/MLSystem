@@ -264,7 +264,7 @@ class loanapplication_controller extends CI_Controller {
     {
       $set = array( 
         'DateUpdated' => $DateNow, 
-        'StatusId'    => 3
+        'StatusId'    => 1
       );
       $condition = array( 
         'ApplicationId'   => $this->uri->segment(3),
@@ -272,6 +272,23 @@ class loanapplication_controller extends CI_Controller {
       );
       $table = 'application_has_approver';
       $this->maintenance_model->updateFunction1($set, $condition, $table);
+
+      $totalApprovers = $this->loanapplication_model->getTotalApprovers($this->uri->segment(3));
+      if($totalApprovers['PendingApprovers'] == $totalApprovers['ProcessedApprovers'])
+      {
+        $set = array( 
+          'DateUpdated'   => $DateNow, 
+          'DateApproved'  => $DateNow, 
+          'StatusId'      => 1
+        );
+
+        $condition = array( 
+          'ApplicationId'   => $this->uri->segment(3)
+        );
+
+        $table = 't_application';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
 
       $insertData = array(
         'ApplicationId'             => $this->uri->segment(3),
@@ -304,9 +321,9 @@ class loanapplication_controller extends CI_Controller {
     }
     
     $this->session->set_flashdata('alertTitle','Success!'); 
-    $this->session->set_flashdata('alertText','Successfully updated loan!'); 
+    $this->session->set_flashdata('alertText','Successfully updated loan!' . $totalApprovers['PendingApprovers']); 
     $this->session->set_flashdata('alertType','success'); 
-    redirect('home/loanDetailApproval/' . $this->uri->segment(3));
+    redirect('home/loandetail/' . $this->uri->segment(3));
   }
 
   function AddComment()
@@ -1164,46 +1181,258 @@ class loanapplication_controller extends CI_Controller {
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $DateNow = date("Y-m-d H:i:s");
-    // interest details
+    if($_POST['FormType'] == 1)
+    {
+      // collateral details
+        $string1 = strtotime($_POST['dateRegistered']);
+        $varDateRegistered = date('Y-m-d', $string1);
+        $string2 = strtotime($_POST['dateAcquired']);
+        $varDateAcquired = date('Y-m-d', $string2);
+        $insertData = array(
+          'ProductName'          => $_POST['ProductName'],
+          'Value'                => $_POST['CollateralValue'],
+          'DateRegistered'       => $varDateRegistered,
+          'CollateralTypeId'     => $_POST['CollateralTypeId'],
+          'DateAcquired'         => $varDateAcquired,
+          'RegistrationNo'       => $_POST['RegistrationNo'],
+          'Mileage'              => $_POST['Mileage'],
+          'EngineNo'             => $_POST['EngineNo'],
+          'StatusId'             => $_POST['CollateralStatusId'],
+          'CreatedBy'            => $EmployeeNumber
+        );
+        $auditTable = 'r_collaterals';
+        $this->maintenance_model->insertFunction($insertData, $auditTable);
+      // get generated id
+        $getData = array(
+          'table'                 => 'r_collaterals'
+          , 'column'              => 'CollateralId'
+          , 'CreatedBy'           => $EmployeeNumber
+        );
+        $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+      // insert collateral into loan
+        $insertData2 = array(
+          'CollateralId'         => $generatedId['CollateralId'],
+          'ApplicationId'        => $this->uri->segment(3),
+          'CreatedBy'            => $EmployeeNumber
+        );
+        $auditTable2 = 'application_has_Collaterals';
+        $this->maintenance_model->insertFunction($insertData2, $auditTable2);
+      // upload documents
+        $path = './uploads/';
+        $config = array(
+          'upload_path' => $path,
+          'allowed_types' => 'jpg|jpeg|png|pdf|xlsx|docx|xls',
+          'overwrite' => 1
+        );
+        $this->load->library('upload', $config);
+
+        $files = $_FILES['Attachment'];
+        $fileName = "";
+        $images = array();
+        foreach ($files['name'] as $key => $image) 
+        {
+          $file_ext = pathinfo($image, PATHINFO_EXTENSION);
+          $_FILES['Attachment[]']['name']= $files['name'][$key];
+          $_FILES['Attachment[]']['type']= $files['type'][$key];
+          $_FILES['Attachment[]']['tmp_name']= $files['tmp_name'][$key];
+          $_FILES['Attachment[]']['error']= $files['error'][$key];
+          $_FILES['Attachment[]']['size']= $files['size'][$key];
+          $uniq_id = uniqid();
+          $fileName = $uniq_id.'.'.$file_ext;
+          $fileName = str_replace(" ","_",$fileName);
+
+          $config['file_name'] = $fileName;
+          $Title = $_FILES['Attachment[]']['name'];
+
+          $this->upload->initialize($config);
+          if ($this->upload->do_upload('Attachment[]')) 
+          {
+            $this->upload->data();
+            $insertComment = array(
+              'CollateralId'                => $generatedId['CollateralId']
+              , 'FileName'                  => $fileName
+              , 'Title'                     => $Title
+              , 'CreatedBy'                 => $EmployeeNumber
+            );
+            $insertCommentTable = 'collaterals_has_files';
+            $this->maintenance_model->insertFunction($insertComment, $insertCommentTable);
+          }
+          else
+          {
+              $fileName = "";
+          }
+        }
+      // notif
+        $this->session->set_flashdata('alertTitle','Success!'); 
+        $this->session->set_flashdata('alertText','Collateral successfully added!'); 
+        $this->session->set_flashdata('alertType','success'); 
+        redirect('home/loandetail/'. $this->uri->segment(3));
+    }
+    else // edit
+    {
+      $detail = $this->maintenance_model->selectSpecific('r_collaterals', 'CollateralId', $_POST['CollateralId']);
       $string1 = strtotime($_POST['dateRegistered']);
       $varDateRegistered = date('Y-m-d', $string1);
       $string2 = strtotime($_POST['dateAcquired']);
       $varDateAcquired = date('Y-m-d', $string2);
-      $insertData = array(
-        'ProductName'          => $_POST['ProductName'],
-        'Value'                => $_POST['CollateralValue'],
-        'DateRegistered'       => $varDateRegistered,
-        'CollateralTypeId'     => $_POST['CollateralTypeId'],
-        'DateAcquired'         => $varDateAcquired,
-        'RegistrationNo'       => $_POST['RegistrationNo'],
-        'Mileage'              => $_POST['Mileage'],
-        'EngineNo'             => $_POST['EngineNo'],
-        'StatusId'             => $_POST['CollateralStatusId'],
-        'CreatedBy'            => $EmployeeNumber
-      );
-      $auditTable = 'r_collaterals';
-      $this->maintenance_model->insertFunction($insertData, $auditTable);
-    // get generated application id
-      $getData = array(
-        'table'                 => 'r_collaterals'
-        , 'column'              => 'CollateralId'
-        , 'CreatedBy'           => $EmployeeNumber
-      );
-      $generatedId = $this->maintenance_model->getGeneratedId2($getData);
-    // insert collateral into loan
-      $insertData2 = array(
-        'CollateralId'         => $generatedId['CollateralId'],
-        'ApplicationId'        => $this->uri->segment(3),
-        'CreatedBy'            => $EmployeeNumber
-      );
-      $auditTable2 = 'application_has_Collaterals';
-      $this->maintenance_model->insertFunction($insertData2, $auditTable2);
-    // notif
-      $this->session->set_flashdata('alertTitle','Success!'); 
-      $this->session->set_flashdata('alertText','Collateral successfully added!'); 
-      $this->session->set_flashdata('alertType','success'); 
-      redirect('home/loandetail/'. $this->uri->segment(3));
+      if($detail['ProductName'] != $_POST['ProductName'])
+      {
+        $set = array( 
+          'ProductName' => $_POST['ProductName'],
+          'UpdatedBy' => $EmployeeNumber,
+          'DateUpdated' => $DateNow
+        );
+        $condition = array( 
+          'CollateralId' => $_POST['CollateralId']
+        );
+        $table = 'r_collaterals';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+      if($detail['Value'] != $_POST['CollateralValue'])
+      {
+        $set = array( 
+          'Value' => $_POST['CollateralValue'],
+          'UpdatedBy' => $EmployeeNumber,
+          'DateUpdated' => $DateNow
+        );
+        $condition = array( 
+          'CollateralId' => $_POST['CollateralId']
+        );
+        $table = 'r_collaterals';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+      if($detail['DateRegistered'] != $varDateRegistered)
+      {
+        $set = array( 
+          'DateRegistered' => $varDateRegistered,
+          'UpdatedBy' => $EmployeeNumber,
+          'DateUpdated' => $DateNow
+        );
+        $condition = array( 
+          'CollateralId' => $_POST['CollateralId']
+        );
+        $table = 'r_collaterals';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+      if($detail['DateAcquired'] != $varDateAcquired)
+      {
+        $set = array( 
+          'DateAcquired' => $varDateAcquired,
+          'UpdatedBy' => $EmployeeNumber,
+          'DateUpdated' => $DateNow
+        );
+        $condition = array( 
+          'CollateralId' => $_POST['CollateralId']
+        );
+        $table = 'r_collaterals';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+      if($detail['StatusId'] != $_POST['CollateralStatusId'])
+      {
+        $set = array( 
+          'StatusId' => $_POST['CollateralStatusId'],
+          'UpdatedBy' => $EmployeeNumber,
+          'DateUpdated' => $DateNow
+        );
+        $condition = array( 
+          'CollateralId' => $_POST['CollateralId']
+        );
+        $table = 'r_collaterals';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+      if($detail['RegistrationNo'] != $_POST['RegistrationNo'])
+      {
+        $set = array( 
+          'RegistrationNo' => $_POST['RegistrationNo'],
+          'UpdatedBy' => $EmployeeNumber,
+          'DateUpdated' => $DateNow
+        );
+        $condition = array( 
+          'CollateralId' => $_POST['CollateralId']
+        );
+        $table = 'r_collaterals';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+      if($detail['Mileage'] != $_POST['Mileage'])
+      {
+        $set = array( 
+          'Mileage' => $_POST['Mileage'],
+          'UpdatedBy' => $EmployeeNumber,
+          'DateUpdated' => $DateNow
+        );
+        $condition = array( 
+          'CollateralId' => $_POST['CollateralId']
+        );
+        $table = 'r_collaterals';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+      if($detail['EngineNo'] != $_POST['EngineNo'])
+      {
+        $set = array( 
+          'EngineNo' => $_POST['EngineNo'],
+          'UpdatedBy' => $EmployeeNumber,
+          'DateUpdated' => $DateNow
+        );
+        $condition = array( 
+          'CollateralId' => $_POST['CollateralId']
+        );
+        $table = 'r_collaterals';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+      // application has notifications -- to do
+      // employee has notifications -- to do
+      // system has notifications -- to do
+      // upload documents
+        $path = './uploads/';
+        $config = array(
+          'upload_path' => $path,
+          'allowed_types' => 'jpg|jpeg|png|pdf|xlsx|docx|xls',
+          'overwrite' => 1
+        );
+        $this->load->library('upload', $config);
 
+        $files = $_FILES['Attachment'];
+        $fileName = "";
+        $images = array();
+        foreach ($files['name'] as $key => $image) 
+        {
+          $file_ext = pathinfo($image, PATHINFO_EXTENSION);
+          $_FILES['Attachment[]']['name']= $files['name'][$key];
+          $_FILES['Attachment[]']['type']= $files['type'][$key];
+          $_FILES['Attachment[]']['tmp_name']= $files['tmp_name'][$key];
+          $_FILES['Attachment[]']['error']= $files['error'][$key];
+          $_FILES['Attachment[]']['size']= $files['size'][$key];
+          $uniq_id = uniqid();
+          $fileName = $uniq_id.'.'.$file_ext;
+          $fileName = str_replace(" ","_",$fileName);
+
+          $config['file_name'] = $fileName;
+          $Title = $_FILES['Attachment[]']['name'];
+
+          $this->upload->initialize($config);
+          if ($this->upload->do_upload('Attachment[]')) 
+          {
+            $this->upload->data();
+            $insertComment = array(
+              'CollateralId'                => $_POST['CollateralId']
+              , 'FileName'                  => $fileName
+              , 'Title'                     => $Title
+              , 'CreatedBy'                 => $EmployeeNumber
+            );
+            $insertCommentTable = 'collaterals_has_files';
+            $this->maintenance_model->insertFunction($insertComment, $insertCommentTable);
+          }
+          else
+          {
+              $fileName = "";
+          }
+        }
+      // notif
+        $this->session->set_flashdata('alertTitle','Success!'); 
+        $this->session->set_flashdata('alertText','Collateral successfully updated!'); 
+        $this->session->set_flashdata('alertType','success'); 
+        redirect('home/loandetail/'. $this->uri->segment(3));
+    }
   }
 
   function getObligationDetails()
@@ -1237,6 +1466,20 @@ class loanapplication_controller extends CI_Controller {
   function getTenure()
   {
     $output = $this->loanapplication_model->getTenure($this->input->post('Id'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getChargeList()
+  {
+    $output = $this->loanapplication_model->getChargeList($this->input->post('Id'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getRequirementsList()
+  {
+    $output = $this->loanapplication_model->getRequirementsList($this->input->post('Id'));
     $this->output->set_output(print(json_encode($output)));
     exit();
   }

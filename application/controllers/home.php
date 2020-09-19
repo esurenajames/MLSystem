@@ -326,6 +326,42 @@ class home extends CI_Controller {
 		$this->load->view('includes/sidebar', $sidebar);
 		$this->load->view('transaction/LoanApplication', $data);
 	}
+
+	function Renew()
+	{
+		$Id = $this->uri->segment(3);
+		$sidebar['sidebar'] = 'Loans';
+		$sidebar['sidebarMenu'] = 'Loan Application';
+		$header['header'] = 'Renew Loan Application';
+		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['access'] = $this->sidebar_model->getAccess();
+		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+
+
+		$data['detail'] = $this->loanapplication_model->getLoanApplicationDetails($Id);
+		$data['LoanType'] = $this->loanapplication_model->getLoanTypes();
+		$data['Purpose'] = $this->loanapplication_model->getPurpose();
+		$data['disbursements'] = $this->loanapplication_model->getDisbursements();
+		$data['repaymentCycle'] = $this->loanapplication_model->getRepaymentCycle();
+		$data['charges'] = $this->loanapplication_model->getCharges($Id);
+		$data['borrowerList'] = $this->loanapplication_model->getBorrowerList();
+
+
+		$data['obligations'] = $this->loanapplication_model->getLoanObligations($Id);
+		$data['expense'] = $this->loanapplication_model->getExpenses($Id);
+		$data['income'] = $this->loanapplication_model->getIncome($Id);
+		$data['approvers'] = $this->loanapplication_model->getApprovers($Id);
+
+
+		$data['Source'] = $this->maintenance_model->getSource();
+		$data['requirementType'] = $this->maintenance_model->getRequirementType();
+		$data['loanStatus'] = $this->maintenance_model->getLoanStatus();
+
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('transaction/renew', $data);
+	}
 	
 	function LoanCalculator()
 	{

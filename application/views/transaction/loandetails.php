@@ -11,6 +11,40 @@
     </h1>
     </ol>
   </section>
+  <div class="modal fade" id="modalUpdate">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="modalApprovalUpdateTitle"></h4>
+        </div>
+        <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/loanapproval/<?php print_r($detail['ApplicationId']) ?>" method="post">
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-12">
+                <label>Remarks</label>
+                <textarea class="form-control" name="Description"></textarea>
+                <input type="hidden" name="ApprovalType" id="txtApprovalType">
+              </div>
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>Upload Attachment</label>
+                  <input type="file" name="Attachment[]" id="Attachment" accept=".jpeg, .jpg, .png">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
 
   <div class="modal fade" id="modalUpload">
     <div class="modal-dialog modal-md">
@@ -81,7 +115,7 @@
             <span aria-hidden="true">&times;</span></button>
           <h4 class="modal-title" id="CollateralTitle"></h4>
         </div>
-        <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/addCollateral/<?php print_r($detail['ApplicationId']) ?>" method="post" enctype="multipart/form-data">
+        <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/addCollateral/<?php print_r($detail['ApplicationId']) ?>" method="post" enctype="multipart/form-data" id="collateralForm">
           <div class="modal-body">
             <div class="row">
               <div class="col-md-12">
@@ -98,7 +132,8 @@
               <div class="col-md-12">
                 <label>Product Name</label>
                 <input type="text" name="ProductName" class="form-control" id="txtProductName">
-                <input type="hidden" name="ProductName" class="form-control" id="txtCollateralId">
+                <input type="hidden" name="CollateralId" class="form-control" id="txtCollateralId">
+                <input type="" name="FormType" id="txtFormTypeCollateral" value="1">
               </div>
               <div class="col-md-12">
                 <div class="form-group">
@@ -134,7 +169,7 @@
                     <div class="input-group-addon">
                       <i class="fa fa-calendar"></i>
                     </div>
-                    <input type="text" placeholder="DateDate Acquired" class="form-control" name="dateAcquired" required="" id="dateAcquired">
+                    <input type="text" placeholder="Date Acquired" class="form-control" name="dateAcquired" required="" id="dateAcquired">
                   </div>
                   <!-- /.input group -->
                 </div>
@@ -368,19 +403,23 @@
 		      		<label>Email: </label> <?php print_r($detail['EmailAddress']) ?><br>
 			    		<label>Date Approved:</label> <?php print_r($detail['DateApproved']) ?><br>
 			    		<label>Status:</label> <?php print_r($detail['StatusDescription'] . '/' . $detail['ApprovalType']) ?>  <br>
-			    			<?php 
-				    			foreach ($approvers as $value) 
-				    			{
-				    				if($value['StatusId'] == 1)
-				    				{
-				    					echo "<span class='badge bg-green'>".$value['ApproverName']."</span> ";
-				    				}
-				    				else
-				    				{
-				    					echo "<span class='badge bg-blue'>".$value['ApproverName']."</span> ";
-				    				}
-				    			}
-			    			?> 
+                <?php 
+                  foreach ($approvers as $value) 
+                  {
+                    if($value['StatusId'] == 1)
+                    {
+                      echo "<span class='badge bg-green'>".$value['ApproverName']."</span> ";
+                    }
+                    else if($value['StatusId'] == 2)
+                    {
+                      echo "<span class='badge bg-red'>".$value['ApproverName']."</span> ";
+                    }
+                    else
+                    {
+                      echo "<span class='badge bg-blue'>".$value['ApproverName']."</span> ";
+                    }
+                  }
+                ?> 
 			    		<br>
 		      	</div>
 		      </div>
@@ -390,6 +429,16 @@
 		  <div class="box">
 		    <div class="box-header with-border">
 		      <h3 class="box-title"><label>Loan Application No:</label> <?php print_r($detail['TransactionNumber']) ?></h3>
+          <div class="pull-right">
+            <?php 
+              if($detail['IsApprover'] == 1)
+              {
+                echo '
+                  <a class="btn btn-success btn-sm" data-toggle="modal" data-target="#modalUpdate" onclick="approvalType(1)">Approve</a> <a class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modalUpdate" onclick="approvalType(2)">Disapprove</a>
+                ';
+              }
+            ?>
+          </div>
 		    </div>
 		    <div class="box-body">
 			    <div class="row">
@@ -548,17 +597,17 @@
                     <div class="col-md-4">
                       <label>Penalty Type</label>
                       <select class="form-control" id="selectPenaltyType" onchange="onchangePenaltyType()" name="PenaltyType">
-                        <option>Flat Rate</option>
-                        <option>Percentage</option>
+                        <option <?php if($detail['PenaltyType'] == 'Flat Rate') echo "selected"; else { echo "";} ?>>Flat Rate</option>
+                        <option<?php if($detail['PenaltyType'] == 'Percentage') echo "selected"; else { echo "";} ?>>Percentage</option>
                       </select>
                     </div>
                     <div class="col-md-4">
                       <label id="inputLblPenaltyType">Amount</label>
-                      <input type="number" min="0" class="form-control" name="PenaltyAmount" id="txtPenaltyAmount">
+                      <input type="number" value="<?php print_r($detail["PenaltyAmount"]) ?>" min="0" class="form-control" name="PenaltyAmount" id="txtPenaltyAmount">
                     </div>
                     <div class="col-md-4">
                       <label>Grace Period</label>
-                      <input type="number" min="0" class="form-control" name="PenaltyAmount" id="txtPenaltyAmount">
+                      <input type="number" min="0" class="form-control" name="PenaltyAmount" value="<?php print_r($detail["GracePeriod"]) ?>" id="txtPenaltyAmount">
                     </div>
                   </div>
                   <div class="pull-right">
@@ -581,7 +630,6 @@
                     <th>Value</th>
                     <th>Type</th>
                     <th>Register Date</th>
-                    <th>Status</th>
                     <th>Action</th>
                   </tr>
                   </thead>
@@ -597,7 +645,7 @@
                         echo "<td>".number_format($value['Value'], 2)."</td>";
                         echo "<td>".$value['CollateralType']."</td>";
                         echo "<td>".$value['DateRegistered']."</td>";
-                        echo '<td><a class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalCollateral" title="Edit"><span class="fa fa-edit"></span></a> <a class="btn btn-default btn-sm" title="Download"><span class="fa fa-download"></span></a> <a class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a></td> ';
+                        echo '<td><a class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalCollateral" onclick="onCollateralChange(2, '.$value['CollateralId'].')" title="Edit"><span class="fa fa-edit"></span></a> <a class="btn btn-default btn-sm" title="Download"><span class="fa fa-download"></span></a> <a class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a></td> ';
                         echo "</tr>";
                       }
                     ?>
@@ -1103,50 +1151,6 @@
     });
   }
 
-  function EditCollateral(CollateralId)
-  { 
-    $.ajax({
-      url: '<?php echo base_url()?>' + "/loanapplication_controller/getIncomeDetails",
-      type: "POST",
-      async: false,
-      data: {
-        Id : CollateralId
-      },
-      dataType: "JSON",
-      beforeSend: function(){
-          $('.loading').show();
-      },
-      success: function(data)
-      {
-        $('#SelectCollateralTypeId').val(data['Source']);
-        $('#txtProductName').val(data['Details']);
-        $('#dateRegistered').val(data['Details']);
-        $('#txtCollaretalValue').val(data['Details']);
-        $('#SelectCollateralStatus').val(data['Details']);
-        $('#dateAcquired').val(data['Details']);
-        $('#txtRegistrationNo').val(data['Details']);
-        $('#txtMileage').val(data['Details']);
-        $('#txtEngineNo').val(data['Details']);
-        $('#txtCollateralId').val(CollateralId);
-        $('#txtFormTypeIncome').val(2);
-      },
-
-      error: function()
-      {
-        setTimeout(function() {
-          swal({
-            title: 'Warning!',
-            text: 'Something went wrong, please contact the administrator or refresh page!',
-            type: 'warning',
-            buttonsStyling: false,
-            confirmButtonClass: 'btn btn-primary'
-          });
-          // location.reload();
-        }, 2000);
-      }
-    });
-  }
-
   function collateralTypeChange(value)
   {
     if(value == 1) // automobiles
@@ -1159,21 +1163,109 @@
     }
   }
 
-  function onCollateralChange(value)
+  function onCollateralChange(value, CollateralId)
   {
     if(value == 1) // add collateral
     {
       $('#CollateralTitle').html('Add Collateral');
+      document.getElementById("collateralForm").reset();
+      $('#divAutomobiles').show();
     }
     else
     {
-      $('#CollateralTitle').html('Edit Collateral');
+      $.ajax({
+        url: '<?php echo base_url()?>' + "/loanapplication_controller/getCollateralDetails",
+        type: "POST",
+        async: false,
+        data: {
+          Id : CollateralId
+        },
+        dataType: "JSON",
+        beforeSend: function(){
+            $('.loading').show();
+        },
+        success: function(data)
+        {
+          $('#txtFormTypeCollateral').val(2);
+          $('#CollateralTitle').html('Edit Collateral');
+          $('#SelectCollateralTypeId').val(data['CollateralTypeId']).change();
+          $('#txtProductName').val(data['ProductName']);
+
+          $('#txtCollaretalValue').val(data['Value']);
+          $('#SelectCollateralStatus').val(data['StatusId']).change();
+
+          $('#txtRegistrationNo').val(data['RegistrationNo']);
+          $('#txtMileage').val(data['Mileage']);
+          $('#txtEngineNo').val(data['EngineNo']);
+          $('#txtCollateralId').val(CollateralId);
+
+          $('#dateRegistered').daterangepicker({
+              "startDate": moment(data['DateRegistered']).format('DD MMM YY'),
+              "singleDatePicker": true,
+              "showDropdowns": true,
+              "timePicker": false,
+              "linkedCalendars": false,
+              "showCustomRangeLabel": false,
+              "showCustomRangeLabel": false,
+              // "maxDate": Start,
+              "opens": "up",
+              "locale": {
+                  format: 'DD MMM YYYY',
+              },
+          }, function(start, end, label){
+          });
+
+          $('#dateAcquired').daterangepicker({
+              "startDate": moment(data['DateAcquired']).format('DD MMM YY'),
+              "singleDatePicker": true,
+              "showDropdowns": true,
+              "timePicker": false,
+              "linkedCalendars": false,
+              "showCustomRangeLabel": false,
+              "showCustomRangeLabel": false,
+              // "maxDate": Start,
+              "opens": "up",
+              "locale": {
+                  format: 'DD MMM YYYY',
+              },
+          }, function(start, end, label){
+          });
+
+        },
+
+        error: function()
+        {
+          setTimeout(function() {
+            swal({
+              title: 'Warning!',
+              text: 'Something went wrong, please contact the administrator or refresh page!',
+              type: 'warning',
+              buttonsStyling: false,
+              confirmButtonClass: 'btn btn-primary'
+            });
+            // location.reload();
+          }, 2000);
+        }
+      });
     }
   }
 
   function uploadRequirementsChange(value)
   {
     $('#txtApplicationRequirementId').val(value)
+  }
+
+  function approvalType(Type)
+  {
+    if(Type == 1)
+    {
+      $('#modalApprovalUpdateTitle').html('Approve Loan');
+    }
+    else
+    {
+      $('#modalApprovalUpdateTitle').html('Disapprove Loan');
+    }
+    $('#txtApprovalType').val(Type);
   }
 
 
