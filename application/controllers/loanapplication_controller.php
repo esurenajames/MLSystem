@@ -1435,6 +1435,24 @@ class loanapplication_controller extends CI_Controller {
     }
   }
 
+  function penaltySettings()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $DateNow = date("Y-m-d H:i:s");
+    print_r(isset($_POST['IsPenalized']));
+    // if(isset($_POST['PenaltyType']))
+    // {
+    //   $set = array( 
+    //     'DateApproved' => $DateNow
+    //   );
+    //   $condition = array( 
+    //     'ApplicationId' => $generatedId['ApplicationId']
+    //   );
+    //   $table = 't_application';
+    //   $this->maintenance_model->updateFunction1($set, $condition, $table);
+    // }
+  }
+
   function getObligationDetails()
   {
     $output = $this->loanapplication_model->getObligationDetails($this->input->post('Id'));

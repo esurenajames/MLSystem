@@ -61,7 +61,7 @@
       , { data: "BorrowerName" }
       , { data: "PrincipalAmount" }
       , { data: "InterestRate" }
-      , { data: "DateApproved" }
+      , { data: "LastPayment" }
       , { data: "StatusId", "render": function (data, type, b) {
           if(b.IsApprovable == 1)
           {

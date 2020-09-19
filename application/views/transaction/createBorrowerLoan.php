@@ -20,14 +20,13 @@
   .table-bordereds>thead>tr>th, .table-bordereds>tbody>tr>th, .table-bordereds>tfoot>tr>th, .table-bordereds>thead>tr>td, .table-bordereds>tbody>tr>td, .table-bordereds>tfoot>tr>td {
       border: 1px solid #4e4b4b;
   }
-
 </style>
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
   <!-- Content Header (Page header) -->
   <section class="content-header">
     <h1>
-      Create Loan Application
+      Create Loan Application for <span id="lblBorrowerName"></span>
     </h1>
     <ol class="breadcrumb">
       <li><a href="#" class="active"><i class="fa fa-dashboard"></i>Loans</a></li>
@@ -280,14 +279,7 @@
                 <div id="BD" class="">
                   <div class="row">
                     <div class="col-md-12">
-                      <label>Select Borrower</label>
-                      <select class="form-control select2" name="borrowerId" style="width: 100%" onchange="displayBorrowerDetails(this.value)" id="selectBorrowerNumber">
-                        <?php
-                          echo $borrowerList;
-                        ?>
-                      </select>
-                    </div>
-                    <div class="col-md-12">
+                      <input type="hidden" name="borrowerId" value="<?php print_r($this->uri->segment(3)) ?>">
                       <div id="divBorrowerDetails" style="display: none">
                         <br>
                         <br>
@@ -864,36 +856,9 @@
           $('.lblContactNumber').html(data['ContactNumber']);
           $('.lblDOB').html(data['DateOfBirth']);
           $('.lblBorrowerStatus').html(data['StatusDescription']);
-          $('.divBorrowerBtn').html('<a target="_blank" href="<?php echo base_url();?>home/BorrowerDetails/'+data['BorrowerId']+'">View Borrower Details</a>');
 
-          // $.ajax({
-          //   url: "<?php echo base_url();?>" + "/loanapplication_controller/getTenure",
-          //   type: "POST",
-          //   async: false,
-          //   data: {
-          //     Id : varBorrowerId
-          //   },
-          //   dataType: "JSON",
-          //   beforeSend: function(){
-          //       $('.loading').show();
-          //   },
-          //   success: function(data)
-          //   {
-          //     varTenure = data['AvgYears'];
-          //   },
-          //   error: function()
-          //   {
-          //     setTimeout(function() {
-          //       swal({
-          //         title: 'Warning!',
-          //         text: 'Something went wrong, please contact the administrator or refresh page!',
-          //         type: 'warning',
-          //         buttonsStyling: false,
-          //         confirmButtonClass: 'btn btn-primary'
-          //       });
-          //     }, 2000);
-          //   }
-          // });
+          $('#lblBorrowerName').html(data['FirstName'] + ' ' + data['LastName']);
+          $('.divBorrowerBtn').html('<a target="_blank" href="<?php echo base_url();?>home/BorrowerDetails/'+data['BorrowerId']+'">View Borrower Details</a>');
         },
         error: function()
         {
@@ -1484,7 +1449,8 @@
     }
 
   $(function () {
-     $("#selectApprovers").on("select2:select", function (evt) {
+    displayBorrowerDetails('<?php print_r($this->uri->segment(3)) ?>');
+    $("#selectApprovers").on("select2:select", function (evt) {
       var element = evt.params.data.element;
       var $element = $(element);
       $element.detach();
@@ -1577,11 +1543,6 @@
         $('.lblTotalObligation').html('Php ' + parseInt(TotalObligation).toLocaleString('en-US', {minimumFractionDigits: 2}));
       });
 
-    function refreshPage(){
-      var url = '<?php echo base_url()."borrower_controller/getAllList/"; ?>';
-      UserTable.ajax.url(url).load();
-    }
-
     if("<?php print_r($this->session->flashdata('alertTitle')) ?>" != '')
     {
       swal({
@@ -1594,25 +1555,8 @@
     }
 
     $('#btnBorrowerDetail').click(function() {
-      window.location.href = 'BorrowerDetails/'+ $('#SelectBorrower').val();
+      window.location.href = 'BorrowerDetails/'+ <?php print_r($this->uri->segment(3)) ?>;
       return false;
-    });
-
-    $('#selectBorrower').select2({
-      placeholder: 'Type an borrower name or borrower number to select.',
-      dropdownCssClass : 'bigdrop',
-      ajax: {
-        url: '<?php echo base_url()?>admin_controller/getBorrowers?>',
-        dataType: 'json',
-        delay: 250,
-        processResults: function (data) 
-        {
-          return {
-            results: data
-          };
-        },
-        cache: true
-      }
     });
 
     $('#datepicker').daterangepicker({

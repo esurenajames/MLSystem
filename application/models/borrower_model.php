@@ -1125,7 +1125,7 @@ class borrower_model extends CI_Model
                                                 , acronym (B.MiddleName) as MI
                                                 , B.LastName
                                                 , B.ExtName
-                                                , B.CreatedBy
+                                                , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', EMP.MiddleName, ', ', EMP.ExtName) as CreatedBy
                                                 , B.StatusId
                                                 , B.Dependents
                                                 , DATE_FORMAT(B.DateCreated, '%d %b %Y %h:%i %p') as DateCreated

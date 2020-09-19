@@ -362,6 +362,39 @@ class home extends CI_Controller {
 		$this->load->view('includes/sidebar', $sidebar);
 		$this->load->view('transaction/renew', $data);
 	}
+
+	function createBorrowerLoan()
+	{
+		$Id = $this->uri->segment(3);
+		$sidebar['sidebar'] = 'Loans';
+		$sidebar['sidebarMenu'] = 'Loan Application';
+		$header['header'] = 'Loan Application';
+		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['access'] = $this->sidebar_model->getAccess();
+		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$data['LoanType'] = $this->maintenance_model->getLoanTypes();
+		$data['Purpose'] = $this->maintenance_model->getPurpose();
+		$data['Source'] = $this->maintenance_model->getSource();
+
+
+		$data['Sex'] = $this->maintenance_model->getSex();
+		$data['Nationality'] = $this->maintenance_model->getNationality();
+		$data['CivilStatus'] = $this->maintenance_model->getCivilStatus();
+		$data['Salutation'] = $this->maintenance_model->getSalutation();
+		$data['Position'] = $this->maintenance_model->getBorrowerPosition();
+		$data['Status'] = $this->maintenance_model->getBorrowerStatus();
+
+		$data['repaymentCycle'] = $this->maintenance_model->getRepayments();
+		$data['disbursements'] = $this->maintenance_model->getDisbursements();
+		$data['requirementType'] = $this->maintenance_model->getRequirementType();
+		$data['loanStatus'] = $this->maintenance_model->getLoanStatus();
+		$data['borrowerList'] = $this->maintenance_model->getBorrowerList();
+
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('transaction/createBorrowerLoan', $data);
+	}
 	
 	function LoanCalculator()
 	{
@@ -564,8 +597,8 @@ class home extends CI_Controller {
 	
 	function borrowers()
 	{
-		$sidebar['sidebar'] = 'SystemSetup';
-		$sidebar['sidebarMenu'] = 'Borrowers';
+		$sidebar['sidebar'] = 'BorrowerManagement';
+		$sidebar['sidebarMenu'] = 'BorrowerManagement';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -582,8 +615,6 @@ class home extends CI_Controller {
 		$this->load->view('borrowers/dashboard', $data);
 	}
 
-	
-	
 	function BorrowerDetails()
 	{
 		$Id = $this->uri->segment(3);

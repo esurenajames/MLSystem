@@ -304,6 +304,9 @@ class loanapplication_model extends CI_Model
                                                       WHERE ApplicationId = A.ApplicationId
                                                       AND StatusId = 3
                                               ) as ProcessedApprovers
+                                              , (SELECT MAX(DATE_FORMAT(DateCreated, '%b %d, %Y'))
+                                                        FROM t_paymentsmade
+                                              ) as LastPayment
                                               FROM T_Application A
                                                 INNER JOIN R_Loans L 
                                                   ON L.LoanId = A.LoanId
@@ -325,11 +328,13 @@ class loanapplication_model extends CI_Model
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $query_string = $this->db->query("SELECT  A.ApplicationId
                                               , AHN.Description
-                                              , AHN.CreatedBy
+                                              , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as CreatedBy
                                               , DATE_FORMAT(AHN.DateCreated, '%b %d, %Y %r') as DateCreated
                                               FROM Application_has_notifications AHN
                                                 INNER JOIN T_Application A
                                                   ON A.ApplicationId = AHN.ApplicationId
+                                                INNER JOIN R_Employee EMP
+                                                  ON EMP.EmployeeNumber = AHN.CreatedBy
                                                     WHERE A.ApplicationId = $ID
     ");
     $data = $query_string->result_array();
@@ -453,11 +458,10 @@ class loanapplication_model extends CI_Model
                                               , AE.ExpenseId
                                               , AE.Details
                                               , AE.Amount
-                                              , AE.CreatedBy
                                               , AE.StatusId
                                               , S.Description
                                               , DATE_FORMAT(AE.DateCreated, '%b %d, %Y %r') as DateCreated
-                                              , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as Name
+                                              , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as CreatedBy
                                               FROM Application_has_Expense AE
                                                 INNER JOIN r_status S
                                                   ON S.StatusId = AE.StatusId
@@ -477,11 +481,10 @@ class loanapplication_model extends CI_Model
                                               , AO.MonthlyObligationId
                                               , AO.Details
                                               , AO.Amount
-                                              , AO.CreatedBy
                                               , AO.StatusId
                                               , S.Description
                                               , DATE_FORMAT(AO.DateCreated, '%b %d, %Y %r') as DateCreated
-                                              , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as Name
+                                              , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as CreatedBy
                                               FROM Application_has_MonthlyObligation AO
                                                 INNER JOIN r_status S
                                                   ON S.StatusId = AO.StatusId

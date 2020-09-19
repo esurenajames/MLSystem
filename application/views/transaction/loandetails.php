@@ -2,7 +2,7 @@
 <div class="content-wrapper">
   <section class="content-header">
     <h1>
-      Loan Application Details for </label> <?php print_r($detail['TransactionNumber']) ?>
+      Loan Application Details for </label> <?php print_r($detail['Name']) ?>
     </h1>
     <ol class="breadcrumb">
       <li><a href="#" class="active"><i class="fa fa-dashboard"></i>Loans</a></li>
@@ -45,14 +45,13 @@
     </div>
     <!-- /.modal-dialog -->
   </div>
-
   <div class="modal fade" id="modalUpload">
     <div class="modal-dialog modal-md">
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="modalComment">Add Comment</h4>
+          <h4 class="modal-title" id="modalCommentId">Upload Requirement</h4>
         </div>
         <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/uploadRequirements/<?php print_r($detail['ApplicationId']) ?>" method="post" enctype="multipart/form-data">
           <div class="modal-body">
@@ -70,11 +69,8 @@
           </div>
         </form>
       </div>
-      <!-- /.modal-content -->
     </div>
-    <!-- /.modal-dialog -->
   </div>
-
   <div class="modal fade" id="modalComment">
     <div class="modal-dialog modal-md">
       <div class="modal-content">
@@ -106,7 +102,6 @@
     </div>
     <!-- /.modal-dialog -->
   </div>
-
   <div class="modal fade" id="modalCollateral">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -133,7 +128,7 @@
                 <label>Product Name</label>
                 <input type="text" name="ProductName" class="form-control" id="txtProductName">
                 <input type="hidden" name="CollateralId" class="form-control" id="txtCollateralId">
-                <input type="" name="FormType" id="txtFormTypeCollateral" value="1">
+                <input type="hidden" name="FormType" id="txtFormTypeCollateral" value="1">
               </div>
               <div class="col-md-12">
                 <div class="form-group">
@@ -209,7 +204,6 @@
     </div>
     <!-- /.modal-dialog -->
   </div>
-
   <div class="modal fade" id="modalObligation">
     <div class="modal-dialog modal-md">
       <div class="modal-content">
@@ -224,7 +218,7 @@
               <div class="col-md-12">
                 <label>Obligation</label>
                 <input type="text" class="form-control" name="Obligation" id="txtObligation">
-                <input type="" name="FormType" id="txtFormType" value="1">
+                <input type="hidden" name="FormType" id="txtFormType" value="1">
                 <input type="hidden" name="MonthlyObligationId" id="txtMonthlyObligationId">
               </div>
             </div>
@@ -251,7 +245,6 @@
     </div>
     <!-- /.modal-dialog -->
   </div>
-
   <div class="modal fade" id="modalExpense">
     <div class="modal-dialog modal-md">
       <div class="modal-content">
@@ -266,7 +259,7 @@
               <div class="col-md-12">
                 <label>Expense</label>
                 <input type="text" class="form-control" name="Expense" id="txtExpense">
-                <input type="" name="FormTypeExpense" id="txtFormTypeExpense" value="1">
+                <input type="hidden" name="FormTypeExpense" id="txtFormTypeExpense" value="1">
                 <input type="hidden" name="ExpenseId" id="txtExpenseId">
               </div>
             </div>
@@ -293,7 +286,6 @@
     </div>
     <!-- /.modal-dialog -->
   </div>
-
   <div class="modal fade" id="modalRequirement">
     <div class="modal-dialog modal-md">
       <div class="modal-content">
@@ -327,7 +319,6 @@
     </div>
     <!-- /.modal-dialog -->
   </div>
-
   <div class="modal fade" id="modalIncome">
     <div class="modal-dialog modal-md">
       <div class="modal-content">
@@ -342,7 +333,7 @@
               <div class="col-md-12">
                 <label>Source</label>
                 <input type="text" class="form-control" name="Source" id="txtIncomeSource">
-                <input type="" name="FormType" id="txtFormTypeIncome" value="1">
+                <input type="hidden" name="FormType" id="txtFormTypeIncome" value="1">
                 <input type="hidden" name="IncomeId" id="txtIncomeId">
               </div>
             </div>
@@ -586,35 +577,37 @@
               </div>
               <div class="tab-pane" id="tabPenalty">
               	<h4>Penalty Settings</h4>
-              	<div class="row">
-	                <div class="col-md-12">
-	                  <label><input id='chkPenalty' onclick='onchangeIsPenalized()' <?php if($detail['IsPenalized']) echo "checked"; else { echo "";} ?>  type='checkbox'> Enable Late Repayment Penalty?</label>
-	                </div>
-	                <br>
-              	</div>
-                <div class="row">
-                  <div id="divPenalty" style="display: <?php if($detail['IsPenalized']) echo ""; else { echo "none";} ?>">
-                    <div class="col-md-4">
-                      <label>Penalty Type</label>
-                      <select class="form-control" id="selectPenaltyType" onchange="onchangePenaltyType()" name="PenaltyType">
-                        <option <?php if($detail['PenaltyType'] == 'Flat Rate') echo "selected"; else { echo "";} ?>>Flat Rate</option>
-                        <option<?php if($detail['PenaltyType'] == 'Percentage') echo "selected"; else { echo "";} ?>>Percentage</option>
-                      </select>
+                <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/penaltySettings/<?php print_r($detail['ApplicationId']) ?>" method="post">
+                	<div class="row">
+  	                <div class="col-md-12">
+  	                  <label><input id='chkPenalty' onclick='onchangeIsPenalized()' <?php if($detail['IsPenalized']) echo "checked"; else { echo "";} ?>  type='checkbox' name="IsPenalized"> Enable Late Repayment Penalty?</label>
+  	                </div>
+  	                <br>
+                	</div>
+                  <div class="row">
+                    <div id="divPenalty" style="display: <?php if($detail['IsPenalized']) echo ""; else { echo "none";} ?>">
+                      <div class="col-md-4">
+                        <label>Penalty Type</label>
+                        <select class="form-control" id="selectPenaltyType" onchange="onchangePenaltyType()" name="PenaltyType">
+                          <option <?php if($detail['PenaltyType'] == 'Flat Rate') echo "selected"; else { echo "";} ?>>Flat Rate</option>
+                          <option <?php if($detail['PenaltyType'] == 'Percentage') echo "selected"; else { echo "";} ?>>Percentage</option>
+                        </select>
+                      </div>
+                      <div class="col-md-4">
+                        <label id="inputLblPenaltyType">Amount</label>
+                        <input type="number" value="<?php print_r($detail["PenaltyAmount"]) ?>" min="0" class="form-control" name="PenaltyAmount" id="txtPenaltyAmount">
+                      </div>
+                      <div class="col-md-4">
+                        <label>Grace Period</label>
+                        <input type="number" min="0" class="form-control" name="PenaltyAmount" value="<?php print_r($detail["GracePeriod"]) ?>" id="txtPenaltyAmount">
+                      </div>
                     </div>
-                    <div class="col-md-4">
-                      <label id="inputLblPenaltyType">Amount</label>
-                      <input type="number" value="<?php print_r($detail["PenaltyAmount"]) ?>" min="0" class="form-control" name="PenaltyAmount" id="txtPenaltyAmount">
-                    </div>
-                    <div class="col-md-4">
-                      <label>Grace Period</label>
-                      <input type="number" min="0" class="form-control" name="PenaltyAmount" value="<?php print_r($detail["GracePeriod"]) ?>" id="txtPenaltyAmount">
+                    <div class="pull-right">
+                      <br>
+                      <button class="btn btn-sm btn-primary">Save Changes</button>
                     </div>
                   </div>
-                  <div class="pull-right">
-                    <br>
-                    <a class="btn btn-sm btn-primary">Save Changes</a>
-                  </div>
-                </div>
+                </form>
               </div>
               <div class="tab-pane" id="tabCollateral">
               	<h4>Collateral</h4>
@@ -778,7 +771,7 @@
                         echo "<td>".$value['Details']."</td>";
                         echo "<td>".number_format($value['Amount'], 2)."</td>";
                         echo "<td>".$value['Description']."</td>";
-                        echo "<td>".$value['DateCreated']."</td>";
+                        echo "<td>".$value['CreatedBy']."</td>";
                         echo "<td>".$value['DateCreated']."</td>";
                         if($value['StatusId'] == 2)
                         {
