@@ -24,8 +24,9 @@
             <div class="row">
               <div class="col-md-12">
                 <label>Remarks</label>
-                <textarea class="form-control" name="Description"></textarea>
+                <textarea class="form-control" name="Description"><?php print_r($detail['ApplicationId']) ?></textarea>
                 <input type="hidden" name="ApprovalType" id="txtApprovalType">
+                <input type="hidden" name="ChargeId" id="txtChargeId">
               </div>
               <div class="col-md-12">
                 <div class="form-group">
@@ -360,6 +361,56 @@
     </div>
     <!-- /.modal-dialog -->
   </div>
+  <div class="modal fade" id="modalCharges">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Add Charges</h4>
+        </div>
+        <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/addCharges/<?php print_r($detail['ApplicationId']) ?>" method="post">
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-12">
+                <label>Charges</label>
+                <select class="form-control" style="width: 100%" required="" onchange="chargeOnChange(this.value)" name="ChargeId" id="selectCharges">
+                <?php
+                  echo $selectCharges;
+                ?>
+              </select>
+              </div>
+            </div>
+            <br>
+            <div class="row" style="display: none" id="divChargeDetails">
+              <div class="col-md-3">
+                <label>Charge Type</label><br>
+                <h6 id="lblChargeType"></h6>
+              </div>
+              <div class="col-md-3">
+                <label>Description</label><br>
+                <h6 id="lblChargeDesc"></h6>
+              </div>
+              <div class="col-md-3">
+                <label>Amount</label><br>
+                <h6 id="lblChargeAmount"></h6>
+              </div>
+              <div class="col-md-3">
+                <label>Total</label><br>
+                <h6 id="lblChargeTotal"></h6>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
 
   <section class="content">
   	<!-- BORROWER DETAILS -->
@@ -523,6 +574,7 @@
               <li><a href="#tabIncome" data-toggle="tab" title="Sources of Other Income"><span class="fa fa-credit-card "></span></a></li>
               <li><a href="#tabExpense" data-toggle="tab" title="Monthly Expense"><span class="fa fa-database "></span></a></li>
               <li><a href="#tabObligations" data-toggle="tab" title="Monthly Obligation"><span class="fa fa-certificate "></span></a></li>
+              <li><a href="#tabCharges" data-toggle="tab" title="Charges"><span class="fa fa-table"></span></a></li>
               <li><a href="#tabComments" data-toggle="tab" title="Comments"><span class="fa fa-comment "></span></a></li>
             </ul>
             <div class="tab-content">
@@ -588,18 +640,18 @@
                     <div id="divPenalty" style="display: <?php if($detail['IsPenalized']) echo ""; else { echo "none";} ?>">
                       <div class="col-md-4">
                         <label>Penalty Type</label>
-                        <select class="form-control" id="selectPenaltyType" onchange="onchangePenaltyType()" name="PenaltyType">
+                        <select class="form-control" id="selectPenaltyType" required="" onchange="onchangePenaltyType()" name="PenaltyType">
                           <option <?php if($detail['PenaltyType'] == 'Flat Rate') echo "selected"; else { echo "";} ?>>Flat Rate</option>
                           <option <?php if($detail['PenaltyType'] == 'Percentage') echo "selected"; else { echo "";} ?>>Percentage</option>
                         </select>
                       </div>
                       <div class="col-md-4">
                         <label id="inputLblPenaltyType">Amount</label>
-                        <input type="number" value="<?php print_r($detail["PenaltyAmount"]) ?>" min="0" class="form-control" name="PenaltyAmount" id="txtPenaltyAmount">
+                        <input type="number" required="" value="<?php print_r($detail["PenaltyAmount"]) ?>" min="0" class="form-control" name="PenaltyAmount" id="txtPenaltyAmount">
                       </div>
                       <div class="col-md-4">
                         <label>Grace Period</label>
-                        <input type="number" min="0" class="form-control" name="PenaltyAmount" value="<?php print_r($detail["GracePeriod"]) ?>" id="txtPenaltyAmount">
+                        <input type="number" min="0" class="form-control" required="" name="GracePeriod" value="<?php print_r($detail["GracePeriod"])?>">
                       </div>
                     </div>
                     <div class="pull-right">
@@ -840,6 +892,75 @@
                   </tbody>
                 </table>
               </div>
+              <div class="tab-pane" id="tabCharges">
+                <h4>Loan Charges</h4>
+                <br>
+                <a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalCharges">Add Charge</a>
+                <br>
+                <br>
+                <table id="dtblCharges" class="table table-bordered table-hover" style="width: 100%">
+                  <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Charge</th>
+                    <th>Charge Type</th>
+                    <th>Amount</th>
+                    <th>Total</th>
+                    <th>By</th>
+                    <th>Status</th>
+                    <th>Date Creation</th>
+                    <th>Action</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                    <?php 
+                      $rowNumber = 0;
+                      foreach ($chargeList as $value) 
+                      {
+                        $rowNumber = $rowNumber + 1;
+                        // charge type
+                          if($value['ChargeType'] == 'Flat Rate')
+                          {
+                            $amount = 'Php ' . number_format($value['Amount'], 2);
+                          }
+                          else
+                          {
+                            $amount = number_format($value['Amount'], 2) . '%';
+                          }
+                        // status
+                          if($value['StatusId'] == 2)
+                          {
+                            if($value['IsMandatory'] == 0)
+                            {
+                              $action = '<a class="btn btn-danger btn-sm" title="Deactivated" data-toggle="modal" data-target="#modalUpdate" onclick="approvalType(3, '.$value['ApplicationChargeId'].')"><span class="fa fa-close"></span></a>';
+                            }
+                            else
+                            {
+                              $action = '';
+                            }
+                            $status = 'Active'; 
+                          }
+                          else
+                          {
+                            $status = 'Deactivated';
+                            $action = '';
+                          }
+                        echo "<tr>";
+                        echo "<td>".$rowNumber."</td>";
+                        echo "<td>".$value['Name']."</td>";
+                        echo "<td>".$value['ChargeType']."</td>";
+                        echo "<td>".$amount."</td>";
+                        echo "<td>Php ".number_format($value['TotalCharge'], 2)."</td>";
+                        echo "<td>".$value['CreatedBy']."</td>";
+                        echo "<td>".$status."</td>";
+                        echo "<td>".$value['DateCreated']."</td>";
+                        echo '<td>'.$action.'</td>';
+                        echo "</tr>";
+                      }
+                    ?>
+                  </tbody>
+                </table>
+              </div>
               <div class="tab-pane" id="tabComments">
               	<h4>Comments</h4>
               	<br>
@@ -947,6 +1068,10 @@
     "order": [[0, "desc"]]
   });
 
+  $('#dtblCharges').DataTable({
+    "order": [[0, "desc"]]
+  });
+
   $('#dtblComments').DataTable({
     // "aoColumnDefs": [{ "bVisible": false, "aTargets": [7] }],
     "order": [[0, "desc"]]
@@ -969,6 +1094,52 @@
     // "aoColumnDefs": [{ "bVisible": false, "aTargets": [7] }],
     "order": [[0, "desc"]]
   });
+
+  function chargeOnChange(value)
+  {
+    $.ajax({
+      url: '<?php echo base_url()?>' + "/loanapplication_controller/getChargeDetails",
+      type: "POST",
+      async: false,
+      data: {
+        Id : value
+      },
+      dataType: "JSON",
+      beforeSend: function(){
+          $('.loading').show();
+      },
+      success: function(data)
+      {
+        $('#divChargeDetails').slideDown();
+        var Total;
+        if(data['ChargeType'] == 'Flat Rate')
+        {
+          Total = 'Php ' + (data['Amount']).toLocaleString('en-US', {minimumFractionDigits: 2});
+        }
+        else
+        {
+          Total = (data['Amount']).toLocaleString('en-US', {minimumFractionDigits: 2}) + '%';
+        }
+        $('#lblChargeAmount').html(Total);
+        $('#lblChargeDesc').html(data['Description']);
+        $('#lblChargeTotal').html('Php ' + parseInt(data['TotalCharge']).toLocaleString('en-US', {minimumFractionDigits: 2}));
+        $('#lblChargeType').html(data['ChargeType']);
+      },
+      error: function()
+      {
+        setTimeout(function() {
+          swal({
+            title: 'Warning!',
+            text: 'Something went wrong, please contact the administrator or refresh page!',
+            type: 'warning',
+            buttonsStyling: false,
+            confirmButtonClass: 'btn btn-primary'
+          });
+          // location.reload();
+        }, 2000);
+      }
+    });
+  }
 
   function onchangeIsPenalized()
   {
@@ -1223,9 +1394,7 @@
               },
           }, function(start, end, label){
           });
-
         },
-
         error: function()
         {
           setTimeout(function() {
@@ -1248,18 +1417,34 @@
     $('#txtApplicationRequirementId').val(value)
   }
 
-  function approvalType(Type)
+  function onchangePenaltyType()
+  {
+    if($('#selectPenaltyType').val() == 'Flat Rate')
+    {
+      $('#inputLblPenaltyType').html('Amount');
+    }
+    else
+    {
+      $('#inputLblPenaltyType').html('Percentage');
+    }
+  }
+
+  function approvalType(Type, ID)
   {
     if(Type == 1)
     {
       $('#modalApprovalUpdateTitle').html('Approve Loan');
     }
-    else
+    else if(Type == 2)
     {
       $('#modalApprovalUpdateTitle').html('Disapprove Loan');
     }
+    else
+    {
+      $('#modalApprovalUpdateTitle').html('Remove Charge');
+      $('#txtChargeId').val(ID);
+    }
     $('#txtApprovalType').val(Type);
   }
-
 
 </script>

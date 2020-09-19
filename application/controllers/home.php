@@ -401,16 +401,27 @@ class home extends CI_Controller {
 		$sidebar['sidebar'] = 'Loans';
 		$sidebar['sidebarMenu'] = 'Loan Calculator';
 		$header['header'] = 'Loan Calculator';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['access'] = $this->sidebar_model->getAccess();
+		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$data['LoanType'] = $this->maintenance_model->getLoanTypes();
+		$data['Purpose'] = $this->maintenance_model->getPurpose();
+		$data['Source'] = $this->maintenance_model->getSource();
+
+
+		$data['Sex'] = $this->maintenance_model->getSex();
+		$data['Nationality'] = $this->maintenance_model->getNationality();
+		$data['CivilStatus'] = $this->maintenance_model->getCivilStatus();
+		$data['Salutation'] = $this->maintenance_model->getSalutation();
+		$data['Position'] = $this->maintenance_model->getBorrowerPosition();
+		$data['Status'] = $this->maintenance_model->getBorrowerStatus();
 
 		$data['repaymentCycle'] = $this->maintenance_model->getRepayments();
 		$data['disbursements'] = $this->maintenance_model->getDisbursements();
 		$data['requirementType'] = $this->maintenance_model->getRequirementType();
 		$data['loanStatus'] = $this->maintenance_model->getLoanStatus();
 		$data['borrowerList'] = $this->maintenance_model->getBorrowerList();
-		$data['LoanType'] = $this->maintenance_model->getLoanTypes();
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
@@ -443,6 +454,8 @@ class home extends CI_Controller {
 		$data['collateralType'] = $this->loanapplication_model->getCollateralType($Id);
 		$data['collateralStatus'] = $this->loanapplication_model->getCollateralStatus($Id);
 		$data['collateral'] = $this->loanapplication_model->getCollateral($Id);
+		$data['chargeList'] = $this->loanapplication_model->displayCharges($Id);
+		$data['selectCharges'] = $this->loanapplication_model->selectCharges($Id);
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
 		$this->load->view('transaction/loandetails', $data);

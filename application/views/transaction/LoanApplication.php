@@ -20,11 +20,9 @@
   .table-bordereds>thead>tr>th, .table-bordereds>tbody>tr>th, .table-bordereds>tfoot>tr>th, .table-bordereds>thead>tr>td, .table-bordereds>tbody>tr>td, .table-bordereds>tfoot>tr>td {
       border: 1px solid #4e4b4b;
   }
-
 </style>
-<!-- Content Wrapper. Contains page content -->
+
 <div class="content-wrapper">
-  <!-- Content Header (Page header) -->
   <section class="content-header">
     <h1>
       Create Loan Application
@@ -36,13 +34,12 @@
     </ol>
   </section>
 
-    <!-- Main content -->
     <section class="content">
       <div class="box">
         <div class="box-header with-border">
           <h3 class="box-title">Loan Details</h3>
         </div>
-        <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/submitApplication" class="frmSubmit" method="post">
+        <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/submitApplication" id="frmSubmitForm" class="frmSubmit" method="post">
           <div class="box-body">
             <div id="smartwizard">
               <ul>
@@ -86,7 +83,7 @@
                       </div>
                       <div class="col-md-4">
                         <label>Grace Period</label>
-                        <input type="number" min="0" class="form-control" name="GracePeriod" id="txtPenaltyAmount">
+                        <input type="number" min="0" class="form-control" name="GracePeriod">
                       </div>
                     </div>
                   </div>
@@ -129,7 +126,6 @@
                                 </div>
                                 <input type="text" placeholder="Date of Birth" class="form-control" onchange="loanSummary()" name="loanReleaseDate" required="" id="loanReleaseDate">
                               </div>
-                              <!-- /.input group -->
                             </div>
                         </div>
                       </div>
@@ -149,13 +145,13 @@
                     <div class="col-md-6">
                       <div class="form-group">
                         <label>Principal Amount<span class="text-red">*</span></label><br>
-                        <input type="number" class="form-control" placeholder="Principal Amount" oninput="btnRemoveCharges(); loanSummary()" id="txtPrincipalAmount" name="PrincipalAmount">
+                        <input type="number" class="form-control" placeholder="Principal Amount" oninput="getTotalInterest(); btnRemoveCharges(); loanSummary()" id="txtPrincipalAmount" name="PrincipalAmount">
                       </div>
                     </div>
                     <div class="col-md-6">
                       <div class="form-group">
                         <label>Term Type<span class="text-red">*</span></label><br>
-                        <select class="form-control" style="width: 100%" required="" onchange="getRepaymentDuration(); loanSummary()" name="TermType" id="selectTermType">
+                        <select class="form-control" style="width: 100%" required="" onchange="getTotalInterest(); getRepaymentDuration(); loanSummary()" name="TermType" id="selectTermType">
                           <option value="" disabled="">Select Term Type</option>
                           <option>Days</option>
                           <option>Weeks</option>
@@ -167,13 +163,13 @@
                     <div class="col-md-6">
                       <div class="form-group">
                         <label>Term<span class="text-red">*</span></label><br>
-                        <input type="number" class="form-control" oninput="getRepaymentDuration(); getPrincipalCollection(); getTotalCollection(); loanSummary()" name="TermNumber" id="txtTermNo">
+                        <input type="number" class="form-control" oninput="getRepaymentDuration(); getTotalInterest(); getPrincipalCollection(); getTotalCollection(); loanSummary()" name="TermNumber" id="txtTermNo">
                       </div>
                     </div>
                     <div class="col-md-6">
                       <div class="form-group">
                         <label>Repayment Cycle<span class="text-red">*</span></label><br>
-                        <select class="form-control" style="width: 100%" required="" onchange="getRepaymentDuration(); getPrincipalCollection(); getTotalCollection(); loanSummary()" name="RepaymentCycle" id="selectRepaymentType">
+                        <select class="form-control" style="width: 100%" required="" onchange="getTotalInterest(); getRepaymentDuration(); getPrincipalCollection(); getTotalCollection(); loanSummary()" name="RepaymentCycle" id="selectRepaymentType">
                           <?php
                             echo $repaymentCycle;
                           ?>
@@ -184,7 +180,7 @@
                     <div class="col-md-6">
                       <div class="form-group">
                         <label>Number of Repayments<span class="text-red">*</span></label><br>
-                        <input type="number" min="0" class="form-control" onchange="getPrincipalCollection(); getTotalCollection(); loanSummary()" name="RepaymentsNumber" required="" id="txtRepayments">
+                        <input type="number" min="0" class="form-control" onchange="getTotalInterest(); getPrincipalCollection(); getTotalCollection(); loanSummary()" name="RepaymentsNumber" required="" id="txtRepayments">
                       </div>
                     </div>
                   </div>
@@ -226,6 +222,7 @@
                   <h4>Additional Charges <small><a href=""> Add/Edit Additional Charges</a></small> <a class="btn btn-sm btn-primary pull-right" id="btnAddCharges" onclick="btnCharges()">Add Charges</a> <a class="btn btn-sm btn-primary pull-right" style="display: none" onclick="btnRemoveCharges()" id="btnRemoveCharges">Remove Charges</a></h4>
                   <hr>
                   <div id="divAdditionalCharges" style="display: none">
+                    <input type="hidden" id="txtIsCharged">
                     <div class="row">
                       <div class="col-md-12">
                         <table id="example3" class="table table-bordered table-hover" style="width: 100%">
@@ -672,16 +669,14 @@
                 </div>
                 <button class="btn btn-secondary sw-btn-prev disabled" style="margin-left: 85%" type="button">Back</button>
                 <button class="btn btn-secondary sw-btn-next"  style="display:" type="button" id="BtnNext">Next</button>
-                <button class="btn btn-primary" type="submit" name="BtnSubmitRequest" id="BtnSubmitRequest" style="display:none;">Submit</button>
+                <button class="btn btn-primary" type="submit" id="BtnSubmitRequest" style="display:none;">Submit</button>
               </div>
             </div>
           </div>
         </form>
       </div>
     </section>
-  <!-- /.content -->
 </div>
-<!-- /.content-wrapper -->
 
 <footer class="main-footer">
   <div class="pull-right hidden-xs">
@@ -1318,6 +1313,7 @@
       }
       else
       {
+        $('#txtIsCharged').val(1);
         $('#divAdditionalCharges').slideDown();
         $('#btnRemoveCharges').show();
         $('#btnAddCharges').hide();
@@ -1481,10 +1477,11 @@
       // display net loan amount [loan amount - Processing Fee]
         displayNetLoan = parseInt($('#txtPrincipalAmount').val()) - parseInt(displayTotal);
         $('.lblNetLoanAmount').html('Php ' + parseInt(displayNetLoan).toLocaleString('en-US', {minimumFractionDigits: 2}));
+        $('#txtIsCharged').val(0);
     }
 
   $(function () {
-     $("#selectApprovers").on("select2:select", function (evt) {
+    $("#selectApprovers").on("select2:select", function (evt) {
       var element = evt.params.data.element;
       var $element = $(element);
       $element.detach();
@@ -1498,7 +1495,7 @@
         MonthlyIncomeCount = MonthlyIncomeCount + 1;
         output = '<tr id="rowIncomeId' + MonthlyIncomeCount + '" value="' + MonthlyIncomeCount + '">'
         output += '<td id="rowNumber' + MonthlyIncomeCount + '">' + MonthlyIncomeCount + '</td>'
-        output += '<td><input type="text" class="form-control" name="MISourceIncome[]"><input type="hidden" required="" class="form-control" name="countMonthlyIncome[]" value="' + MonthlyIncomeCount + '"></td>'
+        output += '<td><input type="text" class="form-control incomeSource" name="MISourceIncome[]"><input type="hidden" required="" class="form-control" name="countMonthlyIncome[]" value="' + MonthlyIncomeCount + '"></td>'
         output += '<td><input type="text" class="form-control" name="MIDetails[]"></td>'
         output += '<td><input required="" type="text" class="form-control incomeAmount" min="0"  placeholder="0.00" oninput="changeAmount(this.value, 1, '+MonthlyIncomeCount+')" name="MIAmount[]"></td>'
         output += '<td><a id="' + MonthlyIncomeCount + '" class="btn btnRemoveIncome btn-sm btn-danger" title="Remove"><span class="fa fa-minus"></span></a> </td>'
@@ -1526,7 +1523,7 @@
         MonthlyExpensesCount = MonthlyExpensesCount + 1;
         output = '<tr id="rowExpenseId' + MonthlyExpensesCount + '" value="' + MonthlyExpensesCount + '">'
         output += '<td id="rowNumber' + MonthlyExpensesCount + '">' + MonthlyExpensesCount + '</td>'
-        output += '<td><input type="text" class="form-control" name="SourceExpenses[]"><input type="hidden" required="" class="form-control" name="countRow[]" value="' + MonthlyExpensesCount + '"></td>'
+        output += '<td><input type="text" class="form-control expenseSource" name="SourceExpenses[]"><input type="hidden" required="" class="form-control" name="countRow[]" value="' + MonthlyExpensesCount + '"></td>'
         output += '<td><input type="text" class="form-control" name="Details[]"></td>'
         output += '<td><input required="" type="number" class="form-control expenseAmount" name="Amount[]" placeholder="0.00" oninput="changeAmount(this.value, 2, ' + MonthlyExpensesCount + ')"></td>'
         output += '<td><a id="' + MonthlyExpensesCount + '" class="btn btnRemoveExpense btn-sm btn-danger" title="Remove"><span class="fa fa-minus"></span></a> </td>'
@@ -1554,7 +1551,7 @@
         MonthlyObligationsCount = MonthlyObligationsCount + 1;
         output = '<tr id="rowObligationId' + MonthlyObligationsCount + '" value="' + MonthlyObligationsCount + '">'
         output += '<td id="rowNumber' + MonthlyObligationsCount + '">' + MonthlyObligationsCount + '</td>'
-        output += '<td><input type="text" class="form-control" name="SourceObligations[]"><input type="hidden" required="" class="form-control" name="countObligationRow[]" value="' + MonthlyObligationsCount + '"></td>'
+        output += '<td><input type="text" class="form-control obligationSource" name="SourceObligations[]"><input type="hidden" required="" class="form-control" name="countObligationRow[]" value="' + MonthlyObligationsCount + '"></td>'
         output += '<td><input type="text" class="form-control" name="ObligationDetails[]"></td>'
         output += '<td><input required="" type="text" class="form-control obligationAmount" name="ObligationAmount[]" placeholder="0.00" oninput="changeAmount(this.value, 3, ' + MonthlyObligationsCount + ')"></td>'
         output += '<td><a id="' + MonthlyObligationsCount + '" class="btn btnRemoveObligation btn-sm btn-danger" title="Remove"><span class="fa fa-minus"></span></a> </td>'
@@ -1577,10 +1574,21 @@
         $('.lblTotalObligation').html('Php ' + parseInt(TotalObligation).toLocaleString('en-US', {minimumFractionDigits: 2}));
       });
 
-    function refreshPage(){
-      var url = '<?php echo base_url()."borrower_controller/getAllList/"; ?>';
-      UserTable.ajax.url(url).load();
-    }
+    $("#frmSubmitForm").on('submit', function (e) {
+      e.preventDefault(); 
+      swal({
+        title: 'Confirm',
+        text: 'Are you sure you want to submit application?',
+        type: 'info',
+        showCancelButton: true,
+        buttonsStyling: false,
+        confirmButtonClass: 'btn btn-success',
+        confirmButtonText: 'Confirm',
+        cancelButtonClass: 'btn btn-secondary'
+      }).then(function(){
+        e.currentTarget.submit();
+      });
+    });
 
     if("<?php print_r($this->session->flashdata('alertTitle')) ?>" != '')
     {
@@ -1713,41 +1721,229 @@
     });
 
     $("#smartwizard").on("leaveStep", function(e, anchorObject, stepNumber, stepDirection) {
-      // if(stepNumber == 0 && stepDirection == 'forward') // travel details
-      // {
-      //   IsGo = 0;
-      //   if($('#selectSource').val() == 'Through Agent')
-      //   {
-      //     if($('#txtAgentName').val() == '')
-      //     {
-      //       IsGo = 0;
-      //     }
-      //     else
-      //     {
-      //       IsGo = 1;
-      //     }
-      //   }
-      //   else
-      //   {
-      //     IsGo = 1;
-      //   }
-      //   if($('#selectLoanType').val() == '' || IsGo == 0 || $('#selectPurpose').val() == '' || $('#selectDisbursedBy').val() == '' || $('#txtPrincipalAmount').val() == '' || $('#selectTerm').val() == '' || $('#selectTermType').val() == '' || $('#txtRepayments').val() == '' || $('#selectRepaymentType').val() == '' || $('#selectInterestType').val() == '' || $('#txtInterest').val() == '' || $('#selectInterestFrequency').val() == '')
-      //   {
-      //     swal({
-      //       title: 'Warning',
-      //       text: 'Please make sure all required fields are filled out.',
-      //       type: 'warning',
-      //       buttonsStyling: false,
-      //       confirmButtonClass: 'btn btn-primary'
-      //     });
-      //     return false;
-      //   }
-      //   else
-      //   {
-      //     return true;
+      if(stepNumber == 0 && stepDirection == 'forward') // loan product
+      {
+        // for sources
+          IsGo = 0;
+          if($('#selectSource').val() == 'Through Agent')
+          {
+            if($('#txtAgentName').val() == '')
+            {
+              IsGo = 0;
+            }
+            else
+            {
+              IsGo = 1;
+            }
+          }
+          else
+          {
+            IsGo = 1;
+          }
+        // for penalties
+          varIsPenalized = 0;
+          if($('#chkPenalty').is(":checked") == true)
+          {
+            if($('#selectPenaltyType').val() == '' || $('#txtPenaltyAmount').val() <= 0 || $('#txtPenaltyAmount').val() < 0)
+            {
+              varIsPenalized = 0;
+            }
+            else
+            {
+              varIsPenalized = 1;
+            }
+          }
+          else
+          {
+            varIsPenalized = 1;
+          }
+        // for charges
+          varChargeNo = 0;
+          if($('#txtIsCharged').val() == 1)
+          {
+            $('input[type="checkbox"]').click(function(){
+              varChargeNo = $('.checkCharges:checked').length;
+            });
+          }
+          else
+          {
+            varChargeNo = 1;
+          }
+          
+        if($('#selectLoanType').val() == '' || IsGo == 0 || $('#selectPurpose').val() == '' || $('#selectDisbursedBy').val() == '' || $('#txtPrincipalAmount').val() == '' || $('#selectTerm').val() == '' || $('#selectTermType').val() == '' || $('#txtRepayments').val() == '' || $('#selectRepaymentType').val() == '' || $('#selectInterestType').val() == '' || $('#txtInterest').val() == '' || $('#selectInterestFrequency').val() == '' || varIsPenalized == 0 || varChargeNo == 0)
+        {
+          swal({
+            title: 'Warning',
+            text: 'Please make sure all required fields are filled out.',
+            type: 'warning',
+            buttonsStyling: false,
+            confirmButtonClass: 'btn btn-primary'
+          });
+          return false;
+        }
+        else
+        {
+          return true;
+        }
+      }
+      else if(stepNumber == 1 && stepDirection == 'forward') // borrower
+      {
+        if($('#selectBorrower').val() == '')
+        {
+          swal({
+            title: 'Warning',
+            text: 'Please make sure all required fields are filled out.',
+            type: 'warning',
+            buttonsStyling: false,
+            confirmButtonClass: 'btn btn-primary'
+          });
+          return false;
+        }
+        else
+        {
+          return true;
+        }
+      }
+      if(stepNumber == 2 && stepDirection == 'forward') // income
+      {
+        varContinue = 0;
+        varTotalSource = 0;
 
-      //   }
-      // }
+        varIncomeSource = 0;
+        varIncomeAmount = 0;
+        $('.incomeSource').each(function(){
+          varTotalSource = varTotalSource + 1;
+          if($(this).val() != '')
+          {
+            varIncomeSource = varIncomeSource + 1;
+          }
+        });
+        $('.incomeAmount').each(function(){
+          if($(this).val() != '' || $(this).val() > 0)
+          {
+            varIncomeAmount = varIncomeAmount + 1;
+          }
+        });
+
+        if(varTotalSource >= 1)
+        {
+          if(varIncomeSource == varTotalSource && varIncomeAmount == varTotalSource)
+          {
+            varContinue = 1;
+            return true;
+          }
+          else 
+          {
+            swal({
+              title: 'Warning',
+              text: 'Please make sure all required fields are filled out.',
+              type: 'warning',
+              buttonsStyling: false,
+              confirmButtonClass: 'btn btn-primary'
+            });
+            return false;
+          }
+        }
+        else
+        {
+          varContinue = 1;
+          return true;
+        }
+      }
+      else if(stepNumber == 3 && stepDirection == 'forward') // expense
+      {
+        varContinue = 0;
+        varTotalSource = 0;
+
+        varIncomeSource = 0;
+        varIncomeAmount = 0;
+        $('.expenseSource').each(function(){
+          varTotalSource = varTotalSource + 1;
+          if($(this).val() != '')
+          {
+            varIncomeSource = varIncomeSource + 1;
+          }
+        });
+        $('.expenseAmount').each(function(){
+          if($(this).val() != '' || $(this).val() > 0)
+          {
+            varIncomeAmount = varIncomeAmount + 1;
+          }
+        });
+
+        console.log(varIncomeAmount)
+
+        if(varTotalSource >= 1)
+        {
+          if(varIncomeSource == varTotalSource && varIncomeAmount == varTotalSource)
+          {
+            varContinue = 1;
+            return true;
+          }
+          else 
+          {
+            swal({
+              title: 'Warning',
+              text: 'Please make sure all required fields are filled out.',
+              type: 'warning',
+              buttonsStyling: false,
+              confirmButtonClass: 'btn btn-primary'
+            });
+            return false;
+          }
+        }
+        else
+        {
+          varContinue = 1;
+          return true;
+        }
+      }
+      else if(stepNumber == 4 && stepDirection == 'forward') // obligation
+      {
+        varContinue = 0;
+        varTotalSource = 0;
+
+        varIncomeSource = 0;
+        varIncomeAmount = 0;
+        $('.obligationSource').each(function(){
+          varTotalSource = varTotalSource + 1;
+          if($(this).val() != '')
+          {
+            varIncomeSource = varIncomeSource + 1;
+          }
+        });
+        $('.obligationAmount').each(function(){
+          if($(this).val() != '' || $(this).val() > 0)
+          {
+            varIncomeAmount = varIncomeAmount + 1;
+          }
+        });
+
+        if(varTotalSource >= 1)
+        {
+          if(varIncomeSource == varTotalSource && varIncomeAmount == varTotalSource)
+          {
+            varContinue = 1;
+            return true;
+          }
+          else 
+          {
+            swal({
+              title: 'Warning',
+              text: 'Please make sure all required fields are filled out.',
+              type: 'warning',
+              buttonsStyling: false,
+              confirmButtonClass: 'btn btn-primary'
+            });
+            return false;
+          }
+        }
+        else
+        {
+          varContinue = 1;
+          return true;
+        }
+      }
     });
 
   })

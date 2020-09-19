@@ -235,6 +235,41 @@ class loanapplication_model extends CI_Model
     return $data;
   }
 
+  function getChargeDetails($Id)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $query = $this->db->query("SELECT C.ChargeId
+                                      , C.Name
+                                      , C.Amount
+                                      , A.PrincipalAmount
+                                      , C.Description
+                                      , CASE
+                                          WHEN C.Description IS NULL
+                                          THEN 'N/A'
+                                          ELSE C.Description
+                                        END as Description
+                                      , C.ChargeType
+                                      , CASE
+                                          WHEN C.ChargeType = 'Flat Rate'
+                                          THEN CONCAT(C.Amount)
+                                          ELSE CONCAT(C.Amount / 100 * A.PrincipalAmount)
+                                        END as TotalCharge
+                                      , AHC.StatusId
+                                      , AHC.ApplicationChargeId
+                                      FROM Application_has_charges AHC
+                                        INNER JOIN R_Charges C
+                                          ON C.ChargeId = AHC.ChargeId
+                                        INNER JOIN T_Application A
+                                          ON A.ApplicationId = AHC.ApplicationId
+                                        LEFT JOIN R_Employee EMP
+                                          ON EMP.EmployeeNumber = AHC.CreatedBy
+                                            WHERE AHC.ChargeId = $Id
+    ");
+
+    $data = $query->row_array();
+    return $data;
+  }
+
   function getPenalties($Id)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
@@ -445,6 +480,38 @@ class loanapplication_model extends CI_Model
                                                 LEFT JOIN R_Employee EMP
                                                   ON EMP.EmployeeNumber = AI.CreatedBy
                                                     WHERE AI.ApplicationId = $ID
+    ");
+    $data = $query_string->result_array();
+    return $data;
+  }
+
+  function displayCharges($ID)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $query_string = $this->db->query("SELECT  C.ChargeId
+                                              , AHC.ApplicationChargeId
+                                              , C.Name
+                                              , C.Amount
+                                              , C.StatusId
+                                              , A.PrincipalAmount
+                                              , C.ChargeType
+                                              , C.IsMandatory
+                                              , CASE
+                                                  WHEN C.ChargeType = 'Flat Rate'
+                                                  THEN CONCAT(C.Amount)
+                                                  ELSE CONCAT(C.Amount / 100 * A.PrincipalAmount)
+                                                END as TotalCharge
+                                              , AHC.StatusId
+                                              , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as CreatedBy
+                                              , DATE_FORMAT(AHC.DateCreated, '%b %d, %Y %r') as DateCreated
+                                              FROM Application_has_charges AHC
+                                                INNER JOIN R_Charges C
+                                                  ON C.ChargeId = AHC.ChargeId
+                                                INNER JOIN T_Application A
+                                                  ON A.ApplicationId = AHC.ApplicationId
+                                                LEFT JOIN R_Employee EMP
+                                                  ON EMP.EmployeeNumber = AHC.CreatedBy
+                                                    WHERE AHC.ApplicationId = $ID
     ");
     $data = $query_string->result_array();
     return $data;
@@ -899,6 +966,29 @@ class loanapplication_model extends CI_Model
     foreach ($query->result() as $row)
     {
       $output .= '<option value="'.$row->RequirementId.'">'.$row->Name.'</option>';
+    }
+    return $output;
+  } 
+  
+  function selectCharges($Id)
+  {
+    $query = $this->db->query("SELECT ChargeId
+                                      , Name
+                                      FROM R_Charges C
+                                        WHERE ChargeId 
+                                        NOT IN 
+                                        (
+                                          SELECT  ChargeId
+                                                  FROM Application_Has_Charges
+                                                    WHERE ApplicationId = $Id
+                                                    AND StatusId = 2 
+                                        )
+                                        AND StatusId = 1
+    ");
+    $output = '<option selected disabled value="">Select Charges</option>';
+    foreach ($query->result() as $row)
+    {
+      $output .= '<option value="'.$row->ChargeId.'">'.$row->Name.'</option>';
     }
     return $output;
   } 

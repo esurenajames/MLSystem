@@ -1601,7 +1601,7 @@
         MonthlyIncomeCount = MonthlyIncomeCount + 1;
         output = '<tr id="rowIncomeId' + MonthlyIncomeCount + '" value="' + MonthlyIncomeCount + '">'
         output += '<td id="rowNumber' + MonthlyIncomeCount + '">' + MonthlyIncomeCount + '</td>'
-        output += '<td><input type="text" class="form-control" name="MISourceIncome[]"><input type="hidden" required="" class="form-control" name="countMonthlyIncome[]" value="' + MonthlyIncomeCount + '"></td>'
+        output += '<td><input type="text" class="form-control incomeSource" name="MISourceIncome[]"><input type="hidden" required="" class="form-control" name="countMonthlyIncome[]" value="' + MonthlyIncomeCount + '"></td>'
         output += '<td><input type="text" class="form-control" name="MIDetails[]"></td>'
         output += '<td><input required="" type="text" class="form-control incomeAmount" min="0"  placeholder="0.00" oninput="changeAmount(this.value, 1, '+MonthlyIncomeCount+')" name="MIAmount[]"></td>'
         output += '<td><a id="' + MonthlyIncomeCount + '" class="btn btnRemoveIncome btn-sm btn-danger" title="Remove"><span class="fa fa-minus"></span></a> </td>'
@@ -1623,13 +1623,13 @@
         }
         $('.lblTotalIncome').html('Php ' + parseInt(TotalIncome).toLocaleString('en-US', {minimumFractionDigits: 2}));
       });
-
+      
     var MonthlyExpensesCount = 0;
       $('#btnMonthlyExpenses').click(function(){
         MonthlyExpensesCount = MonthlyExpensesCount + 1;
         output = '<tr id="rowExpenseId' + MonthlyExpensesCount + '" value="' + MonthlyExpensesCount + '">'
         output += '<td id="rowNumber' + MonthlyExpensesCount + '">' + MonthlyExpensesCount + '</td>'
-        output += '<td><input type="text" class="form-control" name="SourceExpenses[]"><input type="hidden" required="" class="form-control" name="countRow[]" value="' + MonthlyExpensesCount + '"></td>'
+        output += '<td><input type="text" class="form-control expenseSource" name="SourceExpenses[]"><input type="hidden" required="" class="form-control" name="countRow[]" value="' + MonthlyExpensesCount + '"></td>'
         output += '<td><input type="text" class="form-control" name="Details[]"></td>'
         output += '<td><input required="" type="number" class="form-control expenseAmount" name="Amount[]" placeholder="0.00" oninput="changeAmount(this.value, 2, ' + MonthlyExpensesCount + ')"></td>'
         output += '<td><a id="' + MonthlyExpensesCount + '" class="btn btnRemoveExpense btn-sm btn-danger" title="Remove"><span class="fa fa-minus"></span></a> </td>'
@@ -1657,7 +1657,7 @@
         MonthlyObligationsCount = MonthlyObligationsCount + 1;
         output = '<tr id="rowObligationId' + MonthlyObligationsCount + '" value="' + MonthlyObligationsCount + '">'
         output += '<td id="rowNumber' + MonthlyObligationsCount + '">' + MonthlyObligationsCount + '</td>'
-        output += '<td><input type="text" class="form-control" name="SourceObligations[]"><input type="hidden" required="" class="form-control" name="countObligationRow[]" value="' + MonthlyObligationsCount + '"></td>'
+        output += '<td><input type="text" class="form-control obligationSource" name="SourceObligations[]"><input type="hidden" required="" class="form-control" name="countObligationRow[]" value="' + MonthlyObligationsCount + '"></td>'
         output += '<td><input type="text" class="form-control" name="ObligationDetails[]"></td>'
         output += '<td><input required="" type="text" class="form-control obligationAmount" name="ObligationAmount[]" placeholder="0.00" oninput="changeAmount(this.value, 3, ' + MonthlyObligationsCount + ')"></td>'
         output += '<td><a id="' + MonthlyObligationsCount + '" class="btn btnRemoveObligation btn-sm btn-danger" title="Remove"><span class="fa fa-minus"></span></a> </td>'
@@ -2075,41 +2075,229 @@
     });
 
     $("#smartwizard").on("leaveStep", function(e, anchorObject, stepNumber, stepDirection) {
-      // if(stepNumber == 0 && stepDirection == 'forward') // travel details
-      // {
-      //   IsGo = 0;
-      //   if($('#selectSource').val() == 'Through Agent')
-      //   {
-      //     if($('#txtAgentName').val() == '')
-      //     {
-      //       IsGo = 0;
-      //     }
-      //     else
-      //     {
-      //       IsGo = 1;
-      //     }
-      //   }
-      //   else
-      //   {
-      //     IsGo = 1;
-      //   }
-      //   if($('#selectLoanType').val() == '' || IsGo == 0 || $('#selectPurpose').val() == '' || $('#selectDisbursedBy').val() == '' || $('#txtPrincipalAmount').val() == '' || $('#selectTerm').val() == '' || $('#selectTermType').val() == '' || $('#txtRepayments').val() == '' || $('#selectRepaymentType').val() == '' || $('#selectInterestType').val() == '' || $('#txtInterest').val() == '' || $('#selectInterestFrequency').val() == '')
-      //   {
-      //     swal({
-      //       title: 'Warning',
-      //       text: 'Please make sure all required fields are filled out.',
-      //       type: 'warning',
-      //       buttonsStyling: false,
-      //       confirmButtonClass: 'btn btn-primary'
-      //     });
-      //     return false;
-      //   }
-      //   else
-      //   {
-      //     return true;
+      if(stepNumber == 0 && stepDirection == 'forward') // loan product
+      {
+        // for sources
+          IsGo = 0;
+          if($('#selectSource').val() == 'Through Agent')
+          {
+            if($('#txtAgentName').val() == '')
+            {
+              IsGo = 0;
+            }
+            else
+            {
+              IsGo = 1;
+            }
+          }
+          else
+          {
+            IsGo = 1;
+          }
+        // for penalties
+          varIsPenalized = 0;
+          if($('#chkPenalty').is(":checked") == true)
+          {
+            if($('#selectPenaltyType').val() == '' || $('#txtPenaltyAmount').val() <= 0 || $('#txtPenaltyAmount').val() < 0)
+            {
+              varIsPenalized = 0;
+            }
+            else
+            {
+              varIsPenalized = 1;
+            }
+          }
+          else
+          {
+            varIsPenalized = 1;
+          }
+        // for charges
+          varChargeNo = 0;
+          if($('#txtIsCharged').val() == 1)
+          {
+            $('input[type="checkbox"]').click(function(){
+              varChargeNo = $('.checkCharges:checked').length;
+            });
+          }
+          else
+          {
+            varChargeNo = 1;
+          }
+          
+        if($('#selectLoanType').val() == '' || IsGo == 0 || $('#selectPurpose').val() == '' || $('#selectDisbursedBy').val() == '' || $('#txtPrincipalAmount').val() == '' || $('#selectTerm').val() == '' || $('#selectTermType').val() == '' || $('#txtRepayments').val() == '' || $('#selectRepaymentType').val() == '' || $('#selectInterestType').val() == '' || $('#txtInterest').val() == '' || $('#selectInterestFrequency').val() == '' || varIsPenalized == 0 || varChargeNo == 0)
+        {
+          swal({
+            title: 'Warning',
+            text: 'Please make sure all required fields are filled out.',
+            type: 'warning',
+            buttonsStyling: false,
+            confirmButtonClass: 'btn btn-primary'
+          });
+          return false;
+        }
+        else
+        {
+          return true;
+        }
+      }
+      else if(stepNumber == 1 && stepDirection == 'forward') // borrower
+      {
+        if($('#selectBorrower').val() == '')
+        {
+          swal({
+            title: 'Warning',
+            text: 'Please make sure all required fields are filled out.',
+            type: 'warning',
+            buttonsStyling: false,
+            confirmButtonClass: 'btn btn-primary'
+          });
+          return false;
+        }
+        else
+        {
+          return true;
+        }
+      }
+      if(stepNumber == 2 && stepDirection == 'forward') // income
+      {
+        varContinue = 0;
+        varTotalSource = 0;
 
-      //   }
-      // }
+        varIncomeSource = 0;
+        varIncomeAmount = 0;
+        $('.incomeSource').each(function(){
+          varTotalSource = varTotalSource + 1;
+          if($(this).val() != '')
+          {
+            varIncomeSource = varIncomeSource + 1;
+          }
+        });
+        $('.incomeAmount').each(function(){
+          if($(this).val() != '' || $(this).val() > 0)
+          {
+            varIncomeAmount = varIncomeAmount + 1;
+          }
+        });
+
+        if(varTotalSource >= 1)
+        {
+          if(varIncomeSource == varTotalSource && varIncomeAmount == varTotalSource)
+          {
+            varContinue = 1;
+            return true;
+          }
+          else 
+          {
+            swal({
+              title: 'Warning',
+              text: 'Please make sure all required fields are filled out.',
+              type: 'warning',
+              buttonsStyling: false,
+              confirmButtonClass: 'btn btn-primary'
+            });
+            return false;
+          }
+        }
+        else
+        {
+          varContinue = 1;
+          return true;
+        }
+      }
+      else if(stepNumber == 3 && stepDirection == 'forward') // expense
+      {
+        varContinue = 0;
+        varTotalSource = 0;
+
+        varIncomeSource = 0;
+        varIncomeAmount = 0;
+        $('.expenseSource').each(function(){
+          varTotalSource = varTotalSource + 1;
+          if($(this).val() != '')
+          {
+            varIncomeSource = varIncomeSource + 1;
+          }
+        });
+        $('.expenseAmount').each(function(){
+          if($(this).val() != '' || $(this).val() > 0)
+          {
+            varIncomeAmount = varIncomeAmount + 1;
+          }
+        });
+
+        console.log(varIncomeAmount)
+
+        if(varTotalSource >= 1)
+        {
+          if(varIncomeSource == varTotalSource && varIncomeAmount == varTotalSource)
+          {
+            varContinue = 1;
+            return true;
+          }
+          else 
+          {
+            swal({
+              title: 'Warning',
+              text: 'Please make sure all required fields are filled out.',
+              type: 'warning',
+              buttonsStyling: false,
+              confirmButtonClass: 'btn btn-primary'
+            });
+            return false;
+          }
+        }
+        else
+        {
+          varContinue = 1;
+          return true;
+        }
+      }
+      else if(stepNumber == 4 && stepDirection == 'forward') // obligation
+      {
+        varContinue = 0;
+        varTotalSource = 0;
+
+        varIncomeSource = 0;
+        varIncomeAmount = 0;
+        $('.obligationSource').each(function(){
+          varTotalSource = varTotalSource + 1;
+          if($(this).val() != '')
+          {
+            varIncomeSource = varIncomeSource + 1;
+          }
+        });
+        $('.obligationAmount').each(function(){
+          if($(this).val() != '' || $(this).val() > 0)
+          {
+            varIncomeAmount = varIncomeAmount + 1;
+          }
+        });
+
+        if(varTotalSource >= 1)
+        {
+          if(varIncomeSource == varTotalSource && varIncomeAmount == varTotalSource)
+          {
+            varContinue = 1;
+            return true;
+          }
+          else 
+          {
+            swal({
+              title: 'Warning',
+              text: 'Please make sure all required fields are filled out.',
+              type: 'warning',
+              buttonsStyling: false,
+              confirmButtonClass: 'btn btn-primary'
+            });
+            return false;
+          }
+        }
+        else
+        {
+          varContinue = 1;
+          return true;
+        }
+      }
     });
 
   })

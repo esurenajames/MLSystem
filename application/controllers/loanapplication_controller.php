@@ -293,12 +293,13 @@ class loanapplication_controller extends CI_Controller {
       $insertData = array(
         'ApplicationId'             => $this->uri->segment(3),
         'Description'               => 'Approved.',
+        'Remarks'                   => $_POST['Description'],
         'CreatedBy'                 => $EmployeeNumber
       );
       $auditTable = 'application_has_notifications';
       $this->maintenance_model->insertFunction($insertData, $auditTable);
     }
-    else
+    else if($_POST['ApprovalType'] == 2) // disapprove
     {
       $set = array( 
         'DateUpdated' => $DateNow, 
@@ -311,17 +312,53 @@ class loanapplication_controller extends CI_Controller {
       $table = 'application_has_approver';
       $this->maintenance_model->updateFunction1($set, $condition, $table);
 
+      $setApplication = array( 
+        'DateUpdated'   => $DateNow,
+        'DateApproved'  => $DateNow,
+        'StatusId'      => 2
+      );
+
+      $conditionApplication = array( 
+        'ApplicationId'   => $this->uri->segment(3)
+      );
+
+      $tableApplication = 't_application';
+      $this->maintenance_model->updateFunction1($setApplication, $conditionApplication, $tableApplication);
+
       $insertData = array(
         'ApplicationId'             => $this->uri->segment(3),
         'Description'               => 'Disapproved.',
+        'Remarks'                   => $_POST['Description'],
         'CreatedBy'                 => $EmployeeNumber
       );
       $auditTable = 'application_has_notifications';
       $this->maintenance_model->insertFunction($insertData, $auditTable);
     }
+    else if($_POST['ApprovalType'] == 3) // deactivated charge
+    {
+      // update status
+        $set = array( 
+          'DateUpdated' => $DateNow, 
+          'StatusId'    => 6,
+        );
+        $condition = array( 
+          'ApplicationChargeId'   => $_POST['ChargeId'],
+        );
+        $table = 'application_has_charges';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      // loan audit
+        $insertData = array(
+          'ApplicationId'             => $this->uri->segment(3),
+          'Description'               => 'Deactivated charge #CHG-'. sprintf('%05d', $_POST['ChargeId']).'.',
+          'Remarks'                   => $_POST['Description'],
+          'CreatedBy'                 => $EmployeeNumber
+        );
+        $auditTable = 'application_has_notifications';
+        $this->maintenance_model->insertFunction($insertData, $auditTable);
+    }
     
     $this->session->set_flashdata('alertTitle','Success!'); 
-    $this->session->set_flashdata('alertText','Successfully updated loan!' . $totalApprovers['PendingApprovers']); 
+    $this->session->set_flashdata('alertText','Successfully updated loan!'); 
     $this->session->set_flashdata('alertType','success'); 
     redirect('home/loandetail/' . $this->uri->segment(3));
   }
@@ -1439,18 +1476,74 @@ class loanapplication_controller extends CI_Controller {
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $DateNow = date("Y-m-d H:i:s");
-    print_r(isset($_POST['IsPenalized']));
-    // if(isset($_POST['PenaltyType']))
-    // {
-    //   $set = array( 
-    //     'DateApproved' => $DateNow
-    //   );
-    //   $condition = array( 
-    //     'ApplicationId' => $generatedId['ApplicationId']
-    //   );
-    //   $table = 't_application';
-    //   $this->maintenance_model->updateFunction1($set, $condition, $table);
-    // }
+    if(isset($_POST['PenaltyType']))
+    {
+      $set = array( 
+        'IsPenalized'     => 1,
+        'PenaltyType'     => $_POST['PenaltyType'],
+        'PenaltyAmount'   => $_POST['PenaltyAmount'],
+        'GracePeriod'     => $_POST['GracePeriod']
+      );
+      $condition = array( 
+        'ApplicationId' => $this->uri->segment(3)
+      );
+      $table = 't_application';
+      $this->maintenance_model->updateFunction1($set, $condition, $table);
+    }
+
+    $this->session->set_flashdata('alertTitle','Success!'); 
+    $this->session->set_flashdata('alertText','Loan application updated!'); 
+    $this->session->set_flashdata('alertType','success'); 
+    redirect('home/loandetail/'. $this->uri->segment(3));
+  }
+
+  function addCharges()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $DateNow = date("Y-m-d H:i:s");
+    $Id = $this->uri->segment(3);
+    // insert into charges
+      $insertData = array(
+        'ApplicationId'             => $Id,
+        'ChargeId'                  => $_POST['ChargeId'],
+        'StatusId'                  => 2,
+        'CreatedBy'                 => $EmployeeNumber
+      );
+      $table = 'application_has_charges';
+      $this->maintenance_model->insertFunction($insertData, $table);
+    // get generated id
+      $getData = array(
+        'table'                 => 'application_has_charges'
+        , 'column'              => 'ApplicationChargeId'
+        , 'CreatedBy'           => $EmployeeNumber
+      );
+      $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+    // add into loan audit
+      $TransactionNumber = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $Id);
+      $Description = 'Added charge #CHG-' .sprintf('%05d', $generatedId['ApplicationChargeId']). '.';
+      $insertAudit = array( 
+        'Description' => $Description,
+        'CreatedBy'   => $EmployeeNumber
+      );
+      $auditTable = 'application_has_notifications';
+      $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+
+    // insert into employee notification and r_logs
+      $mainAuditDesc = 'Added charge #CHG-' .sprintf('%05d', $generatedId['ApplicationChargeId']). ' to #' . $TransactionNumber['TransactionNumber'];
+      $insertMainAudit = array( 
+        'Description' => $mainAuditDesc,
+        'CreatedBy'   => $EmployeeNumber
+      );
+      $auditTable1 = 'Employee_has_Notifications';
+      $auditTable2 = 'R_Logs';
+      $this->maintenance_model->insertFunction($insertMainAudit, $auditTable1);
+      $this->maintenance_model->insertFunction($insertMainAudit, $auditTable2);
+
+      $this->session->set_flashdata('alertTitle','Success!'); 
+      $this->session->set_flashdata('alertText','Successfully added charge to loan!'); 
+      $this->session->set_flashdata('alertType','success'); 
+    
+    redirect('home/loandetail/' . $Id);
   }
 
   function getObligationDetails()
@@ -1498,6 +1591,13 @@ class loanapplication_controller extends CI_Controller {
   function getRequirementsList()
   {
     $output = $this->loanapplication_model->getRequirementsList($this->input->post('Id'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getChargeDetails()
+  {
+    $output = $this->loanapplication_model->getChargeDetails($this->input->post('Id'));
     $this->output->set_output(print(json_encode($output)));
     exit();
   }
