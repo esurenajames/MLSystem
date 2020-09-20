@@ -356,6 +356,28 @@ class loanapplication_controller extends CI_Controller {
         $auditTable = 'application_has_notifications';
         $this->maintenance_model->insertFunction($insertData, $auditTable);
     }
+    else if($_POST['ApprovalType'] == 4) // deactivated payment
+    {
+      // update status
+        $set = array( 
+          'DateUpdated' => $DateNow, 
+          'StatusId'    => 2,
+        );
+        $condition = array( 
+          'PaymentMadeId'   => $_POST['ChargeId'],
+        );
+        $table = 't_paymentsmade';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      // loan audit
+        $insertData = array(
+          'ApplicationId'             => $this->uri->segment(3),
+          'Description'               => 'Deactivated payment #PYM-'. sprintf('%05d', $_POST['ChargeId']).'.',
+          'Remarks'                   => $_POST['Description'],
+          'CreatedBy'                 => $EmployeeNumber
+        );
+        $auditTable = 'application_has_notifications';
+        $this->maintenance_model->insertFunction($insertData, $auditTable);
+    }
     
     $this->session->set_flashdata('alertTitle','Success!'); 
     $this->session->set_flashdata('alertText','Successfully updated loan!'); 
@@ -1602,6 +1624,13 @@ class loanapplication_controller extends CI_Controller {
     exit();
   }
 
+  function getRepaymentCount()
+  {
+    $output = $this->loanapplication_model->getRepaymentCount($this->input->post('Id'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
   function updateStatus()
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
@@ -1612,6 +1641,56 @@ class loanapplication_controller extends CI_Controller {
     );
 
     $query = $this->loanapplication_model->updateStatus($input);
+  }
+
+  function addRepayment()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $DateNow = date("Y-m-d H:i:s");
+    $string2 = strtotime($_POST['dateCollected']);
+    $varDateCollected = date('Y-m-d', $string2);
+    // insert into payments
+      $insertData = array( 
+        'BankId'            => $_POST['BankId'],
+        'ApplicationId'     => $this->uri->segment(3),
+        'Amount'            => $_POST['Amount'],
+        'Description'       => $_POST['Remarks'],
+        'DateCollected'     => $varDateCollected,
+        'CreatedBy'         => $EmployeeNumber
+      );
+      $table = 't_paymentsmade';
+      $this->maintenance_model->insertFunction($insertData, $table);
+    // get generated application id
+      $getData = array(
+        'table'                 => 't_paymentsmade'
+        , 'column'              => 'PaymentMadeId'
+        , 'CreatedBy'           => $EmployeeNumber
+      );
+      $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+    // insert Application_has_notification
+      $insertNotification = array(
+        'Description'                   => 'Added payment.'
+        , 'ApplicationId'               => $this->uri->segment(3)
+        , 'CreatedBy'                   => $EmployeeNumber
+      );
+      $insertNotificationTable = 'Application_has_Notifications';
+      $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
+    // main audits
+      $RefNo = $this->maintenance_model->selectSpecific('t_application', 'ApplicationId', $this->uri->segment(3));
+      $auditDetail = 'Added payment #PYM-'.sprintf('%05d', $generatedId['PaymentMadeId']).' to ' . $RefNo['TransactionNumber'];
+      $insertData2 = array(
+        'Description' => $auditDetail
+        , 'CreatedBy' => $EmployeeNumber
+      );
+      $auditTable1 = 'Employee_has_Notifications';
+      $auditTable2 = 'R_Logs';
+      $this->maintenance_model->insertFunction($insertData2, $auditTable1);
+      $this->maintenance_model->insertFunction($insertData2, $auditTable2);
+    // notification
+      $this->session->set_flashdata('alertTitle','Success!'); 
+      $this->session->set_flashdata('alertText','Successfully added payment!'); 
+      $this->session->set_flashdata('alertType','success'); 
+      redirect('home/loandetail/' . $this->uri->segment(3));
   }
 
   

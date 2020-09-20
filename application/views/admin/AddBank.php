@@ -28,8 +28,8 @@
                   <div class="form-group">
                     <label for="BankName">Name of the Bank</label><br>
                     <input type="text" class="form-control" id="txtBankName" required="" name="BankName">
-                    <input type="" class="form-control" id="txtFormType" name="FormType" value="1">
-                    <input type="" class="form-control" id="txtBankId" name="BankId">
+                    <input type="hidden" class="form-control" id="txtFormType" name="FormType" value="1">
+                    <input type="hidden" class="form-control" id="txtBankId" name="BankId">
                   </div>
                 </div>
                 <div class="col-md-12">

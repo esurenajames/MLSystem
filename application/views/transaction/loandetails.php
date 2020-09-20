@@ -24,7 +24,7 @@
             <div class="row">
               <div class="col-md-12">
                 <label>Remarks</label>
-                <textarea class="form-control" name="Description"><?php print_r($detail['ApplicationId']) ?></textarea>
+                <textarea class="form-control" name="Description"></textarea>
                 <input type="hidden" name="ApprovalType" id="txtApprovalType">
                 <input type="hidden" name="ChargeId" id="txtChargeId">
               </div>
@@ -411,6 +411,83 @@
     </div>
     <!-- /.modal-dialog -->
   </div>
+  <div class="modal fade" id="modalRepayment">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Add Repayment</h4>
+        </div>
+        <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/addRepayment/<?php print_r($detail['ApplicationId']) ?>" method="post">
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-12">
+                <label>Amount <span class="text-red">*</span></label>
+                <input type="number" required="" min="0" maxlength="100000" class="form-control" name="Amount">
+              </div>
+              <div class="col-md-6">
+                <label>Payment Method <span class="text-red">*</span></label>
+                <select class="form-control" required="" name="PaymentMethod">
+                  <?php
+                    echo $disbursements;
+                  ?>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label>Bank <span class="text-red">*</span></label>
+                <select class="form-control" required="" name="BankId">
+                  <?php
+                    echo $bank;
+                  ?>
+                </select>
+              </div>
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>Collection Date <span class="text-red">*</span></label>
+                  <div class="input-group date">
+                    <div class="input-group-addon">
+                      <i class="fa fa-calendar"></i>
+                    </div>
+                    <input type="text" placeholder="Date Collected" class="form-control" name="dateCollected" required="" id="dateCollected">
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <label>Remarks</label>
+                <textarea class="form-control" name="Remarks"></textarea>
+              </div>
+            </div>
+            <br>
+            <div class="row" style="display: none" id="divChargeDetails">
+              <div class="col-md-3">
+                <label>Charge Type</label><br>
+                <h6 id="lblChargeType"></h6>
+              </div>
+              <div class="col-md-3">
+                <label>Description</label><br>
+                <h6 id="lblChargeDesc"></h6>
+              </div>
+              <div class="col-md-3">
+                <label>Amount</label><br>
+                <h6 id="lblChargeAmount"></h6>
+              </div>
+              <div class="col-md-3">
+                <label>Total</label><br>
+                <h6 id="lblChargeTotal"></h6>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
 
   <section class="content">
   	<!-- BORROWER DETAILS -->
@@ -488,7 +565,7 @@
 			    		<label>Loan Type:</label> <?php print_r($detail['LoanType']) ?><br>
 			    		<label>Disbursed By:</label> <?php print_r($detail['DisbursedBy']) ?><br>
 			    		<label>Term:</label> <?php print_r($detail['TermNo']) ?> / <?php print_r($detail['TermType']) ?><br>
-			    		<label>Repayment:</label> <?php print_r($detail['RepaymentNo']) ?> / <?php print_r($repayment['Name']) ?><br>
+			    		<label>Repayment:</label> <?php print_r($detail['RepaymentNo']) ?> collections / <?php print_r($repayment['Name']) ?><br>
 			    	</div>
 			    	<div class="col-md-4">
 			    		<label>Principal Amount:</label> Php <?php print_r($detail['PrincipalAmount']) ?><br>
@@ -541,7 +618,7 @@
 			    		<?php 
 			    			if($payments['Total'] != null)
 				    		{
-				    			print_r('Php ' .$payments['Total']);
+				    			print_r('Php ' .number_format($payments['Total'], 2));
 				    		}
 				    		else
 				    		{
@@ -609,21 +686,57 @@
               </div>
               <div class="tab-pane" id="tabRepayments">
               	<h4>Repayments</h4>
-              	<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modelRepayment">Add Repayment</a>
+                <?php 
+                  if($detail['StatusId'] == 1)
+                  {
+                    echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalRepayment">Add Repayment</a>';
+                  }
+                ?>
               	<br>
               	<br>
                 <table id="dtblRepayment" class="table table-bordered table-hover" style="width: 100%">
                   <thead>
                   <tr>
                     <th>Reference No</th>
-                    <th>Collection Date</th>
                     <th>Collected By</th>
                     <th>Method</th>
                     <th>Amount</th>
+                    <th>Collection Date</th>
+                    <th>Date Creation</th>
+                    <th>Status</th>
                     <th>Action</th>
                   </tr>
                   </thead>
                   <tbody>
+                    <?php 
+                      $rowNumber = 0;
+                      if($Payments != 0)
+                      {
+                        foreach ($Payments as $value) 
+                        {
+                          if($value['StatusId'] == 1)
+                          {
+                            $status = '<span class="badge bg-green">Active</span>';
+                            $action = '<a class="btn btn-danger btn-sm" title="Deactivated" data-toggle="modal" data-target="#modalUpdate" onclick="approvalType(4, '.$value['PaymentMadeId'].')"><span class="fa fa-close"></span></a>';
+                          }
+                          else 
+                          {
+                            $status = '<span class="badge bg-red">Deactivated</span>';
+                            $action = 'N/A';
+                          }
+                          echo "<tr>";
+                          echo "<td>".$value['ReferenceNo']."</td>";
+                          echo "<td>".$value['CreatedBy']."</td>";
+                          echo "<td>".$value['BankName']."</td>";
+                          echo "<td>Php ".number_format($value['Amount'], 2)."</td>";
+                          echo "<td>".$value['DateCollected']."</td>";
+                          echo "<td>".$value['DateCreated']."</td>";
+                          echo "<td>".$status."</td>";
+                          echo '<td>'.$action.'</td> ';
+                          echo "</tr>";
+                        }
+                      }
+                    ?>
                   </tbody>
                 </table>
               </div>
@@ -1023,6 +1136,22 @@
       confirmButtonClass: 'btn btn-primary'
     });
   }
+
+  $('#dateCollected').daterangepicker({
+      "startDate": moment().format('DD MMM YY'),
+      "singleDatePicker": true,
+      "showDropdowns": true,
+      "timePicker": false,
+      "linkedCalendars": false,
+      "showCustomRangeLabel": false,
+      "showCustomRangeLabel": false,
+      // "maxDate": Start,
+      "opens": "up",
+      "locale": {
+          format: 'DD MMM YYYY',
+      },
+  }, function(start, end, label){
+  });
 
   $('#dateAcquired').daterangepicker({
       "startDate": moment().format('DD MMM YY'),
@@ -1439,9 +1568,14 @@
     {
       $('#modalApprovalUpdateTitle').html('Disapprove Loan');
     }
-    else
+    else if(Type == 3) // remove charges added
     {
       $('#modalApprovalUpdateTitle').html('Remove Charge');
+      $('#txtChargeId').val(ID);
+    }
+    else if(Type == 4) // remove payments added
+    {
+      $('#modalApprovalUpdateTitle').html('Remove Payment');
       $('#txtChargeId').val(ID);
     }
     $('#txtApprovalType').val(Type);

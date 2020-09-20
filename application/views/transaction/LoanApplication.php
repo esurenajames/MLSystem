@@ -970,7 +970,7 @@
       var loanRepaymentNo = $('#txtRepayments').val();
       var loanDurationNo = $('#txtTermNo').val();
 
-      if (repaymentType != "")
+      if (repaymentType != null)
       {
         var totalRepayments = 0;
         var yearly = 0;
@@ -1012,10 +1012,34 @@
         } 
         else
         {
-          yearly = 1;
-          monthly = 1;
-          weekly = 1;
-          daily = 1;
+          $.ajax({
+            url: "<?php echo base_url();?>" + "/loanapplication_controller/getRepaymentCount",
+            type: "POST",
+            async: false,
+            data: {
+              Id : repaymentType
+            },
+            dataType: "JSON",
+            beforeSend: function(){
+                $('.loading').show();
+            },
+            success: function(data)
+            {
+              $('#txtRepayments').val($('#txtTermNo').val() * data['RepaymentNo'])
+            },
+            error: function()
+            {
+              setTimeout(function() {
+                swal({
+                  title: 'Warning!',
+                  text: 'Something went wrong, please contact the administrator or refresh page!',
+                  type: 'warning',
+                  buttonsStyling: false,
+                  confirmButtonClass: 'btn btn-primary'
+                });
+              }, 2000);
+            }
+          });
         }
          
         if (termType == "Days")

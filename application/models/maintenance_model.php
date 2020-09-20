@@ -821,7 +821,7 @@ class maintenance_model extends CI_Model
       $query = $this->db->query("SELECT   CASE
                                           WHEN RHC.RepaymentId IS NULL
                                                 THEN RC.Type
-                                                ELSE GROUP_CONCAT(RHC.Date)
+                                                ELSE GROUP_CONCAT(RHC.Date ORDER BY RHC.Date ASC)
                                               END as Name
                                             , RC.RepaymentId
                                           FROM r_repaymentcycle RC
@@ -830,6 +830,7 @@ class maintenance_model extends CI_Model
                                                     WHERE RC.StatusId = 1
                                                     OR RHC.StatusId = 1
                                                     GROUP BY RC.RepaymentId
+                                                    ORDER BY RHC.Date DESC
       ");
       $output = '<option selected disabled value="">Select Repayment Cycle</option>';
       foreach ($query->result() as $row)
@@ -847,6 +848,21 @@ class maintenance_model extends CI_Model
                                           WHERE StatusId = 1
       ");
       $output = '<option selected disabled value="">Select Disbursement Type</option>';
+      foreach ($query->result() as $row)
+      {
+        $output .= '<option data-city="'.$row->Name.'" value="'.$row->DisbursementId.'">'.$row->Name.'</option>';
+      }
+      return $output;
+    }
+
+    function getPaymentMethod()
+    {
+      $query = $this->db->query("SELECT   Name
+                                          , DisbursementId
+                                          FROM r_disbursement 
+                                          WHERE StatusId = 1
+      ");
+      $output = '<option selected disabled value="">Select Payment Method</option>';
       foreach ($query->result() as $row)
       {
         $output .= '<option data-city="'.$row->Name.'" value="'.$row->DisbursementId.'">'.$row->Name.'</option>';

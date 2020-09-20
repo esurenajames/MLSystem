@@ -167,6 +167,29 @@ class loanapplication_model extends CI_Model
     return $data;
   }
 
+  function getPaymentsMade($Id)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $query = $this->db->query("SELECT Amount
+                                      , CONCAT('PYM-', LPAD(P.PaymentMadeId, 6, 0)) as ReferenceNo
+                                      , DATE_FORMAT(P.DateCreated, '%b %d, %Y %r') as DateCreated
+                                      , DATE_FORMAT(P.DateCollected, '%b %d, %Y') as DateCollected
+                                      , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName) as CreatedBy
+                                      , P.StatusId
+                                      , B.BankName
+                                      , PaymentMadeId
+                                      FROM t_paymentsmade P
+                                        INNER JOIN R_Employee EMP
+                                          ON EMP.EmployeeNumber = P.CreatedBy
+                                        INNER JOIN R_Bank B
+                                          ON B.BankId = P.BankId
+                                            WHERE P.ApplicationId = $Id
+    ");
+
+    $data = $query->result_array();
+    return $data;
+  }
+
   function getCharges($Id)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
@@ -291,6 +314,7 @@ class loanapplication_model extends CI_Model
     $query = $this->db->query("SELECT   SUM(Amount) as Total
                                         FROM t_paymentsmade AHP
                                           WHERE ApplicationId = $Id
+                                          AND AHP.StatusId = 1
     ");
 
     $data = $query->row_array();
@@ -514,6 +538,21 @@ class loanapplication_model extends CI_Model
                                                     WHERE AHC.ApplicationId = $ID
     ");
     $data = $query_string->result_array();
+    return $data;
+  }
+
+  function getRepaymentCount($Id)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $query = $this->db->query("SELECT   COUNT(*) as RepaymentNo
+                                        FROM repaymentcycle_has_content RHC
+                                          INNER JOIN R_RepaymentCycle RC
+                                            ON RHC.RepaymentId = RC.RepaymentId
+                                              WHERE RC.RepaymentId = $Id
+                                              AND RHC.StatusId = 1
+    ");
+
+    $data = $query->row_array();
     return $data;
   }
 
@@ -969,6 +1008,22 @@ class loanapplication_model extends CI_Model
     }
     return $output;
   } 
+
+  function getBank()
+  {
+    $query = $this->db->query("SELECT BNK.BankName as Name
+                                              , BankId
+                                              , BNK.Description
+                                              , BNK.AccountNumber
+                                              FROM R_Bank BNK
+    ");
+    $output = '<option selected disabled value="">Select Bank</option>';
+    foreach ($query->result() as $row)
+    {
+      $output .= '<option value="'.$row->BankId.'">'.$row->Name.'</option>';
+    }
+    return $output;
+  }
   
   function selectCharges($Id)
   {
