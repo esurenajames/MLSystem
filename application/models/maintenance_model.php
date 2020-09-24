@@ -231,15 +231,26 @@ class maintenance_model extends CI_Model
 
     function getAllAssets()
     {
-      $query_string = $this->db->query("SELECT PurchaseValue as AssetManagement
+      $query_string = $this->db->query("SELECT PurchaseValue 
                                                 , AssetManagementId
+                                                , ReplacementValue
+                                                , AM.Type
+                                                , CASE 
+                                                    WHEN AM.Type = 1
+                                                    THEN 'Tangible'
+                                                    ELSE 'Intangible'
+                                                  END as Type
                                                 , AM.Description
                                                 , AM.BoughtFrom
+                                                , AM.CategoryId
                                                 , AM.SerialNumber
-                                                , A.CreatedBy
-                                                , A.StatusId
-                                                , DATE_FORMAT(A.DateCreated, '%d %b %Y %r') as DateCreated
+                                                , AM.StatusId
+                                                , AM.CreatedBy
+                                                , C.Name as CategoryName
+                                                , DATE_FORMAT(AM.DateCreated, '%d %b %Y %r') as DateCreated
                                                 FROM R_AssetManagement AM
+                                                 INNER JOIN R_Category C
+                                                 ON C.CategoryId = AM.CategoryId
       ");
       $data = $query_string->result_array();
       return $data;

@@ -144,7 +144,7 @@
                     </div>
                     <div class="col-md-6">
                       <div class="form-group">
-                        <label>Principal Amount<span class="text-red">*</span></label><br>
+                        <label>Loan Amount<span class="text-red">*</span></label><br>
                         <input type="number" class="form-control" placeholder="Principal Amount" oninput="getTotalInterest(); btnRemoveCharges(); loanSummary()" id="txtPrincipalAmount" name="PrincipalAmount">
                       </div>
                     </div>
@@ -458,7 +458,7 @@
                       <h6 id="lblDisbursedType"></h6>
                     </div>
                     <div class="col-md-3">
-                      <label>Principal Amount</label>
+                      <label>Loan Amount</label>
                       <h6 id="lblPrincipalAmount"></h6>
                     </div>
                     <div class="col-md-3">
@@ -1329,7 +1329,7 @@
       {
         swal({
           title: 'Warning!',
-          text: 'Principal Amount cannot be blank!',
+          text: 'Loan Amount cannot be blank!',
           type: 'warning',
           buttonsStyling: false,
           confirmButtonClass: 'btn btn-primary'

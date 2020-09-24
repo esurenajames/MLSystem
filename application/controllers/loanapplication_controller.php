@@ -895,14 +895,7 @@ class loanapplication_controller extends CI_Controller {
           );
           $insertNotificationTable = 'Application_has_Notifications';
           $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
-        // Insert Employee_has_Notifications
-          $auditDetail = ' Added ' .$IncomeName. ' to Reference #' .$ApplicationDetail['TransactionNumber'];
-          $insertData = array(
-            'Description' => $auditDetail
-            , 'CreatedBy' => $EmployeeNumber
-          );
-          $auditTable = 'Employee_has_Notifications';
-          $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
+        
         // Insert Main Logs
           $auditDetail = ' Added ' .$IncomeName. ' to Reference #' .$ApplicationDetail['TransactionNumber'];
           $insertData = array(
@@ -1005,7 +998,7 @@ class loanapplication_controller extends CI_Controller {
             );
             $auditTable = 'R_Logs';
             $this->maintenance_model->insertFunction($insertAudit, $auditTable);
-            // add into Application_has_notifications
+          // add into Application_has_notifications
             $auditDetail = 'Updated details of '.$IncomeDetail['Source'].' at the Other Source of Income tab ';
             $insertAudit = array(
               'ApplicationId'  => $this->uri->segment(3)
@@ -1268,6 +1261,15 @@ class loanapplication_controller extends CI_Controller {
           , 'CreatedBy'           => $EmployeeNumber
         );
         $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+      // insert Application_has_notification
+          $CollateralName = htmlentities($_POST['ProductName'], ENT_QUOTES);
+          $insertNotification = array(
+            'Description'                   => 'Added '.$CollateralName.' to the Collateral tab '
+            , 'ApplicationId'               => $this->uri->segment(3)
+            , 'CreatedBy'                   => $EmployeeNumber
+          );
+          $insertNotificationTable = 'Application_has_Notifications';
+          $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
       // insert collateral into loan
         $insertData2 = array(
           'CollateralId'         => $generatedId['CollateralId'],
@@ -1276,6 +1278,7 @@ class loanapplication_controller extends CI_Controller {
         );
         $auditTable2 = 'application_has_Collaterals';
         $this->maintenance_model->insertFunction($insertData2, $auditTable2);
+
       // upload documents
         $path = './uploads/';
         $config = array(

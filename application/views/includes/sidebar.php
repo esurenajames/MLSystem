@@ -47,18 +47,7 @@
           </ul>
         </li>
 
-        <li <?php if($sidebar == 'AssetManagement'){echo 'class="treeview active"';} else {echo 'class="treeview"';}?>>
-          <a href="#">
-            <i class="fa fa-archive"></i> <span>Asset Management</span>
-            <span class="pull-right-container">
-              <i class="fa fa-angle-left pull-right"></i>
-            </span>
-          </a>
-          <ul class="treeview-menu">
-            <li <?php if($sidebar == 1 && $sidebarMenu == 'AssetManagement'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/ViewAssetManagement"><i class="fa fa-circle-o"></i> View Asset</a></li>
-            <li <?php if($sidebar == 2 && $sidebarMenu == 'AssetManagement'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddAssetManagement"><i class="fa fa-circle-o"></i>Add Asset</a></li>
-          </ul>
-        </li>
+        <li <?php if($sidebar == 'Asset Management' && $sidebarMenu == 'Asset Management'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddAssetManagement"><i class="fa fa-archive"></i> Asset Management</a></li>
 
         <li <?php if($sidebar == 'BorrowerManagement' && $sidebarMenu == 'BorrowerManagement'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/borrowers"><i class="fa fa-dashboard"></i>Borrower Management</a></li>
 

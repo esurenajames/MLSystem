@@ -4,103 +4,188 @@
   <!-- Content Header (Page header) -->
   <section class="content-header">
     <h1>
-      Add Asset Management
+      Asset Management
     </h1>
     <ol class="breadcrumb">
       <li><a href="#" class="active"><i class="fa fa-dashboard"></i>Asset Management</a></li>
-      <li><a href="#">Add Asset</a></li>
+      <li><a href="#">Asset Dashboard</a></li>
     </ol>
   </section>
 
+
+    <div class="modal fade" id="modalNewTangible">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Asset Details</h4>
+        </div>
+        <form action="<?php echo base_url(); ?>admin_controller/AddAssetManagement/" id="frmInsert2" method="post">
+          <div class="modal-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="Asset">Type of Asset</label><br>
+                    <select class="form-control" style="width: 100%" name="AssetType" id="selectType">
+                      <option value="1">Tangible</option>
+                      <option value="0">Intangible</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="Asset">Asset Category</label><br>
+                    <select class="form-control" style="width: 100%" name="CategoryId" id="SelectCategory">
+                    <?php
+                      echo $Category;
+                    ?>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="Asset">Purchase Price</label><br>
+                    <input type="number" class="form-control" style="width: 100%" name="PurchasePrice" id="txtPurchasePrice" placeholder="0.00">
+                    <input type="hidden" name="FormType" id="txtFormType" value="1">
+                    <input type="hidden" name="AssetManagementId" id="txtAssetManagementId">
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="Asset">Replacement Value</label><br>
+                    <input type="number" class="form-control" style="width: 100%" name="ReplacementValue" id="txtReplacementValue" placeholder="0.00">
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="Asset">Serial Number</label><br>
+                    <input type="text" class="form-control" style="width: 100%" name="SerialNumber" id="txtSerialNumber" placeholder="XXXXXXXXXXXX">
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="Description">Bought From</label>
+                    <input type="text" class="form-control" id="txtBoughtFrom" name="BoughtFrom">
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label for="Description">Description</label>
+                    <textarea type="text" class="form-control" id="txtDescription" name="Description" placeholder="Description"></textarea>
+                  </div>
+                </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+
     <!-- Main content -->
     <section class="content">
+      <?php foreach ($access as $rows){ if($rows['RoleId'] == 3 || $rows['RoleId'] == 4) /*employee | top management*/ { ?>    
+        <div class="row">
+          <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box">
+              <span class="info-box-icon bg-aqua"><i class="ion ion-ios-people-outline"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">Total <br> Borrowers</span>
+                <span class="info-box-number">10</span>
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+          </div>
+          <!-- /.col -->
+          <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box">
+              <span class="info-box-icon bg-info"><i class="fa fa-folder-open"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">Loans Released</span>
+                <span class="info-box-number">10</span>
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+          </div>
+          <!-- /.col -->
+
+          <!-- fix for small devices only -->
+          <div class="clearfix visible-sm-block"></div>
+
+          <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box">
+              <span class="info-box-icon bg-green"><i class="ion ion-ios-calculator"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">Payments <br> Collected</span>
+                <span class="info-box-number">Php 23,000</span>
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+          </div>
+          <!-- /.col -->
+          <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box">
+              <span class="info-box-icon bg-yellow"><i class="ion ion-ios-briefcase-outline"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">Due Amount</span>
+                <span class="info-box-number">Php 2,000</span>
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+          </div>
+          <!-- /.col -->
+        </div>     
+      <?php } if($rows['RoleId'] == 1) /*admin*/ { ?>
         <!-- Default box -->
         <div class="box">
           <div class="box-header with-border">
-            <div class="panel-body bg-gray text-bold">INTANGIBLE SUPPLIES</div>
+            <h3 class="box-title">List of Assets</h3>
           </div>
           <div class="box-body">
-          <div class="col-md-3">
-            <div class="form-group">
-              <label for="selectCategory">Asset Category</label><br>
-              <select class="form-control select1" style="width: 100%" required="" name="Category" id="selectCategory">
-                <?php
-                  echo $Category;
-                ?>
-              </select>
-            </div>
-          </div>
-            <form name="ApproverDocForm" method="post" id="ApproverDocForm" action="<?php echo base_url(); ?>admin_controller/AddIntangible/">
-            <button type="button" class="btn btn-primary pull-right" id="btnAsset">Add Row</button>
-              <table id="tblAsset" style="width: 100%" class="table table-bordered table-hover">
+            <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewTangible">Add Asset</button>
+            <br>
+            <br>
+            <form name="ApproverDocForm" method="post" id="ApproverDocForm">
+              <table id="example1" class="table table-bordered table-hover">
                 <thead>
                 <tr>
-                  <th>ITEM NO.</th>
-                  <th>DATE OF VALUATION</th>
-                  <th>VALUE AMOUNT</th>
-                  <th>ACTION</th>
+                  <th>Type</th>
+                  <th>Category</th>
+                  <th>Purchase Price</th>
+                  <th>Replacement Value</th>
+                  <th>Serial Number</th>
+                  <th>Bought From</th>
+                  <th>Description</th>
+                  <th>Status</th>
+                  <th>Date Created</th>
+                  <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>
-                    <tr id="rowAssetId">
-                      <td id="rowNumber1">1</td>
-                      <td><input type="text" required="" id="DateAsset" class="form-control" placeholder="MM/DD/YYYY" name="DateAsset[]"><input type="hidden" required="" class="form-control" name="countRow[]" value="1"></td>
-                      <td><input type="number" required="" id="Value" class="form-control" placeholder="0.00" name="Value[]"></td>
-                      <td></td>
-                    </tr>
                 </tbody>
               </table>
-              <div class="box-footer">
-                <button type="button" class="btn btn-primary pull-right" id="btnIntangible">Submit Intangible</button>
-              </div>
             </form>
           </div>
         </div>
-
-      <form action="<?php echo base_url(); ?>admin_controller/AddTangible/" id="frmInsert2" method="post">
-        <div class="box">
-          <div class="box-header with-border">
-            <div class="panel-body bg-gray text-bold">TANGIBLE SUPPLIES</div>
-          </div>
-          <div class="box-body">
-            <div class="col-md-4">
-              <div class="form-group">
-                <label for="PurchasePrice">Purchase Price</label><br>
-                <input type="Number" class="form-control" id="txtPurchasePrice" name="PurchasePrice" placeholder="0.00">
-                <input type="hidden" class="form-control" id="txtFormType" name="FormType" value="1">
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="form-group">
-                <label for="ReplacementValue">Replacement Value</label><br>
-                <input type="Number" class="form-control" id="txtReplacementValue" name="ReplacementValue" placeholder="0.00">
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="form-group">
-                <label for="SerialNumber">Serial Number</label><br>
-                <input type="text" class="form-control" id="txtSerialNumber" name="SerialNumber" placeholder="XXXXXXX">
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="BoughtFrom">Bought from</label><br>
-                <input type="text" class="form-control" id="txtBoughtFrom" name="BoughtFrom" placeholder="Enter place">
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="Description">Description of the Asset</label><br>
-                <input type="text" class="form-control" id="txtDescription" name="Description">
-              </div>
-            </div>
-          </div>
-          <div class="box-footer">
-            <button type="button" class="btn btn-primary pull-right" id="btnTangible">Submit Tangible</button>
-          </div>
-        </div>
-      </form>
         <!-- /.box -->
+      <?php } } ?> 
     </section>
   <!-- /.content -->
 </div>
@@ -132,7 +217,7 @@
     });
   }
   
-  function confirm(Text, BankId, updateType)
+  function confirm(Text, AssetManagementId, updateType)
   { 
     swal({
       title: 'Confirm',
@@ -148,9 +233,9 @@
           url: "<?php echo base_url();?>" + "/admin_controller/updateStatus",
           method: "POST",
           data:   {
-                      Id : BankId
+                    Id : AssetManagementId
                     , updateType : updateType
-                    , tableType : 'Bank'
+                    , tableType : 'AssetManagement'
                   },
           beforeSend: function(){
               $('.loading').show();
@@ -160,7 +245,7 @@
             refreshPage();
             swal({
               title: 'Success!',
-              text: 'Bank successfully updated!',
+              text: 'Asset successfully updated!',
               type: 'success',
               buttonsStyling: false,
               confirmButtonClass: 'btn btn-primary'
@@ -181,14 +266,14 @@
     });
   }
 
-  function Edit(BankId)
-  {
+  function Edit(AssetManagementId)
+  { 
     $.ajax({
-      url: '<?php echo base_url()?>' + "/admin_controller/getBankDetails",
+      url: '<?php echo base_url()?>' + "/admin_controller/getAssetManagementDetails",
       type: "POST",
       async: false,
       data: {
-        Id : BankId
+        Id : AssetManagementId
       },
       dataType: "JSON",
       beforeSend: function(){
@@ -196,10 +281,14 @@
       },
       success: function(data)
       {
-        $('#txtBankName').val(data['BankName']);
+        $('#selectType').change(data['AssetType']);
+        $('#SelectCategory').change(data['CategoryId']);
+        $('#txtPurchasePrice').val(data['PurchasePrice']);
+        $('#txtReplacementValue').val(data['ReplacementValue']);
+        $('#txtSerialNumber').val(data['SerialNumber']);
+        $('#txtBoughtFrom').val(data['BoughtFrom']);
         $('#txtDescription').val(data['Description']);
-        $('#txtAccountNumber').val(data['AccountNumber']);
-        $('#txtBankId').val(BankId);
+        $('#txtAssetManagementId').val(AssetManagementId);
         $('#txtFormType').val(2);
       },
 
@@ -220,41 +309,80 @@
   }
 
   function refreshPage(){
-    var url = '<?php echo base_url()."datatables_controller/Banks/"; ?>';
+    var url = '<?php echo base_url()."datatables_controller/Assets/"; ?>';
     UserTable.ajax.url(url).load();
   }
 
-  var AssetCount = 1;
-    $('#btnAsset').click(function(){
-      AssetCount = AssetCount + 1;
-      output = '<tr id="rowAssetId' + AssetCount + '" value="' + AssetCount + '">'
-      output += '<td id="rowNumber' + AssetCount + '">' + AssetCount + '</td>'
-      output += '<td><input type="text" class="form-control" id="DateAsset" name="DateAsset[]"><input type="hidden" required="" class="form-control" name="countRow[]" value="' + AssetCount + '"></td>'
-      output += '<td><input required="" type="text" class="form-control" name="Value[]"></td>'
-      output += '<td><a id="' + AssetCount + '" class="btn btnRemoveAsset btn-sm btn-danger" title="Remove"><span class="fa fa-minus"></span></a> </td>'
-      output += '</tr>'
-      $('#tblAsset').append(output);
-
+  $(function () {
+    UserTable = $('#example1').DataTable({
+      "pageLength": 10,
+      "ajax": { url: '<?php echo base_url()."/datatables_controller/Assets/"; ?>', type: 'POST', "dataSrc": "" },
+      "columns": [  { data: "Type" }
+                    , { data: "CategoryName" }
+                    , { data: "PurchaseValue" }
+                    , { data: "ReplacementValue" }
+                    , { data: "SerialNumber" }
+                    , { data: "BoughtFrom" }
+                    , { data: "Description" }
+                    , {
+                      data: "StatusId", "render": function (data, type, row) {
+                        if(row.StatusId == 2){
+                          return "<span class='badge bg-green'>Active</span>";
+                        }
+                        else if(row.StatusId == 6){
+                          return "<span class='badge bg-red'>Deactivated</span>";
+                        }
+                        else{
+                          return "N/A";
+                        }
+                      }
+                    },
+                    { data: "DateCreated" }, 
+                    {
+                      data: "StatusId", "render": function (data, type, row) {
+                      if(row.StatusId == 2){
+                          return '<a onclick="confirm(\'Are you sure you want to deactivate this Asset?\', \''+row.AssetManagementId+'\', 6)" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a> <a onclick="Edit('+row.AssetManagementId+')" data-toggle="modal" data-target="#modalNewTangible" class="btn btn-info" title="Edit"><span class="fa fa-edit"></span></a>';
+                        }
+                        else if(row.StatusId == 6){
+                          return '<a onclick="confirm(\'Are you sure you want to re-activate this Asset?\', \''+row.AssetManagementId+'\', 2)" class="btn btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
+                        }
+                        else{
+                          return "N/A";
+                        }
+                      }
+                    },
+      ],
+      // "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
+      "order": [[0, "asc"]]
     });
 
-    $(document).on('click', '.btnRemoveAsset', function(){
-      var row_id = $(this).attr("id");
-
-      AssetCount = AssetCount - 1;
-      $('#rowAssetId'+ row_id +'').remove();
+    $("#frmInsert").on('submit', function (e) {
+      if(varNewPassword = 1 && varStatus == 1 && $('#txtNewPassword').val() == $('#txtConfirmPassword').val() && $('#txtOldPassword').val() != $('#txtNewPassword').val())
+      {
+        e.preventDefault(); 
+        swal({
+          title: 'Confirm',
+          text: 'Are you sure you sure with this password?',
+          type: 'info',
+          showCancelButton: true,
+          buttonsStyling: false,
+          confirmButtonClass: 'btn btn-success',
+          confirmButtonText: 'Confirm',
+          cancelButtonClass: 'btn btn-secondary'
+        }).then(function(){
+          e.currentTarget.submit();
+        });
+      }
+      else
+      {
+        alert('please make sure your new password is not equal to your old password!')
+        e.preventDefault();
+      }
     });
 
-    $('#DateAsset').daterangepicker({
-        "startDate": moment().format('DD MMM YY hh:mm A'),
-        "singleDatePicker": true,
-        "timePicker": false,
-        "linkedCalendars": false,
-        "showCustomRangeLabel": false,
-        // "maxDate": Start,
-        "opens": "up",
-        "locale": {
-            format: 'DD MMM YYYY',
-        },
-    }, function(start, end, label){
-    });
+    $('#modalNewCategory').on('hide.bs.modal', function () {
+      $('#txtFormType').val(1)
+    })
+
+  })
 </script>

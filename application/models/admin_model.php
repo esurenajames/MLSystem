@@ -347,6 +347,23 @@ class admin_model extends CI_Model
       return $AssetDetail;
     }
 
+    function getAssetManagementDetails($Id)
+    {
+      $query_string = $this->db->query("SELECT  AssetManagementId
+                                                , Type
+                                                , CategoryId
+                                                , PurchaseValue
+                                                , ReplacementValue
+                                                , SerialNumber
+                                                , BoughtFrom
+                                                , Description
+                                                FROM R_AssetManagement
+                                                  WHERE AssetManagementId = '$Id'
+      ");
+      $AssetManagementId = $query_string->row_array();
+      return $AssetManagementId;
+    }
+
     function countLoanStatus($data)
     {
       $query_string = $this->db->query("SELECT  * 
@@ -439,7 +456,7 @@ class admin_model extends CI_Model
     function countTangibles($data)
     {
       $query_string = $this->db->query("SELECT  * 
-                                                FROM R_Tangibles T
+                                                FROM R_AssetManagement T
                                                   WHERE T.SerialNumber = '".$data['SerialNumber']."'
       ");
       $data = $query_string->num_rows();
@@ -885,6 +902,40 @@ class admin_model extends CI_Model
           else if($input['updateType'] == 0)
           {
             $Description = 'Deactivated ' .$IndustryDetail['Name']. '  at the system setup'; // main log
+          }
+          $data2 = array(
+            'Description'   => $Description,
+            'CreatedBy'     => $EmployeeNumber,
+            'DateCreated'   => $DateNow
+          );
+          $this->db->insert('R_Logs', $data2);
+      }
+      else if($input['tableType'] == 'AssetManagement')
+      {
+        $AssetDetail = $this->db->query("SELECT  SerialNumber
+                                                    FROM R_AssetManagement AM
+                                                      WHERE AssetManagementId = ".$input['Id']."
+        ")->row_array();
+
+        // update status
+          $set = array(
+            'StatusId' => $input['updateType'],
+            'UpdatedBy' => $EmployeeNumber,
+            'DateUpdated' => $DateNow,
+          );
+          $condition = array(
+            'AssetManagementId' => $input['Id']
+          );
+          $table = 'R_AssetManagement';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+        // insert into logs
+          if($input['updateType'] == 2)
+          {
+            $Description = 'Re-activated ' .$AssetDetail['SerialNumber']. ' at the Asset Management'; // main log
+          }
+          else if($input['updateType'] == 6)
+          {
+            $Description = 'Deactivated ' .$AssetDetail['SerialNumber']. '  at the Asset Management'; // main log
           }
           $data2 = array(
             'Description'   => $Description,

@@ -29,7 +29,7 @@
     </h1>
     <ol class="breadcrumb">
       <li><a href="#" class="active"><i class="fa fa-dashboard"></i>Loans</a></li>
-      <li><a href="#"></i>Loan Application</a></li>
+      <li><a href="#"></i>Loan Calculator</a></li>
     </h1>
     </ol>
   </section>
@@ -144,8 +144,8 @@
                     </div>
                     <div class="col-md-6">
                       <div class="form-group">
-                        <label>Principal Amount<span class="text-red">*</span></label><br>
-                        <input type="number" class="form-control" placeholder="Principal Amount" oninput="getTotalInterest(); btnRemoveCharges(); loanSummary()" id="txtPrincipalAmount" name="PrincipalAmount">
+                        <label>Loan Amount<span class="text-red">*</span></label><br>
+                        <input type="number" class="form-control" placeholder="Loan Amount" oninput="getTotalInterest(); btnRemoveCharges(); loanSummary()" id="txtPrincipalAmount" name="PrincipalAmount">
                       </div>
                     </div>
                     <div class="col-md-6">
@@ -257,7 +257,7 @@
                       <h6 class="lblTotalLoanCost">Php 0.00</h6>
                     </div>
                     <div class="col-md-4">
-                      <label>Principal per Collection</label>
+                      <label>Amount per Collection</label>
                       <h6 class="lblPrincipalPerCollection">Php 0.00</h6>
                     </div>
                     <div class="col-md-4">
@@ -458,7 +458,7 @@
                       <h6 id="lblDisbursedType"></h6>
                     </div>
                     <div class="col-md-3">
-                      <label>Principal Amount</label>
+                      <label>Loan Amount</label>
                       <h6 id="lblPrincipalAmount"></h6>
                     </div>
                     <div class="col-md-3">
@@ -504,7 +504,7 @@
                       <h6 class="lblTotalLoanCost">Php 0.00</h6>
                     </div>
                     <div class="col-md-3">
-                      <label>Principal per Collection</label>
+                      <label>Loan Amount per Collection</label>
                       <h6 class="lblPrincipalPerCollection">Php 0.00</h6>
                     </div>
                     <div class="col-md-3">

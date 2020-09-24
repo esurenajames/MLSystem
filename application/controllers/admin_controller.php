@@ -1520,13 +1520,16 @@ class admin_controller extends CI_Controller {
     }
   }
 
-  function AddTangible()
+  function AddAssetManagement()
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    if ($_POST['FormType'] == 1) // add Tangible Asset
+    $AssetManagementDetail = $this->admin_model->getAssetManagementDetails($_POST['MethodId']);
+    if ($_POST['FormType'] == 1) // add Asset
     {
       $data = array(
-        'Name'                        => htmlentities($_POST['PurchasePrice'], ENT_QUOTES)
+        'PurchaseValue'               => htmlentities($_POST['PurchasePrice'], ENT_QUOTES)
+        , 'Type'                      => htmlentities($_POST['AssetType'], ENT_QUOTES)
+        , 'CategoryId'                => htmlentities($_POST['CategoryId'], ENT_QUOTES)
         , 'ReplacementValue'          => htmlentities($_POST['ReplacementValue'], ENT_QUOTES)
         , 'SerialNumber'              => htmlentities($_POST['SerialNumber'], ENT_QUOTES)
         , 'BoughtFrom'                => htmlentities($_POST['BoughtFrom'], ENT_QUOTES)
@@ -1538,34 +1541,205 @@ class admin_controller extends CI_Controller {
       {
         // insert Tangible Asset details
           $insertTangible = array(
-            'Name'                     => htmlentities($_POST['PurchasePrice'], ENT_QUOTES)
+            'PurchaseValue'            => htmlentities($_POST['PurchasePrice'], ENT_QUOTES)
+            , 'Type'                   => htmlentities($_POST['AssetType'], ENT_QUOTES)
+            , 'CategoryId'             => htmlentities($_POST['CategoryId'], ENT_QUOTES)
             , 'ReplacementValue'       => htmlentities($_POST['ReplacementValue'], ENT_QUOTES)
             , 'SerialNumber'           => htmlentities($_POST['SerialNumber'], ENT_QUOTES)
             , 'BoughtFrom'             => htmlentities($_POST['BoughtFrom'], ENT_QUOTES)
             , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
+            , 'StatusId'               => 2
             , 'CreatedBy'              => $EmployeeNumber
             , 'UpdatedBy'              => $EmployeeNumber
           );
-          $insertTangibleTable = 'R_Tangibles';
+          $insertTangibleTable = 'R_AssetManagement';
           $this->maintenance_model->insertFunction($insertTangible, $insertTangibleTable);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
-          $this->session->set_flashdata('alertText','Tangible supply successfully recorded!'); 
+          $this->session->set_flashdata('alertText','Asset supply successfully recorded!'); 
           $this->session->set_flashdata('alertType','success'); 
-          redirect('home/AddAssetManagement/'. $EmployeeId['EmployeeId']);
+          redirect('home/AddAssetManagement');
       }
       else
       {
         // notification
           $this->session->set_flashdata('alertTitle','Warning!'); 
-          $this->session->set_flashdata('alertText','Tangible supply already existing!'); 
+          $this->session->set_flashdata('alertText','Asset supply already existing!'); 
           $this->session->set_flashdata('alertType','warning'); 
           redirect('home/AddAssetManagement');
       }
     }
+    else if($_POST['FormType'] == 2) // Edit Asset Details 
+    {
+      $data = array(
+         'PurchaseValue'               => htmlentities($_POST['PurchasePrice'], ENT_QUOTES)
+        , 'Type'                      => htmlentities($_POST['AssetType'], ENT_QUOTES)
+        , 'CategoryId'                => htmlentities($_POST['CategoryId'], ENT_QUOTES)
+        , 'ReplacementValue'          => htmlentities($_POST['ReplacementValue'], ENT_QUOTES)
+        , 'SerialNumber'              => htmlentities($_POST['SerialNumber'], ENT_QUOTES)
+        , 'BoughtFrom'                => htmlentities($_POST['BoughtFrom'], ENT_QUOTES)
+        , 'Description'               => htmlentities($_POST['Description'], ENT_QUOTES)
+      );
+      $query = $this->admin_model->countTangibles($data);
+      print_r($query);
+      if($query == 0)
+      {
+        if($AssetManagementDetail['PurchaseValue'] != htmlentities($_POST['PurchasePrice'], ENT_QUOTES))
+        {
+          // add into audit table
+            $auditDetail = 'Updated details of  '.$AssetManagementDetail['PurchaseValue'].' to '.htmlentities($_POST['PurchasePrice'], ENT_QUOTES);
+            $insertAudit = array(
+              'Description' => $auditDetail,
+              'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'R_Logs';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+          // update function
+            $set = array( 
+            'PurchaseValue'                     => htmlentities($_POST['PurchasePrice'], ENT_QUOTES)
+            );
+            $condition = array( 
+              'AssetManagementId' => $_POST['AssetManagementId']
+            );
+            $table = 'R_AssetManagement';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+        }
+        if($AssetManagementDetail['Type'] != htmlentities($_POST['AssetType'], ENT_QUOTES))
+        {
+          // add into audit table
+            $auditDetail = 'Updated details of  '.$AssetManagementDetail['Type'].' to '.htmlentities($_POST['AssetType'], ENT_QUOTES);
+            $insertAudit = array(
+              'Description' => $auditDetail,
+              'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'R_Logs';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+          // update function
+            $set = array( 
+            'Type'                     => htmlentities($_POST['AssetType'], ENT_QUOTES)
+            );
+            $condition = array( 
+              'AssetManagementId' => $_POST['AssetManagementId']
+            );
+            $table = 'R_AssetManagement';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+        }
+        if($AssetManagementDetail['CategoryId'] != htmlentities($_POST['CategoryId'], ENT_QUOTES))
+        {
+          // add into audit table
+            $auditDetail = 'Updated details of  '.$AssetManagementDetail['CategoryId'].' to '.htmlentities($_POST['CategoryId'], ENT_QUOTES);
+            $insertAudit = array(
+              'Description' => $auditDetail,
+              'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'R_Logs';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+          // update function
+            $set = array( 
+            'CategoryId'                     => htmlentities($_POST['CategoryId'], ENT_QUOTES)
+            );
+            $condition = array( 
+              'AssetManagementId' => $_POST['AssetManagementId']
+            );
+            $table = 'R_AssetManagement';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+        }
+        if($AssetManagementDetail['ReplacementValue'] != htmlentities($_POST['ReplacementValue'], ENT_QUOTES))
+        {
+          // add into audit table
+            $auditDetail = 'Updated details of  '.$AssetManagementDetail['ReplacementValue'].' to '.htmlentities($_POST['ReplacementValue'], ENT_QUOTES);
+            $insertAudit = array(
+              'Description' => $auditDetail,
+              'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'R_Logs';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+          // update function
+            $set = array( 
+            'ReplacementValue'                     => htmlentities($_POST['ReplacementValue'], ENT_QUOTES)
+            );
+            $condition = array( 
+              'AssetManagementId' => $_POST['AssetManagementId']
+            );
+            $table = 'R_AssetManagement';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+        }
+        if($AssetManagementDetail['SerialNumber'] != htmlentities($_POST['SerialNumber'], ENT_QUOTES))
+        {
+          // add into audit table
+            $auditDetail = 'Updated details of  '.$AssetManagementDetail['SerialNumber'].' to '.htmlentities($_POST['SerialNumber'], ENT_QUOTES);
+            $insertAudit = array(
+              'Description' => $auditDetail,
+              'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'R_Logs';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+          // update function
+            $set = array( 
+            'SerialNumber'                     => htmlentities($_POST['SerialNumber'], ENT_QUOTES)
+            );
+            $condition = array( 
+              'AssetManagementId' => $_POST['AssetManagementId']
+            );
+            $table = 'R_AssetManagement';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+        }
+        if($AssetManagementDetail['BoughtFrom'] != htmlentities($_POST['BoughtFrom'], ENT_QUOTES))
+        {
+          // add into audit table
+            $auditDetail = 'Updated details of  '.$AssetManagementDetail['BoughtFrom'].' to '.htmlentities($_POST['BoughtFrom'], ENT_QUOTES);
+            $insertAudit = array(
+              'Description' => $auditDetail,
+              'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'R_Logs';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+          // update function
+            $set = array( 
+            'BoughtFrom'                     => htmlentities($_POST['BoughtFrom'], ENT_QUOTES)
+            );
+            $condition = array( 
+              'AssetManagementId' => $_POST['AssetManagementId']
+            );
+            $table = 'R_AssetManagement';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+        }
+        if($AssetManagementDetail['Description'] != htmlentities($_POST['Description'], ENT_QUOTES))
+        {
+          // add into audit table
+            $auditDetail = 'Updated details of  '.$AssetManagementDetail['Description'].' to '.htmlentities($_POST['Description'], ENT_QUOTES);
+            $insertAudit = array(
+              'Description' => $auditDetail,
+              'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'R_Logs';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+          // update function
+            $set = array( 
+            'Description'                     => htmlentities($_POST['Description'], ENT_QUOTES)
+            );
+            $condition = array( 
+              'AssetManagementId' => $_POST['AssetManagementId']
+            );
+            $table = 'R_AssetManagement';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+        }
+      // notif
+        $this->session->set_flashdata('alertTitle','Success!'); 
+        $this->session->set_flashdata('alertText','Asset details successfully updated!'); 
+        $this->session->set_flashdata('alertType','success'); 
+        redirect('home/AddAssetManagement/');
+      }
+      else // if existing
+      {
+        // notif
+        $this->session->set_flashdata('alertTitle','Warning!'); 
+        $this->session->set_flashdata('alertText','Asset details already existing!'); 
+        $this->session->set_flashdata('alertType','warning'); 
+        redirect('home/AddAssetManagement/');
+      }
+    }
   }
-
-
 
   function AddLoanStatus()
   {
@@ -2074,6 +2248,13 @@ class admin_controller extends CI_Controller {
   function getIndustryDetails()
   {
     $output = $this->admin_model->getIndustryDetails($this->input->post('Id'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getAssetManagementDetails()
+  {
+    $output = $this->admin_model->getAssetManagementDetails($this->input->post('Id'));
     $this->output->set_output(print(json_encode($output)));
     exit();
   }

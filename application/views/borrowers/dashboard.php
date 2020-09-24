@@ -7,7 +7,7 @@
       Borrowers
     </h1>
     <ol class="breadcrumb">
-      <li><a href="#" class="active"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+      <li><a href="#" class="active"><i class="fa fa-dashboard"></i> Borrower's Management</a></li>
       <li>Borrowers</a></li>
     </h1>
     </ol>

@@ -16,7 +16,7 @@
       Borrower Details
     </h1>
     <ol class="breadcrumb">
-      <li><a href="#" class="active"><i class="fa fa-dashboard"></i> Details</a></li>
+      <li><a href="#" class="active"><i class="fa fa-dashboard"></i> Borrower's Management</a></li>
       <li><a href="#">Borrowers</a></li>
       <li><a href="#">Borrower Details</a></li>
     </ol>

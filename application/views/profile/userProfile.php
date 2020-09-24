@@ -107,7 +107,17 @@
           <!-- Profile Image -->
           <div class="box box-primary">
             <div class="box-body box-profile">
-              <img class="profile-user-img img-responsive img-circle" src="<?php echo base_url(); ?>profilepicture/<?php print_r($profilePicture[0]['FileName']) ?>" class="user-image" alt="User Image">
+              <img class="profile-user-img img-responsive img-circle" src="
+              <?php
+              if($detail['FileName'] == null)
+              {
+                echo '<img src="'.base_url().'/borrowerpicture/default.gif" class="profile-user-img img-responsive img-circle" alt="User Image" style="width: 100px">';
+              }
+              else
+              {
+                echo '<img class="profile-user-img img-responsive img-circle" src="'.base_url().'/borrowerpicture/'. $detail["FileName"].'" class="user-image" alt="User Image">';
+              }
+            ?>
 
               <h3 class="profile-username text-center"><?php print_r($detail['Name']); ?></h3>
 

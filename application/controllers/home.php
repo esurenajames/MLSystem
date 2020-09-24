@@ -195,20 +195,6 @@ class home extends CI_Controller {
 		$this->load->view('admin/AddCategory', $data);
 	}
 
-	function ViewAssetManagement()
-	{
-		$sidebar['sidebar'] = 1;
-		$sidebar['sidebarMenu'] = 'AssetManagement';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['access'] = $this->sidebar_model->getAccess();
-
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/ViewAssetManagement', $data);
-	}
-
 	function AddAssetManagement()
 	{
 		$sidebar['sidebar'] = 2;
@@ -634,8 +620,8 @@ class home extends CI_Controller {
 	function BorrowerDetails()
 	{
 		$Id = $this->uri->segment(3);
-		$sidebar['sidebar'] = 'SystemSetup';
-		$sidebar['sidebarMenu'] = 'Borrowers';
+		$sidebar['sidebar'] = 'BorrowerManagement';
+		$sidebar['sidebarMenu'] = 'BorrowerManagement';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
