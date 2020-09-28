@@ -12,6 +12,160 @@
     </ol>
   </section>
 
+  <div class="modal fade" id="modalUpdate">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="modalApprovalUpdateTitle"></h4>
+        </div>
+        <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/loanapproval/<?php print_r($detail['ApplicationId']) ?>" method="post">
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-12">
+                <label>Remarks</label>
+                <textarea class="form-control" name="Description"></textarea>
+                <input type="hidden" name="ApprovalType" id="txtApprovalType">
+                <input type="hidden" name="ChargeId" id="txtChargeId">
+
+              </div>
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>Upload Attachment</label>
+                  <input type="file" name="Attachment[]" id="Attachment" accept=".jpeg, .jpg, .png">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalRepayment">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Add Repayment</h4>
+        </div>
+        <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/addRepayment/<?php print_r($detail['ApplicationId']) ?>" method="post">
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-3">
+                <label>Term:</label><br> <?php print_r($detail['TermNo']) ?> / <?php print_r($detail['TermType']) ?><br>
+              </div>
+              <div class="col-md-3">
+                <label>Repayment:</label><br> <?php print_r($detail['RepaymentNo']) ?> / <?php print_r($repayment['Name']) ?><br>
+              </div>
+              <div class="col-md-3">
+                <label>Principal Per Collection:</label><br> Php <?php print_r( number_format($paymentDues['PrincipalPerCollection'])) ?><br>
+              </div>
+              <div class="col-md-3">
+                <label>Interest Per Collection:</label><br> Php <?php print_r( number_format($paymentDues['InterestPerCollection'])) ?><br>
+              </div>              
+            </div>
+            <br>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Payment for <span class="text-red">*</span></label>
+                  <div class="input-group date">
+                    <div class="input-group-addon">
+                      <i class="fa fa-calendar"></i>
+                    </div>
+                    <input type="text" placeholder="Date Collected" class="form-control" onchange="onchangePenaltyType()" name="datePayment" required="" id="datePayment">
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Collection Date <span class="text-red">*</span></label>
+                  <div class="input-group date">
+                    <div class="input-group-addon">
+                      <i class="fa fa-calendar"></i>
+                    </div>
+                    <input type="text" placeholder="Date Collected" class="form-control" onchange="onchangePenaltyType()" name="dateCollected" required="" id="dateCollected">
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <label><input id='chkPenalty' type='checkbox' onclick="onchangePenaltyType()"> Compute for Penalty?</label>
+                <input id='txtIsPenalized' name="IsPenalized" type='hidden' onclick="onchangePenaltyType()">
+                <input id='txtTotalPenalty' name="TotalPenalty" type='hidden' onclick="onchangePenaltyType()">
+              </div>
+              <div id="divPenalty" style="display: none">
+                <div class="col-md-3">
+                  <label>Penalty Type</label>
+                  <select class="form-control" id="selectPenaltyType" onchange="onchangePenaltyType()" name="PenaltyType">
+                    <option>Flat Rate</option>
+                    <option>Percentage</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label id="inputLblPenaltyType">Amount</label>
+                  <input type="number" min="0" class="form-control" oninput="onchangePenaltyType()" id="txtPenaltyAmount" name="PenaltyAmount" value="">
+                </div>
+                <div class="col-md-3">
+                  <label>Grace Period</label>
+                  <input type="number" min="0" class="form-control" oninput="onchangePenaltyType()" id="txtGracePeriod" name="GracePeriod" value="0">
+                </div>
+                <div class="col-md-3">
+                  <label>Total Penalty</label>
+                  <h6 id="lblTotalPenalty"></h6>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <label>Total Amount Due:</label><br>
+                <h6 id="lblTotalAmountDue">Php <?php print_r( number_format($paymentDues['InterestPerCollection'] + $paymentDues['PrincipalPerCollection'])) ?></h6>
+              </div>
+              <div class="col-md-12">
+                <label>Amount Paid<span class="text-red">*</span></label>
+                <input type="number" value="0" required="" min="0" maxlength="100000" oninput="computePayment()" class="form-control" name="Amount" id="txtAmountPaid">
+              </div>
+              <div class="col-md-12">
+                <label>Change:</label><br>
+                <h6 id="lblChange">Php 0.00</h6>
+              </div>
+              <div class="col-md-6">
+                <label>Payment Method <span class="text-red">*</span></label>
+                <select class="form-control" required="" name="PaymentMethod">
+                  <?php
+                    echo $disbursements;
+                  ?>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label>Bank <span class="text-red">*</span></label>
+                <select class="form-control" required="" name="BankId">
+                  <?php
+                    echo $bank;
+                  ?>
+                </select>
+              </div>
+              <div class="col-md-12">
+                <label>Remarks</label>
+                <textarea class="form-control" name="Remarks"></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+
   <div class="modal fade" id="modalUpload">
     <div class="modal-dialog modal-md">
       <div class="modal-content">
@@ -401,7 +555,7 @@
 			    		<label>Repayment:</label> <?php print_r($detail['RepaymentNo']) ?> / <?php print_r($repayment['Name']) ?><br>
 			    	</div>
 			    	<div class="col-md-4">
-			    		<label>Principal Amount:</label> Php <?php print_r($detail['PrincipalAmount']) ?><br>
+			    		<label>Loan Amount:</label> Php <?php print_r($detail['PrincipalAmount']) ?><br>
 			    		<label>Interest Rate:</label> <?php print_r($detail['InterestRate']) ?><br>
 			    		<label>Interest:</label> 
 			    		<?php
@@ -439,7 +593,7 @@
 			    		<?php 
 			    			if($penalties['Total'] != null)
 				    		{
-				    			print_r('Php ' .$penalties['Total']);
+				    			print_r('Php ' .number_format($penalties['Total'], 2));
 				    		}
 				    		else
 				    		{
@@ -518,55 +672,72 @@
               </div>
               <div class="tab-pane" id="tabRepayments">
               	<h4>Repayments</h4>
-              	<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modelRepayment">Add Repayment</a>
+              	<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalRepayment" onclick="computePayment()">Add Repayment</a>
               	<br>
               	<br>
                 <table id="dtblRepayment" class="table table-bordered table-hover" style="width: 100%">
                   <thead>
                   <tr>
                     <th>Reference No</th>
-                    <th>Collection Date</th>
                     <th>Collected By</th>
                     <th>Method</th>
                     <th>Amount</th>
+                    <th>Collection Date</th>
+                    <th>Payment For</th>
+                    <th>Date Creation</th>
+                    <th>Status</th>
                     <th>Action</th>
                   </tr>
                   </thead>
                   <tbody>
+                    <?php 
+                      $rowNumber = 0;
+                      if($Payments != 0)
+                      {
+                        foreach ($Payments as $value) 
+                        {
+                          if($value['StatusId'] == 1)
+                          {
+                            $status = '<span class="badge bg-green">Active</span>';
+                            $action = '<a class="btn btn-danger btn-sm" title="Deactivated" data-toggle="modal" data-target="#modalUpdate" onclick="approvalType(4, '.$value['PaymentMadeId'].')"><span class="fa fa-close"></span></a>';
+                          }
+                          else 
+                          {
+                            $status = '<span class="badge bg-red">Deactivated</span>';
+                            $action = 'N/A';
+                          }
+                          echo "<tr>";
+                          echo "<td>".$value['ReferenceNo']."</td>";
+                          echo "<td>".$value['CreatedBy']."</td>";
+                          echo "<td>".$value['BankName']."</td>";
+                          echo "<td>Php ".number_format($value['Amount'], 2)."</td>";
+                          echo "<td>".$value['DateCollected']."</td>";
+                          echo "<td>".$value['PaymentDate']."</td>";
+                          echo "<td>".$value['DateCreated']."</td>";
+                          echo "<td>".$status."</td>";
+                          echo '<td>'.$action.'</td> ';
+                          echo "</tr>";
+                        }
+                      }
+                    ?>
                   </tbody>
                 </table>
               </div>
               <div class="tab-pane" id="tabPenalty">
-              	<h4>Penalty Settings</h4>
-              	<div class="row">
-	                <div class="col-md-12">
-	                  <label><input id='chkPenalty' onclick='onchangeIsPenalized()' <?php if($detail['IsPenalized']) echo "checked"; else { echo "";} ?>  type='checkbox'> Enable Late Repayment Penalty?</label>
-	                </div>
-	                <br>
-              	</div>
-                <div class="row">
-                  <div id="divPenalty" style="display: <?php if($detail['IsPenalized']) echo ""; else { echo "none";} ?>">
-                    <div class="col-md-4">
-                      <label>Penalty Type</label>
-                      <select class="form-control" id="selectPenaltyType" onchange="onchangePenaltyType()" name="PenaltyType">
-                        <option>Flat Rate</option>
-                        <option>Percentage</option>
-                      </select>
-                    </div>
-                    <div class="col-md-4">
-                      <label id="inputLblPenaltyType">Amount</label>
-                      <input type="number" min="0" class="form-control" name="PenaltyAmount" id="txtPenaltyAmount">
-                    </div>
-                    <div class="col-md-4">
-                      <label>Grace Period</label>
-                      <input type="number" min="0" class="form-control" name="PenaltyAmount" id="txtPenaltyAmount">
+                <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/penaltySettings/<?php print_r($detail['ApplicationId']) ?>" method="post">
+                	<h4>Penalty Settings</h4>
+                	<div class="row">
+  	                <div class="col-md-12">
+  	                </div>
+  	                <br>
+                	</div>
+                  <div class="row">
+                    <div class="pull-right">
+                      <br>
+                      <button class="btn btn-sm btn-primary" type="submit">Save Changes</button>
                     </div>
                   </div>
-                  <div class="pull-right">
-                    <br>
-                    <a class="btn btn-sm btn-primary">Save Changes</a>
-                  </div>
-                </div>
+                </form>
               </div>
               <div class="tab-pane" id="tabCollateral">
               	<h4>Collateral</h4>
@@ -597,6 +768,7 @@
                         echo "<td>".$value['CurrentStatus']."</td>";
                         echo "<td>".number_format($value['Value'], 2)."</td>";
                         echo "<td>".$value['CollateralType']."</td>";
+                        echo "<td>".$value['DateRegistered']."</td>";
                         echo "<td>".$value['DateRegistered']."</td>";
                         echo '<td><a class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalCollateral" title="Edit"><span class="fa fa-edit"></span></a> <a class="btn btn-default btn-sm" title="Download"><span class="fa fa-download"></span></a> <a class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a></td> ';
                         echo "</tr>";
@@ -680,7 +852,6 @@
                         echo "<td>".$value['Source']."</td>";
                         echo "<td>".$value['Details']."</td>";
                         echo "<td>".number_format($value['Amount'], 2)."</td>";
-                        echo "<td>".$value['Description']."</td>";
                         echo "<td>".$value['Name']."</td>";
                         echo "<td>".$value['DateCreated']."</td>";
                         if($value['StatusId'] == 2)
@@ -693,6 +864,7 @@
                           $status = "<span class='badge bg-red'>Deactivated</span>";
                           $action = '<a onclick="confirm(\'Are you sure you want to re-activate this Income Source record?\', \''.$value['IncomeId'].'\', 2, \'Incomes\')" class="btn btn-warning" title="Re-Activate"><span class="fa fa-refresh"></span></a>';
                         }
+                        echo "<td>".$status."</td>";
                         echo "<td>".$action."</td>";
                         echo "</tr>";
                       }
@@ -713,9 +885,9 @@
                     <th>Source</th>
                     <th>Details</th>
                     <th>Amount</th>
-                    <th>Status</th>
                     <th>Created By</th>
                     <th>Date Creation</th>
+                    <th>Status</th>
                     <th>Action</th>
                   </tr>
                   </thead>
@@ -730,8 +902,7 @@
                         echo "<td>".$value['Source']."</td>";
                         echo "<td>".$value['Details']."</td>";
                         echo "<td>".number_format($value['Amount'], 2)."</td>";
-                        echo "<td>".$value['Description']."</td>";
-                        echo "<td>".$value['DateCreated']."</td>";
+                        echo "<td>".$value['CreatedBy']."</td>";
                         echo "<td>".$value['DateCreated']."</td>";
                         if($value['StatusId'] == 2)
                         {
@@ -743,6 +914,7 @@
                           $status = "<span class='badge bg-red'>Deactivated</span>";
                           $action = '<a onclick="confirm(\'Are you sure you want to re-activate this Expense record?\', \''.$value['ExpenseId'].'\', 2, \'Expenses\')" class="btn btn-warning" title="Re-Activate"><span class="fa fa-refresh"></span></a>';
                         }
+                        echo "<td>".$status."</td>";
                         echo "<td>".$action."</td>";
                         echo "</tr>";
                       }
@@ -908,39 +1080,121 @@
   });
 
   $('#dtblComments').DataTable({
-    // "aoColumnDefs": [{ "bVisible": false, "aTargets": [7] }],
     "order": [[0, "desc"]]
   });
   $('#dtblIncome').DataTable({
-    // "aoColumnDefs": [{ "bVisible": false, "aTargets": [7] }],
     "order": [[0, "desc"]]
   });
   $('#dtblExpense').DataTable({
-    // "aoColumnDefs": [{ "bVisible": false, "aTargets": [7] }],
     "order": [[0, "desc"]]
   });
   $('#dtblObligations').DataTable({
-    // "aoColumnDefs": [{ "bVisible": false, "aTargets": [7] }],
     "order": [[0, "desc"]]
   });
 
   var rowNumber = 0;
   $('#dtblHistory').DataTable({
-    // "aoColumnDefs": [{ "bVisible": false, "aTargets": [7] }],
     "order": [[0, "desc"]]
   });
 
-  function onchangeIsPenalized()
-  {
-    if($('#chkPenalty').is(":checked") == true)
+  // repayment functions
+    var varPrincipalCollection = '<?php print_r( $paymentDues['InterestPerCollection'] + $paymentDues['PrincipalPerCollection']) ?>';
+    var varTotalPenalty = 0;
+    var varTotalLapseDays = 0;
+    var varChange = 0; 
+    var varTotalAmountDue = '<?php print_r( $paymentDues['InterestPerCollection'] + $paymentDues['PrincipalPerCollection']) ?>';
+    function computePayment()
     {
-      $('#divPenalty').show();
+      varChange = $('#txtAmountPaid').val() - varTotalAmountDue;
+      $('#lblChange').html('Php ' + Math.abs(varChange).toLocaleString('en-US', {minimumFractionDigits: 2}))
     }
-    else
+
+    function onchangePenaltyType()
     {
-      $('#divPenalty').hide();
+      var date1 = new Date($('#datePayment').val()); 
+      var date2 = new Date($('#dateCollected').val()); 
+
+      var Difference_In_Time = date2.getTime() - date1.getTime(); 
+      var totalDays = Difference_In_Time / (1000 * 3600 * 24); 
+      varTotalLapseDays = parseInt(totalDays - $('#txtGracePeriod').val());
+
+      if($('#chkPenalty').is(":checked") == true)
+      {
+        if(varTotalLapseDays > 0)
+        {
+          $('#txtIsPenalized').val(1);
+          $('#divPenalty').show();
+          if($('#selectPenaltyType').val() == 'Flat Rate')
+          {
+            if(varTotalLapseDays > 0)
+            {
+              $('#inputLblPenaltyType').html('Amount');
+              $('#lblChange').val('Php 0.00');
+              varTotalPenalty = parseInt(varTotalLapseDays * $('#txtPenaltyAmount').val());
+              $('#lblTotalPenalty').html('Php ' + varTotalPenalty.toLocaleString('en-US', {minimumFractionDigits: 2}));
+
+              varTotalAmountDue = parseInt(varPrincipalCollection)  + parseInt(varTotalPenalty);
+              $('#lblTotalAmountDue').html(varTotalAmountDue.toLocaleString('en-US', {minimumFractionDigits: 2}));
+              $('#txtAmountPaid').val(0);
+            }
+            else
+            {
+              $('#lblTotalPenalty').html('Php 0.00');
+              $('#lblChange').val('Php 0.00');
+              $('#lblTotalAmountDue').html(parseInt(varPrincipalCollection).toLocaleString('en-US', {minimumFractionDigits: 2}));
+              $('#txtAmountPaid').val(0);
+            }
+          }
+          else
+          {
+            $('#inputLblPenaltyType').html('Percentage');
+
+            if(varTotalLapseDays > 0)
+            {
+              varTotalPenalty = parseInt(varTotalLapseDays * ('<?php print_r($detail['RawPrincipalAmount']) ?>' * ($('#txtPenaltyAmount').val() / 100)));
+              $('#lblTotalPenalty').html('Php ' + varTotalPenalty.toLocaleString('en-US', {minimumFractionDigits: 2}));
+
+              varTotalAmountDue = parseInt(varPrincipalCollection)  + parseInt(varTotalPenalty);
+              $('#lblTotalAmountDue').html(varTotalAmountDue.toLocaleString('en-US', {minimumFractionDigits: 2}));
+              $('#txtAmountPaid').val(0);
+              $('#lblChange').val('Php 0.00');
+            }
+            else
+            {
+              varTotalAmountDue = varPrincipalCollection;
+              $('#lblTotalPenalty').html('Php 0.00');
+              $('#lblTotalAmountDue').html(parseInt(varPrincipalCollection).toLocaleString('en-US', {minimumFractionDigits: 2}));
+              $('#txtAmountPaid').val(0);
+              $('#lblChange').val('Php 0.00');
+            }
+          }
+          $('#txtTotalPenalty').val(varTotalPenalty);
+        }
+        else
+        {
+          document.getElementById("chkPenalty").checked = false;
+          $('#divPenalty').slideUp()
+          swal({
+            title: 'Info!',
+            text: 'Collection date must be greater than payment date to compute for penalty!',
+            type: 'info',
+            buttonsStyling: false,
+            confirmButtonClass: 'btn btn-primary'
+          });
+          $('#txtIsPenalized').val(0);
+          $('#divPenalty').hide();
+          $('#lblTotalAmountDue').html(parseInt(varPrincipalCollection).toLocaleString('en-US', {minimumFractionDigits: 2}));
+          $('#txtAmountPaid').val(0);
+        }
+      }
+      else
+      {
+        $('#txtIsPenalized').val(0);
+        $('#divPenalty').hide();
+        $('#lblTotalAmountDue').html(parseInt(varPrincipalCollection).toLocaleString('en-US', {minimumFractionDigits: 2}));
+        $('#txtAmountPaid').val(0);
+      }
     }
-  }
 
   function confirm(Text, Id, updateType, Type)
   { 
@@ -991,7 +1245,7 @@
   }
 
   function EditObligation(MonthlyObligationId)
-  { 
+  {
     $.ajax({
       url: '<?php echo base_url()?>' + "/loanapplication_controller/getObligationDetails",
       type: "POST",
@@ -1011,7 +1265,6 @@
         $('#txtMonthlyObligationId').val(MonthlyObligationId);
         $('#txtFormType').val(2);
       },
-
       error: function()
       {
         setTimeout(function() {
@@ -1172,10 +1425,56 @@
     }
   }
 
+  function approvalType(Type, ID)
+  {
+    if(Type == 3) // remove charges added
+    {
+      $('#modalApprovalUpdateTitle').html('Remove Charge');
+      $('#txtChargeId').val(ID);
+    }
+    else if(Type == 4) // remove payments added
+    {
+      $('#modalApprovalUpdateTitle').html('Remove Payment');
+      $('#txtChargeId').val(ID);
+    }
+    $('#txtApprovalType').val(Type);
+  }
+
   function uploadRequirementsChange(value)
   {
     $('#txtApplicationRequirementId').val(value)
   }
 
+  $('#dateCollected').daterangepicker({
+      "startDate": moment().format('DD MMM YY'),
+      "singleDatePicker": true,
+      "showDropdowns": true,
+      "timePicker": false,
+      "linkedCalendars": false,
+      "showCustomRangeLabel": false,
+      "showCustomRangeLabel": false,
+      // "maxDate": Start,
+      "opens": "up",
+      "locale": {
+          format: 'DD MMM YYYY',
+      },
+  }, function(start, end, label){
+  });
+
+  $('#datePayment').daterangepicker({
+      "startDate": moment().format('DD MMM YY'),
+      "singleDatePicker": true,
+      "showDropdowns": true,
+      "timePicker": false,
+      "linkedCalendars": false,
+      "showCustomRangeLabel": false,
+      "showCustomRangeLabel": false,
+      // "maxDate": Start,
+      "opens": "up",
+      "locale": {
+          format: 'DD MMM YYYY',
+      },
+  }, function(start, end, label){
+  });
 
 </script>

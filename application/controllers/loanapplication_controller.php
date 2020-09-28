@@ -1650,15 +1650,18 @@ class loanapplication_controller extends CI_Controller {
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $DateNow = date("Y-m-d H:i:s");
+    $string1 = strtotime($_POST['datePayment']);
+    $varDatePayment = date('Y-m-d', $string1);
     $string2 = strtotime($_POST['dateCollected']);
     $varDateCollected = date('Y-m-d', $string2);
     // insert into payments
       $insertData = array( 
         'BankId'            => $_POST['BankId'],
         'ApplicationId'     => $this->uri->segment(3),
-        'Amount'            => $_POST['Amount'],
+        'Amount'            => $_POST['Amount'] - $_POST['TotalPenalty'],
         'Description'       => $_POST['Remarks'],
         'DateCollected'     => $varDateCollected,
+        'PaymentDate'       => $varDatePayment,
         'CreatedBy'         => $EmployeeNumber
       );
       $table = 't_paymentsmade';
@@ -1670,9 +1673,52 @@ class loanapplication_controller extends CI_Controller {
         , 'CreatedBy'           => $EmployeeNumber
       );
       $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+    // insert into penalty
+      if($_POST['IsPenalized'] == 1)
+      {
+        $insertData2 = array( 
+          'PaymentMadeId'     => $generatedId['PaymentMadeId'],
+          'ApplicationId'     => $this->uri->segment(3),
+          'PenaltyType'       => $_POST['PenaltyType'],
+          'Amount'            => $_POST['PenaltyAmount'],
+          'GracePeriod'       => $_POST['GracePeriod'],
+          'TotalPenalty'      => $_POST['TotalPenalty'],
+          'CreatedBy'         => $EmployeeNumber
+        );
+        $table2 = 'application_has_penalty';
+        $this->maintenance_model->insertFunction($insertData2, $table2);
+
+        // get generated id
+          $getData2 = array(
+            'table'                 => 'application_has_penalty'
+            , 'column'              => 'ApplicationPenaltyId'
+            , 'CreatedBy'           => $EmployeeNumber
+          );
+          $generatedId2 = $this->maintenance_model->getGeneratedId2($getData);
+
+        // insert Application_has_notification
+          $insertNotification = array(
+            'Description'                   => 'Added penalty #PLT-'.sprintf('%05d', $generatedId2['ApplicationPenaltyId']).'.'
+            , 'ApplicationId'               => $this->uri->segment(3)
+            , 'CreatedBy'                   => $EmployeeNumber
+          );
+          $insertNotificationTable = 'Application_has_Notifications';
+          $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
+        // main audits
+          $RefNo = $this->maintenance_model->selectSpecific('t_application', 'ApplicationId', $this->uri->segment(3));
+          $auditDetail = 'Added penalty #PLT-'.sprintf('%05d', $generatedId2['ApplicationPenaltyId']).' to ' . $RefNo['TransactionNumber'];
+          $insertData2 = array(
+            'Description' => $auditDetail
+            , 'CreatedBy' => $EmployeeNumber
+          );
+          $auditTable1 = 'Employee_has_Notifications';
+          $auditTable2 = 'R_Logs';
+          $this->maintenance_model->insertFunction($insertData2, $auditTable1);
+          $this->maintenance_model->insertFunction($insertData2, $auditTable2);
+      }
     // insert Application_has_notification
       $insertNotification = array(
-        'Description'                   => 'Added payment.'
+        'Description'                   => 'Added payment #PYM-'.sprintf('%05d', $generatedId['PaymentMadeId']).'.'
         , 'ApplicationId'               => $this->uri->segment(3)
         , 'CreatedBy'                   => $EmployeeNumber
       );
@@ -1694,6 +1740,27 @@ class loanapplication_controller extends CI_Controller {
       $this->session->set_flashdata('alertText','Successfully added payment!'); 
       $this->session->set_flashdata('alertType','success'); 
       redirect('home/loandetail/' . $this->uri->segment(3));
+  }
+
+  function getPaymentsMaid()
+  {
+    $output = $this->loanapplication_model->getPaymentsMaid($this->input->post('Id'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getPaymentDates()
+  {
+    $output = $this->loanapplication_model->getPaymentDates($this->input->post('Id'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getDue()
+  {
+    $output = $this->loanapplication_model->getDue($this->input->post('Id'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
   }
 
   

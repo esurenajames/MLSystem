@@ -174,6 +174,7 @@ class loanapplication_model extends CI_Model
                                       , CONCAT('PYM-', LPAD(P.PaymentMadeId, 6, 0)) as ReferenceNo
                                       , DATE_FORMAT(P.DateCreated, '%b %d, %Y %r') as DateCreated
                                       , DATE_FORMAT(P.DateCollected, '%b %d, %Y') as DateCollected
+                                      , DATE_FORMAT(P.PaymentDate, '%b %d, %Y') as PaymentDate
                                       , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName) as CreatedBy
                                       , P.StatusId
                                       , B.BankName
@@ -296,10 +297,8 @@ class loanapplication_model extends CI_Model
   function getPenalties($Id)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $query = $this->db->query("SELECT   SUM(Amount) as Total
+    $query = $this->db->query("SELECT   SUM(AHP.TotalPenalty) as Total
                                         FROM Application_Has_Penalty AHP
-                                          INNER JOIN R_Penalty P
-                                            ON P.PenaltyId = AHP.PenaltyId
                                           WHERE ApplicationId = $Id
                                           AND AHP.StatusId = 1
     ");
@@ -750,7 +749,7 @@ class loanapplication_model extends CI_Model
   function getTenure($Id)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $query = $this->db->query("SELECT  COALESCE(AVG(TIMESTAMPDIFF(YEAR, DateHired, DateTo))) as AvgYears
+    $query = $this->db->query("SELECT  COALESCE(AVG(TIMESTAMPDIFF(YEAR, DateHired, DateTo)), 0) as AvgYears
                                         FROM borrower_has_employer
                                               WHERE BorrowerId = $Id
                                               AND StatusId = 1
@@ -1134,6 +1133,59 @@ class loanapplication_model extends CI_Model
                                                 WHERE A.ApplicationId = $Id
       ");
 
+      $data = $query->row_array();
+      return $data;
+    }
+
+    function getPaymentsMaid($Id)
+    {
+      $query = $this->db->query("SELECT DATE_FORMAT(DateCollected, '%d') as DatePaid 
+                                        , Amount
+                                        FROM t_paymentsmade 
+                                              WHERE ApplicationId = $Id 
+                                              AND StatusId = 1
+      ");
+      $data = $query->result_array();
+      return $data;
+    }
+
+    function getPaymentDates($Id)
+    {
+      $query = $this->db->query("SELECT DISTINCT Date as Dates
+                                        FROM r_repaymentcycle RC
+                                          INNER JOIN repaymentcycle_has_content RHC
+                                            ON RHC.RepaymentId = RC.RepaymentId
+                                          INNER JOIN t_application A
+                                            ON A.RepaymentId = RC.RepaymentId
+                                            WHERE A.ApplicationId = $Id
+                                            AND RC.StatusId = 1
+      ");
+      $data = $query->result_array();
+      return $data;
+    }
+
+    function getDue($Id)
+    {
+      $query = $this->db->query("SELECT  A.TermNo * A.RepaymentNo as TotalCollections
+                                        , A.PrincipalAmount
+                                        , A.TermNo * AHI.Amount as AddOnInterest
+                                        , CASE
+                                          WHEN AHI.InterestType = 'Percentage'
+                                            THEN A.PrincipalAmount * (A.TermNo * AHI.Amount) / 100
+                                            ELSE AHI.Amount + A.PrincipalAmount
+                                        END as TotalInterest  
+                                        , A.PrincipalAmount / (A.TermNo * A.RepaymentNo) as PrincipalPerCollection
+                                        , CASE
+                                          WHEN AHI.InterestType = 'Percentage'
+                                            THEN A.PrincipalAmount * (A.TermNo * AHI.Amount) / 100
+                                            ELSE AHI.Amount + A.PrincipalAmount
+                                        END / (A.TermNo * A.RepaymentNo) as InterestPerCollection
+                                        FROM t_application A
+                                              INNER JOIN application_has_interests AHI
+                                                  ON A.ApplicationId = AHI.ApplicationId
+                                                    AND AHI.StatusId = 2
+                                              WHERE A.ApplicationId = $Id
+      ");
       $data = $query->row_array();
       return $data;
     }

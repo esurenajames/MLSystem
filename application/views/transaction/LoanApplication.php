@@ -145,7 +145,7 @@
                     <div class="col-md-6">
                       <div class="form-group">
                         <label>Loan Amount<span class="text-red">*</span></label><br>
-                        <input type="number" class="form-control" placeholder="Principal Amount" oninput="getTotalInterest(); btnRemoveCharges(); loanSummary()" id="txtPrincipalAmount" name="PrincipalAmount">
+                        <input type="number" class="form-control" placeholder="Loan Amount" oninput="getTotalInterest(); btnRemoveCharges(); loanSummary()" id="txtPrincipalAmount" name="PrincipalAmount">
                       </div>
                     </div>
                     <div class="col-md-6">
@@ -221,8 +221,8 @@
                   <br>
                   <h4>Additional Charges <small><a href=""> Add/Edit Additional Charges</a></small> <a class="btn btn-sm btn-primary pull-right" id="btnAddCharges" onclick="btnCharges()">Add Charges</a> <a class="btn btn-sm btn-primary pull-right" style="display: none" onclick="btnRemoveCharges()" id="btnRemoveCharges">Remove Charges</a></h4>
                   <hr>
+                  <input type="" id="txtIsCharged">
                   <div id="divAdditionalCharges" style="display: none">
-                    <input type="hidden" id="txtIsCharged">
                     <div class="row">
                       <div class="col-md-12">
                         <table id="example3" class="table table-bordered table-hover" style="width: 100%">
@@ -757,6 +757,8 @@
           tenureRisk = 0
         }
       // compute risk
+      console.log('NETMONTHLYINCOME: '+NetMonthlyIncome)
+      console.log('TENURE: '+varTenure)
         riskAssessment = (incomeRisk + ageRisk + tenureRisk) / 3
         if(Math.ceil(riskAssessment) <= 25)
         {
@@ -768,7 +770,7 @@
         }
         else if(Math.ceil(riskAssessment) >= 56 && Math.ceil(riskAssessment) <= 100)
         {
-          riskLevel = 'Meduim Risk'
+          riskLevel = 'High Risk'
         }
         $('#lblRiskAssessment').html(parseInt(Math.ceil(riskAssessment)).toLocaleString('en-US', {minimumFractionDigits: 2}) + '% - ' + riskLevel);
     }
@@ -826,7 +828,7 @@
   // BORROWERS
     var varBorrowerId = 0;
     var varBorrowerAge = 0;
-    var varTenure = 1;
+    var varTenure;
     function displayBorrowerDetails(value)
     {
       varBorrowerId = value;
@@ -861,34 +863,34 @@
           $('.lblBorrowerStatus').html(data['StatusDescription']);
           $('.divBorrowerBtn').html('<a target="_blank" href="<?php echo base_url();?>home/BorrowerDetails/'+data['BorrowerId']+'">View Borrower Details</a>');
 
-          // $.ajax({
-          //   url: "<?php echo base_url();?>" + "/loanapplication_controller/getTenure",
-          //   type: "POST",
-          //   async: false,
-          //   data: {
-          //     Id : varBorrowerId
-          //   },
-          //   dataType: "JSON",
-          //   beforeSend: function(){
-          //       $('.loading').show();
-          //   },
-          //   success: function(data)
-          //   {
-          //     varTenure = data['AvgYears'];
-          //   },
-          //   error: function()
-          //   {
-          //     setTimeout(function() {
-          //       swal({
-          //         title: 'Warning!',
-          //         text: 'Something went wrong, please contact the administrator or refresh page!',
-          //         type: 'warning',
-          //         buttonsStyling: false,
-          //         confirmButtonClass: 'btn btn-primary'
-          //       });
-          //     }, 2000);
-          //   }
-          // });
+          $.ajax({
+            url: "<?php echo base_url();?>" + "/loanapplication_controller/getTenure",
+            type: "POST",
+            async: false,
+            data: {
+              Id : varBorrowerId
+            },
+            dataType: "JSON",
+            beforeSend: function(){
+                $('.loading').show();
+            },
+            success: function(data)
+            {
+              varTenure = data['AvgYears'];
+            },
+            error: function()
+            {
+              setTimeout(function() {
+                swal({
+                  title: 'Warning!',
+                  text: 'Something went wrong, please contact the administrator or refresh page!',
+                  type: 'warning',
+                  buttonsStyling: false,
+                  confirmButtonClass: 'btn btn-primary'
+                });
+              }, 2000);
+            }
+          });
         },
         error: function()
         {
@@ -1521,7 +1523,7 @@
         output += '<td id="rowNumber' + MonthlyIncomeCount + '">' + MonthlyIncomeCount + '</td>'
         output += '<td><input type="text" class="form-control incomeSource" name="MISourceIncome[]"><input type="hidden" required="" class="form-control" name="countMonthlyIncome[]" value="' + MonthlyIncomeCount + '"></td>'
         output += '<td><input type="text" class="form-control" name="MIDetails[]"></td>'
-        output += '<td><input required="" type="text" class="form-control incomeAmount" min="0"  placeholder="0.00" oninput="changeAmount(this.value, 1, '+MonthlyIncomeCount+')" name="MIAmount[]"></td>'
+        output += '<td><input required="" type="number" class="form-control incomeAmount" min="0"  placeholder="0.00" oninput="changeAmount(this.value, 1, '+MonthlyIncomeCount+')" name="MIAmount[]"></td>'
         output += '<td><a id="' + MonthlyIncomeCount + '" class="btn btnRemoveIncome btn-sm btn-danger" title="Remove"><span class="fa fa-minus"></span></a> </td>'
         output += '</tr>'
         $('#tblMonthlyIncome').append(output);
@@ -1747,8 +1749,10 @@
     $("#smartwizard").on("leaveStep", function(e, anchorObject, stepNumber, stepDirection) {
       if(stepNumber == 0 && stepDirection == 'forward') // loan product
       {
+        varIsPenalized = 0;
+        IsGo = 0;
+        var varChargeNo;
         // for sources
-          IsGo = 0;
           if($('#selectSource').val() == 'Through Agent')
           {
             if($('#txtAgentName').val() == '')
@@ -1765,7 +1769,6 @@
             IsGo = 1;
           }
         // for penalties
-          varIsPenalized = 0;
           if($('#chkPenalty').is(":checked") == true)
           {
             if($('#selectPenaltyType').val() == '' || $('#txtPenaltyAmount').val() <= 0 || $('#txtPenaltyAmount').val() < 0)
@@ -1782,18 +1785,23 @@
             varIsPenalized = 1;
           }
         // for charges
-          varChargeNo = 0;
           if($('#txtIsCharged').val() == 1)
           {
             $('input[type="checkbox"]').click(function(){
-              varChargeNo = $('.checkCharges:checked').length;
+              if($('.checkCharges:checked').length > 0)
+              {
+                varChargeNo = 1;
+              }
+              else
+              {
+                varChargeNo = 0
+              }
             });
           }
           else
           {
             varChargeNo = 1;
           }
-          
         if($('#selectLoanType').val() == '' || IsGo == 0 || $('#selectPurpose').val() == '' || $('#selectDisbursedBy').val() == '' || $('#txtPrincipalAmount').val() == '' || $('#selectTerm').val() == '' || $('#selectTermType').val() == '' || $('#txtRepayments').val() == '' || $('#selectRepaymentType').val() == '' || $('#selectInterestType').val() == '' || $('#txtInterest').val() == '' || $('#selectInterestFrequency').val() == '' || varIsPenalized == 0 || varChargeNo == 0)
         {
           swal({

@@ -442,9 +442,14 @@ class home extends CI_Controller {
 		$data['collateral'] = $this->loanapplication_model->getCollateral($Id);
 		$data['chargeList'] = $this->loanapplication_model->displayCharges($Id);
 		$data['selectCharges'] = $this->loanapplication_model->selectCharges($Id);
+
 		$data['Payments'] = $this->loanapplication_model->getPaymentsMade($Id);
 		$data['disbursements'] = $this->maintenance_model->getPaymentMethod();
 		$data['bank'] = $this->loanapplication_model->getBank();
+
+		$data['paymentDates'] = $this->loanapplication_model->getPaymentDates($Id);
+		$data['paymentDues'] = $this->loanapplication_model->getDue($Id);
+
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
 		$this->load->view('transaction/loandetails', $data);
