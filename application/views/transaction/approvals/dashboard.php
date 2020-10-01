@@ -55,7 +55,7 @@
   var TotalInterest = 0;
   $('#dtblApproval').DataTable({
     "pageLength": 10,
-    "ajax": { url: '<?php echo base_url()."/datatables_controller/displayAllLoans/"; ?>', type: 'POST', "dataSrc": "" },
+    "ajax": { url: '<?php echo base_url()."/datatables_controller/displayAllApprovals/"; ?>', type: 'POST', "dataSrc": "" },
     "columns": [  { data: "TransactionNumber" }
       , { data: "LoanName" }
       , { data: "BorrowerName" }

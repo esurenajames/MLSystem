@@ -255,4 +255,14 @@ class datatables_controller extends CI_Controller {
 		echo json_encode($result);
 	}
 
+	function displayAllApprovals()
+	{
+		$result = $this->loanApplication_model->displayAllApprovals();
+		foreach($result as $key=>$row)
+		{
+			$result[$key]['CreatedBy'] = $this->maintenance_model->getUserCreated($row['CreatedBy']);
+		}
+		echo json_encode($result);
+	}
+
 }

@@ -632,7 +632,7 @@
             <ul class="nav nav-tabs">
               <li class="active"><a href="#tabHistory" data-toggle="tab" title="History"><span class="fa fa-clipboard"></span></a></li>
               <li><a href="#tabRepayments" data-toggle="tab" title="Repayments"><span class="fa fa-money"></span></a></li>
-              <li><a href="#tabPenalty" data-toggle="tab" title="Penalty Settings"><span class="fa fa-institution"></span></a></li>
+              <li><a href="#tabPenalty" data-toggle="tab" title="Penalties"><span class="fa fa-institution"></span></a></li>
               <li><a href="#tabCollateral" data-toggle="tab" title="Loan Collateral"><span class="fa fa-navicon "></span></a></li>
               <li><a href="#tabRequirements" data-toggle="tab" title="Loan Requirements"><span class="fa fa-clipboard "></span></a></li>
               <li><a href="#tabIncome" data-toggle="tab" title="Sources of Other Income"><span class="fa fa-credit-card "></span></a></li>
@@ -725,18 +725,59 @@
               </div>
               <div class="tab-pane" id="tabPenalty">
                 <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/penaltySettings/<?php print_r($detail['ApplicationId']) ?>" method="post">
-                	<h4>Penalty Settings</h4>
+                	<h4>Penalties</h4>
                 	<div class="row">
   	                <div class="col-md-12">
+                      <table id="dtblPenalty" class="table table-bordered table-hover" style="width: 100%">
+                        <thead>
+                        <tr>
+                          <th>Reference No</th>
+                          <th>Penalty Type</th>
+                          <th>Amount/Percentage</th>
+                          <th>Grace Period</th>
+                          <th>Total Penalty</th>
+                          <th>Date Creation</th>
+                          <th>Created By</th>
+                          <th>Status</th>
+                          <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <?php 
+                          $rowNumber = 0;
+                          if($DisplayPenalty != 0)
+                          {
+                            foreach ($DisplayPenalty as $value) 
+                            {
+                              if($value['StatusId'] == 1)
+                              {
+                                $status = '<span class="badge bg-green">Active</span>';
+                                $action = '<a class="btn btn-danger btn-sm" title="Deactivated" data-toggle="modal" data-target="#modalUpdate" ><span class="fa fa-close"></span></a>';
+                              }
+                              else 
+                              {
+                                $status = '<span class="badge bg-red">Deactivated</span>';
+                                $action = 'N/A';
+                              }
+                              echo "<tr>";
+                              echo "<td>".$value['ReferenceNo']."</td>";
+                              echo "<td>".$value['PenaltyType']."</td>";
+                              echo "<td>".$value['Amount']."</td>";
+                              echo "<td>".$value['GracePeriod']."</td>";
+                              echo "<td>".$value['TotalPenalty']."</td>";
+                              echo "<td>".$value['DateCreated']."</td>";
+                              echo "<td>".$value['CreatedBy']."</td>";
+                              echo "<td>".$status."</td>";
+                              echo '<td>'.$action.'</td> ';
+                              echo "</tr>";
+                            }
+                          }
+                        ?>
+                      </tbody>
+                      </table>
   	                </div>
   	                <br>
                 	</div>
-                  <div class="row">
-                    <div class="pull-right">
-                      <br>
-                      <button class="btn btn-sm btn-primary" type="submit">Save Changes</button>
-                    </div>
-                  </div>
                 </form>
               </div>
               <div class="tab-pane" id="tabCollateral">

@@ -895,7 +895,6 @@ class loanapplication_controller extends CI_Controller {
           );
           $insertNotificationTable = 'Application_has_Notifications';
           $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
-        
         // Insert Main Logs
           $auditDetail = ' Added ' .$IncomeName. ' to Reference #' .$ApplicationDetail['TransactionNumber'];
           $insertData = array(
