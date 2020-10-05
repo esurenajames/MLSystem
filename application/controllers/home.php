@@ -60,6 +60,7 @@ class home extends CI_Controller {
 	{
 		$sidebar['sidebar'] = 1;
 		$sidebar['sidebarMenu'] = 0;
+		$header['header'] = 'Banks';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$data['access'] = $this->sidebar_model->getAccess();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -74,6 +75,7 @@ class home extends CI_Controller {
 	{
 		$sidebar['sidebar'] = 1;
 		$sidebar['sidebarMenu'] = 0;
+		$header['header'] = 'Branches';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -87,6 +89,7 @@ class home extends CI_Controller {
 	{
 		$sidebar['sidebar'] = 1;
 		$sidebar['sidebarMenu'] = 0;
+		$header['header'] = 'Loan Types';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -101,6 +104,7 @@ class home extends CI_Controller {
 	{
 		$sidebar['sidebar'] = 1;
 		$sidebar['sidebarMenu'] = 0;
+		$header['header'] = 'Conditional Charges';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -115,6 +119,7 @@ class home extends CI_Controller {
 	{
 		$sidebar['sidebar'] = 1;
 		$sidebar['sidebarMenu'] = 0;
+		$header['header'] = 'Requirements';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -129,6 +134,7 @@ class home extends CI_Controller {
 	{
 		$sidebar['sidebar'] = 1;
 		$sidebar['sidebarMenu'] = 0;
+		$header['header'] = 'Positions';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -143,6 +149,7 @@ class home extends CI_Controller {
 	{
 		$sidebar['sidebar'] = 1;
 		$sidebar['sidebarMenu'] = 0;
+		$header['header'] = 'Optional Charges';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -157,6 +164,7 @@ class home extends CI_Controller {
 	{
 		$sidebar['sidebar'] = 1;
 		$sidebar['sidebarMenu'] = 0;
+		$header['header'] = 'Purpose';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -171,6 +179,7 @@ class home extends CI_Controller {
 	{
 		$sidebar['sidebar'] = 1;
 		$sidebar['sidebarMenu'] = 0;
+		$header['header'] = 'Methods for Payment';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -185,6 +194,7 @@ class home extends CI_Controller {
 	{
 		$sidebar['sidebar'] = 1;
 		$sidebar['sidebarMenu'] = 0;
+		$header['header'] = 'Asset Categories';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -215,6 +225,7 @@ class home extends CI_Controller {
 	{
 		$sidebar['sidebar'] = 1;
 		$sidebar['sidebarMenu'] = 0;
+		$header['header'] = 'Loan Status';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -243,6 +254,7 @@ class home extends CI_Controller {
 	{
 		$sidebar['sidebar'] = 1;
 		$sidebar['sidebarMenu'] = 0;
+		$header['header'] = 'Industries';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();

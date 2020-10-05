@@ -37,8 +37,8 @@
                   <div class="form-group">
                     <label for="ConditionalName">Name</label><br>
                     <input type="text" class="form-control" id="txtConditionalName" name="ConditionalName">
-                    <input type="" class="form-control" name="FormType" id="txtFormType" value="1">
-                    <input type="" class="form-control" id="txtChargeId" name="ChargeId">
+                    <input type="hidden" class="form-control" name="FormType" id="txtFormType" value="1">
+                    <input type="hidden" class="form-control" id="txtChargeId" name="ChargeId">
                   </div>
                 </div>
                 <div class="col-md-12">
@@ -49,11 +49,8 @@
                 </div>
                 <div class="col-md-12">
                   <div class="form-group">
-                    <label for="Frequency">Frequency</label>
-                    <select class="form-control" style="width: 100%" name="Frequency" id="selectFrequency">
-                      <option value="1">Daily</option>
-                      <option value="0">Monthly</option>
-                    </select>
+                    <label for="ConditionalName">Amount</label><br>
+                    <input type="number" class="form-control" id="txtAmount" name="Amount">
                   </div>
                 </div>
               </div>
@@ -147,7 +144,7 @@
                   <th>Type of Charge</th>
                   <th>Name</th>
                   <th>Description</th>
-                  <th>Frequency</th>
+                  <th>Amount</th>
                   <th>Status</th>
                   <th>Date Created</th>
                   <th>Date Updated</th>
@@ -260,7 +257,7 @@
         $('#selectCharges').val(data['Type']).change();
         $('#txtConditionalName').val(data['Name']);
         $('#txtDescription').val(data['Description']);
-        $('#selectFrequency').val(data['Frequency']).change();
+        $('#txtAmount').val(data['Amount']);
         $('#txtChargeId').val(ChargeId);
         $('#txtFormType').val(2);
       },
@@ -293,7 +290,7 @@
       "columns": [  { data: "ChargeType" }
                     , { data: "ChargeName" }
                     , { data: "Description" }
-                    , { data: "Frequency" }
+                    , { data: "Amount" }
                     , {
                       data: "StatusId", "render": function (data, type, row) {
                         if(row.StatusId == 1){

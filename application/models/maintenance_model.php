@@ -115,20 +115,15 @@ class maintenance_model extends CI_Model
     function getAllCharges()
     {
       $query_string = $this->db->query("SELECT CH.Name as ChargeName
-                                                , CH.Type as ChargeType
+                                                , ChargeType
                                                 , CASE 
-                                                    WHEN Type = 0
+                                                    WHEN ChargeType = 0
                                                     THEN 'Fixed Amount'
                                                     ELSE 'Percentage'
                                                   END as ChargeType
                                                 , ChargeId
                                                 , CH.Description
-                                                , CH.Frequency
-                                                , CASE
-                                                    WHEN Frequency = 0
-                                                    THEN 'Monthly'
-                                                    ELSE 'Daily'
-                                                  END as Frequency
+                                                , CH.Amount
                                                 , CH.CreatedBy
                                                 , CH.StatusId
                                                 , DATE_FORMAT(CH.DateCreated, '%d %b %Y %r') as DateCreated
@@ -177,7 +172,6 @@ class maintenance_model extends CI_Model
                                                 , PS.CreatedBy
                                                 , PS.StatusId
                                                 , DATE_FORMAT(PS.DateCreated, '%d %b %Y %r') as DateCreated
-                                                , DATE_FORMAT(PS.DateUpdated, '%d %b %Y %r') as DateUpdated
                                                 FROM R_Position PS
       ");
       $data = $query_string->result_array();

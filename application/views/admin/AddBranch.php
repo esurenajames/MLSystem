@@ -28,8 +28,8 @@
                   <div class="form-group">
                     <label for="Branch">Branch</label><br>
                     <input type="text" class="form-control" id="txtBranch" name="Branch">
-                    <input type="" class="form-control" id="txtFormType" name="FormType" value="1">
-                    <input type="" class="form-control" id="txtBranchId" name="BranchId">
+                    <input type="hidden" class="form-control" id="txtFormType" name="FormType" value="1">
+                    <input type="hidden" class="form-control" id="txtBranchId" name="BranchId">
                   </div>
                 </div>
                 <div class="col-md-6">

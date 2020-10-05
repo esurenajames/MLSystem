@@ -749,7 +749,7 @@ class admin_controller extends CI_Controller {
         'Type'                     => htmlentities($_POST['ChargeType'], ENT_QUOTES)
         , 'Name'                   => htmlentities($_POST['ConditionalName'], ENT_QUOTES)
         , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
-        , 'Frequency'              => htmlentities($_POST['Frequency'], ENT_QUOTES)
+        , 'Amount'              => htmlentities($_POST['Amount'], ENT_QUOTES)
       );
       $query = $this->admin_model->countCharges($data);
       print_r($query);
@@ -760,7 +760,7 @@ class admin_controller extends CI_Controller {
             'Type'                     => htmlentities($_POST['ChargeType'], ENT_QUOTES)
             , 'Name'                   => htmlentities($_POST['ConditionalName'], ENT_QUOTES)
             , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
-            , 'Frequency'              => htmlentities($_POST['Frequency'], ENT_QUOTES)
+            , 'Amount'              => htmlentities($_POST['Amount'], ENT_QUOTES)
             , 'CreatedBy'              => $EmployeeNumber
             , 'UpdatedBy'              => $EmployeeNumber
           );
@@ -787,7 +787,7 @@ class admin_controller extends CI_Controller {
         'Type'                     => htmlentities($_POST['ChargeType'], ENT_QUOTES)
         , 'Name'                   => htmlentities($_POST['ConditionalName'], ENT_QUOTES)
         , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
-        , 'Frequency'              => htmlentities($_POST['Frequency'], ENT_QUOTES)
+        , 'Amount'              => htmlentities($_POST['Amount'], ENT_QUOTES)
       );
       $query = $this->admin_model->countCharges($data);
       print_r($query);
@@ -853,10 +853,10 @@ class admin_controller extends CI_Controller {
             $table = 'R_Charges';
             $this->maintenance_model->updateFunction1($set, $condition, $table);
         }
-        if($ChargeDetail['Frequency'] != htmlentities($_POST['Frequency'], ENT_QUOTES))
+        if($ChargeDetail['Amount'] != htmlentities($_POST['Amount'], ENT_QUOTES))
         {
           // add into audit table
-            $auditDetail = 'Updated details of  '.$ChargeDetail['Frequency'].' to '.htmlentities($_POST['Frequency'], ENT_QUOTES);
+            $auditDetail = 'Updated details of  '.$ChargeDetail['Amount'].' to '.htmlentities($_POST['Amount'], ENT_QUOTES);
             $insertAudit = array(
               'Description' => $auditDetail,
               'CreatedBy' => $EmployeeNumber
@@ -865,7 +865,7 @@ class admin_controller extends CI_Controller {
             $this->maintenance_model->insertFunction($insertAudit, $auditTable);
           // update function
             $set = array( 
-            'Frequency'                     => htmlentities($_POST['Frequency'], ENT_QUOTES)
+            'Amount'                     => htmlentities($_POST['Amount'], ENT_QUOTES)
             );
             $condition = array( 
               'ChargeId' => $_POST['ChargeId']

@@ -752,7 +752,7 @@
                               if($value['StatusId'] == 1)
                               {
                                 $status = '<span class="badge bg-green">Active</span>';
-                                $action = '<a class="btn btn-danger btn-sm" title="Deactivated" data-toggle="modal" data-target="#modalUpdate" ><span class="fa fa-close"></span></a>';
+                                $action = '<a class="btn btn-danger btn-sm" title="Deactivated" data-toggle="modal" data-target="#modalUpdate" onclick="confirm" ><span class="fa fa-close"></span></a>';
                               }
                               else 
                               {
