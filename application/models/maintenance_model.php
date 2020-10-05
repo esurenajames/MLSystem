@@ -24,11 +24,11 @@ class maintenance_model extends CI_Model
     function IDCategory()
     {
       $query = $this->db->query("SELECT Name
-                                        , ID 
-                                        FROM r_IDCategory
+                                        , RequirementId as ID 
+                                        FROM r_requirements
                                           WHERE StatusId = 1
       ");
-      $output = '<option disabled selected value="">Document Type</option>';
+      $output = '<option disabled selected value="">Supporting Documents</option>';
       foreach ($query->result() as $row)
       {
         $output .= '<option value="'.$row->ID.'">'.$row->Name.'</option>';

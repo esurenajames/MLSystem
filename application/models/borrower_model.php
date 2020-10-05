@@ -1234,8 +1234,8 @@ class borrower_model extends CI_Model
                                                         ON BS.IdentificationId = I.IdentificationId
                                                     INNER JOIN r_employee EMP
                                                         ON EMP.EmployeeNumber = I.CreatedBy
-                                                    INNER JOIN r_IDCategory IC
-                                                        ON IC.ID = I.ID
+                                                    INNER JOIN R_Requirements IC
+                                                        ON IC.RequirementId = I.ID
                                                             WHERE BS.BorrowerId = $BorrowerId
       ");
       $data = $query_string->result_array();

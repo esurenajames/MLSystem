@@ -276,7 +276,7 @@
                 </div>
                 <div id="BD" class="">
                   <div class="row">
-                    <div class="col-md-12">
+                    <div class="col-md-12" id="divSelectBorrower">
                       <label>Select Borrower</label>
                       <select class="form-control select2" name="borrowerId" style="width: 100%" onchange="displayBorrowerDetails(this.value)" id="selectBorrowerNumber">
                         <?php
@@ -1977,6 +1977,18 @@
         }
       }
     });
+
+// FOR SPECIFIC BORROWER LOAN APPLICATION
+  if('<?php print_r($BorrowerId) ?>' != '')
+  {
+    $('#divSelectBorrower').hide();
+    $('#selectBorrowerNumber').val('<?php print_r($BorrowerId) ?>').change();
+  }
+  else
+  {
+    $('#divSelectBorrower').show();
+    $('#selectBorrowerNumber').val(0);
+  }
 
   })
 

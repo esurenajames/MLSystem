@@ -171,7 +171,7 @@
                 <div class="col-md-6">
                   <div class="form-group">
                     <label>Upload Attachment <span class="text-red">*</span></label>
-                    <input type="file" name="Attachment[]" required="" id="Attachment" accept=".jpeg, .jpg, .png">
+                    <input type="file" name="Attachment[]" required="" id="Attachment" accept=".jpeg, .jpg, .png, .pdf">
                   </div>
                 </div>
                 <div class="col-md-12">
@@ -968,7 +968,8 @@
                   </table>
                 </div>
                 <div class="tab-pane" id="tabLoanApplications">
-                  <!-- <button type="button" class="btn btn-sm btn-primary pull-right">Add Loan Application</button> -->
+                  <h4>LOAN APPLICATIONS</h4>
+                  <a class="btn btn-sm btn-primary pull-right" target="_blank" href="<?php echo base_url() ?>home/LoanApplication/<?php print_r($detail['BorrowerId']); ?>">Add Loan Application</a>
                   <br>
                   <br>
                   <br>
@@ -1132,7 +1133,7 @@
   var TotalInterest = 0;
   $('#dtblLoans').DataTable({
     "pageLength": 10,
-    "ajax": { url: '<?php echo base_url()."/datatables_controller/displayAllLoans/"; ?>', type: 'POST', "dataSrc": "" },
+    "ajax": { url: '<?php echo base_url()."/datatables_controller/displayBorrowerLoans/"; ?><?php print_r($detail['BorrowerId'])?>', type: 'POST', "dataSrc": "" },
     "columns": [  { data: "TransactionNumber" }
       , { data: "LoanName" }
       , { data: "PrincipalAmount" }
