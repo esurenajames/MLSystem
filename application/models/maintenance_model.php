@@ -134,6 +134,21 @@ class maintenance_model extends CI_Model
       return $data;
     }
 
+    function getAllOccupation()
+    {
+      $query_string = $this->db->query("SELECT OCCU.Name as OccupationName
+                                                , OCCU.Description
+                                                , OCCU.CreatedBy
+                                                , OCCU.StatusId
+                                                , OccupationId
+                                                , DATE_FORMAT(OCCU.DateCreated, '%d %b %Y %r') as DateCreated
+                                                , DATE_FORMAT(OCCU.DateUpdated, '%d %b %Y %r') as DateUpdated
+                                                FROM R_Occupation OCCU
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
     function getAllOptional()
     {
       $query_string = $this->db->query("SELECT OC.Name as OptionalName

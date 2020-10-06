@@ -463,6 +463,28 @@ class admin_model extends CI_Model
       return $data;
     }
 
+    function getOccupationDetails($Id)
+    {
+      $query_string = $this->db->query("SELECT  OCCU.Name
+                                                , OCCU.Description
+                                                FROM R_Occupation OCCU 
+                                                  WHERE OccupationId = '$Id'
+      ");
+      $OccupationDetail = $query_string->row_array();
+      return $OccupationDetail;
+    }
+
+    function countOccupation($data)
+    {
+      $query_string = $this->db->query("SELECT  * 
+                                                FROM R_Occupation OCCU
+                                                  WHERE OCCU.Name = '".$data['Name']."'
+                                                  AND OCCU.Description = '".$data['Description']."'
+      ");
+      $data = $query_string->num_rows();
+      return $data;
+    }
+
     function updateStatus($input)
     {
       $EmployeeNumber = $this->session->userdata('EmployeeNumber');
@@ -944,7 +966,43 @@ class admin_model extends CI_Model
           );
           $this->db->insert('R_Logs', $data2);
       }
+      else if($input['tableType'] == 'Occupation')
+      {
+        $OccupationDetail = $this->db->query("SELECT  Name
+                                                    FROM R_Occupation OCCU
+                                                      WHERE OccupationId = ".$input['Id']."
+        ")->row_array();
+
+        // update status
+          $set = array(
+            'StatusId' => $input['updateType'],
+            'UpdatedBy' => $EmployeeNumber,
+            'DateUpdated' => $DateNow,
+          );
+          $condition = array(
+            'OccupationId' => $input['Id']
+          );
+          $table = 'R_Occupation';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+        // insert into logs
+          if($input['updateType'] == 1)
+          {
+            $Description = 'Re-activated ' .$OccupationDetail['Name']. ' at the Occupations Module'; // main log
+          }
+          else if($input['updateType'] == 0)
+          {
+            $Description = 'Deactivated ' .$OccupationDetail['Name']. '  at the Occupations Module'; // main log
+          }
+          $data2 = array(
+            'Description'   => $Description,
+            'CreatedBy'     => $EmployeeNumber,
+            'DateCreated'   => $DateNow
+          );
+          $this->db->insert('R_Logs', $data2);
+      }
     }
+
+    
 
 
 

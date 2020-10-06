@@ -2161,6 +2161,111 @@ class admin_controller extends CI_Controller {
     }
   }
 
+  function AddOccupation()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $OccupationDetail = $this->admin_model->getOccupationDetails($_POST['OccupationId']);
+    if ($_POST['FormType'] == 1) // add Occupation
+    {
+      $data = array(
+        'Name'                     => htmlentities($_POST['Occupation'], ENT_QUOTES)
+        , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
+      );
+      $query = $this->admin_model->countOccupation($data);
+      print_r($query);
+      if($query == 0) // not existing
+      {
+        // insert Occupation details
+          $insertOccupation = array(
+            'Name'                     => htmlentities($_POST['Occupation'], ENT_QUOTES)
+            , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
+            , 'CreatedBy'              => $EmployeeNumber
+            , 'UpdatedBy'              => $EmployeeNumber
+          );
+          $insertOccupationTable = 'R_Occupation';
+          $this->maintenance_model->insertFunction($insertOccupation, $insertOccupationTable);
+        // notification
+          $this->session->set_flashdata('alertTitle','Success!'); 
+          $this->session->set_flashdata('alertText','Occupation detail successfully recorded!'); 
+          $this->session->set_flashdata('alertType','success'); 
+          redirect('home/AddOccupation/'. $EmployeeId['EmployeeId']);
+      }
+      else
+      {
+        // notification
+          $this->session->set_flashdata('alertTitle','Warning!'); 
+          $this->session->set_flashdata('alertText','Occupation detail already existing!'); 
+          $this->session->set_flashdata('alertType','warning'); 
+          redirect('home/AddOccupation');
+      }
+    }
+    else if($_POST['FormType'] == 2) // Edit Occupation 
+    {
+      $data = array(
+        'Name'                     => htmlentities($_POST['Occupation'], ENT_QUOTES)
+        , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
+      );
+      $query = $this->admin_model->countOccupation($data);
+      print_r($query);
+      if($query == 0)
+      {
+        if($OccupationDetail['Name'] != htmlentities($_POST['Occupation'], ENT_QUOTES))
+        {
+          // add into audit table
+            $auditDetail = 'Updated details of  '.$OccupationDetail['Name'].' to '.htmlentities($_POST['Occupation'], ENT_QUOTES);
+            $insertAudit = array(
+              'Description' => $auditDetail,
+              'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'R_Logs';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+          // update function
+            $set = array( 
+            'Name'                     => htmlentities($_POST['Occupation'], ENT_QUOTES)
+            );
+            $condition = array( 
+              'OccupationId' => $_POST['OccupationId']
+            );
+            $table = 'R_Occupation';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+        }
+        if($OccupationDetail['Description'] != htmlentities($_POST['Description'], ENT_QUOTES))
+        {
+          // add into audit table
+            $auditDetail = 'Updated details of  '.$OccupationDetail['Description'].' to '.htmlentities($_POST['Description'], ENT_QUOTES);
+            $insertAudit = array(
+              'Description' => $auditDetail,
+              'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'R_Logs';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+          // update function
+            $set = array( 
+            'Description'                     => htmlentities($_POST['Description'], ENT_QUOTES)
+            );
+            $condition = array( 
+              'OccupationId' => $_POST['OccupationId']
+            );
+            $table = 'R_Occupation';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+        }
+      // notif
+        $this->session->set_flashdata('alertTitle','Success!'); 
+        $this->session->set_flashdata('alertText','Occupation details successfully updated!'); 
+        $this->session->set_flashdata('alertType','success'); 
+        redirect('home/AddOccupation/');
+      }
+      else // if existing
+      {
+        // notif
+        $this->session->set_flashdata('alertTitle','Warning!'); 
+        $this->session->set_flashdata('alertText','Occupation details already existing!'); 
+        $this->session->set_flashdata('alertType','warning'); 
+        redirect('home/AddOccupation/');
+      }
+    }
+  }
+
   function getBankDetails()
   {
     $output = $this->admin_model->getBankDetails($this->input->post('Id'));
@@ -2255,6 +2360,13 @@ class admin_controller extends CI_Controller {
   function getAssetManagementDetails()
   {
     $output = $this->admin_model->getAssetManagementDetails($this->input->post('Id'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getOccupationDetails()
+  {
+    $output = $this->admin_model->getOccupationDetails($this->input->post('Id'));
     $this->output->set_output(print(json_encode($output)));
     exit();
   }

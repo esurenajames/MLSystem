@@ -130,6 +130,7 @@
               <li <?php if($sidebar == 2 && $sidebarMenu == 3){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddBank"><i class="fa fa-circle-o"></i>Banks</a></li>
               <li ><a href="<?php echo base_url();?>home/AddBranch"><i class="fa fa-circle-o"></i> <span>Branches</span></a></li>
               <li ><a href="<?php echo base_url();?>home/AddIndustry"><i class="fa fa-circle-o"></i> <span>Industries</span></a></li>
+              <li <?php if($sidebar == 2 && $sidebarMenu == 3){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddOccupation"><i class="fa fa-circle-o"></i>Occupations</a></li>
               <li ><a href="<?php echo base_url();?>home/AddRequirement"><i class="fa fa-circle-o"></i> <span>Requirements</span></a></li>
               <li <?php if($sidebar == 2 && $sidebarMenu == 3){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddEducation"><i class="fa fa-circle-o"></i>Education Levels</a></li>
               <li ><a href="<?php echo base_url();?>home/AddPosition"><i class="fa fa-circle-o"></i> <span>Positions</span></a></li>

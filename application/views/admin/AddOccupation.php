@@ -4,53 +4,38 @@
   <!-- Content Header (Page header) -->
   <section class="content-header">
     <h1>
-      Additional Charges
+      Occupations
     </h1>
     <ol class="breadcrumb">
       <li><a href="#" class="active"><i class="fa fa-dashboard"></i>System Setup</a></li>
-      <li><a href="#">Additional Chaarges</a></li>
+      <li><a href="#">Occupations</a></li>
     </ol>
   </section>
 
 
-    <div class="modal fade" id="modalNewCharges">
+    <div class="modal fade" id="modalNewOccupation">
     <div class="modal-dialog modal-md">
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">Additional Charge Details</h4>
+          <h4 class="modal-title">Occupation Details</h4>
         </div>
-        <form action="<?php echo base_url(); ?>admin_controller/AddCharge/" id="frmInsert2" method="post">
+        <form action="<?php echo base_url(); ?>admin_controller/AddOccupation/" id="frmInsert2" method="post">
           <div class="modal-body">
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label for="ConditionalType">Type</label><br>
-                    <select class="form-control" style="width: 100%" name="ChargeType" id="selectCharges">
-                      <option value="1">Percentage</option>
-                      <option value="0">Fixed Amount</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="ConditionalName">Name</label><br>
-                    <input type="text" class="form-control" id="txtConditionalName" name="ConditionalName">
-                    <input type="hidden" class="form-control" name="FormType" id="txtFormType" value="1">
-                    <input type="hidden" class="form-control" id="txtChargeId" name="ChargeId">
+                    <label for="Optional">Name</label><br>
+                    <input type="text" class="form-control" id="txtOccupation" name="Occupation">
+                    <input type="hidden" class="form-control" id="txtFormType" name="FormType" value="1">
+                    <input type="hidden" class="form-control" id="txtOccupationId" name="OccupationId">
                   </div>
                 </div>
                 <div class="col-md-12">
                   <div class="form-group">
                     <label for="Description">Description</label>
                     <textarea type="text" class="form-control" id="txtDescription" name="Description" placeholder="Description"></textarea>
-                  </div>
-                </div>
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label for="ConditionalName">Amount</label><br>
-                    <input type="number" class="form-control" id="txtAmount" name="Amount">
                   </div>
                 </div>
               </div>
@@ -68,83 +53,21 @@
 
     <!-- Main content -->
     <section class="content">
-      <?php foreach ($access as $rows){ if($rows['RoleId'] == 3 || $rows['RoleId'] == 4) /*employee | top management*/ { ?>    
-        <div class="row">
-          <div class="col-md-3 col-sm-6 col-xs-12">
-            <div class="info-box">
-              <span class="info-box-icon bg-aqua"><i class="ion ion-ios-people-outline"></i></span>
-
-              <div class="info-box-content">
-                <span class="info-box-text">Total <br> Borrowers</span>
-                <span class="info-box-number">10</span>
-              </div>
-              <!-- /.info-box-content -->
-            </div>
-            <!-- /.info-box -->
-          </div>
-          <!-- /.col -->
-          <div class="col-md-3 col-sm-6 col-xs-12">
-            <div class="info-box">
-              <span class="info-box-icon bg-info"><i class="fa fa-folder-open"></i></span>
-
-              <div class="info-box-content">
-                <span class="info-box-text">Loans Released</span>
-                <span class="info-box-number">10</span>
-              </div>
-              <!-- /.info-box-content -->
-            </div>
-            <!-- /.info-box -->
-          </div>
-          <!-- /.col -->
-
-          <!-- fix for small devices only -->
-          <div class="clearfix visible-sm-block"></div>
-
-          <div class="col-md-3 col-sm-6 col-xs-12">
-            <div class="info-box">
-              <span class="info-box-icon bg-green"><i class="ion ion-ios-calculator"></i></span>
-
-              <div class="info-box-content">
-                <span class="info-box-text">Payments <br> Collected</span>
-                <span class="info-box-number">Php 23,000</span>
-              </div>
-              <!-- /.info-box-content -->
-            </div>
-            <!-- /.info-box -->
-          </div>
-          <!-- /.col -->
-          <div class="col-md-3 col-sm-6 col-xs-12">
-            <div class="info-box">
-              <span class="info-box-icon bg-yellow"><i class="ion ion-ios-briefcase-outline"></i></span>
-
-              <div class="info-box-content">
-                <span class="info-box-text">Due Amount</span>
-                <span class="info-box-number">Php 2,000</span>
-              </div>
-              <!-- /.info-box-content -->
-            </div>
-            <!-- /.info-box -->
-          </div>
-          <!-- /.col -->
-        </div>     
-      <?php } if($rows['RoleId'] == 1) /*admin*/ { ?>
         <!-- Default box -->
         <div class="box">
           <div class="box-header with-border">
-            <h3 class="box-title">List of Additional Charges</h3>
+            <h3 class="box-title">List of Occupations</h3>
           </div>
           <div class="box-body">
-            <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewCharges">Add Additional Charge</button>
+            <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewOccupation">Add Occupation</button>
             <br>
             <br>
             <form name="ApproverDocForm" method="post" id="ApproverDocForm">
               <table id="example1" class="table table-bordered table-hover">
                 <thead>
                 <tr>
-                  <th>Type of Charge</th>
                   <th>Name</th>
                   <th>Description</th>
-                  <th>Amount</th>
                   <th>Status</th>
                   <th>Date Created</th>
                   <th>Date Updated</th>
@@ -158,7 +81,6 @@
           </div>
         </div>
         <!-- /.box -->
-      <?php } } ?> 
     </section>
   <!-- /.content -->
 </div>
@@ -190,7 +112,7 @@
     });
   }
   
-  function confirm(Text, ChargeId, updateType)
+  function confirm(Text, OccupationId, updateType)
   { 
     swal({
       title: 'Confirm',
@@ -206,9 +128,9 @@
           url: "<?php echo base_url();?>" + "/admin_controller/updateStatus",
           method: "POST",
           data:   {
-                    Id : ChargeId
+                    Id : OccupationId
                     , updateType : updateType
-                    , tableType : 'Charge'
+                    , tableType : 'Occupation'
                   },
           beforeSend: function(){
               $('.loading').show();
@@ -218,7 +140,7 @@
             refreshPage();
             swal({
               title: 'Success!',
-              text: 'Charge successfully updated!',
+              text: 'Occupation successfully updated!',
               type: 'success',
               buttonsStyling: false,
               confirmButtonClass: 'btn btn-primary'
@@ -239,14 +161,14 @@
     });
   }
 
-  function Edit(ChargeId)
+  function Edit(OccupationId)
   {
     $.ajax({
-      url: '<?php echo base_url()?>' + "/admin_controller/getChargeDetails",
+      url: '<?php echo base_url()?>' + "/admin_controller/getOccupationDetails",
       type: "POST",
       async: false,
       data: {
-        Id : ChargeId
+        Id : OccupationId
       },
       dataType: "JSON",
       beforeSend: function(){
@@ -254,11 +176,9 @@
       },
       success: function(data)
       {
-        $('#selectCharges').val(data['Type']).change();
-        $('#txtConditionalName').val(data['Name']);
+        $('#txtOccupation').val(data['Name']);
         $('#txtDescription').val(data['Description']);
-        $('#txtAmount').val(data['Amount']);
-        $('#txtChargeId').val(ChargeId);
+        $('#txtOccupationId').val(OccupationId);
         $('#txtFormType').val(2);
       },
 
@@ -279,18 +199,16 @@
   }
 
   function refreshPage(){
-    var url = '<?php echo base_url()."datatables_controller/Charges/"; ?>';
+    var url = '<?php echo base_url()."datatables_controller/Occupations/"; ?>';
     UserTable.ajax.url(url).load();
   }
 
   $(function () {
     UserTable = $('#example1').DataTable({
       "pageLength": 10,
-      "ajax": { url: '<?php echo base_url()."/datatables_controller/Charges/"; ?>', type: 'POST', "dataSrc": "" },
-      "columns": [  { data: "ChargeType" }
-                    , { data: "ChargeName" }
+      "ajax": { url: '<?php echo base_url()."/datatables_controller/Occupations/"; ?>', type: 'POST', "dataSrc": "" },
+      "columns": [  { data: "OccupationName" }
                     , { data: "Description" }
-                    , { data: "Amount" }
                     , {
                       data: "StatusId", "render": function (data, type, row) {
                         if(row.StatusId == 1){
@@ -309,10 +227,10 @@
                     {
                       data: "StatusId", "render": function (data, type, row) {
                       if(row.StatusId == 1){
-                          return '<a onclick="confirm(\'Are you sure you want to deactivate this charge?\', \''+row.ChargeId+'\', 0)" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a> <a onclick="Edit('+row.ChargeId+')" data-toggle="modal" data-target="#modalNewCharges" class="btn btn-info" title="Edit"><span class="fa fa-edit"></span></a>';
+                          return '<a onclick="confirm(\'Are you sure you want to deactivate this Occupation?\', \''+row.OccupationId+'\', 0)" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a> <a onclick="Edit('+row.OccupationId+')" data-toggle="modal" data-target="#modalNewOccupation" class="btn btn-info" title="Edit"><span class="fa fa-edit"></span></a>';
                         }
                         else if(row.StatusId == 0){
-                          return '<a onclick="confirm(\'Are you sure you want to re-activate this charge?\', \''+row.ChargeId+'\', 1)" class="btn btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
+                          return '<a onclick="confirm(\'Are you sure you want to re-activate this Occupation?\', \''+row.OccupationId+'\', 1)" class="btn btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
                         }
                         else{
                           return "N/A";
@@ -377,7 +295,7 @@
     }, function(start, end, label){
     });
 
-    $('#modalNewCharges').on('hide.bs.modal', function () {
+    $('#modalNewOptional').on('hide.bs.modal', function () {
       $('#txtFormType').val(1)
     })
 

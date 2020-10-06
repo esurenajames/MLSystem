@@ -104,7 +104,7 @@ class home extends CI_Controller {
 	{
 		$sidebar['sidebar'] = 1;
 		$sidebar['sidebarMenu'] = 0;
-		$header['header'] = 'Conditional Charges';
+		$header['header'] = 'Additional Charges';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -113,6 +113,21 @@ class home extends CI_Controller {
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
 		$this->load->view('admin/AddConditional', $data);
+	}
+
+	function AddOccupation()
+	{
+		$sidebar['sidebar'] = 2;
+		$sidebar['sidebarMenu'] = 3;
+		$header['header'] = 'Occupations';
+		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['access'] = $this->sidebar_model->getAccess();
+
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('admin/AddOccupation', $data);
 	}
 
 	function AddRequirement()
@@ -603,6 +618,7 @@ class home extends CI_Controller {
 		$Id = $this->uri->segment(3);
 		$sidebar['sidebar'] = 0;
 		$sidebar['sidebarMenu'] = 0;
+		$header['header'] = 'User Profile';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
