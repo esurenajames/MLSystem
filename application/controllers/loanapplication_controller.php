@@ -73,12 +73,6 @@ class loanapplication_controller extends CI_Controller {
         'BorrowerMonthlyIncome'     => $_POST['BorrowerMonthlySalary'],
         'SpouseMonthlyIncome'       => $_POST['SpouseMonthlySalary'],
 
-        'IsPenalized'               => isset($_POST['IsPenalized']),
-        'PenaltyType'               => $_POST['PenaltyType'],
-        'PenaltyAmount'             => $_POST['PenaltyAmount'],
-        'GracePeriod'               => $_POST['GracePeriod'],
-
-
         'PurposeId'                 => $_POST['PurposeId'],
         'LoanReleaseDate'           => $_POST['loanReleaseDate'],
         'DisbursementId'            => $_POST['DisbursedBy'],
@@ -210,14 +204,31 @@ class loanapplication_controller extends CI_Controller {
         {
           if($_POST['isRequirementSelected'][$count] == 1)
           {
-            $insertData = array(
-              'ApplicationId'         => $generatedId['ApplicationId'],
-              'RequirementId'         => $_POST['RequirementId'][$count],
-              'StatusId'              => 5,
-              'CreatedBy'             => $EmployeeNumber
-            );
-            $auditTable = 'application_has_requirements';
-            $this->maintenance_model->insertFunction($insertData, $auditTable);
+            // check if already submitted or not
+              $requirementId = $this->maintenance_model->selectSpecific('borrower_has_supportdocuments', 'BorrowerId', $_POST['borrowerId']);
+              if($requirementId['IdentificationId'] == $_POST['RequirementId'][$count] && $requirementId['StatusId'] == 1)
+              {
+                $insertData = array(
+                  'ApplicationId'         => $generatedId['ApplicationId'],
+                  'RequirementId'         => $_POST['RequirementId'][$count],
+                  'StatusId'              => 7,
+                  'CreatedBy'             => $EmployeeNumber
+                );
+                $auditTable = 'application_has_requirements';
+                $this->maintenance_model->insertFunction($insertData, $auditTable);
+              }
+              else // not existing
+              {
+                $insertData = array(
+                  'ApplicationId'         => $generatedId['ApplicationId'],
+                  'RequirementId'         => $_POST['RequirementId'][$count],
+                  'StatusId'              => 5,
+                  'CreatedBy'             => $EmployeeNumber
+                );
+                $auditTable = 'application_has_requirements';
+                $this->maintenance_model->insertFunction($insertData, $auditTable);
+              }
+
           }
         }
       }
@@ -254,6 +265,281 @@ class loanapplication_controller extends CI_Controller {
       $this->session->set_flashdata('alertType','success'); 
     
     redirect('home/loandetail/' . $generatedId['ApplicationId']);
+  }
+
+  function restructureLoan()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $DateNow = date("Y-m-d H:i:s");
+
+    $ApplicationDetail = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $this->uri->segment(3));
+    if($_POST['PrincipalAmount'] != $ApplicationDetail['PrincipalAmount'])
+    {
+      // insert Application_has_notification
+        $insertNotification = array(
+          'Description'                   => 'Restructured loan amount from Php' . number_format($ApplicationDetail['PrincipalAmount'], 2) . ' to Php' . number_format($_POST['PrincipalAmount'], 2)
+          , 'ApplicationId'               => $this->uri->segment(3)
+          , 'CreatedBy'                   => $EmployeeNumber
+        );
+        $insertNotificationTable = 'Application_has_Notifications';
+        $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
+      // main audits
+        $RefNo = $this->maintenance_model->selectSpecific('t_application', 'ApplicationId', $this->uri->segment(3));
+        $insertData2 = array(
+          'Description' => 'Restructured loan amount of application #'.$RefNo.' from Php' . number_format($ApplicationDetail['PrincipalAmount'], 2) . ' to Php' . number_format($_POST['PrincipalAmount'], 2)
+          , 'CreatedBy' => $EmployeeNumber
+        );
+        $auditTable1 = 'Employee_has_Notifications';
+        $auditTable2 = 'R_Logs';
+        $this->maintenance_model->insertFunction($insertData2, $auditTable1);
+        $this->maintenance_model->insertFunction($insertData2, $auditTable2);
+      // update
+        $set = array( 
+          'DateUpdated'       => $DateNow, 
+          'UpdatedBy'         => $EmployeeNumber, 
+          'PrincipalAmount'   => $_POST['PrincipalAmount'], 
+        );
+        $condition = array( 
+          'ApplicationId'   => $this->uri->segment(3),
+        );
+        $table = 'T_Application';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+    }
+    if($_POST['TermType'] != $ApplicationDetail['TermType'])
+    {
+      // insert Application_has_notification
+        $insertNotification = array(
+          'Description'                   => 'Restructured term type from ' . $ApplicationDetail['TermType'] . ' to ' . $_POST['TermType']
+          , 'ApplicationId'               => $this->uri->segment(3)
+          , 'CreatedBy'                   => $EmployeeNumber
+        );
+        $insertNotificationTable = 'Application_has_Notifications';
+        $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
+      // main audits
+        $RefNo = $this->maintenance_model->selectSpecific('t_application', 'ApplicationId', $this->uri->segment(3));
+        $insertData2 = array(
+          'Description'   => 'Restructured term type from ' . $ApplicationDetail['TermType'] . ' to ' . $_POST['TermType']
+          , 'CreatedBy'   => $EmployeeNumber
+        );
+        $auditTable1 = 'Employee_has_Notifications';
+        $auditTable2 = 'R_Logs';
+        $this->maintenance_model->insertFunction($insertData2, $auditTable1);
+        $this->maintenance_model->insertFunction($insertData2, $auditTable2);
+      // update
+        $set = array( 
+          'DateUpdated' => $DateNow, 
+          'UpdatedBy'   => $EmployeeNumber, 
+          'TermType'    => $_POST['TermType']
+        );
+        $condition = array( 
+          'ApplicationId'   => $this->uri->segment(3),
+        );
+        $table = 'T_Application';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+    }
+    if($_POST['TermNumber'] != $ApplicationDetail['TermNo'])
+    {
+      // insert Application_has_notification
+        $insertNotification = array(
+          'Description'                   => 'Restructured term number from ' . $ApplicationDetail['TermNo'] . ' to ' . $_POST['TermNumber']
+          , 'ApplicationId'               => $this->uri->segment(3)
+          , 'CreatedBy'                   => $EmployeeNumber
+        );
+        $insertNotificationTable = 'Application_has_Notifications';
+        $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
+      // main audits
+        $RefNo = $this->maintenance_model->selectSpecific('t_application', 'ApplicationId', $this->uri->segment(3));
+        $insertData2 = array(
+          'Description'   => 'Restructured term number from ' . $ApplicationDetail['TermNo'] . ' to ' . $_POST['TermNumber']
+          , 'CreatedBy'   => $EmployeeNumber
+        );
+        $auditTable1 = 'Employee_has_Notifications';
+        $auditTable2 = 'R_Logs';
+        $this->maintenance_model->insertFunction($insertData2, $auditTable1);
+        $this->maintenance_model->insertFunction($insertData2, $auditTable2);
+      // update
+        $set = array( 
+          'DateUpdated'       => $DateNow, 
+          'UpdatedBy'         => $EmployeeNumber, 
+          'TermNo'            => $_POST['TermNumber'], 
+        );
+        $condition = array( 
+          'ApplicationId'   => $this->uri->segment(3),
+        );
+        $table = 'T_Application';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+    }
+    if($_POST['RepaymentCycle'] != $ApplicationDetail['RepaymentId'])
+    {
+      // get repayment details
+        $oldRepayment = $this->loanapplication_model->getRepaymentDets($this->uri->segment(3), $ApplicationDetail['RepaymentId']);
+        $newRepayment = $this->loanapplication_model->getRepaymentDets($this->uri->segment(3), $_POST['RepaymentCycle']);
+      // insert Application_has_notification
+        $insertNotification = array(
+          'Description'                   => 'Restructured repayment cycle from ' . $oldRepayment['Name'] . ' to ' . $newRepayment['Name']
+          , 'ApplicationId'               => $this->uri->segment(3)
+          , 'CreatedBy'                   => $EmployeeNumber
+        );
+        $insertNotificationTable = 'Application_has_Notifications';
+        $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
+      // main audits
+        $RefNo = $this->maintenance_model->selectSpecific('t_application', 'ApplicationId', $this->uri->segment(3));
+        $insertData2 = array(
+          'Description'   => 'Restructured repayment cycle from ' . $oldRepayment['Name'] . ' to ' . $newRepayment['Name']
+          , 'CreatedBy'   => $EmployeeNumber
+        );
+        $auditTable1 = 'Employee_has_Notifications';
+        $auditTable2 = 'R_Logs';
+        $this->maintenance_model->insertFunction($insertData2, $auditTable1);
+        $this->maintenance_model->insertFunction($insertData2, $auditTable2);
+      // update
+        $set = array( 
+          'DateUpdated'       => $DateNow, 
+          'UpdatedBy'         => $EmployeeNumber, 
+          'RepaymentId'       => $_POST['RepaymentCycle'], 
+        );
+        $condition = array( 
+          'ApplicationId'   => $this->uri->segment(3),
+        );
+        $table = 'T_Application';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+    }
+    if($_POST['RepaymentsNumber'] != $ApplicationDetail['RepaymentNo'])
+    {
+      // insert Application_has_notification
+        $insertNotification = array(
+          'Description'                   => 'Restructured repayment number from ' . $ApplicationDetail['RepaymentNo'] . ' to ' . $_POST['RepaymentsNumber']
+          , 'ApplicationId'               => $this->uri->segment(3)
+          , 'CreatedBy'                   => $EmployeeNumber
+        );
+        $insertNotificationTable = 'Application_has_Notifications';
+        $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
+      // main audits
+        $RefNo = $this->maintenance_model->selectSpecific('t_application', 'ApplicationId', $this->uri->segment(3));
+        $insertData2 = array(
+          'Description'   => 'Restructured repayment number from ' . $ApplicationDetail['RepaymentNo'] . ' to ' . $_POST['RepaymentsNumber']
+          , 'CreatedBy'   => $EmployeeNumber
+        );
+        $auditTable1 = 'Employee_has_Notifications';
+        $auditTable2 = 'R_Logs';
+        $this->maintenance_model->insertFunction($insertData2, $auditTable1);
+        $this->maintenance_model->insertFunction($insertData2, $auditTable2);
+      // update
+        $set = array( 
+          'DateUpdated'       => $DateNow, 
+          'UpdatedBy'         => $EmployeeNumber, 
+          'RepaymentNo'       => $_POST['RepaymentsNumber'], 
+        );
+        $condition = array( 
+          'ApplicationId'   => $this->uri->segment(3),
+        );
+        $table = 'T_Application';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+    }
+
+    $interestDetail = $this->maintenance_model->selectSpecific('application_has_interests', 'ApplicationId', $this->uri->segment(3));
+    if($_POST['interestType'] != $interestDetail['InterestType'])
+    {
+      // insert Application_has_notification
+        $insertNotification = array(
+          'Description'                   => 'Restructured repayment number from ' . $interestDetail['InterestType'] . ' to ' . $_POST['interestType']
+          , 'ApplicationId'               => $this->uri->segment(3)
+          , 'CreatedBy'                   => $EmployeeNumber
+        );
+        $insertNotificationTable = 'Application_has_Notifications';
+        $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
+      // main audits
+        $RefNo = $this->maintenance_model->selectSpecific('t_application', 'ApplicationId', $this->uri->segment(3));
+        $insertData2 = array(
+          'Description'   => 'Restructured interest type from ' . $interestDetail['InterestType'] . ' to ' . $_POST['interestType']
+          , 'CreatedBy'   => $EmployeeNumber
+        );
+        $auditTable1 = 'Employee_has_Notifications';
+        $auditTable2 = 'R_Logs';
+        $this->maintenance_model->insertFunction($insertData2, $auditTable1);
+        $this->maintenance_model->insertFunction($insertData2, $auditTable2);
+      // update
+        $set = array( 
+          'DateUpdated'         => $DateNow, 
+          'UpdatedBy'           => $EmployeeNumber, 
+          'InterestType'        => $_POST['interestType'], 
+        );
+        $condition = array( 
+          'ApplicationId'   => $this->uri->segment(3),
+        );
+        $table = 'application_has_interests';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+    }
+    if($_POST['interestAmount'] != $interestDetail['Amount'])
+    {
+      // insert Application_has_notification
+        $insertNotification = array(
+          'Description'                   => 'Restructured interest amount from ' . $interestDetail['Amount'] . ' to ' . $_POST['interestAmount']
+          , 'ApplicationId'               => $this->uri->segment(3)
+          , 'CreatedBy'                   => $EmployeeNumber
+        );
+        $insertNotificationTable = 'Application_has_Notifications';
+        $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
+      // main audits
+        $RefNo = $this->maintenance_model->selectSpecific('t_application', 'ApplicationId', $this->uri->segment(3));
+        $insertData2 = array(
+          'Description'   => 'Restructured interest amount from ' . $interestDetail['Amount'] . ' to ' . $_POST['interestAmount']
+          , 'CreatedBy'   => $EmployeeNumber
+        );
+        $auditTable1 = 'Employee_has_Notifications';
+        $auditTable2 = 'R_Logs';
+        $this->maintenance_model->insertFunction($insertData2, $auditTable1);
+        $this->maintenance_model->insertFunction($insertData2, $auditTable2);
+      // update
+        $set = array( 
+          'DateUpdated'         => $DateNow, 
+          'UpdatedBy'           => $EmployeeNumber, 
+          'Amount'              => $_POST['interestAmount'], 
+        );
+        $condition = array( 
+          'ApplicationId'   => $this->uri->segment(3),
+        );
+        $table = 'application_has_interests';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+    }
+    if($_POST['interestFrequency'] != $interestDetail['Frequency'])
+    {
+      // insert Application_has_notification
+        $insertNotification = array(
+          'Description'                   => 'Restructured interest frequency from ' . $interestDetail['Frequency'] . ' to ' . $_POST['interestType']
+          , 'ApplicationId'               => $this->uri->segment(3)
+          , 'CreatedBy'                   => $EmployeeNumber
+        );
+        $insertNotificationTable = 'Application_has_Notifications';
+        $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
+      // main audits
+        $RefNo = $this->maintenance_model->selectSpecific('t_application', 'ApplicationId', $this->uri->segment(3));
+        $insertData2 = array(
+          'Description'   => 'Restructured interest frequency from ' . $interestDetail['Frequency'] . ' to ' . $_POST['interestFrequency']
+          , 'CreatedBy'   => $EmployeeNumber
+        );
+        $auditTable1 = 'Employee_has_Notifications';
+        $auditTable2 = 'R_Logs';
+        $this->maintenance_model->insertFunction($insertData2, $auditTable1);
+        $this->maintenance_model->insertFunction($insertData2, $auditTable2);
+      // update
+        $set = array( 
+          'DateUpdated'      => $DateNow, 
+          'UpdatedBy'        => $EmployeeNumber, 
+          'Frequency'        => $_POST['interestFrequency'], 
+        );
+        $condition = array( 
+          'ApplicationId'   => $this->uri->segment(3),
+        );
+        $table = 'application_has_interests';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+    }
+    
+    $this->session->set_flashdata('alertTitle','Success!'); 
+    $this->session->set_flashdata('alertText','Successfully restructured loan!'); 
+    $this->session->set_flashdata('alertType','success'); 
+    redirect('home/loandetail/' . $this->uri->segment(3));
+
   }
 
   function loanapproval()
@@ -1232,7 +1518,7 @@ class loanapplication_controller extends CI_Controller {
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $DateNow = date("Y-m-d H:i:s");
-    if($_POST['FormType'] == 1)
+    if($_POST['modalType'] == '') // add
     {
       // collateral details
         $string1 = strtotime($_POST['dateRegistered']);
@@ -1329,7 +1615,7 @@ class loanapplication_controller extends CI_Controller {
         $this->session->set_flashdata('alertType','success'); 
         redirect('home/loandetail/'. $this->uri->segment(3));
     }
-    else // edit
+    else if($_POST['modalType'] == 1) // edit
     {
       $detail = $this->maintenance_model->selectSpecific('r_collaterals', 'CollateralId', $_POST['CollateralId']);
       $string1 = strtotime($_POST['dateRegistered']);
@@ -1355,6 +1641,19 @@ class loanapplication_controller extends CI_Controller {
           'Value' => $_POST['CollateralValue'],
           'UpdatedBy' => $EmployeeNumber,
           'DateUpdated' => $DateNow
+        );
+        $condition = array( 
+          'CollateralId' => $_POST['CollateralId']
+        );
+        $table = 'r_collaterals';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+      if($detail['CollateralTypeId'] != $_POST['CollateralTypeId'])
+      {
+        $set = array( 
+          'CollateralTypeId'  => $_POST['CollateralTypeId'],
+          'UpdatedBy'         => $EmployeeNumber,
+          'DateUpdated'       => $DateNow
         );
         $condition = array( 
           'CollateralId' => $_POST['CollateralId']
@@ -1473,15 +1772,28 @@ class loanapplication_controller extends CI_Controller {
           $this->upload->initialize($config);
           if ($this->upload->do_upload('Attachment[]')) 
           {
-            $this->upload->data();
-            $insertComment = array(
-              'CollateralId'                => $_POST['CollateralId']
-              , 'FileName'                  => $fileName
-              , 'Title'                     => $Title
-              , 'CreatedBy'                 => $EmployeeNumber
-            );
-            $insertCommentTable = 'collaterals_has_files';
-            $this->maintenance_model->insertFunction($insertComment, $insertCommentTable);
+            if($fileName != null)
+            {
+              $this->upload->data();
+              $set = array( 
+                'StatusId'     => 0,
+              );
+              $condition = array( 
+                'CollateralId' => $_POST['CollateralId'],
+                'StatusId' => 1
+              );
+              $table = 'collaterals_has_files';
+              $this->maintenance_model->updateFunction1($set, $condition, $table);
+
+              $insertComment = array(
+                'CollateralId'                => $_POST['CollateralId']
+                , 'FileName'                  => $fileName
+                , 'Title'                     => $Title
+                , 'CreatedBy'                 => $EmployeeNumber
+              );
+              $insertCommentTable = 'collaterals_has_files';
+              $this->maintenance_model->insertFunction($insertComment, $insertCommentTable);
+            }
           }
           else
           {
@@ -1496,30 +1808,30 @@ class loanapplication_controller extends CI_Controller {
     }
   }
 
-  function penaltySettings()
-  {
-    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $DateNow = date("Y-m-d H:i:s");
-    if(isset($_POST['PenaltyType']))
-    {
-      $set = array( 
-        'IsPenalized'     => 1,
-        'PenaltyType'     => $_POST['PenaltyType'],
-        'PenaltyAmount'   => $_POST['PenaltyAmount'],
-        'GracePeriod'     => $_POST['GracePeriod']
-      );
-      $condition = array( 
-        'ApplicationId' => $this->uri->segment(3)
-      );
-      $table = 't_application';
-      $this->maintenance_model->updateFunction1($set, $condition, $table);
-    }
+  // function penaltySettings()
+  // {
+  //   $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+  //   $DateNow = date("Y-m-d H:i:s");
+  //   if(isset($_POST['PenaltyType']))
+  //   {
+  //     $set = array( 
+  //       'IsPenalized'     => 1,
+  //       'PenaltyType'     => $_POST['PenaltyType'],
+  //       'PenaltyAmount'   => $_POST['PenaltyAmount'],
+  //       'GracePeriod'     => $_POST['GracePeriod']
+  //     );
+  //     $condition = array( 
+  //       'ApplicationId' => $this->uri->segment(3)
+  //     );
+  //     $table = 't_application';
+  //     $this->maintenance_model->updateFunction1($set, $condition, $table);
+  //   }
 
-    $this->session->set_flashdata('alertTitle','Success!'); 
-    $this->session->set_flashdata('alertText','Loan application updated!'); 
-    $this->session->set_flashdata('alertType','success'); 
-    redirect('home/loandetail/'. $this->uri->segment(3));
-  }
+  //   $this->session->set_flashdata('alertTitle','Success!'); 
+  //   $this->session->set_flashdata('alertText','Loan application updated!'); 
+  //   $this->session->set_flashdata('alertType','success'); 
+  //   redirect('home/loandetail/'. $this->uri->segment(3));
+  // }
 
   function addCharges()
   {
@@ -1621,7 +1933,7 @@ class loanapplication_controller extends CI_Controller {
 
   function getChargeDetails()
   {
-    $output = $this->loanapplication_model->getChargeDetails($this->input->post('Id'));
+    $output = $this->loanapplication_model->getChargeDetails($this->input->post('Id'), $this->input->post('Type'));
     $this->output->set_output(print(json_encode($output)));
     exit();
   }
@@ -1653,35 +1965,18 @@ class loanapplication_controller extends CI_Controller {
     $varDatePayment = date('Y-m-d', $string1);
     $string2 = strtotime($_POST['dateCollected']);
     $varDateCollected = date('Y-m-d', $string2);
-    // insert into payments
-      $insertData = array( 
-        'BankId'            => $_POST['BankId'],
-        'ApplicationId'     => $this->uri->segment(3),
-        'Amount'            => $_POST['Amount'] - $_POST['TotalPenalty'],
-        'Description'       => $_POST['Remarks'],
-        'DateCollected'     => $varDateCollected,
-        'PaymentDate'       => $varDatePayment,
-        'CreatedBy'         => $EmployeeNumber
-      );
-      $table = 't_paymentsmade';
-      $this->maintenance_model->insertFunction($insertData, $table);
-    // get generated application id
-      $getData = array(
-        'table'                 => 't_paymentsmade'
-        , 'column'              => 'PaymentMadeId'
-        , 'CreatedBy'           => $EmployeeNumber
-      );
-      $generatedId = $this->maintenance_model->getGeneratedId2($getData);
-    // insert into penalty
-      if($_POST['IsPenalized'] == 1)
-      {
+    if($this->uri->segment(4) == 1) // penalty
+    {
+      // insert into penalty
         $insertData2 = array( 
-          'PaymentMadeId'     => $generatedId['PaymentMadeId'],
           'ApplicationId'     => $this->uri->segment(3),
           'PenaltyType'       => $_POST['PenaltyType'],
           'Amount'            => $_POST['PenaltyAmount'],
+          'AmountPaid'        => $_POST['Amount'],
           'GracePeriod'       => $_POST['GracePeriod'],
           'TotalPenalty'      => $_POST['TotalPenalty'],
+          'DateCollected'     => $varDateCollected,
+          'DatePaid'          => $varDatePayment,
           'CreatedBy'         => $EmployeeNumber
         );
         $table2 = 'application_has_penalty';
@@ -1693,7 +1988,7 @@ class loanapplication_controller extends CI_Controller {
             , 'column'              => 'ApplicationPenaltyId'
             , 'CreatedBy'           => $EmployeeNumber
           );
-          $generatedId2 = $this->maintenance_model->getGeneratedId2($getData);
+          $generatedId2 = $this->maintenance_model->getGeneratedId2($getData2);
 
         // insert Application_has_notification
           $insertNotification = array(
@@ -1714,31 +2009,103 @@ class loanapplication_controller extends CI_Controller {
           $auditTable2 = 'R_Logs';
           $this->maintenance_model->insertFunction($insertData2, $auditTable1);
           $this->maintenance_model->insertFunction($insertData2, $auditTable2);
-      }
-    // insert Application_has_notification
-      $insertNotification = array(
-        'Description'                   => 'Added payment #PYM-'.sprintf('%05d', $generatedId['PaymentMadeId']).'.'
-        , 'ApplicationId'               => $this->uri->segment(3)
-        , 'CreatedBy'                   => $EmployeeNumber
-      );
-      $insertNotificationTable = 'Application_has_Notifications';
-      $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
-    // main audits
-      $RefNo = $this->maintenance_model->selectSpecific('t_application', 'ApplicationId', $this->uri->segment(3));
-      $auditDetail = 'Added payment #PYM-'.sprintf('%05d', $generatedId['PaymentMadeId']).' to ' . $RefNo['TransactionNumber'];
-      $insertData2 = array(
-        'Description' => $auditDetail
-        , 'CreatedBy' => $EmployeeNumber
-      );
-      $auditTable1 = 'Employee_has_Notifications';
-      $auditTable2 = 'R_Logs';
-      $this->maintenance_model->insertFunction($insertData2, $auditTable1);
-      $this->maintenance_model->insertFunction($insertData2, $auditTable2);
-    // notification
-      $this->session->set_flashdata('alertTitle','Success!'); 
-      $this->session->set_flashdata('alertText','Successfully added payment!'); 
-      $this->session->set_flashdata('alertType','success'); 
-      redirect('home/loandetail/' . $this->uri->segment(3));
+        // notification
+          $this->session->set_flashdata('alertTitle','Success!'); 
+          $this->session->set_flashdata('alertText','Successfully added penalty!'); 
+          $this->session->set_flashdata('alertType','success'); 
+          redirect('home/loandetail/' . $this->uri->segment(3));
+    }
+    else
+    {
+      // insert into payments
+        $insertData = array( 
+          'BankId'            => $_POST['BankId'],
+          'ApplicationId'     => $this->uri->segment(3),
+          'Amount'            => $_POST['AmountDue'],
+          'Description'       => $_POST['Remarks'],
+          'AmountPaid'          => $_POST['Amount'],
+          'DateCollected'     => $varDateCollected,
+          'PaymentDate'       => $varDatePayment,
+          'CreatedBy'         => $EmployeeNumber
+        );
+        $table = 't_paymentsmade';
+        $this->maintenance_model->insertFunction($insertData, $table);
+      // get generated application id
+        $getData = array(
+          'table'                 => 't_paymentsmade'
+          , 'column'              => 'PaymentMadeId'
+          , 'CreatedBy'           => $EmployeeNumber
+        );
+        $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+      // insert into penalty
+        if($_POST['IsPenalized'] == 1)
+        {
+          $insertData2 = array( 
+            'PaymentMadeId'     => $generatedId['PaymentMadeId'],
+            'ApplicationId'     => $this->uri->segment(3),
+            'PenaltyType'       => $_POST['PenaltyType'],
+            'Amount'            => $_POST['PenaltyAmount'],
+            'GracePeriod'       => $_POST['GracePeriod'],
+            'TotalPenalty'      => $_POST['TotalPenalty'],
+            'CreatedBy'         => $EmployeeNumber
+          );
+          $table2 = 'application_has_penalty';
+          $this->maintenance_model->insertFunction($insertData2, $table2);
+
+          // get generated id
+            $getData2 = array(
+              'table'                 => 'application_has_penalty'
+              , 'column'              => 'ApplicationPenaltyId'
+              , 'CreatedBy'           => $EmployeeNumber
+            );
+            $generatedId2 = $this->maintenance_model->getGeneratedId2($getData);
+
+          // insert Application_has_notification
+            $insertNotification = array(
+              'Description'                   => 'Added penalty #PLT-'.sprintf('%05d', $generatedId2['ApplicationPenaltyId']).'.'
+              , 'ApplicationId'               => $this->uri->segment(3)
+              , 'CreatedBy'                   => $EmployeeNumber
+            );
+            $insertNotificationTable = 'Application_has_Notifications';
+            $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
+          // main audits
+            $RefNo = $this->maintenance_model->selectSpecific('t_application', 'ApplicationId', $this->uri->segment(3));
+            $auditDetail = 'Added penalty #PLT-'.sprintf('%05d', $generatedId2['ApplicationPenaltyId']).' to ' . $RefNo['TransactionNumber'];
+            $insertData2 = array(
+              'Description' => $auditDetail
+              , 'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable1 = 'Employee_has_Notifications';
+            $auditTable2 = 'R_Logs';
+            $this->maintenance_model->insertFunction($insertData2, $auditTable1);
+            $this->maintenance_model->insertFunction($insertData2, $auditTable2);
+        }
+      // insert Application_has_notification
+        $insertNotification = array(
+          'Description'                   => 'Added payment #PYM-'.sprintf('%05d', $generatedId['PaymentMadeId']).'.'
+          , 'ApplicationId'               => $this->uri->segment(3)
+          , 'CreatedBy'                   => $EmployeeNumber
+        );
+        $insertNotificationTable = 'Application_has_Notifications';
+        $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
+      // main audits
+        $RefNo = $this->maintenance_model->selectSpecific('t_application', 'ApplicationId', $this->uri->segment(3));
+        $auditDetail = 'Added payment #PYM-'.sprintf('%05d', $generatedId['PaymentMadeId']).' to ' . $RefNo['TransactionNumber'];
+        $insertData2 = array(
+          'Description' => $auditDetail
+          , 'CreatedBy' => $EmployeeNumber
+        );
+        $auditTable1 = 'Employee_has_Notifications';
+        $auditTable2 = 'R_Logs';
+        $this->maintenance_model->insertFunction($insertData2, $auditTable1);
+        $this->maintenance_model->insertFunction($insertData2, $auditTable2);
+      // notification
+        $this->session->set_flashdata('alertTitle','Success!'); 
+        $this->session->set_flashdata('alertText','Successfully added payment!'); 
+        $this->session->set_flashdata('alertType','success'); 
+        redirect('home/loandetail/' . $this->uri->segment(3));
+    }
+
   }
 
   function getPaymentsMaid()

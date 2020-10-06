@@ -1234,8 +1234,8 @@ class borrower_model extends CI_Model
                                                         ON BS.IdentificationId = I.IdentificationId
                                                     INNER JOIN r_employee EMP
                                                         ON EMP.EmployeeNumber = I.CreatedBy
-                                                    INNER JOIN r_IDCategory IC
-                                                        ON IC.ID = I.ID
+                                                    INNER JOIN R_Requirements IC
+                                                        ON IC.RequirementId = I.ID
                                                             WHERE BS.BorrowerId = $BorrowerId
       ");
       $data = $query_string->result_array();
@@ -1253,6 +1253,34 @@ class borrower_model extends CI_Model
 
       ");
       $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getCollectionsMade($Id)
+    {
+      $query = $this->db->query("SELECT   Amount
+                                          , A.TransactionNumber
+                                          , CONCAT('PYM-', LPAD(PM.PaymentMadeId, 6, 0)) as ReferenceNo
+                                          , DATE_FORMAT(PM.DateCreated, '%b %d, %Y %r') as DateCreated
+                                          , DATE_FORMAT(PM.DateCollected, '%b %d, %Y') as DateCollected
+                                          , DATE_FORMAT(PM.PaymentDate, '%b %d, %Y') as PaymentDate
+                                          , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName) as CreatedBy
+                                          , PM.StatusId
+                                          , BNK.BankName
+                                          , PM.PaymentMadeId
+                                          , A.ApplicationId
+                                          FROM t_application A
+                                            INNER JOIN t_paymentsmade PM
+                                              ON A.ApplicationId = PM.ApplicationId
+                                            INNER JOIN r_borrowers B
+                                              ON B.BorrowerId = A.BorrowerId
+                                            INNER JOIN R_Bank BNK
+                                              ON BNK.BankId = PM.BankId
+                                            INNER JOIN R_Employee EMP
+                                              ON EMP.EmployeeNumber = PM.CreatedBy
+                                                WHERE A.BorrowerId = $Id
+      ");
+      $data = $query->result_array();
       return $data;
     }
 

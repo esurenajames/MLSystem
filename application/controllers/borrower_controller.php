@@ -599,7 +599,7 @@ class borrower_controller extends CI_Controller {
             $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable4);
           // notification
             $this->session->set_flashdata('alertTitle','Success!'); 
-            $this->session->set_flashdata('alertText','Profile successfully updated!'); 
+            $this->session->set_flashdata('alertText','Successfully uploaded supporting documents!'); 
             $this->session->set_flashdata('alertType','success'); 
             redirect('home/BorrowerDetails/'. $this->uri->segment(4));
         }

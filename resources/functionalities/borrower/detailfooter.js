@@ -1,6 +1,6 @@
   var base_url = window.location.origin;
 
-  var baseUrl = base_url + '/LendingManagementSystem-John'; // initial url for javascripts
+  var baseUrl = base_url + '/ELendingTool'; // initial url for javascripts
 
 
   var varStatus = 0;
@@ -492,6 +492,13 @@
       // "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
       "order": [[0, "desc"]]
     });
+
+    $('#dtblCollections').DataTable({
+      "pageLength": 10,
+      // "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
+      "order": [[0, "desc"]]
+    });
+    
     $('#example2').DataTable();
 
     $('#example3').DataTable();
