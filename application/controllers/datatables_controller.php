@@ -113,6 +113,26 @@ class datatables_controller extends CI_Controller {
 		echo json_encode($result);
 	}
 
+	function Repayments()
+	{
+		$result = $this->maintenance_model->getAllRepayments();
+		foreach($result as $key=>$row)
+		{
+			$result[$key]['Name'] = $this->maintenance_model->getUserCreated($row['CreatedBy']);
+		}
+		echo json_encode($result);
+	}
+
+	function Disbursements()
+	{
+		$result = $this->maintenance_model->getAllDisbursements();
+		foreach($result as $key=>$row)
+		{
+			$result[$key]['Name'] = $this->maintenance_model->getUserCreated($row['CreatedBy']);
+		}
+		echo json_encode($result);
+	}
+
 	function OptionalCharges()
 	{
 		$result = $this->maintenance_model->getAllOptional();

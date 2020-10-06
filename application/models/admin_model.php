@@ -485,6 +485,26 @@ class admin_model extends CI_Model
       return $data;
     }
 
+    function getRepaymentDetails($Id)
+    {
+      $query_string = $this->db->query("SELECT  RC.Type
+                                                FROM R_RepaymentCycle RC 
+                                                  WHERE RepaymentId = '$Id'
+      ");
+      $RepaymentDetail = $query_string->row_array();
+      return $RepaymentDetail;
+    }
+
+    function countRepayment($data)
+    {
+      $query_string = $this->db->query("SELECT  * 
+                                                FROM R_RepaymentCycle RC
+                                                  WHERE RC.Type = '".$data['Name']."'
+      ");
+      $data = $query_string->num_rows();
+      return $data;
+    }
+
     function updateStatus($input)
     {
       $EmployeeNumber = $this->session->userdata('EmployeeNumber');
@@ -992,6 +1012,40 @@ class admin_model extends CI_Model
           else if($input['updateType'] == 0)
           {
             $Description = 'Deactivated ' .$OccupationDetail['Name']. '  at the Occupations Module'; // main log
+          }
+          $data2 = array(
+            'Description'   => $Description,
+            'CreatedBy'     => $EmployeeNumber,
+            'DateCreated'   => $DateNow
+          );
+          $this->db->insert('R_Logs', $data2);
+      }
+      else if($input['tableType'] == 'Repayment')
+      {
+        $RepaymentDetail = $this->db->query("SELECT  Type
+                                                    FROM R_RepaymentCycle RC
+                                                      WHERE RepaymentId = ".$input['Id']."
+        ")->row_array();
+
+        // update status
+          $set = array(
+            'StatusId' => $input['updateType'],
+            'UpdatedBy' => $EmployeeNumber,
+            'DateUpdated' => $DateNow,
+          );
+          $condition = array(
+            'RepaymentId' => $input['Id']
+          );
+          $table = 'R_RepaymentCycle';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+        // insert into logs
+          if($input['updateType'] == 1)
+          {
+            $Description = 'Re-activated ' .$RepaymentDetail['Type']. ' at the Repayment Cycles in System Setup'; // main log
+          }
+          else if($input['updateType'] == 0)
+          {
+            $Description = 'Deactivated ' .$RepaymentDetail['Type']. '  at the Repayment Cycles in System Setup'; // main log
           }
           $data2 = array(
             'Description'   => $Description,

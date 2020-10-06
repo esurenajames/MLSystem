@@ -149,6 +149,32 @@ class maintenance_model extends CI_Model
       return $data;
     }
 
+    function getAllRepayments()
+    {
+      $query_string = $this->db->query("SELECT RC.Type as RepaymentName
+                                                , RepaymentId
+                                                , RC.CreatedBy
+                                                , RC.StatusId
+                                                , DATE_FORMAT(RC.DateCreated, '%d %b %Y %r') as DateCreated
+                                                FROM R_RepaymentCycle RC
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getAllDisbursements()
+    {
+      $query_string = $this->db->query("SELECT DB.Name as DisbursementName
+                                                , DisbursementId
+                                                , DB.CreatedBy
+                                                , DB.StatusId
+                                                , DATE_FORMAT(DB.DateCreated, '%d %b %Y %r') as DateCreated
+                                                FROM R_Disbursement DB
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
     function getAllOptional()
     {
       $query_string = $this->db->query("SELECT OC.Name as OptionalName

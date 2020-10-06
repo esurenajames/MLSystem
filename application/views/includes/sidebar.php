@@ -126,13 +126,15 @@
               <!-- <li <?php if($sidebar == 2 && $sidebarMenu == 3){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddBanks"><i class="fa fa-circle-o"></i>Managers</a></li> -->
               <!-- <li ><a href="<?php echo base_url();?>home/Customers"><i class="fa fa-circle-o"></i> <span>Customers</span></a></li> -->
               <!-- <li <?php if($sidebar == 2 && $sidebarMenu == 2){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/LoanList"><i class="fa fa-circle-o"></i> Loan Products</a></li> -->
-              <li <?php if($sidebar == 2 && $sidebarMenu == 3){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/addUser"><i class="fa fa-circle-o"></i> Users</a></li>
-              <li <?php if($sidebar == 2 && $sidebarMenu == 3){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddBank"><i class="fa fa-circle-o"></i>Banks</a></li>
+              <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Users'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/addUser"><i class="fa fa-circle-o"></i> Users</a></li>
+              <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Banks'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddBank"><i class="fa fa-circle-o"></i>Banks</a></li>
               <li ><a href="<?php echo base_url();?>home/AddBranch"><i class="fa fa-circle-o"></i> <span>Branches</span></a></li>
               <li ><a href="<?php echo base_url();?>home/AddIndustry"><i class="fa fa-circle-o"></i> <span>Industries</span></a></li>
-              <li <?php if($sidebar == 2 && $sidebarMenu == 3){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddOccupation"><i class="fa fa-circle-o"></i>Occupations</a></li>
+              <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Occupations'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddOccupation"><i class="fa fa-circle-o"></i>Occupations</a></li>
               <li ><a href="<?php echo base_url();?>home/AddRequirement"><i class="fa fa-circle-o"></i> <span>Requirements</span></a></li>
-              <li <?php if($sidebar == 2 && $sidebarMenu == 3){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddEducation"><i class="fa fa-circle-o"></i>Education Levels</a></li>
+              <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'RepaymentCycle'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddRepaymentCycle"><i class="fa fa-circle-o"></i>Repayment Cycles</a></li>
+              <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Disbursement'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddDisbursement"><i class="fa fa-circle-o"></i>Disbursements</a></li>
+              <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Education'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddEducation"><i class="fa fa-circle-o"></i>Education Levels</a></li>
               <li ><a href="<?php echo base_url();?>home/AddPosition"><i class="fa fa-circle-o"></i> <span>Positions</span></a></li>
               <li ><a href="<?php echo base_url();?>home/AddPurpose"><i class="fa fa-circle-o"></i> <span>Purposes</span></a></li>
               <li ><a href="<?php echo base_url();?>home/AddLoanType"><i class="fa fa-circle-o"></i> <span>Loan Types</span></a></li>

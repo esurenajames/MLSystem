@@ -294,6 +294,36 @@ class home extends CI_Controller {
 		$this->load->view('admin/AddEducation', $data);
 	}
 
+	function AddRepaymentCycle()
+	{
+		$sidebar['sidebar'] = 'SystemSetup';
+		$sidebar['sidebarMenu'] = 'RepaymentCycle';
+		$header['header'] = 'Repayment Cycles';
+		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['access'] = $this->sidebar_model->getAccess();
+
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('admin/AddRepaymentCycle', $data);
+	}
+
+	function AddDisbursement()
+	{
+		$sidebar['sidebar'] = 'SystemSetup';
+		$sidebar['sidebarMenu'] = 'Disbursement';
+		$header['header'] = 'Disbursements';
+		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['access'] = $this->sidebar_model->getAccess();
+
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('admin/AddDisbursement', $data);
+	}
+
 	function ViewLoans()
 	{
 		$sidebar['sidebar'] = 'Loans';

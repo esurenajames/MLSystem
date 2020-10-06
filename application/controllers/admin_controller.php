@@ -2266,6 +2266,90 @@ class admin_controller extends CI_Controller {
     }
   }
 
+  function AddRepaymentCycle()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $RepaymentDetail = $this->admin_model->getRepaymentDetails($_POST['RepaymentId']);
+    if ($_POST['FormType'] == 1) // add Repayment
+    {
+      $data = array(
+        'Type'                     => htmlentities($_POST['Repayment'], ENT_QUOTES)
+      );
+      $query = $this->admin_model->countRepayment($data);
+      print_r($query);
+      if($query == 0) // not existing
+      {
+        // insert Repayment details
+          $insertRepayment = array(
+            'Type'                     => htmlentities($_POST['Repayment'], ENT_QUOTES)
+            , 'CreatedBy'              => $EmployeeNumber
+            , 'UpdatedBy'              => $EmployeeNumber
+          );
+          $insertRepaymentTable = 'R_RepaymentCycle';
+          $this->maintenance_model->insertFunction($insertRepayment, $insertRepaymentTable);
+        // notification
+          $this->session->set_flashdata('alertTitle','Success!'); 
+          $this->session->set_flashdata('alertText','Repayment Cycle successfully recorded!'); 
+          $this->session->set_flashdata('alertType','success'); 
+          redirect('home/AddRepaymentCycle/'. $EmployeeId['EmployeeId']);
+      }
+      else
+      {
+        // notification
+          $this->session->set_flashdata('alertTitle','Warning!'); 
+          $this->session->set_flashdata('alertText','Repayment Cycle already existing!'); 
+          $this->session->set_flashdata('alertType','warning'); 
+          redirect('home/AddRepaymentCycle');
+      }
+    }
+    else if($_POST['FormType'] == 2) // Edit Repayments 
+    {
+      $data = array(
+        'Type'                     => htmlentities($_POST['Repayment'], ENT_QUOTES)
+      );
+      $query = $this->admin_model->countOccupation($data);
+      print_r($query);
+      if($query == 0)
+      {
+        if($RepaymentDetail['Name'] != htmlentities($_POST['Repayment'], ENT_QUOTES))
+        {
+          // add into audit table
+            $auditDetail = 'Updated details of  '.$RepaymentDetail['Type'].' to '.htmlentities($_POST['Repayment'], ENT_QUOTES);
+            $insertAudit = array(
+              'Description' => $auditDetail,
+              'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'R_Logs';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+          // update function
+            $set = array( 
+            'Type'                     => htmlentities($_POST['Repayment'], ENT_QUOTES)
+            );
+            $condition = array( 
+              'RepaymentId' => $_POST['RepaymentId']
+            );
+            $table = 'R_RepaymentCycle';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+        }
+      // notif
+        $this->session->set_flashdata('alertTitle','Success!'); 
+        $this->session->set_flashdata('alertText','Repayment Cycle details successfully updated!'); 
+        $this->session->set_flashdata('alertType','success'); 
+        redirect('home/AddRepaymentCycle/');
+      }
+      else // if existing
+      {
+        // notif
+        $this->session->set_flashdata('alertTitle','Warning!'); 
+        $this->session->set_flashdata('alertText','Repayment Cycle details already existing!'); 
+        $this->session->set_flashdata('alertType','warning'); 
+        redirect('home/AddRepaymentCycle/');
+      }
+    }
+  }
+
+  
+
   function getBankDetails()
   {
     $output = $this->admin_model->getBankDetails($this->input->post('Id'));
@@ -2367,6 +2451,13 @@ class admin_controller extends CI_Controller {
   function getOccupationDetails()
   {
     $output = $this->admin_model->getOccupationDetails($this->input->post('Id'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getRepaymentDetails()
+  {
+    $output = $this->admin_model->getRepaymentDetails($this->input->post('Id'));
     $this->output->set_output(print(json_encode($output)));
     exit();
   }
