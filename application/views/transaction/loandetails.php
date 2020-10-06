@@ -1058,7 +1058,8 @@
                     ?>
                   </tbody>
                 </table>
-              </div><div class="tab-pane" id="tabPenalty">
+              </div>
+              <div class="tab-pane" id="tabPenalty">
                 <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/penaltySettings/<?php print_r($detail['ApplicationId']) ?>" method="post">
                   <h4>Penalties</h4>
                   <a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalPenalty">Add Penalty</a>
@@ -1213,7 +1214,7 @@
                     <th>#</th>
                     <th>Charge</th>
                     <th>Amount</th>
-                    <th>Total</th>
+                    <th>Total Charge</th>
                     <th>Status</th>
                     <th>Action</th>
                   </tr>
@@ -1221,27 +1222,29 @@
                   <tbody>
                     <?php 
                       $rowNumber = 0;
-                      foreach ($requirementList as $value) 
+                      foreach ($chargeList as $value) 
                       {
                         $rowNumber = $rowNumber + 1;
                         echo "<tr>";
                         echo "<td>".$rowNumber."</td>";
                         echo "<td>".$value['Name']."</td>";
-                        echo "<td>".$value['DateCreated']."</td>";
-                        echo "<td>".$value['Description']."</td>";
+                        echo "<td>".$value['Amount']."</td>";
+                        echo "<td>".$value['TotalCharge']."</td>";
                          if ($value['StatusId'] == 7) // Pending 
                          {
-                           $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationRequirementId'].')" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this requirement?\', \''.$value['ApplicationRequirementId'].'\', 6, \'Requirements\')" class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
+                           $status = "<span class='badge bg-orange'>Pending</span>";
+                           $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationChargeId'].')" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this Charge?\', \''.$value['ApplicationChargeId'].'\', 6, \'Charge\')" class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
                          }
-                         else if($value['StatusId'] == 2) // submitted
+                         else if($value['StatusId'] == 6) // deactivated
                         {
-                          $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationRequirementId'].')" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a>  <a onclick="confirm(\'Are you sure you want to deactivate this requirement?\', '.$value['ApplicationRequirementId'].', 6, \'Requirements\')" class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
+                          $status = "<span class='badge bg-red'>Deactivated</span>";
+                          $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationChargeId'].')" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a>  <a onclick="confirm(\'Are you sure you want to deactivate this Charge?\', '.$value['ApplicationChargeId'].', 2, \'Charge\')" class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
                         }
                         else 
                         {
-                          $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationRequirementId'].')" class="btn btn-success btn-sm" title="Upload"><span class="fa fa-upload"></span></a> <a class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
+                          $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationChargeId'].')" class="btn btn-success btn-sm" title="Upload"><span class="fa fa-upload"></span></a> <a class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
                         }
-
+                        echo '<td>'.$status.'</td>';
                         echo '<td>'.$action.'</td>';
                         echo "</tr>";
                       }

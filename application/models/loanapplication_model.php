@@ -200,13 +200,15 @@ class loanapplication_model extends CI_Model
                                                   ELSE C.Amount/100 * A.PrincipalAmount
                                               END
                                         ) as TotalCharges
+                                        , C.Amount
+                                        , C.Name as ChargeName
                                         FROM Application_Has_Charges AHC
                                           INNER JOIN R_Charges C
                                             ON C.ChargeId = AHC.ChargeId
                                           INNER JOIN t_application A
                                             ON A.ApplicationId = AHC.ApplicationId
                                           WHERE A.ApplicationId = $Id
-                                          AND AHC.StatusId = 2
+                                          AND AHC.StatusId = 7
     ");
 
     $data = $query->row_array();
@@ -679,6 +681,7 @@ class loanapplication_model extends CI_Model
                                               , A.PrincipalAmount
                                               , C.ChargeType
                                               , C.IsMandatory
+                                              , S.Description
                                               , CASE
                                                   WHEN C.ChargeType = 'Flat Rate'
                                                   THEN CONCAT(C.Amount)
@@ -692,6 +695,8 @@ class loanapplication_model extends CI_Model
                                                   ON C.ChargeId = AHC.ChargeId
                                                 INNER JOIN T_Application A
                                                   ON A.ApplicationId = AHC.ApplicationId
+                                                INNER JOIN R_Status S
+                                                  ON S.StatusId = AHC.StatusId
                                                 LEFT JOIN R_Employee EMP
                                                   ON EMP.EmployeeNumber = AHC.CreatedBy
                                                     WHERE AHC.ApplicationId = $ID
@@ -1142,6 +1147,56 @@ class loanapplication_model extends CI_Model
         else if($input['updateType'] == 6)
         {
           $Description = 'Deactivated ' .$RequirementDetail['ApplicationRequirementId']. '  of Requirement #'; // Application Notification
+        }
+        $data2 = array(
+          'Description'   => $Description,
+          'CreatedBy'     => $EmployeeNumber,
+          'DateCreated'   => $DateNow
+        );
+        $this->db->insert('Application_has_Notifications', $data2);
+    }
+    else if($input['Type'] == 'Charge')
+    {
+      $ChargeDetail = $this->db->query("SELECT  ApplicationChargeId
+                                                , ApplicationId
+                                                  FROM Application_Has_Charges
+                                                    WHERE ApplicationChargeId = ".$input['Id']."
+      ")->row_array();
+
+      // update status
+        $set = array(
+          'StatusId' => $input['updateType'],
+          'UpdatedBy' => $EmployeeNumber,
+          'DateUpdated' => $DateNow,
+        );
+        $condition = array(
+          'ApplicationChargeId' => $input['Id']
+        );
+        $table = 'Application_Has_Charges';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      // insert into logs
+        if($input['updateType'] == 7)
+        {
+          $Description = 'Re-activated ' .$ChargeDetail['ApplicationChargeId']. ' of Application #'; // main log
+        }
+        else if($input['updateType'] == 6)
+        {
+          $Description = 'Deactivated ' .$ChargeDetail['ApplicationChargeId']. '  of Application #'; // main log
+        }
+        $data2 = array(
+          'Description'   => $Description,
+          'CreatedBy'     => $EmployeeNumber,
+          'DateCreated'   => $DateNow
+        );
+        $this->db->insert('R_Logs', $data2);
+        // insert into Application_has_Notifications
+        if($input['updateType'] == 7)
+        {
+          $Description = 'Re-activated ' .$ChargeDetail['ApplicationChargeId']. ' of Charge # '; // Application Notification
+        }
+        else if($input['updateType'] == 6)
+        {
+          $Description = 'Deactivated ' .$ChargeDetail['ApplicationChargeId']. '  of Charge #'; // Application Notification
         }
         $data2 = array(
           'Description'   => $Description,
