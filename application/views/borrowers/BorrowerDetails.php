@@ -924,6 +924,7 @@
                 <!-- <li class="active"><a href="#tabLoanApplications" data-toggle="tab">Loan Applications</a></li> -->
                 <li class="active"><a href="#tabHistory" data-toggle="tab" title="History"><span class="fa fa-clipboard"></span></a></li>
                 <li><a href="#tabLoanApplications" data-toggle="tab" title="Loans"><span class="fa fa-list-alt"></span></a></li>
+                <li><a href="#tabCollectionsMade" data-toggle="tab" title="Collections Made"><span class="fa fa-money"></span></a></li>
                 <li><a href="#tabReference" data-toggle="tab" title="Personal Reference"><span class="fa fa-users"></span></a></li>
                 <li><a href="#tabCoMaker" data-toggle="tab" title="Co-Maker Info"><span class="fa fa-link"></span></a></li>
                 <li><a href="#tabSpouseInfo" data-toggle="tab" title="Spouse Info"><span class="fa fa-male"></span><span class="fa fa-female"></span></a></li>
@@ -985,6 +986,58 @@
                     </tr>
                     </thead>
                     <tbody>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="tab-pane" id="tabCollectionsMade">
+                  <h4>COLLECTIONS MADE</h4>
+                  <br>
+                  <br>
+                  <br>
+                  <table id="dtblCollections" class="table table-bordered table-hover" style="width: 100%">
+                    <thead>
+                    <tr>
+                      <th>Application #</th>
+                      <th>Reference No</th>
+                      <th>Collected By</th>
+                      <th>Amount</th>
+                      <th>Payment For</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                      <?php
+                        if($Collections != 0)
+                        {
+                          $rowNumber = 0;
+                          foreach ($Collections as $value) 
+                          {
+                            $rowNumber = $rowNumber + 1;
+                            echo "<tr>";
+                            echo "<td>".$value['TransactionNumber']."</td>";
+                            echo "<td>".$value['ReferenceNo']."</td>";
+                            echo "<td>".$value['CreatedBy']."</td>";
+                            echo "<td>".number_format($value['Amount'], 2)."</td>";
+                            echo "<td>".$value['PaymentDate']."</td>";
+
+                            if($value['StatusId'] == 1)
+                            {
+                              $status = "<span class='badge bg-green'>Active</span>";
+                              $action = '<a href="<?php '.base_url().' ?>/loandetail/'.$value['ApplicationId'].'" class="btn btn-default btn-sm" title="View"><span class="fa fa-info-circle"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this Education record?\', \''.$value['PaymentMadeId'].'\', 0, \'BorrowerEducation\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                            }
+                            else if($value['StatusId'] == 0)
+                            {
+                              $status = "<span class='badge bg-red'>Deactivated</span>";
+                              $action = '<a href="<?php '.base_url().' ?>/loandetail/'.$value['ApplicationId'].'" class="btn btn-default btn-sm" title="View"><span class="fa fa-info-circle"></span></a> ';
+                            }
+
+                            echo "<td>".$status."</td>";
+                            echo "<td>".$action."</td>";
+                            echo "</tr>";
+                          }
+                        }
+                      ?>
                     </tbody>
                   </table>
                 </div>

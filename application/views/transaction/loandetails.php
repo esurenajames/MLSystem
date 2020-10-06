@@ -281,7 +281,7 @@
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="modalComment">Add Comment</h4>
+          <h4 class="modal-title">Upload Requirement</h4>
         </div>
         <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/uploadRequirements/<?php print_r($detail['ApplicationId']) ?>" method="post" enctype="multipart/form-data">
           <div class="modal-body">
@@ -290,6 +290,130 @@
                 <label>Document Attachment</label>
                 <input type="file" name="RequirementFiles[]" multiple="" accept=".jpeg, .jpg, .png">
                 <input type="hidden" name="ApplicationRequirementId" id="txtApplicationRequirementId">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+
+  <div class="modal fade" id="modalRestructure">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Re-Structure Loan Application</h4>
+        </div>
+        <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/restructureLoan/<?php print_r($detail['ApplicationId']) ?>" method="post" enctype="multipart/form-data" id="frmRestructure">
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>Loan Amount<span class="text-red">*</span></label><br>
+                  <input type="number" class="form-control" placeholder="Loan Amount" value="<?php print_r($detail['RawPrincipalAmount']) ?>" oninput="getTotalInterest();" id="txtPrincipalAmount" name="PrincipalAmount">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Term Type<span class="text-red">*</span></label><br>
+                  <select class="form-control" style="width: 100%" required="" onchange="getTotalInterest(); getRepaymentDuration();" name="TermType" id="selectTermType">
+                    <option value="" disabled="">Select Term Type</option>
+                    <option <?php if($detail['TermType'] == 'Days') echo "selected"; else { echo "";} ?>>Days</option>
+                    <option <?php if($detail['TermType'] == 'Weeks') echo "selected"; else { echo "";} ?>>Weeks</option>
+                    <option <?php if($detail['TermType'] == 'Months') echo "selected"; else { echo "";} ?>>Months</option>
+                    <option <?php if($detail['TermType'] == 'Years') echo "selected"; else { echo "";} ?>>Years</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Term<span class="text-red">*</span></label><br>
+                  <input type="number" class="form-control" oninput="getRepaymentDuration(); getTotalInterest(); getPrincipalCollection(); getTotalCollection();" name="TermNumber" id="txtTermNo" value="<?php print_r($detail["TermNo"]) ?>">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Repayment Cycle<span class="text-red">*</span></label><br>
+                  <select class="form-control" style="width: 100%" required="" onchange="getTotalInterest(); getRepaymentDuration(); getPrincipalCollection(); getTotalCollection();" name="RepaymentCycle" id="selectRepaymentType">
+                    <?php
+                      foreach ($repaymentCycle as $value) 
+                      {
+                        if($detail['RepaymentId'] == $value['RepaymentId'])
+                        {
+                          $selected = 'selected';
+                        }
+                        else
+                        {
+                          $selected = '';                                
+                        }
+                        echo "<option ".$selected." value='".$value['RepaymentId']."'>".$value['Name']."</option>";
+                      }
+                    ?>
+                  </select>
+                  <a href=""> Add/Edit Repayment Cycle</a>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Number of Repayments<span class="text-red">*</span></label><br>
+                  <input type="number" min="0" class="form-control" onchange="getTotalInterest(); getPrincipalCollection(); getTotalCollection();" name="RepaymentsNumber" required="" value="<?php print_r($detail["RepaymentNo"]) ?>"  id="txtRepayments">
+                </div>
+              </div>
+            </div>
+            <h4>Interest</h4>
+            <hr>
+            <div class="row">
+              <div class="col-md-2">
+                <label>Interest Type</label>
+                <select class="form-control" id="selectInterestType" name="interestType" onchange="getTotalInterest();">
+                  <option <?php if($detail['InterestType'] == 'Flat Rate') echo "selected"; else { echo "";} ?>>Flat Rate</option>
+                  <option <?php if($detail['InterestType'] == 'Percentage') echo "selected"; else { echo "";} ?>>Percentage</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label>Interest Amount</label>
+                <input type="number" class="form-control" id="txtInterest" value="<?php print_r($detail["Amount"]) ?>" name="interestAmount" onchange="getTotalInterest();">
+              </div>
+              <div class="col-md-3">
+                <label>Interest Frequency</label>
+                <select class="form-control" id="selectInterestFrequency" name="interestFrequency" onchange="getTotalInterest();">
+                  <option selected="" disabled="">Select Interest Frequency</option>
+                  <option <?php if($detail['Frequency'] == 'Per Day') echo "selected"; else { echo "";} ?>>Per Day</option>
+                  <option <?php if($detail['Frequency'] == 'Per Week') echo "selected"; else { echo "";} ?>>Per Week</option>
+                  <option <?php if($detail['Frequency'] == 'Per Month') echo "selected"; else { echo "";} ?>>Per Month</option>
+                  <option <?php if($detail['Frequency'] == 'Per Year') echo "selected"; else { echo "";} ?>>Per Year</option>
+                  <option <?php if($detail['Frequency'] == 'Per Loan') echo "selected"; else { echo "";} ?>>Per Loan</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label>Add-On Interest Rate</label>
+                <h6 class="lblTotalInterest"><?php print_r($detail["renewAddOnInterest"]) ?></h6>
+              </div>
+              <div class="col-md-2">
+                <label>Total Interest</label>
+                <h6 class="lblFinalInterest">
+                  <?php
+                    $TotalInterest = 0;
+                    if($detail['InterestType'] == 'Percentage')
+                    {
+                      $TotalInterest = ($detail['RawPrincipalAmount'] * ($detail['Amount']/100)) * $detail['TermNo'];
+                    }
+                    else
+                    {
+                      $TotalInterest = (($detail['Amount'])) * $detail['TermNo'];
+                    }
+                    $totalDue = $TotalInterest + $detail['RawPrincipalAmount'];
+                    print_r('Php '. number_format($TotalInterest, 2));
+                  ?>
+                </h6>
               </div>
             </div>
           </div>
@@ -585,13 +709,65 @@
             <div class="row">
               <div class="col-md-12">
                 <label>Requirement</label>
-                <select class="form-control select1" style="width: 100%" required="" name="Requirements" id="selectRequirement">
+                <select class="form-control " style="width: 100%" required="" name="Requirements" id="selectRequirement">
                 <?php
                   echo $requirements;
                 ?>
                 <input type="hidden" name="FormType" id="txtFormType" value="1">
                 <input type="hidden" name="RequirementId" id="RequirementId">
               </select>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+
+  <div class="modal fade" id="modalCharge">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Add Charges</h4>
+        </div>
+        <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddRequirement/<?php print_r($detail['ApplicationId']) ?>" method="post">
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-12">
+                <label>Charge</label>
+                <select class="form-control" style="width: 100%" required="" onchange="displayCharge(this.value)" name="ChargeId" id="selectChargeId">
+                <?php
+                  echo $selectCharges;
+                ?>
+                <input type="hidden" name="FormType" id="txtChargeFormType" value="1">
+                <input type="hidden" name="RequirementId" id="txtChargeId">
+              </select>
+              </div>
+              <div id="divChargeDisplay" style="display: none">
+                <br>
+                <br>
+                <br>
+                <br>
+                <div class="col-md-4">
+                  <label>Charge Type</label>
+                  <h6 id="lblChargeType"></labelh6>
+                </div>
+                <div class="col-md-4">
+                  <label>Charge Amount</label>
+                  <h6 id="lblChargeAmount"></labelh6>
+                </div>
+                <div class="col-md-4">
+                  <label>Charge Total</label>
+                  <h6 id="lblChargeTotal"></labelh6>
+                </div>
               </div>
             </div>
           </div>
@@ -703,6 +879,7 @@
 		  <div class="box">
 		    <div class="box-header with-border">
 		      <h3 class="box-title"><label>Loan Application No:</label> <?php print_r($detail['TransactionNumber']) ?></h3>
+          <button class="btn btn-sm btn-primary pull-right" data-toggle="modal" data-target="#modalRestructure">Re-Structure</button>
 		    </div>
 		    <div class="box-body">
 			    <div class="row">
@@ -793,6 +970,7 @@
               <li><a href="#tabPenalty" data-toggle="tab" title="Penalties"><span class="fa fa-institution"></span></a></li>
               <li><a href="#tabCollateral" data-toggle="tab" title="Loan Collateral"><span class="fa fa-navicon "></span></a></li>
               <li><a href="#tabRequirements" data-toggle="tab" title="Loan Requirements"><span class="fa fa-clipboard "></span></a></li>
+              <li><a href="#tabCharges" data-toggle="tab" title="Loan Charges"><span class="fa fa-chain "></span></a></li>
               <li><a href="#tabIncome" data-toggle="tab" title="Sources of Other Income"><span class="fa fa-credit-card "></span></a></li>
               <li><a href="#tabExpense" data-toggle="tab" title="Monthly Expense"><span class="fa fa-database "></span></a></li>
               <li><a href="#tabObligations" data-toggle="tab" title="Monthly Obligation"><span class="fa fa-certificate "></span></a></li>
@@ -989,6 +1167,53 @@
                     <th>#</th>
                     <th>Name</th>
                     <th>Date Creation</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                    <?php 
+                      $rowNumber = 0;
+                      foreach ($requirementList as $value) 
+                      {
+                        $rowNumber = $rowNumber + 1;
+                        echo "<tr>";
+                        echo "<td>".$rowNumber."</td>";
+                        echo "<td>".$value['Name']."</td>";
+                        echo "<td>".$value['DateCreated']."</td>";
+                        echo "<td>".$value['Description']."</td>";
+                         if ($value['StatusId'] == 7) // Pending 
+                         {
+                           $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationRequirementId'].')" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this requirement?\', \''.$value['ApplicationRequirementId'].'\', 6, \'Requirements\')" class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
+                         }
+                         else if($value['StatusId'] == 2) // submitted
+                        {
+                          $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationRequirementId'].')" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a>  <a onclick="confirm(\'Are you sure you want to deactivate this requirement?\', '.$value['ApplicationRequirementId'].', 6, \'Requirements\')" class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
+                        }
+                        else 
+                        {
+                          $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationRequirementId'].')" class="btn btn-success btn-sm" title="Upload"><span class="fa fa-upload"></span></a> <a class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
+                        }
+
+                        echo '<td>'.$action.'</td>';
+                        echo "</tr>";
+                      }
+                    ?>
+                  </tbody>
+                </table>
+              </div>
+              <div class="tab-pane" id="tabCharges">
+                <h4>Charges</h4>
+                <a class="btn btn-primary btn-sm pull-right" data-toggle="modal" onclick="onclickCharge(1)" data-target="#modalCharge">Add Charge</a>
+                <br>
+                <br>
+                <table id="dtblCharges" class="table table-bordered table-hover" style="width: 100%">
+                  <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Charge</th>
+                    <th>Amount</th>
+                    <th>Total</th>
                     <th>Status</th>
                     <th>Action</th>
                   </tr>
@@ -1301,6 +1526,65 @@
   $('#dtblHistory').DataTable({
     "order": [[0, "desc"]]
   });
+
+  // charges type
+  function onclickCharge(type)
+  {
+    if(type == 1) // add new
+    {
+
+    }
+    else
+    {
+      $('#txtChargeId').val();
+    }
+    $('#txtChargeFormType').val(type);
+  }
+
+  function displayCharge(value)
+  {
+    $.ajax({
+      url: '<?php echo base_url()?>' + "/loanapplication_controller/getChargeDetails",
+      type: "POST",
+      async: false,
+      data: {
+        Id    : value,
+        Type  : 1
+      },
+      dataType: "JSON",
+      beforeSend: function(){
+          $('.loading').show();
+      },
+      success: function(data)
+      {
+        $('#divChargeDisplay').slideDown();
+        if(data['ChargeType'] == 'Percentage')
+        {
+          $('#lblChargeAmount').html(parseInt(data['Amount']).toLocaleString('en-US', {minimumFractionDigits: 2})+'%');
+          $('#lblChargeTotal').html('Php ' + parseInt(data['Amount']/100 * '<?php print_r($detail['RawPrincipalAmount'])?>').toLocaleString('en-US', {minimumFractionDigits: 2}));
+        }
+        else
+        {
+          $('#lblChargeAmount').html('Php ' + parseInt(data['Amount']).toLocaleString('en-US', {minimumFractionDigits: 2}));
+          $('#lblChargeTotal').html('Php ' + parseInt(data['Amount']).toLocaleString('en-US', {minimumFractionDigits: 2}));
+        }
+        $('#lblChargeType').html(data['ChargeType']);
+      },
+      error: function()
+      {
+        setTimeout(function() {
+          swal({
+            title: 'Warning!',
+            text: 'Something went wrong, please contact the administrator or refresh page!',
+            type: 'warning',
+            buttonsStyling: false,
+            confirmButtonClass: 'btn btn-primary'
+          });
+          // location.reload();
+        }, 2000);
+      }
+    });
+  }
 
   // repayment functions
     var varPrincipalCollection = '<?php print_r( $paymentDues['InterestPerCollection'] + $paymentDues['PrincipalPerCollection']) ?>';
@@ -1799,6 +2083,221 @@
     $('#txtApplicationRequirementId').val(value)
   }
 
+// RESTRUCTURE
+  var varPrincipalAmount, varTermType, varTermNo, varRepaymentType, varRepaymentNo;
+  var TotalIncome = 0;
+  var TotalExpense = 0;
+  var TotalObligation = 0;
+  var displayTotal = 0;
+  var displayTotalLoanCost = 0;
+  var displayPrincipalPerCollection = 0;
+  var displayInterestPerCollection = 0;
+  var displayTotalLoanCost = 0;
+  var finalInterest = 0; // total interest
+  var displayPayablePerCollection = 0;
+  var displayTotalCollections = 0;
+  var displayNetLoan = 0;
+  function getTotalInterest()
+  {
+    var interestAmount = $('#txtInterest').val();
+    var termNo = $('#txtTermNo').val();
+    var interestFrequency = $('#selectInterestFrequency').val();
+    var interestType = $('#selectInterestType').val();
+
+    var totalInterest = 0;
+
+    if (interestFrequency == "Per Day")
+    {
+      totalInterest = interestAmount * termNo;
+    }
+    if (interestFrequency == "Per Week")
+    {
+      totalInterest = interestAmount * termNo;
+    }
+    if (interestFrequency == "Per Month")
+    {
+      totalInterest = interestAmount * termNo;
+    }
+    if (interestFrequency == "Per Year")
+    {
+      totalInterest = interestAmount * termNo;
+    }
+
+    totalInterest = Math.floor(totalInterest);
+   
+    if (totalInterest > 0)
+    {
+      if(interestType == 'Flat Rate')
+      {
+        finalInterest = parseInt($('#txtPrincipalAmount').val()) + parseInt(totalInterest);
+        $('.lblTotalInterest').html('Php ' + parseInt(totalInterest).toLocaleString('en-US', {minimumFractionDigits: 2}));
+      }
+      else if(interestType == 'Percentage')
+      {
+        finalInterest = parseInt($('#txtPrincipalAmount').val()) * parseInt(totalInterest)/100;
+        $('.lblTotalInterest').html(totalInterest + '%');
+      }
+      $('.lblFinalInterest').html('Php ' + parseInt(finalInterest).toLocaleString('en-US', {minimumFractionDigits: 2}));
+      displayTotalLoanCost = parseInt(finalInterest) + parseInt(displayTotal);
+      $('.lblTotalLoanCost').html("Php " + parseInt(displayTotalLoanCost).toLocaleString('en-US', {minimumFractionDigits: 2}));
+      // display interest per collection [Total Interest / Total Collections]
+        displayInterestPerCollection = parseInt(finalInterest / parseInt($('#txtTermNo').val() * $('#txtRepayments').val()));
+        $('.lblInterestPerCollection').html('Php ' + displayInterestPerCollection).toLocaleString('en-US', {minimumFractionDigits: 2});
+      // display payable per collection [Principal Per Collection + Interest per Collection]
+        displayPayablePerCollection = parseInt(displayPrincipalPerCollection) + parseInt(displayInterestPerCollection);
+        $('.lblPayablePerCollection').html('Php ' + parseInt(displayPayablePerCollection).toLocaleString('en-US', {minimumFractionDigits: 2}));
+      // display net loan amount [loan amount - Processing Fee]
+        displayNetLoan = parseInt($('#txtPrincipalAmount').val()) - parseInt(displayTotal);
+        $('.lblNetLoanAmount').html('Php ' + parseInt(displayNetLoan).toLocaleString('en-US', {minimumFractionDigits: 2}));
+    }
+  }
+
+  function getRepaymentDuration()
+  {
+    var repaymentType = $('#selectRepaymentType').val();
+    var termType = $('#selectTermType').val();
+    var loanRepaymentNo = $('#txtRepayments').val();
+    var loanDurationNo = $('#txtTermNo').val();
+
+    if (repaymentType != null)
+    {
+      var totalRepayments = 0;
+      var yearly = 0;
+      var monthly = 0;
+      var weekly = 0;
+      var daily = 0;
+    
+      if (repaymentType == 1) // daily
+      {
+        yearly = 360;
+        monthly = 30;
+        biweekly = 14;
+        weekly = 7;
+        daily = 1;
+      }  
+      else if (repaymentType == 2) // weekly
+      {
+        yearly = 52;
+        monthly = 4;
+        biweekly = 2;
+        weekly = 1;
+        daily = 1/7;
+      }
+      else if (repaymentType == 3) // monthly
+      {
+        yearly = 12;
+        monthly = 1;
+        biweekly = 1/2;
+        weekly = 1/4;
+        daily = 1/30;
+      }
+      else if (repaymentType == 4) // yearly
+      {
+        yearly = 1;
+        monthly = 1/12;
+        biweekly = 1/24;
+        weekly = 1/38;
+        daily = 1/360;
+      } 
+      else
+      {
+        $.ajax({
+          url: "<?php echo base_url();?>" + "/loanapplication_controller/getRepaymentCount",
+          type: "POST",
+          async: false,
+          data: {
+            Id : repaymentType
+          },
+          dataType: "JSON",
+          beforeSend: function(){
+              $('.loading').show();
+          },
+          success: function(data)
+          {
+            $('#txtRepayments').val($('#txtTermNo').val() * data['RepaymentNo'])
+          },
+          error: function()
+          {
+            setTimeout(function() {
+              swal({
+                title: 'Warning!',
+                text: 'Something went wrong, please contact the administrator or refresh page!',
+                type: 'warning',
+                buttonsStyling: false,
+                confirmButtonClass: 'btn btn-primary'
+              });
+            }, 2000);
+          }
+        });
+      }
+       
+      if (termType == "Days")
+      {
+        totalRepayments = loanDurationNo * daily;
+      }
+      if (termType == "Weeks")
+      {
+        totalRepayments = loanDurationNo * weekly;
+      }
+      if (termType == "Months")
+      {
+        totalRepayments = loanDurationNo * monthly;
+      }
+      if (termType == "Years")
+      {
+        totalRepayments = loanDurationNo * yearly;
+      }
+
+      totalRepayments = Math.floor(totalRepayments);
+     
+      if (repaymentType == 5) // lump sum 
+        totalRepayments = 1;
+      
+      if (totalRepayments > 0)
+        $('#txtRepayments').val(totalRepayments);
+        displayPrincipalPerCollection = $('#txtPrincipalAmount').val() / totalRepayments;
+        $('.lblPrincipalPerCollection').html('Php ' + parseInt(displayPrincipalPerCollection).toLocaleString('en-US', {minimumFractionDigits: 2}));
+      // display net loan amount [loan amount - Processing Fee]
+        displayNetLoan = parseInt($('#txtPrincipalAmount').val()) - parseInt(displayTotal);
+        $('.lblNetLoanAmount').html('Php ' + parseInt(displayNetLoan).toLocaleString('en-US', {minimumFractionDigits: 2}));
+    }
+  }
+
+  function getPrincipalCollection()
+  {
+    // display Principal Per Collection [Loan Amount / Total Collection]
+      displayPrincipalPerCollection = parseInt($('#txtPrincipalAmount').val()) / parseInt($('#txtTermNo').val() * $('#txtRepayments').val());
+      $('.lblPrincipalPerCollection').html('Php ' + parseInt(displayPrincipalPerCollection).toLocaleString('en-US', {minimumFractionDigits: 2}));
+    // display interest per collection [Total Interest / Total Collections]
+      displayInterestPerCollection = parseInt(finalInterest / parseInt($('#txtTermNo').val() * $('#txtRepayments').val()));
+      $('.lblInterestPerCollection').html('Php ' + displayInterestPerCollection).toLocaleString('en-US', {minimumFractionDigits: 2});
+    // display Total Cost Loan [Processing Fees + Total Interest]
+      displayTotalLoanCost = parseInt(displayTotal) + parseInt(finalInterest);
+      $('.lblTotalLoanCost').html("Php " + parseInt(displayTotalLoanCost).toLocaleString('en-US', {minimumFractionDigits: 2}));
+    // display payable per collection [Principal Per Collection + Interest per Collection]
+      displayPayablePerCollection = parseInt(displayPrincipalPerCollection) + parseInt(displayInterestPerCollection);
+      $('.lblPayablePerCollection').html('Php ' + parseInt(displayPayablePerCollection).toLocaleString('en-US', {minimumFractionDigits: 2}));
+    // display net loan amount [loan amount - Processing Fee]
+      displayNetLoan = parseInt($('#txtPrincipalAmount').val()) - parseInt(displayTotal);
+      $('.lblNetLoanAmount').html('Php ' + parseInt(displayNetLoan).toLocaleString('en-US', {minimumFractionDigits: 2}));
+  }
+
+  function getTotalCollection()
+  {
+    // display total collections
+      displayTotalCollections = $('#txtTermNo').val() * $('#txtRepayments').val();
+      $('.lblTotalCollections').html(displayTotalCollections);
+    // display interest per collection [Total Interest / Total Collections]
+      displayInterestPerCollection = parseInt(finalInterest / parseInt($('#txtTermNo').val() * $('#txtRepayments').val()));
+      $('.lblInterestPerCollection').html('Php ' + displayInterestPerCollection).toLocaleString('en-US', {minimumFractionDigits: 2});
+    // display payable per collection [Principal Per Collection + Interest per Collection]
+      displayPayablePerCollection = parseInt(displayPrincipalPerCollection) + parseInt(displayInterestPerCollection);
+      $('.lblPayablePerCollection').html('Php ' + parseInt(displayPayablePerCollection).toLocaleString('en-US', {minimumFractionDigits: 2}));
+    // display net loan amount [loan amount - Processing Fee]
+      displayNetLoan = parseInt($('#txtPrincipalAmount').val()) - parseInt(displayTotal);
+      $('.lblNetLoanAmount').html('Php ' + parseInt(displayNetLoan).toLocaleString('en-US', {minimumFractionDigits: 2}));
+  }
+
   $('#dateCollected').daterangepicker({
       "startDate": moment().format('DD MMM YY'),
       "singleDatePicker": true,
@@ -1892,6 +2391,23 @@
         $('.loading').show();
       });
     }
+  });
+
+  $("#frmRestructure").on('submit', function (e) {
+    e.preventDefault();
+    swal({
+      title: 'Confirm',
+      text: 'Are you sure you want to restructure loan application? Once submitted, re-calculation will be done to the application.',
+      type: 'warning',
+      showCancelButton: true,
+      buttonsStyling: false,
+      confirmButtonClass: 'btn btn-success',
+      confirmButtonText: 'Confirm',
+      cancelButtonClass: 'btn btn-secondary'
+    }).then(function(){
+      e.currentTarget.submit();
+      $('.loading').show();
+    });
   });
 
   $("#frmSubmitPenalty").on('submit', function (e) {

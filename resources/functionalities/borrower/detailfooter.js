@@ -492,6 +492,13 @@
       // "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
       "order": [[0, "desc"]]
     });
+
+    $('#dtblCollections').DataTable({
+      "pageLength": 10,
+      // "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
+      "order": [[0, "desc"]]
+    });
+    
     $('#example2').DataTable();
 
     $('#example3').DataTable();

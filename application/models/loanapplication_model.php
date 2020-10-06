@@ -259,36 +259,49 @@ class loanapplication_model extends CI_Model
     return $data;
   }
 
-  function getChargeDetails($Id)
+  function getChargeDetails($Id, $Type)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $query = $this->db->query("SELECT C.ChargeId
-                                      , C.Name
-                                      , C.Amount
-                                      , A.PrincipalAmount
-                                      , C.Description
-                                      , CASE
-                                          WHEN C.Description IS NULL
-                                          THEN 'N/A'
-                                          ELSE C.Description
-                                        END as Description
-                                      , C.ChargeType
-                                      , CASE
-                                          WHEN C.ChargeType = 'Flat Rate'
-                                          THEN CONCAT(C.Amount)
-                                          ELSE CONCAT(C.Amount / 100 * A.PrincipalAmount)
-                                        END as TotalCharge
-                                      , AHC.StatusId
-                                      , AHC.ApplicationChargeId
-                                      FROM Application_has_charges AHC
-                                        INNER JOIN R_Charges C
-                                          ON C.ChargeId = AHC.ChargeId
-                                        INNER JOIN T_Application A
-                                          ON A.ApplicationId = AHC.ApplicationId
-                                        LEFT JOIN R_Employee EMP
-                                          ON EMP.EmployeeNumber = AHC.CreatedBy
-                                            WHERE AHC.ChargeId = $Id
-    ");
+    if($Type == 1) // display detail
+    {
+      $query = $this->db->query("SELECT C.ChargeId
+                                        , C.Name
+                                        , C.Amount
+                                        , C.ChargeType
+                                        FROM R_Charges C
+                                              WHERE ChargeId = $Id
+      ");
+    }
+    else // display existing
+    {
+      $query = $this->db->query("SELECT C.ChargeId
+                                        , C.Name
+                                        , C.Amount
+                                        , A.PrincipalAmount
+                                        , C.Description
+                                        , CASE
+                                            WHEN C.Description IS NULL
+                                            THEN 'N/A'
+                                            ELSE C.Description
+                                          END as Description
+                                        , C.ChargeType
+                                        , CASE
+                                            WHEN C.ChargeType = 'Flat Rate'
+                                            THEN CONCAT(C.Amount)
+                                            ELSE CONCAT(C.Amount / 100 * A.PrincipalAmount)
+                                          END as TotalCharge
+                                        , AHC.StatusId
+                                        , AHC.ApplicationChargeId
+                                        FROM Application_has_charges AHC
+                                          INNER JOIN R_Charges C
+                                            ON C.ChargeId = AHC.ChargeId
+                                          INNER JOIN T_Application A
+                                            ON A.ApplicationId = AHC.ApplicationId
+                                          LEFT JOIN R_Employee EMP
+                                            ON EMP.EmployeeNumber = AHC.CreatedBy
+                                              WHERE AHC.ChargeId = $Id
+      ");
+    }
 
     $data = $query->row_array();
     return $data;
@@ -1261,6 +1274,29 @@ class loanapplication_model extends CI_Model
       return $data;
     }
 
+    function getRepaymentDets($AppId, $RepaymentId)
+    {
+      $query = $this->db->query("SELECT   CASE
+                                          WHEN RHC.RepaymentId IS NULL
+                                                THEN RC.Type
+                                                ELSE GROUP_CONCAT(RHC.Date)
+                                              END as Name
+                                            , RC.RepaymentId
+                                          FROM r_repaymentcycle RC
+                                              LEFT JOIN  repaymentcycle_has_content RHC
+                                                  ON RC.RepaymentId = RHC.RepaymentId
+                                                    WHERE RC.RepaymentId = $RepaymentId 
+                                                    (
+                                                      RC.StatusId = 1
+                                                      OR 
+                                                      RHC.StatusId = 1
+                                                    )
+                                                    GROUP BY RC.RepaymentId
+      ");
+      $data = $query->row_array();
+      return $data;
+    }
+
     function getTotalApprovers($Id)
     {
       $EmployeeNumber = $this->session->userdata('EmployeeNumber');
@@ -1344,10 +1380,4 @@ class loanapplication_model extends CI_Model
       $data = $query->row_array();
       return $data;
     }
-
-
-
-
-
-
 }

@@ -454,6 +454,7 @@ class home extends CI_Controller {
 		$data['paymentDues'] = $this->loanapplication_model->getDue($Id);
 
 		$data['DisplayPenalty'] = $this->loanapplication_model->DisplayPenalty($Id);
+		$data['repaymentCycle'] = $this->loanapplication_model->getRepaymentCycle();
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
@@ -658,6 +659,8 @@ class home extends CI_Controller {
 		$data['EmailAddress'] = $this->borrower_model->getBorrowerEmails($Id);
 		$data['ContactNumber'] = $this->borrower_model->getBorrowerNumber($Id);
 		$data['Address'] = $this->borrower_model->getBorrowerAddress($Id);
+
+		$data['Collections'] = $this->borrower_model->getCollectionsMade($Id);
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
