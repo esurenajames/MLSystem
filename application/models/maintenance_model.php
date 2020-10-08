@@ -365,6 +365,18 @@ class maintenance_model extends CI_Model
       return $data;
     }
 
+    function getAllHistoryLogs()
+    {
+      $query_string = $this->db->query("SELECT  LogId
+                                                , LG.Description
+                                                , LG.CreatedBy
+                                                , DATE_FORMAT(LG.DateCreated, '%d %b %Y %r') as DateCreated
+                                                FROM R_Logs LG
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
     function getUserCreated($EmployeeNumber)
     {
       $query = $this->db->query("SELECT CONCAT(LastName, ', ', FirstName) as Name 

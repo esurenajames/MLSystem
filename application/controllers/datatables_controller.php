@@ -253,6 +253,16 @@ class datatables_controller extends CI_Controller {
 		echo json_encode($result);
 	}
 
+	function HistoryLogs()
+	{
+		$result = $this->maintenance_model->getAllHistoryLogs();
+		foreach($result as $key=>$row)
+		{
+			$result[$key]['Name'] = $this->maintenance_model->getUserCreated($row['CreatedBy']);
+		}
+		echo json_encode($result);
+	}
+
 	function managerNotifications()
 	{
 		$Id = $this->uri->segment(3);

@@ -51,6 +51,8 @@
 
         <li <?php if($sidebar == 'BorrowerManagement' && $sidebarMenu == 'BorrowerManagement'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/borrowers"><i class="fa fa-users"></i>Borrower Management</a></li>
 
+        <li <?php if($sidebar == 'HistoryLog' && $sidebarMenu == 'HistoryLog'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/HistoryLogs"><i class="fa fa-history"></i>History Logs</a></li>
+
 
         <!-- <?php if(in_array('3', $access) || in_array('1', $access)) { ?>
           <li><a href="<?php echo base_url();?>home/Customers"><i class="fa fa-users"></i> <span>Clients</span></a></li>
