@@ -51,65 +51,12 @@
 
         <li <?php if($sidebar == 'BorrowerManagement' && $sidebarMenu == 'BorrowerManagement'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/borrowers"><i class="fa fa-users"></i>Borrower Management</a></li>
 
+        <li <?php if($sidebar == 'EmployeeManagement' && $sidebarMenu == 'EmployeeManagement'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/addEmployees"><i class="fa fa-black-tie"></i>Employee Management</a></li>
+
         <li <?php if($sidebar == 'HistoryLog' && $sidebarMenu == 'HistoryLog'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/HistoryLogs"><i class="fa fa-history"></i>History Logs</a></li>
 
-
-        <!-- <?php if(in_array('3', $access) || in_array('1', $access)) { ?>
-          <li><a href="<?php echo base_url();?>home/Customers"><i class="fa fa-users"></i> <span>Clients</span></a></li>
-        <?php } ?> -->
-        <?php if(in_array('3', $access) || in_array('1', $access)) { ?>
-          <!-- <li <?php if($sidebar == 4){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/Clients"><i class="fa fa-users"></i> <span>Clients</span></a></li> -->
-        <?php } ?>
         
-        <!-- <?php if(in_array('2', $access) || in_array('1', $access)) { ?>
-          <li class="treeview">
-            <a href="#">
-              <i class="fa fa-money"></i> <span>Payments</span>
-              <span class="pull-right-container">
-                <i class="fa fa-angle-left pull-right"></i>
-              </span>
-            </a>
-            <ul class="treeview-menu">
-              <li><a href="<?php echo base_url(); ?>resources/index2.html"><i class="fa fa-circle-o"></i> Payment</a></li>
-              <li><a href="<?php echo base_url(); ?>resources/index2.html"><i class="fa fa-circle-o"></i> Missed Payments</a></li>
-              <li><a href="<?php echo base_url(); ?>resources/index2.html"><i class="fa fa-circle-o"></i> List of Payments</a></li>
-            </ul>
-          </li>
-        <?php } ?> -->
 
-        <!-- <?php if(in_array('3', $access) || in_array('1', $access)) { ?>
-          <li <?php if($sidebar == 3){echo 'class="treeview active"';} else {echo 'class="treeview"';}?> >
-            <a href="#">
-              <i class="fa fa-credit-card"></i> <span>Transactions <span class="badge bg-yellow">2</span></span>
-              <span class="pull-right-container">
-                <i class="fa fa-angle-left pull-right"></i>
-              </span>
-            </a>
-            <ul class="treeview-menu">
-              <li <?php if($sidebar == 3 && $sidebarMenu == 2){echo 'class="active"';}?>><a href="<?php echo base_url();?>home/LoanCalculator"><i class="fa fa-circle-o"></i> Loan Calculator</a></li>
-              <li><a href="<?php echo base_url();?>home/LoanCalculator"><i class="fa fa-circle-o"></i> Risk Assessments</a></li>
-              <li><a href="<?php echo base_url(); ?>resources/index2.html"><i class="fa fa-circle-o"></i> Loan Applications <span class="badge bg-yellow">2</span></a></li>
-            </ul>
-          </li>
-        <?php } ?>
-
-        <?php if(in_array('4', $access) || in_array('1', $access)) { ?>
-          <li class="treeview">
-            <a href="#">
-              <i class="fa fa-calendar"></i> <span>Report Generation</span>
-              <span class="pull-right-container">
-                <i class="fa fa-angle-left pull-right"></i>
-              </span>
-            </a>
-            <ul class="treeview-menu">
-              <li><a href="<?php echo base_url(); ?>resources/index.html"><i class="fa fa-circle-o"></i>Collection</a></li>
-              <li><a href="<?php echo base_url();?>home/Customers"><i class="fa fa-circle-o"></i> <span>Loan Applications</span></a></li>
-              <li><a href="<?php echo base_url(); ?>resources/index2.html"><i class="fa fa-circle-o"></i>Loan Products</a></li>
-              <li><a href="<?php echo base_url(); ?>resources/index2.html"><i class="fa fa-circle-o"></i>Customers</a></li>
-              <li><a href="<?php echo base_url(); ?>resources/index2.html"><i class="fa fa-circle-o"></i>Risk Assessments</a></li>
-            </ul>
-          </li>
-        <?php } ?> -->
 
         <?php if(in_array('1', $access)) { ?>
           <li <?php if($sidebar == 'SystemSetup'){echo 'class="treeview active"';} else {echo 'class="treeview"';}?>>
@@ -120,14 +67,6 @@
               </span>
             </a>
             <ul class="treeview-menu">
-              <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Borrowers'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/borrowers"><i class="fa fa-circle-o"></i> Borrower</a></li>
-              <!-- <li ><a href="<?php echo base_url();?>home/borrowers"><i class="fa fa-circle-o"></i> <span>Borrower</span></a></li> -->
-              <!-- <li ><a href="<?php echo base_url();?>home/DashboardM"><i class="fa fa-circle-o"></i> <span>Manager</span></a></li> -->
-              <!-- <li><a href="<?php echo base_url(); ?>resources/index2.html"><i class="fa fa-circle-o"></i> Loan Products</a></li> -->
-              <li <?php if($sidebar == 2 && $sidebarMenu == 1){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/addEmployees"><i class="fa fa-circle-o"></i> Employees</a></li>
-              <!-- <li <?php if($sidebar == 2 && $sidebarMenu == 3){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddBanks"><i class="fa fa-circle-o"></i>Managers</a></li> -->
-              <!-- <li ><a href="<?php echo base_url();?>home/Customers"><i class="fa fa-circle-o"></i> <span>Customers</span></a></li> -->
-              <!-- <li <?php if($sidebar == 2 && $sidebarMenu == 2){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/LoanList"><i class="fa fa-circle-o"></i> Loan Products</a></li> -->
               <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Users'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/addUser"><i class="fa fa-circle-o"></i> Users</a></li>
               <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Banks'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddBank"><i class="fa fa-circle-o"></i>Banks</a></li>
               <li ><a href="<?php echo base_url();?>home/AddBranch"><i class="fa fa-circle-o"></i> <span>Branches</span></a></li>

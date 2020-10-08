@@ -58,8 +58,8 @@ class home extends CI_Controller {
 	
 	function AddBank()
 	{
-		$sidebar['sidebar'] = 1;
-		$sidebar['sidebarMenu'] = 0;
+		$sidebar['sidebar'] = 'SystemSetup';
+		$sidebar['sidebarMenu'] = 'Banks';
 		$header['header'] = 'Banks';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$data['access'] = $this->sidebar_model->getAccess();
@@ -222,8 +222,8 @@ class home extends CI_Controller {
 
 	function AddAssetManagement()
 	{
-		$sidebar['sidebar'] = 2;
-		$sidebar['sidebarMenu'] = 'AssetManagement';
+		$sidebar['sidebar'] = 'Asset Management';
+		$sidebar['sidebarMenu'] = 'Asset Management';
 		$header['header'] = 'Asset Management';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -643,8 +643,8 @@ class home extends CI_Controller {
 
 	function addEmployees()
 	{
-		$sidebar['sidebar'] = 'SystemSetup';
-		$sidebar['sidebarMenu'] = 'Employees';
+		$sidebar['sidebar'] = 'EmployeeManagement';
+		$sidebar['sidebarMenu'] = 'EmployeeManagement';
 		$header['header'] = 'Employees';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
