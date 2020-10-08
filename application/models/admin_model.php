@@ -505,6 +505,28 @@ class admin_model extends CI_Model
       return $data;
     }
 
+    function getCapitalDetails($Id)
+    {
+      $query_string = $this->db->query("SELECT  C.Amount
+                                                , CapitalId
+                                                , CONCAT('IC-', LPAD(C.CapitalId, 6, 0)) as ReferenceNo
+                                                FROM R_Capital C 
+                                                  WHERE CapitalId = '$Id'
+      ");
+      $CapitalDetail = $query_string->row_array();
+      return $CapitalDetail;
+    }
+
+    function countCapital($data)
+    {
+      $query_string = $this->db->query("SELECT  * 
+                                                FROM R_Capital C
+                                                  WHERE C.Amount = '".$data['Amount']."'
+      ");
+      $data = $query_string->num_rows();
+      return $data;
+    }
+
     function updateStatus($input)
     {
       $EmployeeNumber = $this->session->userdata('EmployeeNumber');
@@ -1046,6 +1068,40 @@ class admin_model extends CI_Model
           else if($input['updateType'] == 0)
           {
             $Description = 'Deactivated ' .$RepaymentDetail['Type']. '  at the Repayment Cycles in System Setup'; // main log
+          }
+          $data2 = array(
+            'Description'   => $Description,
+            'CreatedBy'     => $EmployeeNumber,
+            'DateCreated'   => $DateNow
+          );
+          $this->db->insert('R_Logs', $data2);
+      }
+      else if($input['tableType'] == 'Capital')
+      {
+        $CapitalDetail = $this->db->query("SELECT  Amount
+                                                    FROM R_Capital C
+                                                      WHERE CapitalId = ".$input['Id']."
+        ")->row_array();
+
+        // update status
+          $set = array(
+            'StatusId' => $input['updateType'],
+            'UpdatedBy' => $EmployeeNumber,
+            'DateUpdated' => $DateNow,
+          );
+          $condition = array(
+            'CapitalId' => $input['Id']
+          );
+          $table = 'R_Capital';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+        // insert into logs
+          if($input['updateType'] == 1)
+          {
+            $Description = 'Re-activated ' .$CapitalDetail['Amount']. ' at the Initial Capital in System Setup'; // main log
+          }
+          else if($input['updateType'] == 0)
+          {
+            $Description = 'Deactivated ' .$CapitalDetail['Amount']. '  at the Initial Capital in System Setup'; // main log
           }
           $data2 = array(
             'Description'   => $Description,

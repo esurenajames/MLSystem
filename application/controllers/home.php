@@ -339,6 +339,21 @@ class home extends CI_Controller {
 		$this->load->view('admin/HistoryLog', $data);
 	}
 
+	function AddInitialCapital()
+	{
+		$sidebar['sidebar'] = 'SystemSetup';
+		$sidebar['sidebarMenu'] = 'InitialCapital';
+		$header['header'] = 'Set Initial Capital';
+		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['access'] = $this->sidebar_model->getAccess();
+
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('admin/AddInitialCapital', $data);
+	}
+
 	function ViewLoans()
 	{
 		$sidebar['sidebar'] = 'Loans';

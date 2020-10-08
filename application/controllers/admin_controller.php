@@ -83,6 +83,18 @@ class admin_controller extends CI_Controller {
     echo json_encode($json);
   }
 
+  public function getRegion()
+  {
+    $json = [];
+    if(!empty($this->input->get("q")))
+    {
+      $keyword = $this->input->get("q");
+      $json = $this->maintenance_model->getRegion($keyword);
+    }
+    echo json_encode($json);
+  }
+
+
   function SecurityQuestion()
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
@@ -113,17 +125,6 @@ class admin_controller extends CI_Controller {
       
       redirect('home/userprofile');
     }
-  }
-
-  public function getRegion()
-  {
-    $json = [];
-    if(!empty($this->input->get("q")))
-    {
-      $keyword = $this->input->get("q");
-      $json = $this->maintenance_model->getRegion($keyword);
-    }
-    echo json_encode($json);
   }
 
   function getRegionList()
@@ -159,6 +160,20 @@ class admin_controller extends CI_Controller {
   function getBarangays()
   {
     echo $this->maintenance_model->getBarangays($this->input->post('Id'));
+  }
+
+  function getCharges()
+  {
+    $output = $this->maintenance_model->getCharges();
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getRequirements()
+  {
+    $output = $this->maintenance_model->getRequirements($this->input->post('Id'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
   }
 
   function addEmployees()
@@ -2348,6 +2363,87 @@ class admin_controller extends CI_Controller {
     }
   }
 
+  function AddCapital()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $CapitalDetail = $this->admin_model->getCapitalDetails($_POST['CapitalId']);
+    if ($_POST['FormType'] == 1) // add Capital
+    {
+      $data = array(
+        'Amount'                     => htmlentities($_POST['Capital'], ENT_QUOTES)
+      );
+      $query = $this->admin_model->countCapital($data);
+      print_r($query);
+      if($query == 0) // not existing
+      {
+        // insert Capital detail
+          $instertCapital = array(
+            'Amount'                     => htmlentities($_POST['Capital'], ENT_QUOTES)
+            , 'CreatedBy'              => $EmployeeNumber
+          );
+          $insertCapitalTable = 'R_Capital';
+          $this->maintenance_model->insertFunction($instertCapital, $insertCapitalTable);
+        // notification
+          $this->session->set_flashdata('alertTitle','Success!'); 
+          $this->session->set_flashdata('alertText','Initial Capital successfully recorded!'); 
+          $this->session->set_flashdata('alertType','success'); 
+          redirect('home/AddInitialCapital/'. $EmployeeId['EmployeeId']);
+      }
+      else
+      {
+        // notification
+          $this->session->set_flashdata('alertTitle','Warning!'); 
+          $this->session->set_flashdata('alertText','Initial Capital already existing!'); 
+          $this->session->set_flashdata('alertType','warning'); 
+          redirect('home/AddInitialCapital');
+      }
+    }
+    else if($_POST['FormType'] == 2) // Edit Initial Capital 
+    {
+      $data = array(
+        'Type'                     => htmlentities($_POST['Repayment'], ENT_QUOTES)
+      );
+      $query = $this->admin_model->countOccupation($data);
+      print_r($query);
+      if($query == 0)
+      {
+        if($RepaymentDetail['Name'] != htmlentities($_POST['Repayment'], ENT_QUOTES))
+        {
+          // add into audit table
+            $auditDetail = 'Updated details of  '.$RepaymentDetail['Type'].' to '.htmlentities($_POST['Repayment'], ENT_QUOTES);
+            $insertAudit = array(
+              'Description' => $auditDetail,
+              'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'R_Logs';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+          // update function
+            $set = array( 
+            'Type'                     => htmlentities($_POST['Repayment'], ENT_QUOTES)
+            );
+            $condition = array( 
+              'RepaymentId' => $_POST['RepaymentId']
+            );
+            $table = 'R_RepaymentCycle';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+        }
+      // notif
+        $this->session->set_flashdata('alertTitle','Success!'); 
+        $this->session->set_flashdata('alertText','Repayment Cycle details successfully updated!'); 
+        $this->session->set_flashdata('alertType','success'); 
+        redirect('home/AddRepaymentCycle/');
+      }
+      else // if existing
+      {
+        // notif
+        $this->session->set_flashdata('alertTitle','Warning!'); 
+        $this->session->set_flashdata('alertText','Repayment Cycle details already existing!'); 
+        $this->session->set_flashdata('alertType','warning'); 
+        redirect('home/AddRepaymentCycle/');
+      }
+    }
+  }
+
   
 
   function getBankDetails()
@@ -2462,12 +2558,7 @@ class admin_controller extends CI_Controller {
     exit();
   }
 
-  function getCharges()
-  {
-    $output = $this->maintenance_model->getCharges();
-    $this->output->set_output(print(json_encode($output)));
-    exit();
-  }
+  
 
   function updateStatus()
   {
@@ -2542,13 +2633,6 @@ class admin_controller extends CI_Controller {
           $this->zip->read_file($filepath1, $detail['Attachment']);
           $this->zip->download($fileName);
       }
-  }
-
-  function getRequirements()
-  {
-    $output = $this->maintenance_model->getRequirements($this->input->post('Id'));
-    $this->output->set_output(print(json_encode($output)));
-    exit();
   }
 
   function submitApplication()

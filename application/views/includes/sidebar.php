@@ -75,6 +75,8 @@
               <li ><a href="<?php echo base_url();?>home/AddRequirement"><i class="fa fa-circle-o"></i> <span>Requirements</span></a></li>
               <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'RepaymentCycle'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddRepaymentCycle"><i class="fa fa-circle-o"></i>Repayment Cycles</a></li>
               <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Disbursement'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddDisbursement"><i class="fa fa-circle-o"></i>Disbursements</a></li>
+              <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'InitialCapital'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddInitialCapital"><i class="fa fa-circle-o"></i>Set Initial Capital</a></li>
+
               <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Education'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddEducation"><i class="fa fa-circle-o"></i>Education Levels</a></li>
               <li ><a href="<?php echo base_url();?>home/AddPosition"><i class="fa fa-circle-o"></i> <span>Positions</span></a></li>
               <li ><a href="<?php echo base_url();?>home/AddPurpose"><i class="fa fa-circle-o"></i> <span>Purposes</span></a></li>

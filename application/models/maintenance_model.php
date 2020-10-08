@@ -351,6 +351,21 @@ class maintenance_model extends CI_Model
       return $data;
     }
 
+    function getAllCapital()
+    {
+      $query_string = $this->db->query("SELECT C.Amount
+                                                , CONCAT('IC-', LPAD(C.CapitalId, 6, 0)) as ReferenceNo
+                                                , CapitalId
+                                                , C.CreatedBy
+                                                , C.StatusId
+                                                , DATE_FORMAT(C.DateCreated, '%d %b %Y %r') as DateCreated
+                                                , DATE_FORMAT(C.DateUpdated, '%d %b %Y %r') as DateUpdated
+                                                FROM R_Capital C
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
     function getAllBorrowers()
     {
       $query_string = $this->db->query("SELECT CONCAT(FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as Name
