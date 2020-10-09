@@ -1269,8 +1269,21 @@ class loanapplication_model extends CI_Model
     }
     return $output;
   } 
-
-
+  
+  function selectChanges($Id)
+  {
+    $query = $this->db->query("SELECT BankId
+                                      , BankName
+                                      FROM R_Bank
+                                        WHERE StatusId = 1
+    ");
+    $output = '<option selected disabled value="">Select Change Sent Through</option>';
+    foreach ($query->result() as $row)
+    {
+      $output .= '<option value="'.$row->BankId.'">'.$row->BankName.'</option>';
+    }
+    return $output;
+  } 
 
   // RENEWAL OF LOANS
     function getLoanTypes()
