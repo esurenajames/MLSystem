@@ -47,6 +47,77 @@
     </div>
   </div>
 
+  <div class="modal fade" id="modalPaymentDetails">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="modalApprovalUpdateTitle"></h4>
+        </div>
+        <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/loanapproval/<?php print_r($detail['ApplicationId']) ?>" method="post">
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-3">
+                <label>Term:</label><br> <?php print_r($detail['TermNo']) ?> / <?php print_r($detail['TermType']) ?><br>
+              </div>
+              <div class="col-md-3">
+                <label>Repayment:</label><br> <?php print_r($detail['RepaymentNo']) ?> / <?php print_r($repayment['Name']) ?><br>
+              </div>
+              <div class="col-md-3">
+                <label>Principal Per Collection:</label><br> Php <?php print_r( number_format($paymentDues['PrincipalPerCollection'], 2)) ?><br>
+              </div>
+              <div class="col-md-3">
+                <label>Interest Per Collection:</label><br> Php <?php print_r( number_format($paymentDues['InterestPerCollection'], 2)) ?><br>
+              </div>              
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Payment for:</label>
+                  <h6 id="lblPaymentForDate"></h6>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Collection Date:</label>
+                  <h6 id="lblCollectionDate"></h6>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label>Amount Paid:</label>
+                <h6 id="lblAmountPaid"></h6>
+              </div>
+              <div class="col-md-6">
+                <label>Change:</label><br>
+                <h6 id="lblDisplayChange"></h6>
+              </div>
+              <div class="col-md-6">
+                <label>Change sent through:</label>
+                <h6 id="lblChangedThroughId"></h6>
+              </div>
+              <div class="col-md-6">
+                <label>Payment Method:</label>
+                <h6 id="lblPaymentMethod"></h6>
+              </div>
+              <div class="col-md-6">
+                <label>Bank</label>
+                <h6 id="lblBankMethod"></h6>
+              </div>
+              <div class="col-md-12">
+                <label>Remarks</label>
+                <h6 id="lblRemarks"></h6>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <div class="modal fade" id="modalRepayment">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -65,10 +136,10 @@
                 <label>Repayment:</label><br> <?php print_r($detail['RepaymentNo']) ?> / <?php print_r($repayment['Name']) ?><br>
               </div>
               <div class="col-md-3">
-                <label>Principal Per Collection:</label><br> Php <?php print_r( number_format($paymentDues['PrincipalPerCollection'])) ?><br>
+                <label>Principal Per Collection:</label><br> Php <?php print_r( number_format($paymentDues['PrincipalPerCollection'], 2)) ?><br>
               </div>
               <div class="col-md-3">
-                <label>Interest Per Collection:</label><br> Php <?php print_r( number_format($paymentDues['InterestPerCollection'])) ?><br>
+                <label>Interest Per Collection:</label><br> Php <?php print_r( number_format($paymentDues['InterestPerCollection'], 2)) ?><br>
               </div>              
             </div>
             <br>
@@ -96,42 +167,35 @@
                 </div>
               </div>
               <div class="col-md-12">
-                <label><input id='chkPenalty' type='checkbox' onclick="onchangePenaltyType()"> Compute for Penalty?</label>
                 <input id='txtIsPenalized' name="IsPenalized" type='hidden' onclick="onchangePenaltyType()">
                 <input id='txtTotalPenalty' name="TotalPenalty" type='hidden' onclick="onchangePenaltyType()">
               </div>
-              <div id="divPenalty" style="display: none">
-                <div class="col-md-3">
-                  <label>Penalty Type</label>
-                  <select class="form-control" id="selectPenaltyType" onchange="onchangePenaltyType()" name="PenaltyType">
-                    <option>Flat Rate</option>
-                    <option>Percentage</option>
-                  </select>
-                </div>
-                <div class="col-md-3">
-                  <label id="inputLblPenaltyType">Amount</label>
-                  <input type="number" min="0" class="form-control" oninput="onchangePenaltyType()" id="txtPenaltyAmount" name="PenaltyAmount" value="">
-                </div>
-                <div class="col-md-3">
-                  <label>Grace Period</label>
-                  <input type="number" min="0" class="form-control" oninput="onchangePenaltyType()" id="txtGracePeriod" name="GracePeriod" value="0">
-                </div>
-                <div class="col-md-3">
-                  <label>Total Penalty</label>
-                  <h6 id="lblTotalPenalty"></h6>
-                </div>
-              </div>
               <div class="col-md-12">
+                <label><input id='chkPayment1' name="chkPayment[]" value="PC" type='checkbox' onclick="onchangePrincipalPayment()" checked=""> Principal Collection</label> 
+                <label><input id='chkPayment2' name="chkPayment[]" value="IC" type='checkbox' onclick="onchangePrincipalInterestPayment()" checked=""> Interest</label><br>
                 <label>Total Amount Due:</label><br>
-                <h6 id="lblTotalAmountDue">Php <?php print_r( number_format($paymentDues['InterestPerCollection'] + $paymentDues['PrincipalPerCollection'])) ?> </h6> <input type="hidden" id="txtAmountDue" value="<?php print_r(round($paymentDues['InterestPerCollection'] + $paymentDues['PrincipalPerCollection'], 2)) ?>" name="AmountDue"> <input type="hidden" id="txtTotalDue" value="" name="totalDue">
+                <h6 id="lblTotalAmountDue"></h6>
+                <input type="hidden" id="txtAmountDue" value="<?php print_r(round($paymentDues['InterestPerCollection'], 2) + round($paymentDues['PrincipalPerCollection'], 2)) ?>" name="AmountDue"> 
+                <input type="hidden" id="txtTotalDue" value="" name="totalDue">
+                <input type="hidden" id="txtInterestAmountCollected" name="InterestAmountCollected" value="<?php print_r(round($paymentDues['InterestPerCollection'], 2)) ?>">
+                <input type="hidden" id="txtPrincipalAmountCollected" name="PrincipalAmountCollected" value="<?php print_r(round($paymentDues['PrincipalPerCollection'], 2)) ?>">
               </div>
               <div class="col-md-12">
                 <label>Amount Paid<span class="text-red">*</span></label>
-                <input type="number" value="0" required="" min="0" maxlength="100000" oninput="computePayment()" class="form-control" name="Amount" id="txtAmountPaid">
+                <input type="number" value="0" required="" step="0.25" min="0" oninput="computePayment()" class="form-control" name="Amount" id="txtAmountPaid">
               </div>
-              <div class="col-md-12">
+              <div class="col-md-6">
                 <label>Change:</label><br>
                 <h6 id="lblChange">Php 0.00</h6>
+                <input type="hidden" id="txtChangeAmount" name="ChangeAmount">
+              </div>
+              <div class="col-md-6">
+                <label>Change sent through: <span class="text-red">*</span></label>
+                <select class="form-control" required="" name="ChangeMethod">
+                  <?php
+                    echo $selectChanges;
+                  ?>
+                </select>
               </div>
               <div class="col-md-6">
                 <label>Payment Method <span class="text-red">*</span></label>
@@ -238,9 +302,18 @@
                 <label>Amount Paid<span class="text-red">*</span></label>
                 <input type="number" value="0" required="" min="0" maxlength="100000" oninput="computePayment2()" class="form-control" name="Amount" id="txtAmountPaid2"> <input type="hidden" id="txtTotalDue2" value="" name="totalDue">
               </div>
-              <div class="col-md-12">
+              <div class="col-md-6">
                 <label>Change:</label><br>
                 <h6 id="lblChange2">Php 0.00</h6>
+                <input type="hidden" id="txtChangeAmount2" name="ChangeAmount">
+              </div>
+              <div class="col-md-6">
+                <label>Change sent through: <span class="text-red">*</span></label>
+                <select class="form-control" required="" name="ChangeMethod">
+                  <?php
+                    echo $selectChanges;
+                  ?>
+                </select>
               </div>
               <div class="col-md-6">
                 <label>Payment Method <span class="text-red">*</span></label>
@@ -1035,7 +1108,7 @@
                           if($value['StatusId'] == 1)
                           {
                             $status = '<span class="badge bg-green">Active</span>';
-                            $action = '<a class="btn btn-danger btn-sm" title="Deactivated" data-toggle="modal" data-target="#modalUpdate" onclick="approvalType(4, '.$value['PaymentMadeId'].')"><span class="fa fa-close"></span></a>';
+                            $action = '<a class="btn btn-default btn-sm" title="View" data-toggle="modal" data-target="#modalPaymentDetails"><span class="fa fa-info-circle"></span></a> <a class="btn btn-danger btn-sm" title="Deactivated" data-toggle="modal" data-target="#modalUpdate" onclick="approvalType(4, '.$value['PaymentMadeId'].')"><span class="fa fa-close"></span></a>';
                           }
                           else 
                           {
@@ -1497,7 +1570,7 @@
   });
   
   $('#dtblRepayment').DataTable({
-    "order": [[3, "asc"]]
+    "order": [[0, "desc"]]
   });
   
   $('#dtblPenalty').DataTable({
@@ -1590,12 +1663,11 @@
   }
 
   // repayment functions
-    var varPrincipalCollection = '<?php print_r( $paymentDues['InterestPerCollection'] + $paymentDues['PrincipalPerCollection']) ?>';
+    var varPrincipalCollection = '<?php print_r( round($paymentDues['InterestPerCollection'], 2) + round($paymentDues['PrincipalPerCollection'], 2)) ?>';
     var varTotalPenalty = 0;
     var varTotalLapseDays = 0;
     var varChange = 0; 
-    var varTotalAmountDue = '<?php print_r( $paymentDues['InterestPerCollection'] + $paymentDues['PrincipalPerCollection']) ?>';
-
+    var varTotalAmountDue = '<?php print_r(round($paymentDues['InterestPerCollection'], 2) + round($paymentDues['PrincipalPerCollection'], 2)) ?>';
 
     var varPrincipalCollection2 = 0;
     var varTotalPenalty2 = 0;
@@ -1606,12 +1678,62 @@
     {
       varChange = $('#txtAmountPaid').val() - varTotalAmountDue;
       $('#lblChange').html('Php ' + Math.abs(varChange).toLocaleString('en-US', {minimumFractionDigits: 2}))
+      $('#txtChangeAmount').val(Math.abs(Math.round(varChange*100)/100));
     }
 
     function computePayment2()
     {
       varChange2 = $('#txtAmountPaid2').val() - varTotalAmountDue2;
       $('#lblChange2').html('Php ' + Math.abs(varChange2).toLocaleString('en-US', {minimumFractionDigits: 2}))
+      $('#txtChangeAmount2').val(Math.abs(Math.floor(varChange2)));
+    }
+
+    function onchangePrincipalPayment()
+    {
+      if($('#chkPayment1').is(":checked") == true) // principal collection
+      {
+        varTotalAmountDue = varTotalAmountDue + <?php print_r(round($paymentDues['PrincipalPerCollection'], 2)) ?>;
+        $('#txtAmountDue').val(varTotalAmountDue);
+        $('#txtAmountPaid').val(0.00);
+        $('#lblChange').html('Php 0.00');
+        $('#txtTotalDue').val(varTotalAmountDue);
+        $('#txtPrincipalAmountCollected').val(<?php print_r(round($paymentDues['PrincipalPerCollection'], 2)) ?>);
+        $('#lblTotalAmountDue').html('Php ' + varTotalAmountDue.toLocaleString('en-US', {minimumFractionDigits: 2}));
+      }
+      else
+      {
+        varTotalAmountDue = varTotalAmountDue - <?php print_r(round($paymentDues['PrincipalPerCollection'], 2)) ?>;
+        $('#txtAmountDue').val(varTotalAmountDue);
+        $('#txtAmountPaid').val(0.00);
+        $('#lblChange').html('Php 0.00');
+        $('#txtTotalDue').val(varTotalAmountDue);
+        $('#txtPrincipalAmountCollected').val(<?php print_r(round($paymentDues['PrincipalPerCollection'], 2)) ?>);
+        $('#lblTotalAmountDue').html('Php ' + varTotalAmountDue.toLocaleString('en-US', {minimumFractionDigits: 2}));
+      }
+    }
+
+    function onchangePrincipalInterestPayment()
+    {
+      if($('#chkPayment2').is(":checked") == true) // interest
+      {
+        varTotalAmountDue = varTotalAmountDue + <?php print_r(round($paymentDues['InterestPerCollection'], 2)) ?>;
+        $('#txtAmountDue').val(varTotalAmountDue);
+        $('#txtTotalDue').val(varTotalAmountDue);
+        $('#txtAmountPaid').val(0.00);
+        $('#lblChange').html('Php 0.00');
+        $('#txtInterestAmountCollected').val(<?php print_r(round($paymentDues['InterestPerCollection'], 2)) ?>);
+        $('#lblTotalAmountDue').html('Php ' + varTotalAmountDue.toLocaleString('en-US', {minimumFractionDigits: 2}));
+      }
+      else // interest
+      {
+        varTotalAmountDue = varTotalAmountDue - <?php print_r(round($paymentDues['InterestPerCollection'], 2)) ?>;
+        $('#txtAmountDue').val(varTotalAmountDue);
+        $('#txtTotalDue').val(varTotalAmountDue);
+        $('#txtAmountPaid').val(0.00);
+        $('#lblChange').html('Php 0.00');
+        $('#txtInterestAmountCollected').val(<?php print_r(round($paymentDues['InterestPerCollection'], 2)) ?>);
+        $('#lblTotalAmountDue').html('Php ' + varTotalAmountDue.toLocaleString('en-US', {minimumFractionDigits: 2}));
+      }
     }
 
     function onchangePenaltyType()
@@ -1638,41 +1760,41 @@
               varTotalPenalty = parseInt(varTotalLapseDays * $('#txtPenaltyAmount').val());
               $('#lblTotalPenalty').html('Php ' + varTotalPenalty.toLocaleString('en-US', {minimumFractionDigits: 2}));
 
-              varTotalAmountDue = parseInt(varPrincipalCollection)  + parseInt(varTotalPenalty);
+              varTotalAmountDue = parseFloat(varTotalAmountDue, 2)  + parseFloat(varTotalPenalty, 2);
               $('#lblTotalAmountDue').html(varTotalAmountDue.toLocaleString('en-US', {minimumFractionDigits: 2}));
               $('#txtTotalDue').val(varTotalAmountDue);
               $('#txtAmountPaid').val(0);
             }
             else
             {
+              varTotalAmountDue = parseInt(varTotalAmountDue)  - parseInt(varTotalPenalty);
               $('#lblTotalPenalty').html('Php 0.00');
               $('#lblChange').val('Php 0.00');
-              $('#lblTotalAmountDue').html(parseInt(varPrincipalCollection).toLocaleString('en-US', {minimumFractionDigits: 2}));
-              $('#txtTotalDue').val(varPrincipalCollection);
+              $('#lblTotalAmountDue').html(varTotalAmountDue.toLocaleString('en-US', {minimumFractionDigits: 2}));
+              $('#txtTotalDue').val(varTotalAmountDue);
               $('#txtAmountPaid').val(0);
             }
           }
           else
           {
             $('#inputLblPenaltyType').html('Percentage');
-
             if(varTotalLapseDays > 0)
             {
-              varTotalPenalty = parseInt(varTotalLapseDays * ('<?php print_r($detail['RawPrincipalAmount']) ?>' * ($('#txtPenaltyAmount').val() / 100)));
+              varTotalPenalty = parseInt(varTotalLapseDays * (varTotalAmountDue * ($('#txtPenaltyAmount').val() / 100)));
               $('#lblTotalPenalty').html('Php ' + varTotalPenalty.toLocaleString('en-US', {minimumFractionDigits: 2}));
 
-              varTotalAmountDue = parseInt(varPrincipalCollection)  + parseInt(varTotalPenalty);
-              $('#lblTotalAmountDue').html(varTotalAmountDue.toLocaleString('en-US', {minimumFractionDigits: 2}));
+              varTotalAmountDue = parseInt(varTotalAmountDue)  + parseInt(varTotalPenalty);
+              $('#lblTotalAmountDue').html('Php ' + varTotalAmountDue.toLocaleString('en-US', {minimumFractionDigits: 2}));
               $('#txtTotalDue').val(varTotalAmountDue);
               $('#txtAmountPaid').val(0);
               $('#lblChange').val('Php 0.00');
             }
             else
             {
-              varTotalAmountDue = varPrincipalCollection;
+              varTotalAmountDue = parseInt(varTotalAmountDue)  - parseInt(varTotalPenalty);
               $('#lblTotalPenalty').html('Php 0.00');
-              $('#lblTotalAmountDue').html(parseInt(varPrincipalCollection).toLocaleString('en-US', {minimumFractionDigits: 2}));
-              $('#txtTotalDue').val(varPrincipalCollection);
+              $('#lblTotalAmountDue').html('Php ' + varTotalAmountDue.toLocaleString('en-US', {minimumFractionDigits: 2}));
+              $('#txtTotalDue').val(varTotalAmountDue);
               $('#txtAmountPaid').val(0);
               $('#lblChange').val('Php 0.00');
             }
@@ -1693,17 +1815,18 @@
           $('#txtIsPenalized').val(0);
           $('#txtGracePeriod').val(0);
           varTotalPenalty = parseInt(0);
-          $('#lblTotalAmountDue').html(parseInt(varPrincipalCollection).toLocaleString('en-US', {minimumFractionDigits: 2}));
-          $('#txtTotalDue').val(varPrincipalCollection);
+          $('#lblTotalAmountDue').html('Php ' + varTotalAmountDue.toLocaleString('en-US', {minimumFractionDigits: 2}));
+          $('#txtTotalDue').val(varTotalAmountDue);
           $('#txtAmountPaid').val(0);
         }
       }
       else
       {
+        varTotalAmountDue = varTotalAmountDue - varTotalPenalty;
         $('#txtIsPenalized').val(0);
         $('#divPenalty').hide();
-        $('#lblTotalAmountDue').html(parseInt(varPrincipalCollection).toLocaleString('en-US', {minimumFractionDigits: 2}));
-        $('#txtTotalDue').val(varPrincipalCollection);
+        $('#lblTotalAmountDue').html('Php ' + varTotalAmountDue.toLocaleString('en-US', {minimumFractionDigits: 2}));
+        $('#txtTotalDue').val(varTotalAmountDue);
         $('#txtAmountPaid').val(0);
       }
     }
@@ -1727,7 +1850,7 @@
           $('#lblTotalPenalty2').html('Php ' + varTotalPenalty2.toLocaleString('en-US', {minimumFractionDigits: 2}));
 
           varTotalAmountDue2 = parseInt(varTotalPenalty2);
-          $('#lblTotalAmountDue2').html(varTotalAmountDue2.toLocaleString('en-US', {minimumFractionDigits: 2}));
+          $('#lblTotalAmountDue2').html('Php ' + varTotalAmountDue2.toLocaleString('en-US', {minimumFractionDigits: 2}));
           $('#txtTotalDue2').val(varTotalAmountDue2);
           $('#txtAmountPaid2').val(0);
         }
@@ -1735,7 +1858,7 @@
         {
           $('#lblTotalPenalty2').html('Php 0.00');
           $('#lblChange2').val('Php 0.00');
-          $('#lblTotalAmountDue2').html(parseInt(varPrincipalCollection2).toLocaleString('en-US', {minimumFractionDigits: 2}));
+          $('#lblTotalAmountDue2').html('Php ' + varPrincipalCollection2.toLocaleString('en-US', {minimumFractionDigits: 2}));
           $('#txtTotalDue2').val(varPrincipalCollection2);
           $('#txtAmountPaid2').val(0);
         }
@@ -1749,7 +1872,7 @@
           varTotalPenalty2 = parseInt(varTotalLapseDays2 * ('<?php print_r($detail['RawPrincipalAmount']) ?>' * ($('#txtPenaltyAmount2').val() / 100)));
           $('#lblTotalPenalty2').html('Php ' + varTotalPenalty2.toLocaleString('en-US', {minimumFractionDigits: 2}));
           varTotalAmountDue2 = parseInt(varTotalPenalty2);
-          $('#lblTotalAmountDue2').html(varTotalAmountDue2.toLocaleString('en-US', {minimumFractionDigits: 2}));
+          $('#lblTotalAmountDue2').html('Php ' + varTotalAmountDue2.toLocaleString('en-US', {minimumFractionDigits: 2}));
           $('#txtTotalDue2').val(varTotalAmountDue2);
           $('#txtAmountPaid2').val(0);
           $('#lblChange2').val('Php 0.00');
@@ -1758,7 +1881,7 @@
         {
           varTotalAmountDue2 = varPrincipalCollection2;
           $('#lblTotalPenalty2').html('Php 0.00');
-          $('#lblTotalAmountDue2').html(parseInt(varPrincipalCollection2).toLocaleString('en-US', {minimumFractionDigits: 2}));
+          $('#lblTotalAmountDue2').html('Php ' + varPrincipalCollection2.toLocaleString('en-US', {minimumFractionDigits: 2}));
           $('#txtAmountPaid2').val(0);
           $('#lblChange2').val('Php 0.00');
         }
@@ -2372,6 +2495,17 @@
       swal({
         title: 'Info',
         text: 'Please make sure that total due is paid before submitting',
+        type: 'info',
+        buttonsStyling: false,
+        confirmButtonClass: 'btn btn-primary'
+      });
+    }
+    else if($('#txtTotalDue').val() == 0)
+    {
+      e.preventDefault();
+      swal({
+        title: 'Info',
+        text: 'No payment is required for this transaction.',
         type: 'info',
         buttonsStyling: false,
         confirmButtonClass: 'btn btn-primary'

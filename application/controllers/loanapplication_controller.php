@@ -2023,7 +2023,13 @@ class loanapplication_controller extends CI_Controller {
           'ApplicationId'     => $this->uri->segment(3),
           'Amount'            => $_POST['AmountDue'],
           'Description'       => $_POST['Remarks'],
-          'AmountPaid'          => $_POST['Amount'],
+          'AmountPaid'        => $_POST['Amount'],
+          'IsInterest'        => isset($_POST['chkPayment'][0]),
+          'IsPrincipalCollection' => isset($_POST['chkPayment'][1]),
+          'InterestAmount'    => $_POST['InterestAmountCollected'],
+          'PrincipalAmount'   => $_POST['PrincipalAmountCollected'],
+          'ChangeId'          => $_POST['ChangeMethod'],
+          'ChangeAmount'      => $_POST['ChangeAmount'],
           'DateCollected'     => $varDateCollected,
           'PaymentDate'       => $varDatePayment,
           'CreatedBy'         => $EmployeeNumber
@@ -2105,7 +2111,6 @@ class loanapplication_controller extends CI_Controller {
         $this->session->set_flashdata('alertType','success'); 
         redirect('home/loandetail/' . $this->uri->segment(3));
     }
-
   }
 
   function getPaymentsMaid()
