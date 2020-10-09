@@ -273,6 +273,46 @@ class datatables_controller extends CI_Controller {
 		echo json_encode($result);
 	}
 
+	function ExpenseTypes()
+	{
+		$result = $this->maintenance_model->getAllType();
+		foreach($result as $key=>$row)
+		{
+			$result[$key]['Name'] = $this->maintenance_model->getUserCreated($row['CreatedBy']);
+		}
+		echo json_encode($result);
+	}
+
+	function Expenses()
+	{
+		$result = $this->maintenance_model->getAllExpenses();
+		foreach($result as $key=>$row)
+		{
+			$result[$key]['Name'] = $this->maintenance_model->getUserCreated($row['CreatedBy']);
+		}
+		echo json_encode($result);
+	}
+
+	function WithdrawalTypes()
+	{
+		$result = $this->maintenance_model->getAllWithdrawalType();
+		foreach($result as $key=>$row)
+		{
+			$result[$key]['Name'] = $this->maintenance_model->getUserCreated($row['CreatedBy']);
+		}
+		echo json_encode($result);
+	}
+
+	function Withdrawals()
+	{
+		$result = $this->maintenance_model->getAllWithdrawals();
+		foreach($result as $key=>$row)
+		{
+			$result[$key]['Name'] = $this->maintenance_model->getUserCreated($row['CreatedBy']);
+		}
+		echo json_encode($result);
+	}
+
 	function managerNotifications()
 	{
 		$Id = $this->uri->segment(3);

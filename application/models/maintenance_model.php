@@ -366,6 +366,78 @@ class maintenance_model extends CI_Model
       return $data;
     }
 
+    function getAllType()
+    {
+      $query_string = $this->db->query("SELECT ET.Name as ExpenseType
+                                                , CONCAT('ET-', LPAD(ET.ExpenseTypeId, 6, 0)) as ReferenceNo
+                                                , ExpenseTypeId
+                                                , ET.CreatedBy
+                                                , ET.Description
+                                                , ET.StatusId
+                                                , DATE_FORMAT(ET.DateCreated, '%d %b %Y %r') as DateCreated
+                                                , DATE_FORMAT(ET.DateUpdated, '%d %b %Y %r') as DateUpdated
+                                                FROM R_ExpenseType ET
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getAllExpenses()
+    {
+      $query_string = $this->db->query("SELECT ET.Name as Expense
+                                                , CONCAT('EX-', LPAD(EX.ExpenseId, 6, 0)) as ReferenceNo
+                                                , EX.ExpenseTypeId
+                                                , EX.ExpenseId
+                                                , EX.Amount
+                                                , EX.CreatedBy
+                                                , EX.StatusId
+                                                , EX.DateExpense
+                                                , DATE_FORMAT(EX.DateCreated, '%d %b %Y %r') as DateCreated
+                                                , DATE_FORMAT(EX.DateUpdated, '%d %b %Y %r') as DateUpdated
+                                                FROM R_Expense EX
+                                                  INNER JOIN R_ExpenseType ET
+                                                    ON ET.ExpenseTypeId = EX.ExpenseTypeId
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getAllWithdrawalType()
+    {
+      $query_string = $this->db->query("SELECT WT.Name as WithdrawalType
+                                                , CONCAT('WT-', LPAD(WT.WithdrawalTypeId, 6, 0)) as ReferenceNo
+                                                , WithdrawalTypeId
+                                                , WT.CreatedBy
+                                                , WT.Description
+                                                , WT.StatusId
+                                                , DATE_FORMAT(WT.DateCreated, '%d %b %Y %r') as DateCreated
+                                                , DATE_FORMAT(WT.DateUpdated, '%d %b %Y %r') as DateUpdated
+                                                FROM R_WithdrawalType WT
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getAllWithdrawals()
+    {
+      $query_string = $this->db->query("SELECT WT.Name as Withdrawal
+                                                , CONCAT('W-', LPAD(W.WithdrawalId, 6, 0)) as ReferenceNo
+                                                , W.WithdrawalTypeId
+                                                , W.WithdrawalId
+                                                , W.Amount
+                                                , W.CreatedBy
+                                                , W.StatusId
+                                                , W.DateWithdrawal
+                                                , DATE_FORMAT(W.DateCreated, '%d %b %Y %r') as DateCreated
+                                                , DATE_FORMAT(W.DateUpdated, '%d %b %Y %r') as DateUpdated
+                                                FROM R_Withdrawal W
+                                                  INNER JOIN R_WithdrawalType WT
+                                                    ON W.WithdrawalTypeId = WT.WithdrawalTypeId
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
     function getAllBorrowers()
     {
       $query_string = $this->db->query("SELECT CONCAT(FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as Name
@@ -602,6 +674,40 @@ class maintenance_model extends CI_Model
       foreach ($query->result() as $row)
       {
         $output .= '<option data-city="'.$row->Name.'"  value="'.$row->SourceId.'">'.$row->Name.'</option>';
+      }
+      return $output;
+    }
+
+    function getExpenseType()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT ExpenseTypeId
+                                        , Name
+                                          FROM R_ExpenseType
+                                          WHERE StatusId = 1
+                                            ORDER BY Name ASC
+      ");
+      $output = '<option selected value="">Select Expense Type</option>';
+      foreach ($query->result() as $row)
+      {
+        $output .= '<option data-city="'.$row->Name.'"  value="'.$row->ExpenseTypeId.'">'.$row->Name.'</option>';
+      }
+      return $output;
+    }
+
+    function getWithdrawalType()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT WithdrawalTypeId
+                                        , Name
+                                          FROM R_WithdrawalType
+                                          WHERE StatusId = 1
+                                            ORDER BY Name ASC
+      ");
+      $output = '<option selected value="">Select Withdrawal Type</option>';
+      foreach ($query->result() as $row)
+      {
+        $output .= '<option data-city="'.$row->Name.'"  value="'.$row->WithdrawalTypeId.'">'.$row->Name.'</option>';
       }
       return $output;
     }

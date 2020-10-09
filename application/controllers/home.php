@@ -354,6 +354,68 @@ class home extends CI_Controller {
 		$this->load->view('admin/AddInitialCapital', $data);
 	}
 
+	function AddExpenseType()
+	{
+		$sidebar['sidebar'] = 'SystemSetup';
+		$sidebar['sidebarMenu'] = 'ExpenseType';
+		$header['header'] = 'Types of Expenses';
+		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['access'] = $this->sidebar_model->getAccess();
+
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('admin/AddExpenseType', $data);
+	}
+
+	function AddExpense()
+	{
+		$sidebar['sidebar'] = 'Financial';
+		$sidebar['sidebarMenu'] = 'Expenses';
+		$header['header'] = 'Expenses';
+		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['ExpenseType'] = $this->maintenance_model->getExpenseType();
+		$data['access'] = $this->sidebar_model->getAccess();
+
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('admin/AddExpense', $data);
+	}
+
+	function AddWithdrawalType()
+	{
+		$sidebar['sidebar'] = 'SystemSetup';
+		$sidebar['sidebarMenu'] = 'WithdrawalType';
+		$header['header'] = 'Types of Withdrawals';
+		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['access'] = $this->sidebar_model->getAccess();
+
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('admin/AddWithdrawalType', $data);
+	}
+
+	function AddWithdrawal()
+	{
+		$sidebar['sidebar'] = 'Financial';
+		$sidebar['sidebarMenu'] = 'Withdrawals';
+		$header['header'] = 'Withdrawals';
+		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['WithdrawalType'] = $this->maintenance_model->getWithdrawalType();
+		$data['access'] = $this->sidebar_model->getAccess();
+
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('admin/AddWithdrawal', $data);
+	}
+
 	function ViewLoans()
 	{
 		$sidebar['sidebar'] = 'Loans';
