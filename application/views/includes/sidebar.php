@@ -53,9 +53,21 @@
 
         <li <?php if($sidebar == 'EmployeeManagement' && $sidebarMenu == 'EmployeeManagement'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/addEmployees"><i class="fa fa-black-tie"></i>Employee Management</a></li>
 
-        <li <?php if($sidebar == 'HistoryLog' && $sidebarMenu == 'HistoryLog'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/HistoryLogs"><i class="fa fa-history"></i>History Logs</a></li>
+        <li <?php if($sidebar == 'Finance'){echo 'class="treeview active"';} else {echo 'class="treeview"';}?>>
+          <a href="#">
+            <i class="fa fa-dollar"></i> <span>Finance Management</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+            <li <?php if($sidebar == 'Finance' && $sidebarMenu == 'Expense'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddExpense"><i class="fa fa-circle-o"></i>Add Expense</a></li>
 
-        
+            <li <?php if($sidebar == 'Finance' && $sidebarMenu == 'Withdrawal'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddWithdrawal"><i class="fa fa-circle-o"></i>Add Withdrawal</a></li>
+          </ul>
+        </li>
+
+        <li <?php if($sidebar == 'HistoryLog' && $sidebarMenu == 'HistoryLog'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/HistoryLogs"><i class="fa fa-history"></i>History Logs</a></li>
 
 
         <?php if(in_array('1', $access)) { ?>
@@ -68,14 +80,26 @@
             </a>
             <ul class="treeview-menu">
               <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Users'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/addUser"><i class="fa fa-circle-o"></i> Users</a></li>
+              
               <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Banks'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddBank"><i class="fa fa-circle-o"></i>Banks</a></li>
+              
               <li ><a href="<?php echo base_url();?>home/AddBranch"><i class="fa fa-circle-o"></i> <span>Branches</span></a></li>
+              
               <li ><a href="<?php echo base_url();?>home/AddIndustry"><i class="fa fa-circle-o"></i> <span>Industries</span></a></li>
+              
               <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Occupations'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddOccupation"><i class="fa fa-circle-o"></i>Occupations</a></li>
+              
               <li ><a href="<?php echo base_url();?>home/AddRequirement"><i class="fa fa-circle-o"></i> <span>Requirements</span></a></li>
+              
               <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'RepaymentCycle'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddRepaymentCycle"><i class="fa fa-circle-o"></i>Repayment Cycles</a></li>
+              
               <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Disbursement'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddDisbursement"><i class="fa fa-circle-o"></i>Disbursements</a></li>
+              
               <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'InitialCapital'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddInitialCapital"><i class="fa fa-circle-o"></i>Set Initial Capital</a></li>
+
+              <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'ExpenseType'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddExpenseType"><i class="fa fa-circle-o"></i>Types of Expense</a></li>
+
+              <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'WithdrawalType'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddWithdrawalType"><i class="fa fa-circle-o"></i>Types of Withdrawal</a></li>
 
               <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Education'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddEducation"><i class="fa fa-circle-o"></i>Education Levels</a></li>
               <li ><a href="<?php echo base_url();?>home/AddPosition"><i class="fa fa-circle-o"></i> <span>Positions</span></a></li>

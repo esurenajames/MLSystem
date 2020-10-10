@@ -527,6 +527,110 @@ class admin_model extends CI_Model
       return $data;
     }
 
+    function getExpenseTypeDetails($Id)
+    {
+      $query_string = $this->db->query("SELECT  ET.Name as ExpenseType
+                                                , ET.Description
+                                                , ExpenseTypeId
+                                                , CONCAT('ET-', LPAD(ET.ExpenseTypeId, 6, 0)) as ReferenceNo
+                                                FROM R_ExpenseType ET 
+                                                  WHERE ExpenseTypeId = '$Id'
+      ");
+      $ExpenseTypeDetail = $query_string->row_array();
+      return $ExpenseTypeDetail;
+    }
+
+    function countExpenseType($data)
+    {
+      $query_string = $this->db->query("SELECT  * 
+                                                FROM R_ExpenseType ET
+                                                  WHERE ET.Name = '".$data['Name']."'
+                                                  AND ET.Description = '".$data['Description']."'
+      ");
+      $data = $query_string->num_rows();
+      return $data;
+    }
+
+    function getExpenseDetails($Id)
+    {
+      $query_string = $this->db->query("SELECT  EX.ExpenseTypeId
+                                                , EX.Amount
+                                                , ET.Name as ExpenseName
+                                                , ExpenseId
+                                                , EX.ExpenseTypeId
+                                                , EX.DateExpense
+                                                , CONCAT('EX-', LPAD(EX.ExpenseId, 6, 0)) as ReferenceNo
+                                                FROM R_Expense EX 
+                                                  INNER JOIN R_ExpenseType ET
+                                                   ON EX.ExpenseTypeId = ET.ExpenseTypeId
+                                                  WHERE ExpenseId = '$Id'
+      ");
+      $ExpenseDetail = $query_string->row_array();
+      return $ExpenseDetail;
+    }
+
+    function countExpense($data)
+    {
+      $query_string = $this->db->query("SELECT  * 
+                                                FROM R_Expense EX
+                                                  WHERE EX.Amount = '".$data['Amount']."'
+      ");
+      $data = $query_string->num_rows();
+      return $data;
+    }
+
+    function getWithdrawalTypeDetails($Id)
+    {
+      $query_string = $this->db->query("SELECT  WT.Name as WithdrawalType
+                                                , WT.Description
+                                                , WithdrawalTypeId
+                                                , CONCAT('WT-', LPAD(WT.WithdrawalTypeId, 6, 0)) as ReferenceNo
+                                                FROM R_WithdrawalType WT 
+                                                  WHERE WithdrawalTypeId = '$Id'
+      ");
+      $WithdrawalTypeDetail = $query_string->row_array();
+      return $WithdrawalTypeDetail;
+    }
+
+    function countWithdrawalType($data)
+    {
+      $query_string = $this->db->query("SELECT  * 
+                                                FROM R_WithdrawalType WT
+                                                  WHERE WT.Name = '".$data['Name']."'
+                                                  AND WT.Description = '".$data['Description']."'
+      ");
+      $data = $query_string->num_rows();
+      return $data;
+    }
+
+    function getWithdrawalDetails($Id)
+    {
+      $query_string = $this->db->query("SELECT  WT.WithdrawalTypeId
+                                                , W.Amount
+                                                , WT.Name as WithdrawalName
+                                                , WithdrawalId
+                                                , W.WithdrawalTypeId
+                                                , W.DateWithdrawal
+                                                , CONCAT('W-', LPAD(W.WithdrawalId, 6, 0)) as ReferenceNo
+                                                FROM R_Withdrawal W 
+                                                  INNER JOIN R_WithdrawalType WT
+                                                   ON W.WithdrawalTypeId = WT.WithdrawalTypeId
+                                                  WHERE WithdrawalId = '$Id'
+      ");
+      $WithdrawalDetail = $query_string->row_array();
+      return $WithdrawalDetail;
+    }
+
+    function countWithdrawal($data)
+    {
+      $query_string = $this->db->query("SELECT  * 
+                                                FROM R_Withdrawal W
+                                                  WHERE W.Amount = '".$data['Amount']."'
+      ");
+      $data = $query_string->num_rows();
+      return $data;
+    }
+
     function updateStatus($input)
     {
       $EmployeeNumber = $this->session->userdata('EmployeeNumber');
@@ -1102,6 +1206,108 @@ class admin_model extends CI_Model
           else if($input['updateType'] == 0)
           {
             $Description = 'Deactivated ' .$CapitalDetail['Amount']. '  at the Initial Capital in System Setup'; // main log
+          }
+          $data2 = array(
+            'Description'   => $Description,
+            'CreatedBy'     => $EmployeeNumber,
+            'DateCreated'   => $DateNow
+          );
+          $this->db->insert('R_Logs', $data2);
+      }
+      else if($input['tableType'] == 'ExpenseType')
+      {
+        $ExpenseTypeDetail = $this->db->query("SELECT  Name
+                                                    FROM R_ExpenseType ET
+                                                      WHERE ExpenseTypeId = ".$input['Id']."
+        ")->row_array();
+
+        // update status
+          $set = array(
+            'StatusId' => $input['updateType'],
+            'UpdatedBy' => $EmployeeNumber,
+            'DateUpdated' => $DateNow,
+          );
+          $condition = array(
+            'ExpenseTypeId' => $input['Id']
+          );
+          $table = 'R_ExpenseType';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+        // insert into logs
+          if($input['updateType'] == 1)
+          {
+            $Description = 'Re-activated ' .$ExpenseTypeDetail['Name']. ' at the Types of Expenses in System Setup'; // main log
+          }
+          else if($input['updateType'] == 0)
+          {
+            $Description = 'Deactivated ' .$ExpenseTypeDetail['Name']. '  at the Types of Expenses in System Setup'; // main log
+          }
+          $data2 = array(
+            'Description'   => $Description,
+            'CreatedBy'     => $EmployeeNumber,
+            'DateCreated'   => $DateNow
+          );
+          $this->db->insert('R_Logs', $data2);
+      }
+      else if($input['tableType'] == 'Expense')
+      {
+        $ExpenseDetail = $this->db->query("SELECT  EX.ExpenseTypeId as Name
+                                                    FROM R_Expense EX
+                                                      WHERE ExpenseId = ".$input['Id']."
+        ")->row_array();
+
+        // update status
+          $set = array(
+            'StatusId' => $input['updateType'],
+            'UpdatedBy' => $EmployeeNumber,
+            'DateUpdated' => $DateNow,
+          );
+          $condition = array(
+            'ExpenseId' => $input['Id']
+          );
+          $table = 'R_Expense';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+        // insert into logs
+          if($input['updateType'] == 1)
+          {
+            $Description = 'Re-activated ' .$ExpenseDetail['Name']. ' at the Expenses in Finance'; // main log
+          }
+          else if($input['updateType'] == 0)
+          {
+            $Description = 'Deactivated ' .$ExpenseDetail['Name']. '  at the Expenses in Financ'; // main log
+          }
+          $data2 = array(
+            'Description'   => $Description,
+            'CreatedBy'     => $EmployeeNumber,
+            'DateCreated'   => $DateNow
+          );
+          $this->db->insert('R_Logs', $data2);
+      }
+      else if($input['tableType'] == 'WithdrawalType')
+      {
+        $WithdrawalTypeDetail = $this->db->query("SELECT  Name
+                                                    FROM R_WithdrawalType ET
+                                                      WHERE WithdrawalTypeId = ".$input['Id']."
+        ")->row_array();
+
+        // update status
+          $set = array(
+            'StatusId' => $input['updateType'],
+            'UpdatedBy' => $EmployeeNumber,
+            'DateUpdated' => $DateNow,
+          );
+          $condition = array(
+            'WithdrawalTypeId' => $input['Id']
+          );
+          $table = 'R_WithdrawalType';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+        // insert into logs
+          if($input['updateType'] == 1)
+          {
+            $Description = 'Re-activated ' .$WithdrawalTypeDetail['Name']. ' at the Types of Withdrawal in System Setup'; // main log
+          }
+          else if($input['updateType'] == 0)
+          {
+            $Description = 'Deactivated ' .$WithdrawalTypeDetail['Name']. '  at the Types of Withdrawal in System Setup'; // main log
           }
           $data2 = array(
             'Description'   => $Description,
