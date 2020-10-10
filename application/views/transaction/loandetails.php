@@ -2548,7 +2548,6 @@
   });
 
   $("#frmSubmitPenalty").on('submit', function (e) {
-    alert($('#txtAmountPaid2').val() + ' < ' + $('#txtTotalDue2').val())
     if($('#txtAmountPaid2').val() < $('#txtTotalDue2').val())
     {
       e.preventDefault();
