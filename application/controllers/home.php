@@ -52,6 +52,10 @@ class home extends CI_Controller {
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['securityQuestions'] = $this->employee_model->getSecurityQuestions();
 		$data['totalBorrower'] = $this->maintenance_model->getTotalBorrower();
+		$data['TotalMonthlyIncome'] = $this->maintenance_model->getTotalMonthlyIncome();
+		$data['TotalInterestRate'] = $this->maintenance_model->getTotalInterestRate();
+		$data['TotalExpense'] = $this->maintenance_model->getTotalExpense();
+		$data['TotalApproved'] = $this->maintenance_model->getTotalApproved();
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
 		$this->load->view('admin/dashboard', $data);
