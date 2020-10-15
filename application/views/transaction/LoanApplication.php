@@ -61,7 +61,7 @@
                             echo $LoanType;
                           ?>
                         </select>
-                        <a href=""> Add/Edit Loan Products</a>
+                        <a href="http://localhost/ELendingTool/home/AddLoanType"> Add/Edit Loan Types</a>
                       </div>
                     </div>
                     <div class="col-md-12">
@@ -112,7 +112,7 @@
                             echo $Purpose;
                           ?>
                         </select>
-                        <a href=""> Add/Edit Purpose</a>
+                        <a href="http://localhost/ELendingTool/home/AddPurpose"> Add/Edit Purpose</a>
                       </div>
                     </div>
                     <div class="col-md-4">
@@ -174,7 +174,7 @@
                             echo $repaymentCycle;
                           ?>
                         </select>
-                        <a href=""> Add/Edit Repayment Cycle</a>
+                        <a href="http://localhost/ELendingTool/home/AddRepaymentCycle"> Add/Edit Repayment Cycle</a>
                       </div>
                     </div>
                     <div class="col-md-6">
@@ -219,7 +219,7 @@
                     </div>
                   </div>
                   <br>
-                  <h4>Additional Charges <small><a href=""> Add/Edit Additional Charges</a></small> <a class="btn btn-sm btn-primary pull-right" id="btnAddCharges" onclick="btnCharges()">Add Charges</a> <a class="btn btn-sm btn-primary pull-right" style="display: none" onclick="btnRemoveCharges()" id="btnRemoveCharges">Remove Charges</a></h4>
+                  <h4>Additional Charges <small><a href="http://localhost/ELendingTool/home/AddConditional"> Add/Edit Additional Charges</a></small> <a class="btn btn-sm btn-primary pull-right" id="btnAddCharges" onclick="btnCharges()">Add Charges</a> <a class="btn btn-sm btn-primary pull-right" style="display: none" onclick="btnRemoveCharges()" id="btnRemoveCharges">Remove Charges</a></h4>
                   <hr>
                   <input type="hidden" id="txtIsCharged">
                   <div id="divAdditionalCharges" style="display: none">
@@ -613,7 +613,7 @@
                       <h6 id="lblRiskAssessment"></h6>
                     </div>
                   </div>
-                  <h4>Requirements <small><a href=""> Add/Edit Requirements</a></small> </h4>
+                  <h4>Requirements <small><a href="http://localhost/ELendingTool/home/AddRequirement"> Add/Edit Requirements</a></small> </h4>
                   <hr>
                   <label>Select Requirement Type<span class="text-red">*</span></label><br>
                   <select class="form-control" style="width: 100%" onchange="requirementType(this.value)" required="" name="RequirementType" id="selectRequirementType">

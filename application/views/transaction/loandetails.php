@@ -6,7 +6,7 @@
     </h1>
     <ol class="breadcrumb">
       <li><a href="#" class="active"><i class="fa fa-dashboard"></i>Loans</a></li>
-      <li><a href="#"></i>Loan Application</a></li>
+      <li><a href="http://localhost/ELendingTool/home/LoanApplication"></i>Loan Application</a></li>
       <li><a href="#"></i>Details</a></li>
     </h1>
     </ol>

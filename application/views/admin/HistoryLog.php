@@ -7,7 +7,8 @@
       History Logs
     </h1>
     <ol class="breadcrumb">
-      <li><a href="#" class="active"><i class="fa fa-dashboard"></i>History Logs</a></li>
+      <li><a href="http://localhost/ELendingTool/home/Dashboard" class="active"><i class="fa fa-dashboard"></i>Dashboards</a></li>
+      <li><a href="#">History Logs</li>
     </ol>
   </section>
 

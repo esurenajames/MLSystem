@@ -688,7 +688,7 @@ class loanapplication_controller extends CI_Controller {
         $this->maintenance_model->insertFunction($insertComment, $insertCommentTable);
         // insert Application_has_notification
           $insertNotification = array(
-            'Description'                   => 'Added a comment to the Source of Other Income tab '
+            'Description'                   => 'Added a comment '
             , 'ApplicationId'               => $this->uri->segment(3)
             , 'CreatedBy'                   => $EmployeeNumber
           );

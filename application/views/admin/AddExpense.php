@@ -7,7 +7,8 @@
       Expenses
     </h1>
     <ol class="breadcrumb">
-      <li><a href="#" class="active"><i class="fa fa-dashboard"></i>Finance Management</a></li>
+      <li><a href="http://localhost/ELendingTool/home/Dashboard" class="active"><i class="fa fa-dashboard"></i>Dashboard</a></li>
+      <li><a href="#">System Setup</a></li>
       <li><a href="#">Add Expense</a></li>
     </ol>
   </section>

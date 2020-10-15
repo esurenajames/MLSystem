@@ -51,6 +51,7 @@ class home extends CI_Controller {
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['securityQuestions'] = $this->employee_model->getSecurityQuestions();
+		$data['totalBorrower'] = $this->maintenance_model->getTotalBorrower();
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
 		$this->load->view('admin/dashboard', $data);
@@ -229,6 +230,7 @@ class home extends CI_Controller {
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['Category'] = $this->maintenance_model->getCategory();
+		$data['Branch'] = $this->maintenance_model->getBranches();
 		$data['access'] = $this->sidebar_model->getAccess();
 
 		$this->load->view('includes/header', $header);
@@ -649,6 +651,7 @@ class home extends CI_Controller {
 		$Id = $this->uri->segment(3);
 		$sidebar['sidebar'] = 2;
 		$sidebar['sidebarMenu'] = 1;
+		$header['header'] = 'Employee Details';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$data['detail'] = $this->employee_model->getEmployeeDetails($Id);
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -797,6 +800,8 @@ class home extends CI_Controller {
 		$data['CivilStatus'] = $this->maintenance_model->getCivilStatus();
 		$data['Salutation'] = $this->maintenance_model->getSalutation();
 		$data['Position'] = $this->maintenance_model->getBorrowerPosition();
+		$data['Occupation'] = $this->maintenance_model->getOccupation();
+		$data['Industry'] = $this->maintenance_model->getIndustry();
 		$data['Status'] = $this->maintenance_model->getBorrowerStatus();
 
 		$data['Reference'] = $this->borrower_model->getReference($Id);

@@ -7,7 +7,8 @@
       Types of Expenses
     </h1>
     <ol class="breadcrumb">
-      <li><a href="#" class="active"><i class="fa fa-dashboard"></i>System Setup</a></li>
+      <li><a href="http://localhost/ELendingTool/home/Dashboard" class="active"><i class="fa fa-dashboard"></i>Dashboard</a></li>
+      <li><a href="#">System Setup</a></li>
       <li><a href="#">Types of Expenses</a></li>
     </ol>
   </section>

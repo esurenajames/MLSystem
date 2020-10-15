@@ -349,16 +349,22 @@ class admin_model extends CI_Model
 
     function getAssetManagementDetails($Id)
     {
-      $query_string = $this->db->query("SELECT  AssetManagementId
-                                                , Type
-                                                , CategoryId
-                                                , PurchaseValue
-                                                , ReplacementValue
-                                                , SerialNumber
-                                                , BoughtFrom
-                                                , Description
-                                                FROM R_AssetManagement
-                                                  WHERE AssetManagementId = '$Id'
+      $query_string = $this->db->query("SELECT  AM.AssetManagementId
+                                                , AM.Type
+                                                , AM.Name
+                                                , CONCAT(AM.Stock, '/', AM.CriticalLevel) as Stock
+                                                , AM.CategoryId
+                                                , AM.PurchaseValue
+                                                , AM.ReplacementValue
+                                                , AM.SerialNumber
+                                                , AM.BoughtFrom
+                                                , AM.Description
+                                                , AM.BranchId
+                                                , BRNCH.Name
+                                                FROM R_AssetManagement AM
+                                                INNER JOIN R_Branch BRNCH
+                                                  ON BRNCH.BranchId = AM.BranchId
+                                                  WHERE AM.AssetManagementId = '$Id'
       ");
       $AssetManagementId = $query_string->row_array();
       return $AssetManagementId;

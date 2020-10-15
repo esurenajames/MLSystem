@@ -8,7 +8,7 @@
     </h1>
     <ol class="breadcrumb">
       <li><a href="#" class="active"><i class="fa fa-dashboard"></i> Details</a></li>
-      <li><a href="#">Employees</a></li>
+      <li><a href="http://localhost/ELendingTool/home/addEmployees">Employees</a></li>
       <li><a href="#">Employee Details</a></li>
     </ol>
   </section>
@@ -131,6 +131,7 @@
     </div>
     <!-- /.modal-dialog -->
   </div>
+  
   <div class="modal fade" id="modalNewContact">
     <div class="modal-dialog modal-md">
       <div class="modal-content">
@@ -176,6 +177,7 @@
     </div>
     <!-- /.modal-dialog -->
   </div>
+  
   <div class="modal fade" id="modalNewEmail">
     <div class="modal-dialog modal-md">
       <div class="modal-content">
@@ -209,6 +211,7 @@
     </div>
     <!-- /.modal-dialog -->
   </div>
+  
   <div class="modal fade" id="modalNewAddress">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -284,6 +287,7 @@
     </div>
     <!-- /.modal-dialog -->
   </div>
+  
   <div class="modal fade" id="modalNewId">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -337,6 +341,7 @@
     </div>
     <!-- /.modal-dialog -->
   </div>
+
   <div class="modal fade" id="modalProfilePicture">
     <div class="modal-dialog modal-md">
       <div class="modal-content">
@@ -366,6 +371,338 @@
     </div>
     <!-- /.modal-dialog -->
   </div>
+
+  <div class="modal fade" id="modalEmployeeDetails">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Borrower Details</h4>
+          </div>
+          <form autocomplete="off" action="<?php echo base_url(); ?>employee_controller/employeeProcessing/6/<?php print_r($detail['EmployeeId']); ?>" enctype="multipart/form-data" id="frmEmployeeDetail" method="post">
+            <div class="modal-body">
+              <input type="hidden" class="form-control" id="txtFormType" required="" name="formType" placeholder="First Name">
+              <div id="displaySpouse" style="display: none">
+                <div class="col-md-4">
+                  <label>Full Name</label>
+                  <h6 id="lblSpouseName"></h6>
+                </div>
+                <div class="col-md-4">
+                  <label>Gender</label><br>
+                  <h6 id="lblSpouseGender"></h6>
+                </div>
+                <div class="col-md-4">
+                  <label>Nationality</label><br>
+                  <h6 id="lblSpouseNationality"></h6>
+                </div>
+                <div class="col-md-4">
+                  <label>Civil Status</label><br>
+                  <h6 id="lblSpouseCivil"></h6>
+                </div>
+                <div class="col-md-4">
+                  <label>Date of Birth</label><br>
+                  <h6 id="lblSpouseBirth"></h6>
+                </div>
+                <div class="col-md-4">
+                  <label>No. of Dependents</label><br>
+                  <h6 id="lblSpouseDependents"></h6>
+                </div>
+                <div class="col-md-4">
+                  <label>Birth Place</label><br>
+                  <h6 id="lblSpousePlace"></h6>
+                </div>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+              </div>
+              <div id="borrowerSpouseForm">
+                <div class="row">
+                  <div class="col-md-12" id="divStatus">
+                    <div class="form-group">
+                      <label>Status</label><br>
+                      <select class="form-control" style="width: 100%" required="" name="StatusId" id="selectStatusId">
+                        <?php
+                          echo $Status;
+                        ?>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-2">
+                    <div class="form-group">
+                      <label>Salutation</label><br>
+                      <select class="form-control" style="width: 100%" required="" name="SalutationId" id="selectSalutation">
+                        <?php
+                          echo $Salutation;
+                        ?>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group">
+                      <label for="txtFirstName">First Name <span class="text-red">*</span> </label>
+                      <input type="text" class="form-control" id="txtFirstName" required="" name="FirstName" placeholder="First Name">
+                    </div>
+                  </div>
+                  <div class="col-md-2">
+                    <div class="form-group">
+                      <label for="txtMiddleName">Middle Name</label>
+                      <input type="text" class="form-control" id="txtMiddleName" name="MiddleName" placeholder="Middle Name">
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group">
+                      <label for="txtLastName">Last Name <span class="text-red">*</span></label>
+                      <input type="text" class="form-control" id="txtLastName" required="" name="LastName"  placeholder="Last Name">
+                    </div>
+                  </div>
+                  <div class="col-md-2">
+                    <div class="form-group">
+                      <label for="txtExtensionName">Ext. Name</label>
+                      <input type="text" class="form-control" id="txtExtensionName" name="ExtName" placeholder="Ext Name">
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="selectGender">Gender <span class="text-red">*</span></label><br>
+                      <select class="form-control" style="width: 100%" required="" name="SexId" id="selectGender">
+                        <?php
+                          echo $Sex;
+                        ?>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label>Nationality <span class="text-red">*</span></label><br>
+                      <select class="form-control" style="width: 100%" required="" name="NationalityId" id="selectNationality">
+                        <?php
+                          echo $Nationality;
+                        ?>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label>Civil Status <span class="text-red">*</span></label><br>
+                      <select class="form-control" style="width: 100%" required="" name="CivilStatusId" id="selectCivilStatus">
+                        <?php
+                          echo $CivilStatus;
+                        ?>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <div class="form-group">
+                        <label>Date of Birth <span class="text-red">*</span></label>
+                        <div class="input-group date">
+                          <div class="input-group-addon">
+                            <i class="fa fa-calendar"></i>
+                          </div>
+                          <input type="text" placeholder="Date of Birth" class="form-control" name="DateOfBirth" required="" id="DateOfBirth">
+                        </div>
+                        <!-- /.input group -->
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                      <div class="form-group">
+                        <label for="txtMother">Mother's Maiden Name</label>
+                        <input type="text" class="form-control" id="txtMother" name="MotherName" placeholder="Maiden Name">
+                      </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group">
+                      <label for="txtDependents">No. of Dependents <span class="text-red">*</span></label>
+                      <input type="text" class="form-control" id="txtDependents" name="NoDependents" required="" placeholder="No. of dependents">
+                    </div>
+                  </div>
+                </div>
+                <div id="divSpouseDetails" style="display: none">
+                  <!-- EMPLOYER DETAILS -->
+                    <div class="row">
+                      <div class="col-md-3">
+                        <div class="form-group">
+                          <label>Present Employer/Business</label>
+                          <input type="text" class="form-control" id="txtPresentEmployer" name="SpouseEmployer" placeholder="Present employer/business">
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="form-group">
+                          <label>Position Title</label>
+                          <input type="text" class="form-control" id="txtPresentEmployer" name="PositionTitle" placeholder="Position Title">
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="form-group">
+                          <label>Employment Tenure (Year)</label>
+                          <input type="text" class="form-control" id="txtPresentEmployer" name="TenureYear" placeholder="Employment Tenure (Year)">
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="form-group">
+                          <label>Employment Tenure (Month)</label>
+                          <input type="text" class="form-control" id="txtPresentEmployer" name="TenureMonth" placeholder="Employment Tenure (Month)">
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="form-group">
+                          <label>Email Address</label>
+                          <input type="email" class="form-control" id="txtPresentEmployer" name="EmailAddress" placeholder="Email Address">
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="form-group">
+                          <label>Telephone Number</label>
+                          <input type="number" class="form-control" id="txtPresentEmployer" name="TelephoneNumber" placeholder="Telephone Number">
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="form-group">
+                          <label>Cellphone Number</label>
+                          <input type="number" class="form-control" id="txtPresentEmployer" name="ContactNumber" placeholder="Cellphone Number">
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label>Business Address</label>
+                          <textarea class="form-control" name="BusinessAddress"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  <!-- ADDRESSES -->
+                    <div class="row">
+                      <div class="col-md-12">
+                        <center><label>CITY ADDRESS</label></center>
+                        <center><label><input type="checkbox" class="minimal" id="chkSameBorrowerAddress" name="sameBorrowerAddress" value="1" onclick="chkFunction(this.value, 1)"> Same as borrower address </label></center>
+                      </div>
+                      <div id="divSpouseAddress">
+                        <div class="col-md-12">
+                          <div class="form-group">
+                            <label for="txtHouseNo">House No/Street/Subdivision <span class="text-red">*</span></label>
+                            <input type="text" class="form-control" id="txtHouseNo" name="HouseNo" required="" placeholder="House No/Street/Subdivision">
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label for="selectRegion">Region <span class="text-red">*</span></label>
+                            <select class="form-control select2"  required="" onchange="changeRegion(this.value)" id="selectRegion" name="RegionId" style="width: 100%">
+                            </select>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label for="selectProvince">Province/City<span class="text-red">*</span></label>
+                            <select class="form-control select2"  required="" id="selectProvince" onchange="changeProvince(this.value)" name="ProvinceId" style="width: 100%">
+                            </select>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label for="selectCity">Municipality <span class="text-red">*</span></label>
+                            <select class="form-control select2" required="" id="selectCity" onchange="changeCity(this.value)" name="CityId" style="width: 100%">
+                            </select>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label for="selectBarangay">Barangay <span class="text-red">*</span></label>
+                            <select class="form-control select2" required="" id="selectBarangay" name="BarangayId" style="width: 100%">
+                            </select>
+                          </div>
+                        </div>
+                        <div class="col-md-12">
+                          <label>Length of stay in city address</label><br>
+                        </div>
+                        <div class="col-md-3">
+                          <div class="form-group">
+                            <label for="txtYearsStayed">Years<span class="text-red">*</span></label>
+                            <input type="number" min="0" class="form-control" id="txtYearsStayed" name="YearsStayed" required="" placeholder="Years stayed">
+                          </div>
+                        </div>
+                        <div class="col-md-3">
+                          <div class="form-group">
+                            <label for="txtMonthsStayed">Months <span class="text-red">*</span></label>
+                            <input type="number" min="0" max="11" maxlength="2" class="form-control" id="txtMonthsStayed" name="MonthsStayed" required="" placeholder="Months stayed">
+                          </div>
+                        </div>
+                        <div class="col-md-3">
+                          <div class="form-group">
+                            <label for="txtTelephoneCityAddress">Telephone at city address</label>
+                            <input type="text" class="form-control" id="txtTelephoneCityAddress" name="TelephoneCityAddress" placeholder="Telephone number for city address">
+                          </div>
+                        </div>
+                        <div class="col-md-3">
+                          <div class="form-group">
+                            <label for="txtTelephoneCityAddress">Cellphone at city address</label>
+                            <input type="text" class="form-control" id="txtCellphoneCityAdd" name="CellphoneCityAdd" placeholder="Cellphone number for city address">
+                          </div>
+                        </div>
+                        <div class="col-md-12">
+                          <center><label>PROVINCIAL ADDRESS</label> <br> 
+                            <label><input type="checkbox" class="minimal" id="chkAddress" name="SameAddress" value="1" onclick="chkFunction(this.value, 2)"> Same as city address </label>
+                            <input type="hidden" class="form-control" required="" id="txtAddress2" name="IsSameAddress" required="">
+                          </center>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div id="divProvincialAddress">
+                        <div class="col-md-12">
+                          <div class="form-group">
+                            <label for="txtHouseNo2">House No/Street/Subdivision<span class="text-red">*</span></label>
+                            <input type="text" class="form-control" id="txtHouseNo2" name="HouseNo2" placeholder="House No/Street/Subdivision">
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label for="selectRegion2">Region <span class="text-red">*</span></label>
+                            <select class="form-control select2"  onchange="changeRegion2(this.value)" id="selectRegion2" name="RegionId2" style="width: 100%">
+                            </select>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label for="selectProvince2">Province/City<span class="text-red">*</span></label>
+                            <select class="form-control select2"  id="selectProvince2" onchange="changeProvince2(this.value)" name="ProvinceId2" style="width: 100%">
+                            </select>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label for="selectCity2">Municipality<span class="text-red">*</span></label>
+                            <select class="form-control select2" id="selectCity2" onchange="changeCity2(this.value)" name="CityId2" style="width: 100%">
+                            </select>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label for="selectBarangay2">Barangay <span class="text-red">*</span></label>
+                            <select class="form-control select2" id="selectBarangay2" name="BarangayId2" style="width: 100%">
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+          </form>
+        </div>
+        <!-- /.modal-content -->
+      </div>
+      <!-- /.modal-dialog -->
+    </div>
 
   <!-- Main content -->
   <section class="content">    
@@ -408,7 +745,7 @@
               </li>
             </ul>
 
-            <button type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#modalBorrowerDetails" onclick="getDetail(<?php print_r($detail['EmployeeId']); ?>, 1)"><b>Edit Profile</b>
+            <button type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#modalEmployeeDetails" onclick="editEmployee(<?php print_r($detail['EmployeeId']); ?>, 1)"><b>Edit Profile</b>
             <button type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#modalProfilePicture"><b>Change Profile Picture</b>
           </div>
           <!-- /.box-body -->
@@ -508,6 +845,8 @@
 <?php $this->load->view('includes/footer'); ?>
 
 <script src="<?php echo base_url(); ?>resources/functionalities/employeeDetails.js"></script>
+
+
 <script type="text/javascript">
   if("<?php print_r($this->session->flashdata('alertTitle')) ?>" != '')
   {

@@ -16,9 +16,9 @@
       Borrower Details
     </h1>
     <ol class="breadcrumb">
-      <li><a href="#" class="active"><i class="fa fa-dashboard"></i> Borrower's Management</a></li>
-      <li><a href="#">Borrowers</a></li>
-      <li><a href="#">Borrower Details</a></li>
+      <li><a href="" class="active"><i class="fa fa-dashboard"></i> Borrower's Management</a></li>
+      <li><a href="http://localhost/ELendingTool/home/borrowers">Borrowers</a></li>
+      <li><a href="">Borrower Details</a></li>
     </ol>
   </section>
 
@@ -80,8 +80,9 @@
                   <div class="form-group">
                     <label>Industry<span class="text-red">*</span></label>
                     <select class="form-control"  required="" name="EmploymentIndustry" id="selectEmploymentIndustry" style="width: 100%">
-                      <option value="1">Technology</option>
-                      <option value="2">Sales</option>
+                      <?php
+                      echo $Industry;
+                      ?>
                     </select>
                   </div>
                 </div>
@@ -95,8 +96,9 @@
                   <div class="form-group">
                     <label>Occupation <span class="text-red">*</span></label>
                     <select class="form-control"  required="" name="PositionId" id="selectPosition" style="width: 100%">
-                      <option value="1">Technology</option>
-                      <option value="2">Sales</option>
+                      <?php
+                      echo $Occupation;
+                      ?>
                     </select>
                   </div>
                 </div>
@@ -633,12 +635,6 @@
                     <div class="form-group">
                       <label for="txtDependents">No. of Dependents <span class="text-red">*</span></label>
                       <input type="text" class="form-control" id="txtDependents" name="NoDependents" required="" placeholder="No. of dependents">
-                    </div>
-                  </div>
-                  <div class="col-md-4">
-                    <div class="form-group">
-                      <label for="txtDependents">Birth Place <span class="text-red">*</span></label>
-                      <input type="text" class="form-control" id="txtDependents" name="NoDependents" required="" placeholder="Birth Place">
                     </div>
                   </div>
                 </div>

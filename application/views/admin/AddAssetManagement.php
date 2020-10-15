@@ -45,6 +45,24 @@
                 </div>
                 <div class="col-md-6">
                   <div class="form-group">
+                    <label for="AssetName">Asset Name</label>
+                    <input type="text" class="form-control" id="txtAssetName" name="AssetName" placeholder="Asset Name">
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label for="Stock">Stock</label>
+                    <input type="number" class="form-control" id="txtStock" name="Stock" placeholder="00">
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label for="CriticalLevel">Critical Level</label>
+                    <input type="number" class="form-control" id="txtCriticalLevel" name="CriticalLevel" placeholder="00">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
                     <label for="Asset">Purchase Price</label><br>
                     <input type="number" class="form-control" style="width: 100%" name="PurchasePrice" id="txtPurchasePrice" placeholder="0.00">
                     <input type="hidden" name="FormType" id="txtFormType" value="1">
@@ -68,8 +86,18 @@
                 </div>
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label for="Description">Bought From</label>
+                    <label for="Description">Vendor</label>
                     <input type="text" class="form-control" id="txtBoughtFrom" name="BoughtFrom">
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label for="Branch">Company Branch</label><br>
+                    <select class="form-control" style="width: 100%" name="BranchId" id="SelectBranch">
+                    <?php
+                      echo $Branch;
+                    ?>
+                    </select>
                   </div>
                 </div>
                 <div class="col-md-12">
@@ -168,11 +196,13 @@
                 <tr>
                   <th>Type</th>
                   <th>Category</th>
+                  <th>Asset</th>
                   <th>Purchase Price</th>
                   <th>Replacement Value</th>
                   <th>Serial Number</th>
-                  <th>Bought From</th>
-                  <th>Description</th>
+                  <th>Vendor</th>
+                  <th>Company Branch</th>
+                  <th>Stocks</th>
                   <th>Status</th>
                   <th>Date Created</th>
                   <th>Action</th>
@@ -319,11 +349,13 @@
       "ajax": { url: '<?php echo base_url()."/datatables_controller/Assets/"; ?>', type: 'POST', "dataSrc": "" },
       "columns": [  { data: "Type" }
                     , { data: "CategoryName" }
+                    , { data: "AssetName" }
                     , { data: "PurchaseValue" }
                     , { data: "ReplacementValue" }
                     , { data: "SerialNumber" }
                     , { data: "BoughtFrom" }
-                    , { data: "Description" }
+                    , { data: "BranchName" }
+                    , { data: "Stock" }
                     , {
                       data: "StatusId", "render": function (data, type, row) {
                         if(row.StatusId == 2){

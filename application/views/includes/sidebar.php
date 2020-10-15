@@ -34,7 +34,7 @@
 
         <li <?php if($sidebar == 'Loans'){echo 'class="treeview active"';} else {echo 'class="treeview"';}?>>
           <a href="#">
-            <i class="fa fa-file-text"></i> <span>Loans</span>
+            <i class="fa fa-file-text"></i> <span>Loan Management</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
             </span>
@@ -48,6 +48,8 @@
         </li>
 
         <li <?php if($sidebar == 'Asset Management' && $sidebarMenu == 'Asset Management'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddAssetManagement"><i class="fa fa-archive"></i> Asset Management</a></li>
+
+        <li <?php if($sidebar == 'Collection Management' && $sidebarMenu == 'Collection Management'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddAssetManagement"><i class="fa fa-bank"></i> Collection Management</a></li>
 
         <li <?php if($sidebar == 'BorrowerManagement' && $sidebarMenu == 'BorrowerManagement'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/borrowers"><i class="fa fa-users"></i>Borrower Management</a></li>
 
@@ -106,9 +108,8 @@
               <li ><a href="<?php echo base_url();?>home/AddPurpose"><i class="fa fa-circle-o"></i> <span>Purposes</span></a></li>
               <li ><a href="<?php echo base_url();?>home/AddLoanType"><i class="fa fa-circle-o"></i> <span>Loan Types</span></a></li>
               <li ><a href="<?php echo base_url();?>home/AddLoanStatus"><i class="fa fa-circle-o"></i> <span>Loan Status</span></a></li>
-              <li ><a href="<?php echo base_url();?>home/AddMethod"><i class="fa fa-circle-o"></i> <span>Methods for Payment</span></a></li>
-              <li ><a href="<?php echo base_url();?>home/AddConditional"><i class="fa fa-circle-o"></i> <span>Conditional Charges</span></a></li>
-              <li ><a href="<?php echo base_url();?>home/AddOptional"><i class="fa fa-circle-o"></i> <span>Optional Charges</span></a></li>
+              <li ><a href="<?php echo base_url();?>home/AddMethod"><i class="fa fa-circle-o"></i> <span>Modes of Payment</span></a></li>
+              <li ><a href="<?php echo base_url();?>home/AddConditional"><i class="fa fa-circle-o"></i> <span>Additional Charges</span></a></li>
               <li ><a href="<?php echo base_url();?>home/AddCategory"><i class="fa fa-circle-o"></i> <span>Asset Categories</span></a></li>
               <li ><a href="<?php echo base_url();?>home/AddBorrowerStatus"><i class="fa fa-circle-o"></i> <span>Borrower's Status</span></a></li>
             </ul>

@@ -78,6 +78,61 @@ class maintenance_model extends CI_Model
       return $data;
     }
 
+    function getTotalBorrower()
+    {
+      $query_string = $this->db->query("SELECT COUNT(BorrowerId) 
+                                              FROM r_borrowers;
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getTotalMonthlyIncome()
+    {
+      $query_string = $this->db->query("SELECT DISTINCT (DATE(DateCreated)) AS unique_date
+                                            , SUM(Amount) AS totalAmount 
+                                              FROM application_has_monthlyincome 
+                                                GROUP BY unique_date 
+                                                ORDER BY unique_date ASC
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getTotalInterestRate()
+    {
+      $query_string = $this->db->query("SELECT DISTINCT (DATE(DateCreated)) AS unique_date
+                                            , SUM(Amount) AS totalAmount 
+                                              FROM application_has_interests 
+                                                GROUP BY unique_date 
+                                                ORDER BY unique_date ASC
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getTotalExpense()
+    {
+      $query_string = $this->db->query("SELECT DISTINCT (DATE(DateCreated)) AS unique_date
+                                            , SUM(Amount) AS totalAmount 
+                                              FROM application_has_expense 
+                                                GROUP BY unique_date 
+                                                ORDER BY unique_date ASC
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getTotalApproved()
+    {
+      $query_string = $this->db->query("SELECT COUNT(StatusId) 
+                                            FROM T_Application 
+                                              WHERE StatusId = 1;
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
     function getAllBranches()
     {
       $query_string = $this->db->query("SELECT BRNCH.Name as BranchName
@@ -276,16 +331,23 @@ class maintenance_model extends CI_Model
                                                     ELSE 'Intangible'
                                                   END as Type
                                                 , AM.Description
+                                                , CONCAT (AM.Stock, '/' , AM.CriticalLevel) as Stock
+                                                , AM.Name as AssetName
                                                 , AM.BoughtFrom
                                                 , AM.CategoryId
                                                 , AM.SerialNumber
                                                 , AM.StatusId
+                                                , AM.Name
+                                                , BRNCH.Name as BranchName
+                                                , AM.BranchId
                                                 , AM.CreatedBy
                                                 , C.Name as CategoryName
                                                 , DATE_FORMAT(AM.DateCreated, '%d %b %Y %r') as DateCreated
                                                 FROM R_AssetManagement AM
                                                  INNER JOIN R_Category C
-                                                 ON C.CategoryId = AM.CategoryId
+                                                  ON C.CategoryId = AM.CategoryId
+                                                    INNER JOIN R_Branch BRNCH
+                                                      ON BRNCH.BranchId = AM.BranchId
       ");
       $data = $query_string->result_array();
       return $data;
@@ -725,6 +787,40 @@ class maintenance_model extends CI_Model
       foreach ($query->result() as $row)
       {
         $output .= '<option value="'.$row->PositionId.'">'.$row->Name.'</option>';
+      }
+      return $output;
+    }
+
+    function getOccupation()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT OccupationId
+                                        , OCCU.Name
+                                          FROM R_Occupation OCCU
+                                            WHERE StatusId = 1
+                                            ORDER BY OCCU.Name ASC
+      ");
+      $output = '<option selected value="">Select Occupation</option>';
+      foreach ($query->result() as $row)
+      {
+        $output .= '<option value="'.$row->OccupationId.'">'.$row->Name.'</option>';
+      }
+      return $output;
+    }
+
+    function getIndustry()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT IndustryId
+                                        , Name
+                                          FROM R_Industry
+                                            WHERE StatusId = 1
+                                            ORDER BY Name ASC
+      ");
+      $output = '<option selected value="">Select Industry</option>';
+      foreach ($query->result() as $row)
+      {
+        $output .= '<option value="'.$row->IndustryId.'">'.$row->Name.'</option>';
       }
       return $output;
     }

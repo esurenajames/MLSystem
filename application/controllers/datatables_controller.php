@@ -238,7 +238,7 @@ class datatables_controller extends CI_Controller {
 		$result = $this->maintenance_model->getAllEducation();
 		foreach($result as $key=>$row)
 		{
-			$result[$key]['Name'] = $this->maintenance_model->getUserCreated($row['EmployeeNumber']);
+			$result[$key]['Name'] = $this->maintenance_model->getUserCreated($row['CreatedBy']);
 		}
 		echo json_encode($result);
 	}

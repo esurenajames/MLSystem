@@ -1238,6 +1238,7 @@ class loanapplication_model extends CI_Model
                                               , BNK.Description
                                               , BNK.AccountNumber
                                               FROM R_Bank BNK
+                                              WHERE StatusId = 1
     ");
     $output = '<option selected disabled value="">Select Bank</option>';
     foreach ($query->result() as $row)

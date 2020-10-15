@@ -315,6 +315,83 @@
     });
   }
 
+  function getDetail(EmployeeId, formType)
+  {
+    if(formType == 1) // for editing of Employee
+    {
+      document.getElementById("selectStatusId").required = true;
+      $('#divStatus').show();
+      $('#divSpouseDetails').hide();
+      $('#borrowerSpouseForm').show();
+      $('#displaySpouse').hide();
+      $.ajax({
+        url: baseUrl + "/employee_controller/getEmployeeDetails",
+        type: "POST",
+        async: false,
+        data: {
+          Id : EmployeeId
+        },
+        dataType: "JSON",
+        beforeSend: function(){
+            $('.loading').show();
+        },
+        success: function(data)
+        {
+          $('#txtFormType').val(formType);
+          $('#selectSalutation').val(data['SalutationId']).change();
+          $('#txtFirstName').val(data['FirstName']);
+          $('#txtMiddleName').val(data['MiddleName']);
+          $('#txtLastName').val(data['LastName']);
+          $('#txtExtensionName').val(data['ExtName']);
+          $('#txtDependents').val(data['Dependents']);
+          $('#txtMother').val(data['MotherName']);
+          $('#selectGender').val(data['SexId']).change();
+          $('#selectNationality').val(data['NationalityId']).change();
+          $('#selectCivilStatus').val(data['CivilStatusId']).change();
+          $('#selectStatusId').val(data['StatusId']).change();
+
+          $('#datepicker').daterangepicker({
+              "startDate": moment(data['RawDateOfBirth']).format('DD MMM YY hh:mm A'),
+              "singleDatePicker": true,
+              "timePicker": false,
+              "linkedCalendars": false,
+              "showCustomRangeLabel": false,
+              "showDropdowns": true,
+              // "maxDate": Start,
+              "opens": "up",
+              "locale": {
+                  format: 'DD MMM YYYY',
+              },
+          }, function(start, end, label){
+          });
+        },
+        error: function()
+        {
+          setTimeout(function() {
+            swal({
+              title: 'Warning!',
+              text: 'Something went wrong, please contact the administrator or refresh page!',
+              type: 'warning',
+              buttonsStyling: false,
+              confirmButtonClass: 'btn btn-primary'
+            });
+            // location.reload();
+          }, 2000);
+        }
+      });
+    }
+    else // for adding of spouse
+    {
+      document.getElementById("frmEmployeeDetail").reset();
+      $('#txtFormType').val(formType);
+      $('#divStatus').hide();
+      $('#divSpouseDetails').show();
+      $('#EmployeeSpouseForm').show();
+      $('#displaySpouse').hide();
+      document.getElementById("selectStatusId").required = false;
+    }
+  }
+
 
 
 $(function () {

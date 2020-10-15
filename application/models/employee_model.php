@@ -283,6 +283,7 @@ class employee_model extends CI_Model
                                                 , acronym(EMP.MiddleName) as MiddleInitial
                                                 , EMP.LastName
                                                 , EMP.ExtName
+                                                , PP.FileName
                                                 , SX.Name as Sex
                                                 , N.Description as Nationality
                                                 , C.name as CivilStatus
@@ -318,6 +319,8 @@ class employee_model extends CI_Model
                                                     ON B.BranchId = BE.BranchId
                                                   LEFT JOIN r_employee MNG
                                                     ON MNG.EmployeeNumber = BM.EmployeeNumber
+                                                  LEFT JOIN r_ProfilePicture PP
+                                                    ON PP.EmployeeNumber = EMP.EmployeeNumber
                                                   WHERE EMP.EmployeeNumber = '$Id'
 
       ");

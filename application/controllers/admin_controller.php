@@ -1538,17 +1538,20 @@ class admin_controller extends CI_Controller {
   function AddAssetManagement()
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $AssetManagementDetail = $this->admin_model->getAssetManagementDetails($_POST['MethodId']);
+    $AssetManagementDetail = $this->admin_model->getAssetManagementDetails($_POST['AssetManagementId']);
     if ($_POST['FormType'] == 1) // add Asset
     {
       $data = array(
         'PurchaseValue'               => htmlentities($_POST['PurchasePrice'], ENT_QUOTES)
         , 'Type'                      => htmlentities($_POST['AssetType'], ENT_QUOTES)
+        , 'Name'                      => htmlentities($_POST['AssetName'], ENT_QUOTES)
+        , 'Stock'                     => htmlentities($_POST['Stock'], ENT_QUOTES)
+        , 'CriticalLevel'             => htmlentities($_POST['CriticalLevel'], ENT_QUOTES)
         , 'CategoryId'                => htmlentities($_POST['CategoryId'], ENT_QUOTES)
         , 'ReplacementValue'          => htmlentities($_POST['ReplacementValue'], ENT_QUOTES)
         , 'SerialNumber'              => htmlentities($_POST['SerialNumber'], ENT_QUOTES)
         , 'BoughtFrom'                => htmlentities($_POST['BoughtFrom'], ENT_QUOTES)
-        , 'Description'               => htmlentities($_POST['Description'], ENT_QUOTES)
+        , 'BranchId'                  => htmlentities($_POST['BranchId'], ENT_QUOTES)
       );
       $query = $this->admin_model->countTangibles($data);
       print_r($query);
@@ -1558,11 +1561,14 @@ class admin_controller extends CI_Controller {
           $insertTangible = array(
             'PurchaseValue'            => htmlentities($_POST['PurchasePrice'], ENT_QUOTES)
             , 'Type'                   => htmlentities($_POST['AssetType'], ENT_QUOTES)
+            , 'Name'                   => htmlentities($_POST['AssetName'], ENT_QUOTES)
+            , 'Stock'                  => htmlentities($_POST['Stock'], ENT_QUOTES)
+            , 'CriticalLevel'          => htmlentities($_POST['CriticalLevel'], ENT_QUOTES)
             , 'CategoryId'             => htmlentities($_POST['CategoryId'], ENT_QUOTES)
             , 'ReplacementValue'       => htmlentities($_POST['ReplacementValue'], ENT_QUOTES)
             , 'SerialNumber'           => htmlentities($_POST['SerialNumber'], ENT_QUOTES)
             , 'BoughtFrom'             => htmlentities($_POST['BoughtFrom'], ENT_QUOTES)
-            , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
+            , 'BranchId'               => htmlentities($_POST['BranchId'], ENT_QUOTES)
             , 'StatusId'               => 2
             , 'CreatedBy'              => $EmployeeNumber
             , 'UpdatedBy'              => $EmployeeNumber
@@ -1712,26 +1718,6 @@ class admin_controller extends CI_Controller {
           // update function
             $set = array( 
             'BoughtFrom'                     => htmlentities($_POST['BoughtFrom'], ENT_QUOTES)
-            );
-            $condition = array( 
-              'AssetManagementId' => $_POST['AssetManagementId']
-            );
-            $table = 'R_AssetManagement';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-        }
-        if($AssetManagementDetail['Description'] != htmlentities($_POST['Description'], ENT_QUOTES))
-        {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$AssetManagementDetail['Description'].' to '.htmlentities($_POST['Description'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
-          // update function
-            $set = array( 
-            'Description'                     => htmlentities($_POST['Description'], ENT_QUOTES)
             );
             $condition = array( 
               'AssetManagementId' => $_POST['AssetManagementId']

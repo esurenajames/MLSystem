@@ -219,7 +219,7 @@
                     </div>
                   </div>
                   <br>
-                  <h4>Additional Charges <small><a href=""> Add/Edit Additional Charges</a></small> <a class="btn btn-sm btn-primary pull-right" id="btnAddCharges" onclick="btnCharges()">Add Charges</a> <a class="btn btn-sm btn-primary pull-right" style="display: none" onclick="btnRemoveCharges()" id="btnRemoveCharges">Remove Charges</a></h4>
+                  <h4>Additional Charges <small><a href="http://localhost/ELendingTool/home/AddConditional"> Add/Edit Additional Charges</a></small> <a class="btn btn-sm btn-primary pull-right" id="btnAddCharges" onclick="btnCharges()">Add Charges</a> <a class="btn btn-sm btn-primary pull-right" style="display: none" onclick="btnRemoveCharges()" id="btnRemoveCharges">Remove Charges</a></h4>
                   <hr>
                   <div id="divAdditionalCharges" style="display: none">
                     <input type="hidden" id="txtIsCharged">

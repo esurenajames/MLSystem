@@ -4,11 +4,12 @@
   <!-- Content Header (Page header) -->
   <section class="content-header">
     <h1>
-      Methods for Payment
+      Modes of Payment
     </h1>
     <ol class="breadcrumb">
-      <li><a href="#" class="active"><i class="fa fa-dashboard"></i>System Setup</a></li>
-      <li><a href="#">Methods for Payment</a></li>
+      <li><a href="http://localhost/ELendingTool/home/Dashboard" class="active"><i class="fa fa-dashboard"></i>Dashboard</a></li>
+      <li><a href="#">System Setup</a></li>
+      <li><a href="#">Modes of Payment</a></li>
     </ol>
   </section>
 
@@ -19,14 +20,14 @@
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">Method of Payment Details</h4>
+          <h4 class="modal-title">Mode of Payment Details</h4>
         </div>
         <form action="<?php echo base_url(); ?>admin_controller/AddMethod/" id="frmInsert2" method="post">
           <div class="modal-body">
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label for="Method">Method Name</label><br>
+                    <label for="Method">Mode Name</label><br>
                     <input type="text" class="form-control" id="txtMethod" name="Method">
                     <input type="hidden" class="form-control" id="txtFormType" name="FormType" value="1">
                     <input type="hidden" class="form-control" id="txtMethodId" name="MethodId" value="1">
@@ -116,17 +117,17 @@
         <!-- Default box -->
         <div class="box">
           <div class="box-header with-border">
-            <h3 class="box-title">List of Methods for Payment</h3>
+            <h3 class="box-title">List of Modes of Payment</h3>
           </div>
           <div class="box-body">
-            <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewMethod">Add Method of Payment</button>
+            <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewMethod">Add Mode of Payment</button>
             <br>
             <br>
             <form name="ApproverDocForm" method="post" id="ApproverDocForm">
               <table id="example1" class="table table-bordered table-hover">
                 <thead>
                 <tr>
-                  <th>Method</th>
+                  <th>Mode</th>
                   <th>Description</th>
                   <th>Status</th>
                   <th>Date Created</th>

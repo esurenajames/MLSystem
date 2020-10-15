@@ -105,8 +105,6 @@ class employee_controller extends CI_Controller {
     redirect('home/userprofile');
   }
 
-
- 
 	function Users()
 	{
 		$result = $this->maintenance_model->getAllUsers();
@@ -128,7 +126,6 @@ class employee_controller extends CI_Controller {
 
     $query = $this->employee_model->updateEmail($input);
   }
-
 
   function employeeProcessing()
   {

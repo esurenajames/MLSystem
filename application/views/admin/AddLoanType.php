@@ -7,7 +7,8 @@
       Loan Types
     </h1>
     <ol class="breadcrumb">
-      <li><a href="#" class="active"><i class="fa fa-dashboard"></i>System Setup</a></li>
+      <li><a href="http://localhost/ELendingTool/home/Dashboard" class="active"><i class="fa fa-dashboard"></i>Dashboard</a></li>
+      <li><a href="#">System Setup</a></li>
       <li><a href="#">Loan Types</a></li>
     </ol>
   </section>
@@ -28,8 +29,8 @@
                   <div class="form-group">
                     <label for="LoanType">Loan Type</label><br>
                     <input type="text" class="form-control" id="txtLoanType" name="LoanType">
-                    <input type="" class="form-control" id="txtFormType" name="FormType" value="1">
-                    <input type="" class="form-control" id="txtLoanId" name="LoanId">
+                    <input type="hidden" class="form-control" id="txtFormType" name="FormType" value="1">
+                    <input type="hidden" class="form-control" id="txtLoanId" name="LoanId">
                   </div>
                 </div>
                 <div class="col-md-12">
