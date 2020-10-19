@@ -30,6 +30,7 @@ class access extends CI_Model
                                                     THEN B.Name
                                                     ELSE BMM.Name
                                                 END as Branch
+                                                , B.BranchId
                                                 FROM R_Userrole U
                                                   INNER JOIN R_Employee EMP
                                                       ON EMP.EmployeeNumber = U.EmployeeNumber

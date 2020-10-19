@@ -366,4 +366,12 @@ class datatables_controller extends CI_Controller {
 		echo json_encode($result);
 	}
 
+	function Collection()
+	{
+		$dateFrom = $this->uri->segment(3);
+		$dateTo = $this->uri->segment(4);
+		$result = $this->loanApplication_model->getCollections($dateFrom, $dateTo);
+		echo json_encode($result);
+	}
+
 }

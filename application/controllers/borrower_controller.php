@@ -474,7 +474,7 @@ class borrower_controller extends CI_Controller {
       $config = array
       (
       'upload_path' => $path,
-      'allowed_types' => 'png|jpg|jpeg',
+      'allowed_types' => 'png|jpg|jpeg|pdf',
       'overwrite' => 1
       );
       
@@ -503,22 +503,14 @@ class borrower_controller extends CI_Controller {
         $Title = $_FILES['Attachment[]']['name'];
 
         $this->upload->initialize($config);
+        $attachment = $fileName;
 
-        $data = array(
-          'Id'                                => htmlentities($_POST['ReqTypeId'], ENT_QUOTES)
-          , 'Attachment'                      => htmlentities($Title, ENT_QUOTES)
-          , 'BorrowerId'                      => htmlentities($this->uri->segment(4), ENT_QUOTES)
-          , 'Description'                     => htmlentities($_POST['Description'], ENT_QUOTES)
-          , 'FileName'                        => htmlentities($attachment, ENT_QUOTES)
-          , 'CreatedBy'                       => $EmployeeNumber
-        );
-        $query = $this->borrower_model->countAttachment($data);
-        if($query == 0)
+        print_r($fileName);
+        if($attachment != "")
         {
-          if ($this->upload->do_upload('Attachment[]')) 
+          if($this->upload->do_upload('Attachment[]')) 
           {
             $this->upload->data();
-            $isApproved = 1;
           } 
           else
           {
@@ -526,91 +518,75 @@ class borrower_controller extends CI_Controller {
             $isApproved = 0;
           }
         }
-        else
-        {
-          $isApproved = 0;
-        }
       }
 
-      $attachment = $fileName;
       if($attachment != "")
       {
-        if($isApproved == 1) // not existing
-        {
-          // insert into address table
-            $insertData = array(
-              'Id'                                => htmlentities($_POST['ReqTypeId'], ENT_QUOTES)
-              , 'Attachment'                      => htmlentities($Title, ENT_QUOTES)
-              , 'Description'                     => htmlentities($_POST['Description'], ENT_QUOTES)
-              , 'FileName'                        => htmlentities($attachment, ENT_QUOTES)
-              , 'CreatedBy'                       => $EmployeeNumber
-            );
-            $insertTable = 'r_identificationcards';
-            $this->maintenance_model->insertFunction($insertData, $insertTable);
-          // get address id
-            $generatedIdData = array(
-              'table'                     => 'r_identificationcards'
-              , 'column'                  => 'IdentificationId'
-              , 'CreatedBy'               => $EmployeeNumber
-            );
-            $NewId = $this->maintenance_model->getGeneratedId2($generatedIdData);
-          // insert into employee address      
-            $insertData2 = array(
-              'BorrowerId'                        => $this->uri->segment(4)
-              , 'IdentificationId'                => $NewId['IdentificationId']
-              , 'CreatedBy'                       => $EmployeeNumber
-              , 'UpdatedBy'                       => $EmployeeNumber
-            );
-            $insertTable2 = 'borrower_has_supportdocuments';
-            $this->maintenance_model->insertFunction($insertData2, $insertTable2);
-          // audits
-            $borrowerDetail = $this->borrower_model->getBorrowerDetails($this->uri->segment(4));
-            $getNewId = array(
-              'table'                             => 'borrower_has_supportdocuments'
-              , 'column'                          => 'BorrowerIdentificationId'
-              , 'CreatedBy'                       => $EmployeeNumber
-            );
-            $NewId = $this->maintenance_model->getGeneratedId2($getNewId);
-            $rowNumber = $this->db->query("SELECT LPAD(".$NewId['BorrowerIdentificationId'].", 6, 0) as number")->row_array();
+        // insert into address table
+          $insertData = array(
+            'Id'                                => htmlentities($_POST['ReqTypeId'], ENT_QUOTES)
+            , 'Attachment'                      => htmlentities($Title, ENT_QUOTES)
+            , 'Description'                     => htmlentities($_POST['Description'], ENT_QUOTES)
+            , 'FileName'                        => htmlentities($attachment, ENT_QUOTES)
+            , 'CreatedBy'                       => $EmployeeNumber
+          );
+          $insertTable = 'r_identificationcards';
+          $this->maintenance_model->insertFunction($insertData, $insertTable);
+        // get address id
+          $generatedIdData = array(
+            'table'                     => 'r_identificationcards'
+            , 'column'                  => 'IdentificationId'
+            , 'CreatedBy'               => $EmployeeNumber
+          );
+          $NewId = $this->maintenance_model->getGeneratedId2($generatedIdData);
+        // insert into employee address      
+          $insertData2 = array(
+            'BorrowerId'                        => $this->uri->segment(4)
+            , 'IdentificationId'                => $NewId['IdentificationId']
+            , 'CreatedBy'                       => $EmployeeNumber
+            , 'UpdatedBy'                       => $EmployeeNumber
+          );
+          $insertTable2 = 'borrower_has_supportdocuments';
+          $this->maintenance_model->insertFunction($insertData2, $insertTable2);
+        // audits
+          $borrowerDetail = $this->borrower_model->getBorrowerDetails($this->uri->segment(4));
+          $getNewId = array(
+            'table'                             => 'borrower_has_supportdocuments'
+            , 'column'                          => 'BorrowerIdentificationId'
+            , 'CreatedBy'                       => $EmployeeNumber
+          );
+          $NewId = $this->maintenance_model->getGeneratedId2($getNewId);
+          $rowNumber = $this->db->query("SELECT LPAD(".$NewId['BorrowerIdentificationId'].", 6, 0) as number")->row_array();
 
-            $auditMainAndManagerLog = 'Added supporting document #SD-' . $rowNumber['number'].' for borrower #'. $borrowerDetail['BorrowerNumber'];
-            $auditBorrowerLog = 'Added new supporting document #SD-' . $rowNumber['number'];
+          $auditMainAndManagerLog = 'Added supporting document #SD-' . $rowNumber['number'].' for borrower #'. $borrowerDetail['BorrowerNumber'];
+          $auditBorrowerLog = 'Added new supporting document #SD-' . $rowNumber['number'];
 
-            $insertAuditBorrower = array(
-              'Description'       => $auditBorrowerLog
-              , 'BorrowerId'      => $this->uri->segment(4)
-              , 'CreatedBy'       => $EmployeeNumber
-            );
-            $insertMainLog = array(
-              'Description'       => $auditMainAndManagerLog
-              , 'CreatedBy'       => $EmployeeNumber
-            );
-            $insertManagerAudit = array(
-              'Description'         => $auditMainAndManagerLog
-              , 'ManagerBranchId'   => $employeeDetail['ManagerBranchId']
-              , 'CreatedBy'         => $EmployeeNumber
-            );
+          $insertAuditBorrower = array(
+            'Description'       => $auditBorrowerLog
+            , 'BorrowerId'      => $this->uri->segment(4)
+            , 'CreatedBy'       => $EmployeeNumber
+          );
+          $insertMainLog = array(
+            'Description'       => $auditMainAndManagerLog
+            , 'CreatedBy'       => $EmployeeNumber
+          );
+          $insertManagerAudit = array(
+            'Description'         => $auditMainAndManagerLog
+            , 'ManagerBranchId'   => $employeeDetail['ManagerBranchId']
+            , 'CreatedBy'         => $EmployeeNumber
+          );
 
-            $auditTable2 = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertMainLog, $auditTable2);
-            $auditTable3 = 'borrower_has_notifications';
-            $this->maintenance_model->insertFunction($insertAuditBorrower, $auditTable3);
-            $auditTable4 = 'manager_has_notifications';
-            $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable4);
-          // notification
-            $this->session->set_flashdata('alertTitle','Success!'); 
-            $this->session->set_flashdata('alertText','Successfully uploaded supporting documents!'); 
-            $this->session->set_flashdata('alertType','success'); 
-            redirect('home/BorrowerDetails/'. $this->uri->segment(4));
-        }
-        else
-        {
-          // notification
-            $this->session->set_flashdata('alertTitle','Warning!'); 
-            $this->session->set_flashdata('alertText','Supporting document already existing!'); 
-            $this->session->set_flashdata('alertType','warning'); 
-            redirect('home/BorrowerDetails/'. $this->uri->segment(4));
-        }
+          $auditTable2 = 'R_Logs';
+          $this->maintenance_model->insertFunction($insertMainLog, $auditTable2);
+          $auditTable3 = 'borrower_has_notifications';
+          $this->maintenance_model->insertFunction($insertAuditBorrower, $auditTable3);
+          $auditTable4 = 'manager_has_notifications';
+          $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable4);
+        // notification
+          $this->session->set_flashdata('alertTitle','Success!'); 
+          $this->session->set_flashdata('alertText','Successfully uploaded supporting documents!'); 
+          $this->session->set_flashdata('alertType','success'); 
+          redirect('home/BorrowerDetails/'. $this->uri->segment(4));
       }
       else
       {

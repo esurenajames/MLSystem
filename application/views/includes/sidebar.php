@@ -41,7 +41,7 @@
           </a>
           <ul class="treeview-menu">
             <li <?php if($sidebar == 'Loans' && $sidebarMenu == 'View Loans'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/ViewLoans"><i class="fa fa-circle-o"></i> View Loans</a></li>
-            <li <?php if($sidebar == 'Loans' && $sidebarMenu == 'Loan Application'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/LoanApplication"><i class="fa fa-circle-o"></i> Loan Application</a></li>
+            <li <?php if($sidebar == 'Loans' && $sidebarMenu == 'Loan Application'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/LoanApplication"><i class="fa fa-circle-o"></i> Create Loan Application</a></li>
             <li <?php if($sidebar == 'Loans' && $sidebarMenu == 'Loan Calculator'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/LoanCalculator"><i class="fa fa-circle-o"></i> Loan Calculator</a></li>
             <li <?php if($sidebar == 'Loans' && $sidebarMenu == 'Loan Approvals'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/LoanApprovals"><i class="fa fa-circle-o"></i>Approvals</a></li>
           </ul>
@@ -49,7 +49,7 @@
 
         <li <?php if($sidebar == 'Asset Management' && $sidebarMenu == 'Asset Management'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddAssetManagement"><i class="fa fa-archive"></i> Asset Management</a></li>
 
-        <li <?php if($sidebar == 'Collection Management' && $sidebarMenu == 'Collection Management'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddAssetManagement"><i class="fa fa-bank"></i> Collection Management</a></li>
+        <li <?php if($sidebar == 'Collection Management' && $sidebarMenu == 'Collection Management'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/collectionManagement"><i class="fa fa-bank"></i> Collection Management</a></li>
 
         <li <?php if($sidebar == 'BorrowerManagement' && $sidebarMenu == 'BorrowerManagement'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/borrowers"><i class="fa fa-users"></i>Borrower Management</a></li>
 

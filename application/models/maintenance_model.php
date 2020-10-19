@@ -80,56 +80,57 @@ class maintenance_model extends CI_Model
 
     function getTotalBorrower()
     {
-      $query_string = $this->db->query("SELECT COUNT(BorrowerId) 
-                                              FROM r_borrowers;
+      $BranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT DISTINCT COUNT(DISTINCT BorrowerId) as Total 
+                                              FROM r_borrowers
+                                                WHERE BranchId = $BranchId
       ");
-      $data = $query_string->result_array();
+      $data = $query_string->row_array();
       return $data;
     }
 
-    function getTotalMonthlyIncome()
+    function getTotalInterestCollected()
     {
-      $query_string = $this->db->query("SELECT DISTINCT (DATE(DateCreated)) AS unique_date
-                                            , SUM(Amount) AS totalAmount 
-                                              FROM application_has_monthlyincome 
-                                                GROUP BY unique_date 
-                                                ORDER BY unique_date ASC
+      $query_string = $this->db->query("SELECT DISTINCT COALESCE(SUM(DISTINCT PM.Amount), 0) as Total
+                                                FROM t_paymentsmade PM
+                                                    WHERE PM.IsInterest = 1
+                                                    AND DATE_FORMAT(DateCreated, '%Y-%m-%d')  = DATE_FORMAT(NOW(), '%Y-%m-%d')
       ");
-      $data = $query_string->result_array();
-      return $data;
-    }
-
-    function getTotalInterestRate()
-    {
-      $query_string = $this->db->query("SELECT DISTINCT (DATE(DateCreated)) AS unique_date
-                                            , SUM(Amount) AS totalAmount 
-                                              FROM application_has_interests 
-                                                GROUP BY unique_date 
-                                                ORDER BY unique_date ASC
-      ");
-      $data = $query_string->result_array();
+      $data = $query_string->row_array();
       return $data;
     }
 
     function getTotalExpense()
     {
-      $query_string = $this->db->query("SELECT DISTINCT (DATE(DateCreated)) AS unique_date
-                                            , SUM(Amount) AS totalAmount 
-                                              FROM application_has_expense 
-                                                GROUP BY unique_date 
-                                                ORDER BY unique_date ASC
+      $query_string = $this->db->query("SELECT  FORMAT(COALESCE(SUM(Amount), 0), 2) as Total
+                                                FROM r_expense
+                                                    WHERE DATE_FORMAT(DateCreated, '%Y-%m-%d')  = DATE_FORMAT(NOW(), '%Y-%m-%d')
+                                                    AND StatusId = 1
       ");
-      $data = $query_string->result_array();
+      $data = $query_string->row_array();
       return $data;
     }
 
-    function getTotalApproved()
+    function getDailyIncome()
     {
-      $query_string = $this->db->query("SELECT COUNT(StatusId) 
-                                            FROM T_Application 
-                                              WHERE StatusId = 1;
+      $query_string = $this->db->query("SELECT  FORMAT(COALESCE(SUM(Amount), 0), 2) as Total
+                                                FROM t_paymentsmade
+                                                    WHERE DATE_FORMAT(DateCreated, '%Y-%m-%d')  = DATE_FORMAT(NOW(), '%Y-%m-%d')
+                                                    AND StatusId = 1
+                                                    AND Amount > 0
       ");
-      $data = $query_string->result_array();
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+
+    function getTransactions()
+    {
+      $query_string = $this->db->query("SELECT  COUNT(*) as Total
+                                                FROM application_has_notifications
+                                                    WHERE DATE_FORMAT(DateCreated, '%Y-%m-%d') = DATE_FORMAT(NOW(), '%Y-%m-%d')
+      ");
+      $data = $query_string->row_array();
       return $data;
     }
 
@@ -1160,20 +1161,6 @@ class maintenance_model extends CI_Model
       return $output;
     }
 
-    function getRequirements($Id)
-    {
-      $query = $this->db->query("SELECT   DISTINCT RequirementId
-                                          , Name
-                                          , Description
-                                          , IsMandatory
-                                          FROM r_requirements
-                                            WHERE StatusId = 1
-                                            AND RequirementTypeId = $Id
-      ");
-      $data = $query->result_array();
-      return $data;
-    }
-
     function getLoanStatus()
     {
       $query = $this->db->query("SELECT   LoanStatusId
@@ -1209,5 +1196,236 @@ class maintenance_model extends CI_Model
     {
       $query = $this->db->query("select * from $tableName where $Condition = '$Id' LIMIT 1");
       return $query->row_array();
+    }
+
+    /*SEC REPORTS*/
+      function getYearFilter($table)
+      {
+        $query_string = $this->db->query("SELECT  DISTINCT DATE_FORMAT(DateCreated, '%Y') as Year
+                                                  FROM $table
+                                                    GROUP BY DATE_FORMAT(DateCreated, '%Y')
+        ");
+        $data = $query_string->result_array();
+        return $data;
+      }
+
+      /*AGE*/
+      function getAge()
+      {
+        $query_string = $this->db->query("SELECT  DISTINCT CASE
+                                                    WHEN YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 18 AND 24
+                                                      THEN '18-24 years old'
+                                                    WHEN YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 25 AND 31
+                                                      THEN '25-31 years old'
+                                                    WHEN YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 32 AND 39
+                                                      THEN '32-39 years old'
+                                                    WHEN YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 40 AND 47
+                                                      THEN '40-47 years old'
+                                                    WHEN YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 48 AND 55
+                                                      THEN '48-55 years old'
+                                                    WHEN YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 56 AND 65
+                                                      THEN '56-65 years old'
+                                                    WHEN YEAR(CURDATE()) - YEAR(DateOfBirth) < 65
+                                                      THEN 'Above 65 years old'
+                                                  END as AgeBracket
+                                                  , COUNT(YEAR(CURDATE()) - YEAR(DateOfBirth)) as TotalAge
+                                                      FROM r_borrowers
+                                                        GROUP BY AgeBracket
+        ");
+        $data = $query_string->result_array();
+        return $data;
+      }
+    /*EDUCATION*/
+    function getEducation($Year)
+    {
+      $query_string = $this->db->query("SELECT  DISTINCT COUNT(BHE.BorrowerEducationId) as TotalBorrower
+                                                , ED.Name as Level
+                                                FROM r_education ED
+                                                  LEFT JOIN borrower_has_education BHE
+                                                      ON BHE.EducationId = ED.EducationId
+                                                        AND BHE.StatusId = 1
+                                                        AND DATE_FORMAT(BHE.DateCreated, '%Y') = '$Year'
+                                                          GROUP BY ED.EducationId
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+    /*GENDER*/
+    function getGender($Year)
+    {
+      $query_string = $this->db->query("SELECT  S.name
+                                                , COUNT(B.BorrowerId) as TotalGender
+                                                FROM r_borrowers B
+                                                      INNER JOIN r_sex S
+                                                          ON S.SexId = B.Sex
+                                                            AND DATE_FORMAT(B.DateCreated, '%Y') = '$Year'
+                                                            GROUP BY S.name
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+    /*OCCUPATION*/
+    function getOccupationPopulation($Year)
+    {
+      $query_string = $this->db->query("SELECT  DISTINCT COUNT(BHE.BorrowerId) as TotalBorrowers
+                                                , O.Name as Occupation
+                                                FROM r_occupation O
+                                                  LEFT JOIN borrower_has_employer BHE
+                                                      ON O.OccupationId = BHE.PositionId
+                                                        AND DATE_FORMAT(BHE.DateCreated, '%Y') = '$Year'
+                                                        AND BHE.StatusId = 1
+                                                        GROUP BY O.OccupationId
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+    /*INCOME LEVEL*/
+    function getIncomeLevelPopulation($Year)
+    {
+      $query_string = $this->db->query("SELECT  DISTINCT CASE
+                                                WHEN SUM(AMOUNT) < 9250
+                                                      THEN 'Less than PHP 9,250'
+                                                WHEN SUM(AMOUNT) BETWEEN 9520 AND 19040
+                                                      THEN 'PHP 9,520 - PHP 19,040'
+                                                WHEN SUM(AMOUNT) BETWEEN 19041 AND 38080
+                                                      THEN 'PHP 19,041 - PHP 38,080'
+                                                WHEN SUM(AMOUNT) BETWEEN 38081 AND 66640
+                                                      THEN 'PHP 38,081 - PHP 66,640'
+                                                WHEN SUM(AMOUNT) BETWEEN 66644 AND 114240
+                                                      THEN 'PHP 66,644 - PHP 114,240'
+                                                WHEN SUM(AMOUNT) BETWEEN 114241 AND 190400
+                                                      THEN 'PHP 114,241 - PHP 190,400'
+                                                WHEN SUM(AMOUNT) > 190400
+                                                      THEN 'More than PHP 190,400'
+                                                  END as IncomeLevel
+                                                  , COUNT(A.BorrowerId) as TotalBorrowers
+                                              FROM application_has_monthlyincome AHM
+                                                    INNER JOIN t_application A
+                                                        ON A.ApplicationId = AHM.ApplicationId
+                                                        AND DATE_FORMAT(AHM.DateCreated, '%Y') = '$Year'
+                                                          GROUP BY BorrowerId
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+    /*MARITAL STATUS*/
+    function getMaritalStatusPopulation($Year)
+    {
+      $query_string = $this->db->query("SELECT  CS.Name
+                                                , COUNT(B.BorrowerId) as TotalBorrowers
+                                                FROM r_civilstatus CS
+                                                      LEFT JOIN r_borrowers B
+                                                          ON B.CivilStatus = CS.CivilStatusId
+                                                            AND DATE_FORMAT(B.DateCreated, '%Y') = '$Year'
+                                                            WHERE CS.StatusId = 1
+                                                            GROUP BY CS.CivilStatusId
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+    /*NUMBER OF BORROWERS*/
+    function getTotalBorrowers()
+    {
+      $query_string = $this->db->query("SELECT  COUNT(BorrowerId) as TotalBorrowers
+                                                , DATE_FORMAT(DateCreated, '%Y') as DateCreated
+                                                FROM r_borrowers
+                                                      WHERE StatusId = 1
+                                                        GROUP BY DATE_FORMAT(DateCreated, '%Y')
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+    /*LOAN TYPE*/
+    function getLoanType($Year)
+    {
+      $query_string = $this->db->query("SELECT  DISTINCT L.Name
+                                                , COUNT(A.ApplicationId) as Total
+                                                FROM r_loans L
+                                                      LEFT JOIN t_application A
+                                                          ON A.LoanId = L.LoanId
+                                                            AND A.StatusId = 1
+                                                            AND DATE_FORMAT(A.DateCreated, '%Y') = '$Year'
+                                                            GROUP BY L.LoanId
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+    /*NUMBER OF LOANS*/
+    function getTotalLoans()
+    {
+      $query_string = $this->db->query("SELECT  COUNT(ApplicationId) as Total
+                                                , DATE_FORMAT(DateCreated, '%Y') as DateCreated
+                                                FROM t_application
+                                                      WHERE StatusId = 1
+                                                        GROUP BY DATE_FORMAT(DateCreated, '%Y')
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+    /*TOTAL LOAN AMOUNT*/
+    function getTotalLoanAmount()
+    {
+      $query_string = $this->db->query("SELECT  SUM(PrincipalAmount) Total
+                                                , DATE_FORMAT(DateCreated, '%Y') as DateCreated
+                                                , FORMAT(SUM(PrincipalAmount), 2) TotalLabel
+                                                FROM t_application
+                                                    WHERE StatusId = 1
+                                                    GROUP BY DATE_FORMAT(DateCreated, '%Y')
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+    /*Total Charges*/
+    function getChargesTotal($Year)
+    {
+      $query_string = $this->db->query("SELECT  DISTINCT L.Name
+                                                , COUNT(A.ApplicationId) as Total
+                                                FROM r_loans L
+                                                      LEFT JOIN t_application A
+                                                          ON A.LoanId = L.LoanId
+                                                            AND A.StatusId = 1
+                                                            AND DATE_FORMAT(A.DateCreated, '%Y') = '$Year'
+                                                            GROUP BY L.LoanId
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+    /*Total Charges*/
+    function getTenors($Year)
+    {
+      $query_string = $this->db->query("SELECT  COUNT(TermType) as TermTypes
+                                                , CASE
+                                                  WHEN TermType = 'Months'
+                                                    THEN 'Monthly'
+                                                  WHEN TermType = 'Days'
+                                                    THEN 'Daily'
+                                                  WHEN TermType = 'Weeks'
+                                                    THEN 'Weekly'
+                                                  WHEN TermType = 'Years'
+                                                    THEN 'Yearly'
+                                                 END as TermType
+                                                FROM t_application A
+                                                  WHERE StatusId = 1
+                                                  AND DATE_FORMAT(A.DateCreated, '%Y') = '$Year'
+                                                  GROUP BY DATE_FORMAT(A.DateCreated, '%Y'), TermType
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+    /*TOTAL INTEREST*/
+    function getTotalInterest()
+    {
+      $query_string = $this->db->query("SELECT  DISTINCT DATE_FORMAT(PM.DateCreated, '%Y') as Year
+                                                , SUM(Amount) as Total
+                                                FROM t_paymentsmade PM
+                                                      INNER JOIN t_application A
+                                                          ON A.ApplicationId = PM.ApplicationId
+                                                            WHERE IsInterest = 1
+                                                            AND PM.StatusId = 1
+                                                            AND A.StatusId = 1
+                                                            GROUP BY DATE_FORMAT(PM.DateCreated, '%Y')
+      ");
+      $data = $query_string->result_array();
+      return $data;
     }
 }

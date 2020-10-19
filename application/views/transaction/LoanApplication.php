@@ -613,29 +613,50 @@
                       <h6 id="lblRiskAssessment"></h6>
                     </div>
                   </div>
-                  <h4>Requirements <small><a href="http://localhost/ELendingTool/home/AddRequirement"> Add/Edit Requirements</a></small> </h4>
+                  <h4>Requirements <small><a href=""> Add/Edit Requirements</a></small> </h4>
                   <hr>
-                  <label>Select Requirement Type<span class="text-red">*</span></label><br>
-                  <select class="form-control" style="width: 100%" onchange="requirementType(this.value)" required="" name="RequirementType" id="selectRequirementType">
-                    <?php
-                      echo $requirementType;
-                    ?>
-                  </select>
-                  <br>
-                  <div id="divRequirementList" style="display: none">
-                    <label>Select Requirements to be Submitted:<span class="text-red">*</span></label><br>
-                    <table id="dtblRequirement" class="table table-bordered table-hover" style="width: 100%">
-                      <thead>
-                      <tr>
-                        <th width="15px">Select</th>
-                        <th>Name</th>
-                        <th>Description</th>
-                      </tr>
-                      </thead>
-                      <tbody>
-                      </tbody>
-                    </table>
-                  </div>
+                  <label>Select Requirements to be Submitted:<span class="text-red">*</span></label><br>
+                  <table id="dtblRequirement" class="table table-bordered table-hover" style="width: 100%">
+                    <thead>
+                    <tr>
+                      <th width="15px">Select</th>
+                      <th>Name</th>
+                      <th>Description</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                      <?php
+                        if($RequirementList != 0)
+                        {
+                          $rowCount = 0;
+                          foreach ($RequirementList as $value) 
+                          {
+                            $rowCount = $rowCount + 1;
+                            if($value['IsMandatory'] == 1)
+                            {
+                              $isChecked = 'checked disabled'; 
+                              $isSelected = 1;
+                            }
+                            else
+                            {
+                              $isChecked = '';
+                              $isSelected = 0;
+                            }
+
+                            echo "<tr>";
+                            echo "<td><center><label><input onclick='chkRequirements(".$rowCount.")' id='selectCheckReq".$rowCount."' ".$isChecked." type='checkbox' value='".$value['Description']."'></label></center></td>";
+                            echo "<td>".$value['Name']."</td>";
+                            echo "<td>".$value['Description']."
+                              <input type='hidden' name='RequirementId[]' id='txtRequirementId".$rowCount."' value='".$value['RequirementId']."'>
+                              <input type='hidden' name='isRequirementSelected[]' id='isRequirementSelected".$rowCount."'>
+                              <input type='hidden' name='RequirementNo[]' id='requirementRowCount".$rowCount."' value='".$rowCount."'>
+                            </td>";
+                            echo "</tr>";
+                          }
+                        }
+                      ?>
+                    </tbody>
+                  </table>
                   <h4>Workflow</h4>
                   <hr>
                   <div class="row">
@@ -1150,82 +1171,6 @@
       }
     }
 
-    function requirementType(value)
-    {
-      var table = $("#dtblRequirement tbody");
-      $.ajax({
-        url: "<?php echo base_url();?>" + "/admin_controller/getRequirements",
-        type: "POST",
-        async: false,
-        data: {
-          Id : value
-        },
-        dataType: "JSON",
-        beforeSend: function(){
-            $('.loading').show();
-        },
-        success: function(data)
-        {
-          if(data == 0)
-          {
-            table.empty();
-            table.append("<tr><td colspan='3'><center>No data available</center></td>" +
-                "</tr>");
-          }
-          else
-          {
-            var varDescription, isChecked;
-            var rowCount = 0;
-            var isSelected = 0; 
-            table.empty();
-            $.each(data, function (a, b) {
-              rowCount = rowCount + 1;
-              if(b.IsMandatory == 1)
-              {
-                isChecked = 'checked disabled'; 
-                isSelected = 1;
-              }
-              else
-              {
-                isChecked = '';
-                isSelected = 0;
-              }
-
-              if(b.Description == null)
-              {
-                varDescription = 'N/A'
-              }
-              else
-              {
-                varDescription = b.Description
-              }
-              table.append("<tr><td><center><label><input onclick='chkRequirements("+rowCount+")' id='selectCheckReq"+rowCount+"' "+isChecked+" type='checkbox' value='"+b.RequirementId+"'></label></center></td>" +
-                "<td>"+b.Name+"</td>"+
-                "<td>"+varDescription+
-                "<input type='hidden' name='RequirementId[]' id='txtRequirementId"+rowCount+"' value='"+b.RequirementId+"'>"+
-                "<input type='hidden' name='isRequirementSelected[]' id='isRequirementSelected"+rowCount+"' value='"+isSelected+"'>"+
-                "<input type='hidden' name='RequirementNo[]' id='requirementRowCount"+rowCount+"' value='"+rowCount+"'>"+
-                "</td>"+
-                "</tr>");
-            });
-          }
-          $('#divRequirementList').slideDown();
-        },
-        error: function()
-        {
-          setTimeout(function() {
-            swal({
-              title: 'Warning!',
-              text: 'Something went wrong, please contact the administrator or refresh page!',
-              type: 'warning',
-              buttonsStyling: false,
-              confirmButtonClass: 'btn btn-primary'
-            });
-          }, 2000);
-        }
-      });
-    }
-
     function changeAmount(value, type)
     {
       if(type == 1) // income
@@ -1401,7 +1346,7 @@
                     "<input type='hidden' name='ChargeId[]' value='"+b.ChargeId+"'>"+
                     "<input type='hidden' id='txtChargeAmount"+row+"' value='"+parseInt(b.Amount)+"'>"+
                     "<input type='hidden' name='IsSelected[]' id='isSelected"+row+"' value='"+isSelected+"'>"+
-                    "<input type='hidden' class='chargeTotal[]' value='"+parseInt(total)+"'>"+
+                    "<input type='hidden' name='chargeTotal[]' value='"+parseInt(total)+"'>"+
                     "<input type='hidden' id='txtChargeType"+row+"' value='"+b.ChargeType+"'> "+
                     "Php "+parseInt(total).toLocaleString('en-US', {minimumFractionDigits: 2})+"</td>"+
                   "</tr>"

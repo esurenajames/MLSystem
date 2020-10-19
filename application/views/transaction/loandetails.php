@@ -1287,6 +1287,7 @@
                     <th>#</th>
                     <th>Charge</th>
                     <th>Amount</th>
+                    <th>Charge Type</th>
                     <th>Total Charge</th>
                     <th>Status</th>
                     <th>Action</th>
@@ -1301,21 +1302,18 @@
                         echo "<tr>";
                         echo "<td>".$rowNumber."</td>";
                         echo "<td>".$value['Name']."</td>";
+                        echo "<td>".$value['ChargeType']."</td>";
                         echo "<td>".$value['Amount']."</td>";
-                        echo "<td>".$value['TotalCharge']."</td>";
-                         if ($value['StatusId'] == 7) // Pending 
+                        echo "<td> Php ".number_format($value['TotalCharge'], 2)."</td>";
+                         if ($value['StatusId'] == 1) // Pending 
                          {
                            $status = "<span class='badge bg-orange'>Pending</span>";
                            $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationChargeId'].')" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this Charge?\', \''.$value['ApplicationChargeId'].'\', 6, \'Charge\')" class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
                          }
-                         else if($value['StatusId'] == 6) // deactivated
+                         else
                         {
-                          $status = "<span class='badge bg-red'>Deactivated</span>";
-                          $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationChargeId'].')" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a>  <a onclick="confirm(\'Are you sure you want to deactivate this Charge?\', '.$value['ApplicationChargeId'].', 2, \'Charge\')" class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
-                        }
-                        else 
-                        {
-                          $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationChargeId'].')" class="btn btn-success btn-sm" title="Upload"><span class="fa fa-upload"></span></a> <a class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
+                          $status = "<span class='badge bg-green'>Paid</span>";
+                          $action = '<a onclick="confirm(\'Are you sure you want to deactivate this Charge?\', '.$value['ApplicationChargeId'].', 2, \'Charge\')" class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
                         }
                         echo '<td>'.$status.'</td>';
                         echo '<td>'.$action.'</td>';

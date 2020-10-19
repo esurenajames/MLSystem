@@ -51,11 +51,22 @@ class home extends CI_Controller {
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['securityQuestions'] = $this->employee_model->getSecurityQuestions();
+
 		$data['totalBorrower'] = $this->maintenance_model->getTotalBorrower();
-		$data['TotalMonthlyIncome'] = $this->maintenance_model->getTotalMonthlyIncome();
-		$data['TotalInterestRate'] = $this->maintenance_model->getTotalInterestRate();
+		$data['TotalInterest'] = $this->maintenance_model->getTotalInterestCollected();
 		$data['TotalExpense'] = $this->maintenance_model->getTotalExpense();
-		$data['TotalApproved'] = $this->maintenance_model->getTotalApproved();
+		$data['TotalTransaction'] = $this->maintenance_model->getTransactions();
+		$data['dailyIncome'] = $this->maintenance_model->getDailyIncome();
+		// FOR BAR CHARTS
+		$data['ageYear'] = $this->maintenance_model->getYearFilter('r_borrowers');
+		$data['educationYear'] = $this->maintenance_model->getYearFilter('borrower_has_education');
+		$data['genderYear'] = $this->maintenance_model->getYearFilter('R_Borrowers');
+		$data['occupationYear'] = $this->maintenance_model->getYearFilter('Borrower_Has_Employer');
+		$data['IncomeYear'] = $this->maintenance_model->getYearFilter('application_has_monthlyincome');
+		$data['MaritalYear'] = $this->maintenance_model->getYearFilter('r_borrowers');
+		$data['LoanYear'] = $this->maintenance_model->getYearFilter('T_Application');
+		$data['TenorYear'] = $this->maintenance_model->getYearFilter('T_Application');
+		// $data['LoanYear'] = $this->maintenance_model->getYearFilter('T_Application');
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
 		$this->load->view('admin/dashboard', $data);
@@ -74,6 +85,21 @@ class home extends CI_Controller {
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
 		$this->load->view('admin/AddBank', $data);
+	}
+	
+	function collectionManagement()
+	{
+		$sidebar['sidebar'] = 'Collection Management';
+		$sidebar['sidebarMenu'] = 'Collection Management';
+		$header['header'] = 'Collection Management';
+		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$data['access'] = $this->sidebar_model->getAccess();
+		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['securityQuestions'] = $this->employee_model->getSecurityQuestions();
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('admin/collection', $data);
 	}
 
 	function AddBranch()
@@ -464,6 +490,7 @@ class home extends CI_Controller {
 		$data['requirementType'] = $this->maintenance_model->getRequirementType();
 		$data['loanStatus'] = $this->maintenance_model->getLoanStatus();
 		$data['borrowerList'] = $this->maintenance_model->getBorrowerList();
+		$data['RequirementList'] = $this->loanapplication_model->getRequirementForApplication();
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);

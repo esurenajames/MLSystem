@@ -157,32 +157,6 @@ class borrower_model extends CI_Model
       return $data;
     }
 
-    function countAttachment($input)
-    {
-      $query_string = $this->db->query("SELECT  IdentificationId
-                                                FROM r_identificationCards
-                                                WHERE ID        = '".$input['Id']."'
-                                                AND Attachment  = '".$input['Attachment']."'
-                                                AND Description = '".$input['Description']."'
-
-      ");
-      $data = $query_string->row_array();
-      if($data['IdentificationId'] != null)
-      {
-        $query2 = $this->db->query("SELECT  *
-                                            FROM borrower_has_supportdocuments
-                                              WHERE IdentificationId = ".$data['IdentificationId']."
-                                              AND BorrowerId = '".$input['BorrowerId']."'
-        ");
-        $data2 = $query2->num_rows();
-        return $data2;
-      }
-      else
-      {
-        return 0;
-      }
-    }
-
     function getBorrowerDetails($Id)
     {
       $query_string = $this->db->query("SELECT DISTINCT B.BorrowerId

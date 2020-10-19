@@ -169,13 +169,6 @@ class admin_controller extends CI_Controller {
     exit();
   }
 
-  function getRequirements()
-  {
-    $output = $this->maintenance_model->getRequirements($this->input->post('Id'));
-    $this->output->set_output(print(json_encode($output)));
-    exit();
-  }
-
   function addEmployees()
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
@@ -3063,5 +3056,96 @@ class admin_controller extends CI_Controller {
     print_r($_POST['Approvers']);
     print_r($_POST['Details']);
     print_r($_POST['ObligationDetails']);
+  }
+
+  function getAgePopulation()
+  {
+    $output = $this->maintenance_model->getAge();
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getEducationPopulation()
+  {
+    $output = $this->maintenance_model->getEducation($this->input->post('yearFilter'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getGenderPopulation()
+  {
+    $output = $this->maintenance_model->getGender($this->input->post('yearFilter'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getOccupationPopulation()
+  {
+    $output = $this->maintenance_model->getOccupationPopulation($this->input->post('yearFilter'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getIncomeLevelPopulation()
+  {
+    $output = $this->maintenance_model->getIncomeLevelPopulation($this->input->post('yearFilter'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getMaritalStatusPopulation()
+  {
+    $output = $this->maintenance_model->getMaritalStatusPopulation($this->input->post('yearFilter'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getTotalBorrowers()
+  {
+    $output = $this->maintenance_model->getTotalBorrowers();
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getLoanType()
+  {
+    $output = $this->maintenance_model->getLoanType($this->input->post('yearFilter'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getTotalLoans()
+  {
+    $output = $this->maintenance_model->getTotalLoans();
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getTotalLoanAmount()
+  {
+    $output = $this->maintenance_model->getTotalLoanAmount();
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getChargesTotal()
+  {
+    $output = $this->maintenance_model->getChargesTotal($this->input->post('yearFilter'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getTenors()
+  {
+    $output = $this->maintenance_model->getTenors($this->input->post('yearFilter'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getTotalInterest()
+  {
+    $output = $this->maintenance_model->getTotalInterest();
+    $this->output->set_output(print(json_encode($output)));
+    exit();
   }
 }

@@ -261,6 +261,21 @@ class loanapplication_model extends CI_Model
     return $data;
   }
 
+  function getRequirementForApplication()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $query = $this->db->query("SELECT   DISTINCT RequirementId
+                                        , Name
+                                        , Description
+                                        , IsMandatory
+                                        FROM r_requirements
+                                          WHERE StatusId = 1
+    ");
+
+    $data = $query->result_array();
+    return $data;
+  }
+
   function getChargeDetails($Id, $Type)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
@@ -516,6 +531,59 @@ class loanapplication_model extends CI_Model
                                                   ON RC.RepaymentId = A.RepaymentId
                                                   WHERE A.StatusId = 3
     ");
+    $data = $query_string->result_array();
+    return $data;
+  }
+
+  function getCollections($dateFrom, $dateTo)
+  {
+    if(isset($dateFrom) && isset($dateTo))
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query_string = $this->db->query("SELECT  A.TransactionNumber
+                                                , CONCAT(B.FirstName, ' ', B.MiddleName, ' ', B.LastName, ', ', B.ExtName) as BorrowerName
+                                                , FORMAT(A.PrincipalAmount, 2) as LoanAmount
+                                                , FORMAT(PM.Amount, 2) as PaymentAmount
+                                                , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as CollectedBy
+                                                , DATE_FORMAT(PM.DateCollected, '%b %d, %Y') as PaymentDate
+                                                , PM.DateCollected
+                                                , PM.DateCreated
+                                                , A.ApplicationId
+                                                FROM t_paymentsmade PM
+                                                      INNER JOIN t_application A
+                                                          ON A.ApplicationId = PM.ApplicationId
+                                                        INNER JOIN R_Borrowers B
+                                                          ON B.BorrowerId = A.BorrowerId
+                                                        INNER JOIN r_employee EMP
+                                                          ON EMP.EmployeeNumber = PM.CreatedBy
+                                                          WHERE A.StatusId = 1
+                                                          AND PM.StatusId = 1
+                                                          AND PM.DateCollected BETWEEN DATE_FORMAT(".$dateFrom.", '%Y-%d-%m') AND DATE_FORMAT(".$dateTo.", '%Y-%d-%m')
+      ");
+    }
+    else 
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query_string = $this->db->query("SELECT  A.TransactionNumber
+                                                , CONCAT(B.FirstName, ' ', B.MiddleName, ' ', B.LastName, ', ', B.ExtName) as BorrowerName
+                                                , FORMAT(A.PrincipalAmount, 2) as LoanAmount
+                                                , FORMAT(PM.Amount, 2) as PaymentAmount
+                                                , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as CollectedBy
+                                                , DATE_FORMAT(PM.DateCollected, '%b %d, %Y') as PaymentDate
+                                                , PM.DateCollected
+                                                , PM.DateCreated
+                                                , A.ApplicationId
+                                                FROM t_paymentsmade PM
+                                                      INNER JOIN t_application A
+                                                          ON A.ApplicationId = PM.ApplicationId
+                                                        INNER JOIN R_Borrowers B
+                                                          ON B.BorrowerId = A.BorrowerId
+                                                        INNER JOIN r_employee EMP
+                                                          ON EMP.EmployeeNumber = PM.CreatedBy
+                                                          WHERE A.StatusId = 1
+                                                          AND PM.StatusId = 1
+      ");
+    }
     $data = $query_string->result_array();
     return $data;
   }
@@ -1447,6 +1515,17 @@ class loanapplication_model extends CI_Model
                                               WHERE A.ApplicationId = $Id
       ");
       $data = $query->row_array();
+      return $data;
+    }
+
+    function getSubmittedReqs($BorrowerId)
+    {
+      $query_string = $this->db->query("SELECT  DISTINCT IdentificationId
+                                                FROM borrower_has_supportdocuments
+                                                  WHERE StatusId = 1
+                                                  AND BorrowerId = $BorrowerId
+      ");
+      $data = $query_string->result_array();
       return $data;
     }
 }

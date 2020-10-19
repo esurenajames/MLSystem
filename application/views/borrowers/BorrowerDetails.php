@@ -1109,7 +1109,6 @@
                   <br>
                   <?php $this->load->view('borrowers/Education'); ?>
                 </div>
-
               </div>
             </div>
           </div>

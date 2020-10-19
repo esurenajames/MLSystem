@@ -189,11 +189,33 @@ class loanapplication_controller extends CI_Controller {
             $insertData = array(
               'ApplicationId'         => $generatedId['ApplicationId'],
               'ChargeId'              => $_POST['ChargeId'][$count],
+              'Amount'                => $_POST['chargeTotal'][$count],
               'StatusId'              => 2,
               'CreatedBy'             => $EmployeeNumber
             );
             $auditTable = 'application_has_charges';
             $this->maintenance_model->insertFunction($insertData, $auditTable);
+
+            $charge = $this->maintenance_model->selectSpecific('R_Charge', 'ChargeId', $_POST['ChargeId'][$count]);
+            // insert into payments
+              $insertData1 = array( 
+                'BankId'            => 1,
+                'ApplicationId'     => $generatedId['ApplicationId'],
+                'Amount'            => $_POST['chargeTotal'][$count],
+                'Description'       => 'Payment for ' . $charge['Name'],
+                'AmountPaid'        => $_POST['chargeTotal'][$count],
+                'IsInterest'        => 0,
+                'IsPrincipalCollection' => 0,
+                'InterestAmount'    => 0,
+                'PrincipalAmount'   => 0,
+                'ChangeId'          => 1,
+                'ChangeAmount'      => 0,
+                'DateCollected'     => date("Y-m-d"),
+                'PaymentDate'       => date("Y-m-d"),
+                'CreatedBy'         => $EmployeeNumber
+              );
+              $table = 't_paymentsmade';
+              $this->maintenance_model->insertFunction($insertData1, $table1);
           }
         }
       }
@@ -205,28 +227,37 @@ class loanapplication_controller extends CI_Controller {
           if($_POST['isRequirementSelected'][$count] == 1)
           {
             // check if already submitted or not
-              $requirementId = $this->maintenance_model->selectSpecific('borrower_has_supportdocuments', 'BorrowerId', $_POST['borrowerId']);
-              if($requirementId['IdentificationId'] == $_POST['RequirementId'][$count] && $requirementId['StatusId'] == 1)
+              $insertData = array(
+                'ApplicationId'         => $generatedId['ApplicationId'],
+                'RequirementId'         => $_POST['RequirementId'][$count],
+                'CreatedBy'             => $EmployeeNumber
+              );
+              $auditTable = 'application_has_requirements';
+              $this->maintenance_model->insertFunction($insertData, $auditTable);
+              $requirementId = $this->loanapplication_model->getSubmittedReqs($_POST['borrowerId']);
+              foreach ($requirementId as $reqID) 
               {
-                $insertData = array(
-                  'ApplicationId'         => $generatedId['ApplicationId'],
-                  'RequirementId'         => $_POST['RequirementId'][$count],
-                  'StatusId'              => 7,
-                  'CreatedBy'             => $EmployeeNumber
+                $getData2 = array(
+                  'table'                 => 'application_has_requirements'
+                  , 'column'              => 'ApplicationRequirementId'
+                  , 'CreatedBy'           => $EmployeeNumber
                 );
-                $auditTable = 'application_has_requirements';
-                $this->maintenance_model->insertFunction($insertData, $auditTable);
-              }
-              else // not existing
-              {
-                $insertData = array(
-                  'ApplicationId'         => $generatedId['ApplicationId'],
-                  'RequirementId'         => $_POST['RequirementId'][$count],
-                  'StatusId'              => 5,
-                  'CreatedBy'             => $EmployeeNumber
-                );
-                $auditTable = 'application_has_requirements';
-                $this->maintenance_model->insertFunction($insertData, $auditTable);
+                $generatedId2 = $this->maintenance_model->getGeneratedId2($getData2);
+                if($reqID['IdentificationId'] == $_POST['RequirementId'][$count])
+                {
+                  $set = array( 
+                    'DateUpdated'       => $DateNow, 
+                    'UpdatedBy'         => $EmployeeNumber, 
+                    'StatusId'          => 7, 
+                  );
+                  $condition = array( 
+                    'RequirementId'   => $reqID['IdentificationId'],
+                    'ApplicationId'   =>$generatedId['ApplicationId']
+                  );
+                  $table = 'application_has_requirements';
+                  $this->maintenance_model->updateFunction1($set, $condition, $table);
+                  print_r($reqID['IdentificationId'] . ' : ' . $_POST['RequirementId'][$count] . ' : '. '7' .'<br>');
+                }
               }
 
           }
@@ -264,7 +295,7 @@ class loanapplication_controller extends CI_Controller {
       $this->session->set_flashdata('alertText','Successfully submitted loan application!'); 
       $this->session->set_flashdata('alertType','success'); 
     
-    redirect('home/loandetail/' . $generatedId['ApplicationId']);
+    // redirect('home/loandetail/' . $generatedId['ApplicationId']);
   }
 
   function restructureLoan()

@@ -38,7 +38,7 @@
                 <div class="col-md-6">
                   <div class="form-group">
                     <label for="Disbursement">Amount</label><br>
-                    <input type="number" class="form-control" id="txtAmount" name="Amount">
+                    <input type="number" class="form-control" step="0.25" id="txtAmount" name="Amount">
                     <input type="hidden" class="form-control"  id="txtFormType" name="FormType" value="1">
                     <input type="hidden" class="form-control"  id="txtExpenseId" name="ExpenseId">
                   </div>
