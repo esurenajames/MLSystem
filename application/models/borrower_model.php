@@ -392,17 +392,14 @@ class borrower_model extends CI_Model
           // insert into logs
             if($input['updateType'] == 1)
             {
-              $auditBorrower = 'Re-activated address record #EM-' .$EmailTransaction['Id']; // main log
-              $auditStaff = 'Re-activated address record #EM-' .$EmailTransaction['Id']. '.'; // employee notification
+              $auditBorrower = 'Re-activated email address record #EA-'.$EmailTransaction['Id'].' of '.$BorrowerDetail['BorrowerId'];
+              $auditStaff = 'Re-activated email address record #EA-'.$EmailTransaction['Id'].'.';
             }
             else if($input['updateType'] == 0)
             {
-              $auditBorrower = 'Deactivated address record #EM-' .$EmailTransaction['Id']; // main log
-              $auditStaff = 'Deactivated address record #EM-' .$EmailTransaction['Id']. '.'; // employee notification
+              $auditBorrower = 'Deactivated email address record #EA-'.$EmailTransaction['Id'].' of '.$BorrowerDetail['BorrowerId'].'.';
+              $auditStaff = 'Deactivated email address record #EA-'.$EmailTransaction['Id'].'.';
             }
-          // insert into logs
-            $auditBorrower = 'Set address record #EM-' .$EmailTransaction['Id']. ' of borrower #'.$BorrowerDetail['BorrowerNumber'] . ' as primary.';
-            $auditStaff = 'Set address record #EM-' .$EmailTransaction['Id']. ' as primary address.';
             $this->auditBorrower($auditBorrower, $auditStaff, $BorrowerDetail['BorrowerId']);
         }
         else // set as primary email

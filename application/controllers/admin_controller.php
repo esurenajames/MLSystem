@@ -3142,6 +3142,13 @@ class admin_controller extends CI_Controller {
     exit();
   }
 
+  function getRequirements()
+  {
+    $output = $this->maintenance_model->getRequirements();
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
   function getTotalInterest()
   {
     $output = $this->maintenance_model->getTotalInterest();

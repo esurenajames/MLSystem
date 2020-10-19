@@ -1020,7 +1020,7 @@
                             if($value['StatusId'] == 1)
                             {
                               $status = "<span class='badge bg-green'>Active</span>";
-                              $action = '<a href="<?php '.base_url().' ?>/loandetail/'.$value['ApplicationId'].'" class="btn btn-default btn-sm" title="View"><span class="fa fa-info-circle"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this Education record?\', \''.$value['PaymentMadeId'].'\', 0, \'BorrowerEducation\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                              $action = '<a href="<?php '.base_url().' ?>/loandetail/'.$value['ApplicationId'].'" class="btn btn-default btn-sm" title="View"><span class="fa fa-info-circle"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this Collection record?\', \''.$value['PaymentMadeId'].'\', 0, \'BorrowerEducation\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
                             }
                             else if($value['StatusId'] == 0)
                             {
