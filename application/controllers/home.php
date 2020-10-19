@@ -104,8 +104,8 @@ class home extends CI_Controller {
 
 	function AddBranch()
 	{
-		$sidebar['sidebar'] = 1;
-		$sidebar['sidebarMenu'] = 0;
+		$sidebar['sidebar'] = 'SystemSetup';
+		$sidebar['sidebarMenu'] = "Branches";
 		$header['header'] = 'Branches';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -118,8 +118,8 @@ class home extends CI_Controller {
 
 	function AddLoanType()
 	{
-		$sidebar['sidebar'] = 1;
-		$sidebar['sidebarMenu'] = 0;
+		$sidebar['sidebar'] = 'SystemSetup';
+		$sidebar['sidebarMenu'] = 'LoanTypes';
 		$header['header'] = 'Loan Types';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -133,8 +133,8 @@ class home extends CI_Controller {
 
 	function AddConditional()
 	{
-		$sidebar['sidebar'] = 1;
-		$sidebar['sidebarMenu'] = 0;
+		$sidebar['sidebar'] = "SystemSetup";
+		$sidebar['sidebarMenu'] = 'Conditional';
 		$header['header'] = 'Additional Charges';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -148,8 +148,8 @@ class home extends CI_Controller {
 
 	function AddOccupation()
 	{
-		$sidebar['sidebar'] = 2;
-		$sidebar['sidebarMenu'] = 3;
+		$sidebar['sidebar'] = "SystemSetup";
+		$sidebar['sidebarMenu'] = 'Occupations';
 		$header['header'] = 'Occupations';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -163,8 +163,8 @@ class home extends CI_Controller {
 
 	function AddRequirement()
 	{
-		$sidebar['sidebar'] = 1;
-		$sidebar['sidebarMenu'] = 0;
+		$sidebar['sidebar'] = "SystemSetup";
+		$sidebar['sidebarMenu'] = 'Requirements';
 		$header['header'] = 'Requirements';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -178,8 +178,8 @@ class home extends CI_Controller {
 
 	function AddPosition()
 	{
-		$sidebar['sidebar'] = 1;
-		$sidebar['sidebarMenu'] = 0;
+		$sidebar['sidebar'] = 'SystemSetup';
+		$sidebar['sidebarMenu'] = 'Positions';
 		$header['header'] = 'Positions';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -208,8 +208,8 @@ class home extends CI_Controller {
 
 	function AddPurpose()
 	{
-		$sidebar['sidebar'] = 1;
-		$sidebar['sidebarMenu'] = 0;
+		$sidebar['sidebar'] = 'SystemSetup';
+		$sidebar['sidebarMenu'] = 'Purposes';
 		$header['header'] = 'Purpose';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -223,8 +223,8 @@ class home extends CI_Controller {
 
 	function AddMethod()
 	{
-		$sidebar['sidebar'] = 1;
-		$sidebar['sidebarMenu'] = 0;
+		$sidebar['sidebar'] = 'SystemSetup';
+		$sidebar['sidebarMenu'] = 'Methods';
 		$header['header'] = 'Methods for Payment';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -238,8 +238,8 @@ class home extends CI_Controller {
 
 	function AddCategory()
 	{
-		$sidebar['sidebar'] = 1;
-		$sidebar['sidebarMenu'] = 0;
+		$sidebar['sidebar'] = 'SystemSetup';
+		$sidebar['sidebarMenu'] = 'Categories';
 		$header['header'] = 'Asset Categories';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -270,8 +270,8 @@ class home extends CI_Controller {
 
 	function AddLoanStatus()
 	{
-		$sidebar['sidebar'] = 1;
-		$sidebar['sidebarMenu'] = 0;
+		$sidebar['sidebar'] = 'SystemSetup';
+		$sidebar['sidebarMenu'] = 'LoanStatus';
 		$header['header'] = 'Loan Status';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -285,8 +285,9 @@ class home extends CI_Controller {
 
 	function AddBorrowerStatus()
 	{
-		$sidebar['sidebar'] = 1;
-		$sidebar['sidebarMenu'] = 0;
+		$sidebar['sidebar'] = 'SystemSetup';
+		$sidebar['sidebarMenu'] = 'BorrowerStatus';
+		$header['header'] = 'Borrower Status';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -299,8 +300,8 @@ class home extends CI_Controller {
 
 	function AddIndustry()
 	{
-		$sidebar['sidebar'] = 1;
-		$sidebar['sidebarMenu'] = 0;
+		$sidebar['sidebar'] = "SystemSetup";
+		$sidebar['sidebarMenu'] = "Industries";
 		$header['header'] = 'Industries';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -314,8 +315,9 @@ class home extends CI_Controller {
 
 	function AddEducation()
 	{
-		$sidebar['sidebar'] = 1;
-		$sidebar['sidebarMenu'] = 0;
+		$sidebar['sidebar'] = 'SystemSetup';
+		$sidebar['sidebarMenu'] = 'Education';
+		$header['header'] = 'Education Level';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -777,8 +779,8 @@ class home extends CI_Controller {
 	function userProfile()
 	{
 		$Id = $this->uri->segment(3);
-		$sidebar['sidebar'] = 0;
-		$sidebar['sidebarMenu'] = 0;
+		$sidebar['sidebar'] =
+		$sidebar['sidebarMenu'] =
 		$header['header'] = 'User Profile';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();

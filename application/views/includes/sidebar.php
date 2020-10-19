@@ -85,13 +85,13 @@
               
               <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Banks'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddBank"><i class="fa fa-circle-o"></i>Banks</a></li>
               
-              <li ><a href="<?php echo base_url();?>home/AddBranch"><i class="fa fa-circle-o"></i> <span>Branches</span></a></li>
+              <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Branches'){echo 'class="active"';}?> ><a href="<?php echo base_url();?>home/AddBranch"><i class="fa fa-circle-o"></i> <span>Branches</span></a></li>
               
-              <li ><a href="<?php echo base_url();?>home/AddIndustry"><i class="fa fa-circle-o"></i> <span>Industries</span></a></li>
+              <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Industries'){echo 'class="active"';}?> ><a href="<?php echo base_url();?>home/AddIndustry"><i class="fa fa-circle-o"></i> <span>Industries</span></a></li>
               
               <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Occupations'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddOccupation"><i class="fa fa-circle-o"></i>Occupations</a></li>
               
-              <li ><a href="<?php echo base_url();?>home/AddRequirement"><i class="fa fa-circle-o"></i> <span>Requirements</span></a></li>
+              <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Requirements'){echo 'class="active"';}?> ><a href="<?php echo base_url();?>home/AddRequirement"><i class="fa fa-circle-o"></i> <span>Requirements</span></a></li>
               
               <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'RepaymentCycle'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddRepaymentCycle"><i class="fa fa-circle-o"></i>Repayment Cycles</a></li>
               
@@ -104,14 +104,14 @@
               <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'WithdrawalType'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddWithdrawalType"><i class="fa fa-circle-o"></i>Types of Withdrawal</a></li>
 
               <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Education'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddEducation"><i class="fa fa-circle-o"></i>Education Levels</a></li>
-              <li ><a href="<?php echo base_url();?>home/AddPosition"><i class="fa fa-circle-o"></i> <span>Positions</span></a></li>
-              <li ><a href="<?php echo base_url();?>home/AddPurpose"><i class="fa fa-circle-o"></i> <span>Purposes</span></a></li>
-              <li ><a href="<?php echo base_url();?>home/AddLoanType"><i class="fa fa-circle-o"></i> <span>Loan Types</span></a></li>
-              <li ><a href="<?php echo base_url();?>home/AddLoanStatus"><i class="fa fa-circle-o"></i> <span>Loan Status</span></a></li>
-              <li ><a href="<?php echo base_url();?>home/AddMethod"><i class="fa fa-circle-o"></i> <span>Modes of Payment</span></a></li>
-              <li ><a href="<?php echo base_url();?>home/AddConditional"><i class="fa fa-circle-o"></i> <span>Additional Charges</span></a></li>
-              <li ><a href="<?php echo base_url();?>home/AddCategory"><i class="fa fa-circle-o"></i> <span>Asset Categories</span></a></li>
-              <li ><a href="<?php echo base_url();?>home/AddBorrowerStatus"><i class="fa fa-circle-o"></i> <span>Borrower's Status</span></a></li>
+              <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Positions'){echo 'class="active"';}?> ><a href="<?php echo base_url();?>home/AddPosition"><i class="fa fa-circle-o"></i> <span>Positions</span></a></li>
+              <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Purposes'){echo 'class="active"';}?> ><a href="<?php echo base_url();?>home/AddPurpose"><i class="fa fa-circle-o"></i> <span>Purposes</span></a></li>
+              <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'LoanTypes'){echo 'class="active"';}?> ><a href="<?php echo base_url();?>home/AddLoanType"><i class="fa fa-circle-o"></i> <span>Loan Types</span></a></li>
+              <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'LoanStatus'){echo 'class="active"';}?> ><a href="<?php echo base_url();?>home/AddLoanStatus"><i class="fa fa-circle-o"></i> <span>Loan Status</span></a></li>
+              <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Methods'){echo 'class="active"';}?> ><a href="<?php echo base_url();?>home/AddMethod"><i class="fa fa-circle-o"></i> <span>Modes of Payment</span></a></li>
+              <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Conditional'){echo 'class="active"';}?> ><a href="<?php echo base_url();?>home/AddConditional"><i class="fa fa-circle-o"></i> <span>Additional Charges</span></a></li>
+              <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Categories'){echo 'class="active"';}?> ><a href="<?php echo base_url();?>home/AddCategory"><i class="fa fa-circle-o"></i> <span>Asset Categories</span></a></li>
+              <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'BorrowerStatus'){echo 'class="active"';}?> ><a href="<?php echo base_url();?>home/AddBorrowerStatus"><i class="fa fa-circle-o"></i> <span>Borrower's Status</span></a></li>
             </ul>
           </li>
           <!-- <li <?php if($sidebar == 4 && $sidebarMenu == 2){echo 'class="active"';}?>><a href="<?php echo base_url();?>home/adminAuditLogs"><i class="fa fa-list-alt"></i> <span>Audit Logs</span></a></li> -->
