@@ -47,6 +47,7 @@ class admin_model extends CI_Model
                                               OR MiddleName LIKE '%$keyword%'
                                             )
                                             AND EmployeeNumber != '000000'
+                                            AND EmployeeNumber NOT IN (SELECT EmployeeNumber FROM R_UserRole)
       ");
       return $query->result();
     }
@@ -194,8 +195,7 @@ class admin_model extends CI_Model
                                                 FROM R_Charges
                                                   WHERE Name = '".$data['Name']."'
                                                   AND Description = '".$data['Description']."'
-                                                  AND Frequency = '".$data['Frequency']."'
-                                                  AND Type = '".$data['Type']."'
+                                                  AND ChargeType = '".$data['ChargeType']."'
       ");
       $data = $query_string->num_rows();
       return $data;
@@ -203,10 +203,9 @@ class admin_model extends CI_Model
 
     function getChargeDetails($Id)
     {
-      $query_string = $this->db->query("SELECT  Type
+      $query_string = $this->db->query("SELECT  ChargeType
                                                 , Name
                                                 , Description
-                                                , Frequency
                                                 FROM R_Charges 
                                                   WHERE ChargeId = '$Id'
       ");

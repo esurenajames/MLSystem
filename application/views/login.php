@@ -190,6 +190,19 @@
 <script src="<?php echo base_url(); ?>resources/plugins/iCheck/icheck.min.js"></script>
 <script>
   $(function () {
+
+
+    if("<?php print_r($this->session->flashdata('alertTitle')) ?>" != '')
+    {
+      swal({
+        title: '<?php print_r($this->session->flashdata('alertTitle')) ?>',
+        text: '<?php print_r($this->session->flashdata('alertText')) ?>',
+        type: '<?php print_r($this->session->flashdata('alertType')) ?>',
+        buttonsStyling: false,
+        confirmButtonClass: 'btn btn-primary'
+      });
+    }
+    
     $('input').iCheck({
       checkboxClass: 'icheckbox_square-blue',
       radioClass: 'iradio_square-blue',

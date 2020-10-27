@@ -106,13 +106,13 @@
                     <input type="email" class="form-control" required="" id="txtEmail" name="EmailAddress" required="" placeholder="Email Address">
                   </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <div class="form-group">
                       <label for="txtMother">Mother's Maiden Name</label>
                       <input type="text" class="form-control" id="txtMother" name="MotherName" placeholder="Maiden Name">
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                   <div class="form-group">
                       <div class="form-group">
                         <label>Date of Birth <span class="text-red">*</span></label>
@@ -126,7 +126,7 @@
                       </div>
                   </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                   <div class="form-group">
                     <label for="txtDependents">No. of Dependents <span class="text-red">*</span></label>
                     <input type="number" class="form-control" id="txtDependents" name="NoDependents" required="" placeholder="No. of dependents">

@@ -26,6 +26,7 @@
        folder instead of downloading all of them to reduce the load. -->
   <link rel="stylesheet" href="<?php echo base_url(); ?>resources/dist/css/skins/_all-skins.min.css">
   <link rel="stylesheet" href="<?php echo base_url(); ?>resources/bower_components/sweetalert2/dist/sweetalert2.min.css">
+  <link rel="stylesheet" href="<?php echo base_url(); ?>resources/plugins/iCheck/all.css">
 
   <link href="<?php echo base_url(); ?>resources/plugins/jquery-smartwizard-master/dist/css/smart_wizard_all.min.css" rel="stylesheet" type="text/css">
   <!-- Select2 -->

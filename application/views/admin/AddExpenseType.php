@@ -14,7 +14,7 @@
   </section>
 
 
-    <div class="modal fade" id="modalNewExpenseType">
+  <div class="modal fade" id="modalNewExpenseType">
     <div class="modal-dialog modal-md">
       <div class="modal-content">
         <div class="modal-header">
@@ -52,40 +52,35 @@
     <!-- /.modal-dialog -->
   </div>
 
-    <!-- Main content -->
-    <section class="content">
-        <!-- Default box -->
-        <div class="box">
-          <div class="box-header with-border">
-          </div>
-          <div class="box-body">
-            <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewExpenseType">Add New Type of Expense</button>
-            <br>
-            <br>
-            <form name="ApproverDocForm" method="post" id="ApproverDocForm">
-              <table id="example1" class="table table-bordered table-hover">
-                <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Expense Type</th>
-                  <th>Description</th>
-                  <th>Created By</th>
-                  <th>Date Created</th>
-                  <th>Status</th>
-                  <th>Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                </tbody>
-              </table>
-            </form>
-          </div>
-        </div>
-        <!-- /.box -->
-    </section>
-  <!-- /.content -->
+  <section class="content">
+    <div class="box">
+      <div class="box-header with-border">
+      </div>
+      <div class="box-body">
+        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewExpenseType">Add New Type of Expense</button>
+        <br>
+        <br>
+        <form name="ApproverDocForm" method="post" id="ApproverDocForm">
+          <table id="example1" class="table table-bordered table-hover">
+            <thead>
+            <tr>
+              <th>#</th>
+              <th>Expense Type</th>
+              <th>Description</th>
+              <th>Created By</th>
+              <th>Date Created</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </form>
+      </div>
+    </div>
+  </section>
 </div>
-<!-- /.content-wrapper -->
 
 <footer class="main-footer">
   <div class="pull-right hidden-xs">

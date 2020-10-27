@@ -131,79 +131,78 @@
     <?php }  ?> 
 
     <!-- Main content -->
-    <section class="content">
-      <?php foreach ($access as $rows){ if($rows['RoleId'] == 3 || $rows['RoleId'] == 4) /*employee | top management*/ { ?>    
+    <section class="content"> 
       <div class="row">
-        <div class="col-lg-3 col-xs-6">
-          <!-- small box -->
-          <div class="small-box bg-yellow">
-            <div class="inner">
-              <h3><?php print_r($totalBorrower['Total']) ?></h3>
-              <p>TOTAL BORROWERS</p>
+        <?php if(in_array('44', $subModule)) { ?>
+          <div class="col-lg-3 col-xs-6">
+            <div class="small-box bg-yellow">
+              <div class="inner">
+                <h3><?php print_r($totalBorrower['Total']) ?></h3>
+                <p>TOTAL BORROWERS</p>
+              </div>
+              <div class="icon">
+                <i class="ion ion-person-add"></i>
+              </div>
+              <a href="<?php echo base_url(); ?>/home/borrowers" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
             </div>
-            <div class="icon">
-              <i class="ion ion-person-add"></i>
-            </div>
-            <a href="<?php echo base_url(); ?>/home/borrowers" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
           </div>
-        </div>
-        <!-- ./col -->
-        <div class="col-lg-3 col-xs-6">
-          <!-- small box -->
-          <div class="small-box bg-green">
-            <div class="inner">
-              <h3><?php print_r($dailyIncome['Total']) ?></h3>
-              <p>TOTAL INCOME PER DAY</p>
+        <?php } ?>
+        <?php if(in_array('45', $subModule)) { ?>
+          <div class="col-lg-3 col-xs-6">
+            <div class="small-box bg-green">
+              <div class="inner">
+                <h3><?php print_r($dailyIncome['Total']) ?></h3>
+                <p>DAILY INCOME</p>
+              </div>
+              <div class="icon">
+                <i class="fa fa-money"></i>
+              </div>
+              <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
             </div>
-            <div class="icon">
-              <i class="fa fa-money"></i>
-            </div>
-            <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
           </div>
-        </div>
-        <!-- ./col -->
-        <div class="col-lg-3 col-xs-6">
-          <!-- small box -->
-          <div class="small-box bg-green">
-            <div class="inner">
-              <h3><?php print_r(number_format($TotalInterest['Total'], 2)) ?></h3>
-              <p>TOTAL INTEREST COLLECTED</p>
+        <?php } ?>
+        <?php if(in_array('46', $subModule)) { ?>
+          <div class="col-lg-3 col-xs-6">
+            <div class="small-box bg-green">
+              <div class="inner">
+                <h3><?php print_r(number_format($TotalInterest['Total'], 2)) ?></h3>
+                <p>DAILY INTEREST COLLECTED</p>
+              </div>
+              <div class="icon">
+                <i class="ion ion-stats-bars"></i>
+              </div>
+              <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
             </div>
-            <div class="icon">
-              <i class="ion ion-stats-bars"></i>
-            </div>
-            <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
           </div>
-        </div>
-        <!-- ./col -->
-        <div class="col-lg-3 col-xs-6">
-          <!-- small box -->
-          <div class="small-box bg-red">
-            <div class="inner">
-              <h3><?php print_r($TotalExpense['Total']) ?></h3>
-              <p>TOTAL EXPENSE PER DAY</p>
+        <?php } ?>
+        <?php if(in_array('47', $subModule)) { ?>
+          <div class="col-lg-3 col-xs-6">
+            <div class="small-box bg-red">
+              <div class="inner">
+                <h3><?php print_r($TotalExpense['Total']) ?></h3>
+                <p>DAILY EXPENSE</p>
+              </div>
+              <div class="icon">
+                <i class="fa fa-dollar"></i>
+              </div>
+              <a href="<?php echo base_url(); ?>/home/AddExpense" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
             </div>
-            <div class="icon">
-              <i class="fa fa-dollar"></i>
-            </div>
-            <a href="<?php echo base_url(); ?>/home/AddExpense" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
           </div>
-        </div>
-        <!-- ./col -->
-        <div class="col-lg-3 col-xs-6">
-          <div class="small-box bg-aqua">
-            <div class="inner">
-              <h3><?php print_r($TotalTransaction['Total']) ?></h3>
-              <p>TOTAL TRANSACTIONS PER DAY</p>
+        <?php } ?>
+        <?php if(in_array('48', $subModule)) { ?>
+          <div class="col-lg-3 col-xs-6">
+            <div class="small-box bg-aqua">
+              <div class="inner">
+                <h3><?php print_r($TotalTransaction['Total']) ?></h3>
+                <p>DAILY TRANSACTIONS</p>
+              </div>
+              <div class="icon">
+                <i class="fa fa-clipboard"></i>
+              </div>
+              <a href="<?php echo base_url(); ?>/home/AddExpense" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
             </div>
-            <div class="icon">
-              <i class="fa fa-clipboard"></i>
-            </div>
-            <a href="<?php echo base_url(); ?>/home/AddExpense" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
           </div>
-        </div>
-
-
+        <?php } ?>
       </div>
 
       <!-- <div class="box box-success">
@@ -224,281 +223,281 @@
         <!-- </div>
       </div> -->
 
-      <div class="box box-primary">
-        <div class="box-header with-border">
-          <h3 class="box-title">DEMOGRAPHICS</h3>
-          <div class="box-tools pull-right">
-            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-          </div>
-        </div>
-        <div class="box-body">
-          <div class="nav-tabs-custom">
-            <ul class="nav nav-tabs">
-              <!-- <li class="active"><a href="#tabLoanApplications" data-toggle="tab">Loan Applications</a></li> -->
-              <li class="active"><a href="#tabAge" data-toggle="tab" title="Age">Age</a></li>
-              <li><a href="#tabEd" data-toggle="tab" title="Education" onclick="selectEducationFilter(0)">Education</a></li>
-              <li><a href="#tabGE" data-toggle="tab" title="Gender" onclick="selectGenderFilter(0)">Gender</a></li>
-              <li><a href="#tabOC" data-toggle="tab" title="Occupation" onclick="selectOccupationFilter(0)">Occupation</a></li>
-              <li><a href="#tabIL" data-toggle="tab" title="Income Level" onclick="selectIncomeFilter(0)">Income Level</a></li>
-              <li><a href="#tabMS" data-toggle="tab" title="Marital Status" onclick="selectMaritalFilter(0)">Marital Status</a></li>
-            </ul>
-            <div class="tab-content">
-              <div class="active tab-pane" id="tabAge">
-                <h5>AGE</h5>
-                <div class="pull-right">
-                  <select class="form-control">
-                    <?php 
-                      foreach ($ageYear as $value) 
-                      {
-                        $selected = (date("Y") == $value['Year']) ? 'selected' : '';
-                        echo '<option '.$selected.'>'.$value['Year'].'</option>';
-                      }
-                    ?>
-                  </select>
-                </div>
-                <div class="chart">
-                  <canvas id="barChart" style="height:230px"></canvas>
-                </div>
-              </div>
-              <div class="tab-pane" id="tabEd">
-                <h5>EDUCATION</h5>
-                <div class="pull-right">
-                  <select class="form-control" onchange="selectEducationFilter(this.value)">
-                    <?php 
-                      foreach ($educationYear as $value) 
-                      {
-                        $selected = (date("Y") == $value['Year']) ? 'selected' : '';
-                        echo '<option '.$selected.'>'.$value['Year'].'</option>';
-                      }
-                    ?>
-                  </select>
-                </div>
-                <br>
-                <hr>
-                <div class="chart">
-                  <canvas id="chartEducation" style="height:300px"></canvas>
-                </div>
-              </div>
-              <div class="tab-pane" id="tabGE">
-                <h5>GENDER</h5>
-                <div class="pull-right">
-                  <select class="form-control" id="selectGenderYear" onchange="selectGenderFilter(this.value)">
-                    <?php 
-                      foreach ($genderYear as $value) 
-                      {
-                        $selected = (date("Y") == $value['Year']) ? 'selected' : '';
-                        echo '<option '.$selected.'>'.$value['Year'].'</option>';
-                      }
-                    ?>
-                  </select>
-                </div>
-                <br>
-                <hr>
-                <div class="chart">
-                  <canvas id="chartGender" style="height:230px"></canvas>
-                </div>
-              </div>
-              <div class="tab-pane" id="tabOC">
-                <h5>OCCUPATION</h5>
-                <div class="pull-right">
-                  <select class="form-control" id="selectGenderYear" onchange="selectOccupationFilter(this.value)">
-                    <?php 
-                      foreach ($occupationYear as $value) 
-                      {
-                        $selected = (date("Y") == $value['Year']) ? 'selected' : '';
-                        echo '<option '.$selected.'>'.$value['Year'].'</option>';
-                      }
-                    ?>
-                  </select>
-                </div>
-                <br>
-                <hr>
-                <div class="chart">
-                  <canvas id="chartOccupation" style="height:50%"></canvas>
-                </div>
-              </div>
-              <div class="tab-pane" id="tabIL">
-                <h5>INCOME LEVEL</h5>
-                <div class="pull-right">
-                  <select class="form-control" id="selectGenderYear" onchange="selectIncomeFilter(this.value)">
-                    <?php 
-                      foreach ($IncomeYear as $value) 
-                      {
-                        $selected = (date("Y") == $value['Year']) ? 'selected' : '';
-                        echo '<option '.$selected.'>'.$value['Year'].'</option>';
-                      }
-                    ?>
-                  </select>
-                </div>
-                <br>
-                <hr>
-                <div class="chart">
-                  <canvas id="chartIncome" style="height:250px"></canvas>
-                </div>
-              </div>
-              <div class="tab-pane" id="tabMS">
-                <h5>MARITAL STATUS</h5>
-                <div class="pull-right">
-                  <select class="form-control" onchange="selectMaritalFilter(this.value)">
-                    <?php 
-                      foreach ($MaritalYear as $value) 
-                      {
-                        $selected = (date("Y") == $value['Year']) ? 'selected' : '';
-                        echo '<option '.$selected.'>'.$value['Year'].'</option>';
-                      }
-                    ?>
-                  </select>
-                </div>
-                <br>
-                <hr>
-                <div class="chart">
-                  <canvas id="chartMarital" style="height:250px"></canvas>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="box box-primary">
-        <div class="box-header with-border">
-          <h3 class="box-title">HISTORICAL DATA ON LOANS EXTENDED BY THE COMPANY</h3>
-          <div class="box-tools pull-right">
-            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-            </button>
-          </div>
-        </div>
-        <div class="box-body">
-
-          <div class="nav-tabs-custom">
-            <ul class="nav nav-tabs">
-              <!-- <li class="active"><a href="#tabLoanApplications" data-toggle="tab">Loan Applications</a></li> -->
-              <li class="active"><a href="#tabBorrower" data-toggle="tab" title="TOTAL NUMBER OF BORROWERS">TOTAL NUMBER OF BORROWERS</a></li>
-              <li><a href="#tabLoanTotal" data-toggle="tab" title="TOTAL NUMBER OF LOANS" onclick="selectEducationFilter(0)">TOTAL NUMBER OF LOANS</a></li>
-              <li><a href="#tabLoanType" data-toggle="tab" title="TYPE OF LOANS" onclick="selectGenderFilter(0)">TYPE OF LOANS</a></li>
-              <li><a href="#tabLoanTotalAmount" data-toggle="tab" title="TOTAL LOAN AMOUNT" onclick="selectOccupationFilter(0)">TOTAL LOAN AMOUNT</a></li>
-              <li><a href="#tabTotalTenors" data-toggle="tab" title="TENORS" onclick="selectTotalTenors(0)">TENORS</a></li>
-              <li><a href="#tabTotalInterest" data-toggle="tab" title="INTEREST RATES" onclick="getTotalInterest()">INTEREST RATES</a></li>
-            </ul>
-            <div class="tab-content">
-              <div class="active tab-pane" id="tabBorrower">
-                <h5>TOTAL NUMBER OF BORROWERS</h5>
-                <div class="chart">
-                  <canvas id="lineChart" style="height:250px"></canvas>
-                </div>
-              </div>
-              <div class="tab-pane" id="tabLoanTotal">
-                <h5>TOTAL NUMBER OF LOANS</h5>
-                <div class="chart">
-                  <canvas id="lineChartTotalLoan" style="height:250px"></canvas>
-                </div>
-              </div>
-              <div class="tab-pane" id="tabLoanType">
-                <h5>TYPE OF LOANS</h5>
-                <div class="pull-right">
-                  <select class="form-control" id="selectGenderYear" onchange="selectLoanTypes(this.value)">
-                    <?php 
-                      foreach ($LoanYear as $value) 
-                      {
-                        $selected = (date("Y") == $value['Year']) ? 'selected' : '';
-                        echo '<option '.$selected.'>'.$value['Year'].'</option>';
-                      }
-                    ?>
-                  </select>
-                </div>
-                <br>
-                <hr>
-                <div class="chart">
-                  <canvas id="chartLoans" style="height:200px"></canvas>
-                </div>
-              </div>
-              <div class="tab-pane" id="tabLoanTotalAmount">
-                <h5>TOTAL LOAN AMOUNT</h5>
-                <div class="chart">
-                  <canvas id="lineTotalLoanAmount" style="height:250px"></canvas>
-                </div>
-              </div>
-              <div class="tab-pane" id="tabTotalTenors">
-                <h5>TENORS</h5>
-                <div class="pull-right">
-                  <select class="form-control" onchange="selectTotalTenors(this.value)">
-                    <?php 
-                      foreach ($TenorYear as $value) 
-                      {
-                        $selected = (date("Y") == $value['Year']) ? 'selected' : '';
-                        echo '<option '.$selected.'>'.$value['Year'].'</option>';
-                      }
-                    ?>
-                  </select>
-                </div>
-                <br>
-                <hr>
-                <div class="chart">
-                  <div id="divChartTenors">
-                  </div>
-                </div>
-              </div>
-              <div class="tab-pane" id="tabTotalInterest">
-                <h5>INTEREST COLLECTED</h5>
-                <div class="chart">
-                  <div id="divChartInterestRate">
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- <h5>GEOGRAPHICAL CONCENTRATION</h5>
-          <div class="pull-right">
-            <select class="form-control" onchange="selectGeo(this.value)">
-              <?php 
-                foreach ($LoanYear as $value) 
-                {
-                  $selected = (date("Y") == $value['Year']) ? 'selected' : '';
-                  echo '<option '.$selected.'>'.$value['Year'].'</option>';
-                }
-              ?>
-            </select>
-          </div>
-          <br>
-          <hr>
-          <div class="chart">
-            <canvas id="chartLoans" style="height:200px"></canvas>
-          </div> 
-          <hr> -->
-
-        </div>
-      </div>
-
-      <?php } if($rows['RoleId'] == 1) /*admin*/ { ?>
-        <!-- Default box -->
-        <div class="box">
+      <?php if(in_array('49', $subModule)) { ?>
+        <div class="box box-primary">
           <div class="box-header with-border">
-            <h3 class="box-title">List of Users</h3>
+            <h3 class="box-title">DEMOGRAPHICS</h3>
+            <div class="box-tools pull-right">
+              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+            </div>
           </div>
           <div class="box-body">
-            <form name="ApproverDocForm" method="post" id="ApproverDocForm">
-              <table id="example1" class="table table-bordered table-hover">
-                <thead>
-                <tr>
-                  <th>Employee Number</th>
-                  <th>Name</th>
-                  <th>Role</th>
-                  <th>Renewed Password?</th>
-                  <th>Status</th>
-                  <th>Date Created</th>
-                  <th>Date Updated</th>
-                  <th>Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                </tbody>
-              </table>
-            </form>
+            <div class="nav-tabs-custom">
+              <ul class="nav nav-tabs">
+                <!-- <li class="active"><a href="#tabLoanApplications" data-toggle="tab">Loan Applications</a></li> -->
+                <li class="active"><a href="#tabAge" data-toggle="tab" title="Age">Age</a></li>
+                <li><a href="#tabEd" data-toggle="tab" title="Education" onclick="selectEducationFilter(0)">Education</a></li>
+                <li><a href="#tabGE" data-toggle="tab" title="Gender" onclick="selectGenderFilter(0)">Gender</a></li>
+                <li><a href="#tabOC" data-toggle="tab" title="Occupation" onclick="selectOccupationFilter(0)">Occupation</a></li>
+                <li><a href="#tabIL" data-toggle="tab" title="Income Level" onclick="selectIncomeFilter(0)">Income Level</a></li>
+                <li><a href="#tabMS" data-toggle="tab" title="Marital Status" onclick="selectMaritalFilter(0)">Marital Status</a></li>
+              </ul>
+              <div class="tab-content">
+                <div class="active tab-pane" id="tabAge">
+                  <h5>AGE</h5>
+                  <div class="pull-right">
+                    <select class="form-control">
+                      <?php 
+                        foreach ($ageYear as $value) 
+                        {
+                          $selected = (date("Y") == $value['Year']) ? 'selected' : '';
+                          echo '<option '.$selected.'>'.$value['Year'].'</option>';
+                        }
+                      ?>
+                    </select>
+                  </div>
+                  <div class="chart">
+                    <canvas id="barChart" style="height:230px"></canvas>
+                  </div>
+                </div>
+                <div class="tab-pane" id="tabEd">
+                  <h5>EDUCATION</h5>
+                  <div class="pull-right">
+                    <select class="form-control" onchange="selectEducationFilter(this.value)">
+                      <?php 
+                        foreach ($educationYear as $value) 
+                        {
+                          $selected = (date("Y") == $value['Year']) ? 'selected' : '';
+                          echo '<option '.$selected.'>'.$value['Year'].'</option>';
+                        }
+                      ?>
+                    </select>
+                  </div>
+                  <br>
+                  <hr>
+                  <div class="chart">
+                    <canvas id="chartEducation" style="height:300px"></canvas>
+                  </div>
+                </div>
+                <div class="tab-pane" id="tabGE">
+                  <h5>GENDER</h5>
+                  <div class="pull-right">
+                    <select class="form-control" id="selectGenderYear" onchange="selectGenderFilter(this.value)">
+                      <?php 
+                        foreach ($genderYear as $value) 
+                        {
+                          $selected = (date("Y") == $value['Year']) ? 'selected' : '';
+                          echo '<option '.$selected.'>'.$value['Year'].'</option>';
+                        }
+                      ?>
+                    </select>
+                  </div>
+                  <br>
+                  <hr>
+                  <div class="chart">
+                    <canvas id="chartGender" style="height:230px"></canvas>
+                  </div>
+                </div>
+                <div class="tab-pane" id="tabOC">
+                  <h5>OCCUPATION</h5>
+                  <div class="pull-right">
+                    <select class="form-control" id="selectGenderYear" onchange="selectOccupationFilter(this.value)">
+                      <?php 
+                        foreach ($occupationYear as $value) 
+                        {
+                          $selected = (date("Y") == $value['Year']) ? 'selected' : '';
+                          echo '<option '.$selected.'>'.$value['Year'].'</option>';
+                        }
+                      ?>
+                    </select>
+                  </div>
+                  <br>
+                  <hr>
+                  <div class="chart">
+                    <canvas id="chartOccupation" style="height:50%"></canvas>
+                  </div>
+                </div>
+                <div class="tab-pane" id="tabIL">
+                  <h5>INCOME LEVEL</h5>
+                  <div class="pull-right">
+                    <select class="form-control" id="selectGenderYear" onchange="selectIncomeFilter(this.value)">
+                      <?php 
+                        foreach ($IncomeYear as $value) 
+                        {
+                          $selected = (date("Y") == $value['Year']) ? 'selected' : '';
+                          echo '<option '.$selected.'>'.$value['Year'].'</option>';
+                        }
+                      ?>
+                    </select>
+                  </div>
+                  <br>
+                  <hr>
+                  <div class="chart">
+                    <canvas id="chartIncome" style="height:250px"></canvas>
+                  </div>
+                </div>
+                <div class="tab-pane" id="tabMS">
+                  <h5>MARITAL STATUS</h5>
+                  <div class="pull-right">
+                    <select class="form-control" onchange="selectMaritalFilter(this.value)">
+                      <?php 
+                        foreach ($MaritalYear as $value) 
+                        {
+                          $selected = (date("Y") == $value['Year']) ? 'selected' : '';
+                          echo '<option '.$selected.'>'.$value['Year'].'</option>';
+                        }
+                      ?>
+                    </select>
+                  </div>
+                  <br>
+                  <hr>
+                  <div class="chart">
+                    <canvas id="chartMarital" style="height:250px"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <!-- /.box -->
-      <?php } } ?> 
+      <?php } ?>
+
+      <?php if(in_array('50', $subModule)) { ?>
+        <div class="box box-primary">
+          <div class="box-header with-border">
+            <h3 class="box-title">HISTORICAL DATA ON LOANS EXTENDED BY THE COMPANY</h3>
+            <div class="box-tools pull-right">
+              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+              </button>
+            </div>
+          </div>
+          <div class="box-body">
+
+            <div class="nav-tabs-custom">
+              <ul class="nav nav-tabs">
+                <!-- <li class="active"><a href="#tabLoanApplications" data-toggle="tab">Loan Applications</a></li> -->
+                <li class="active"><a href="#tabBorrower" data-toggle="tab" title="TOTAL NUMBER OF BORROWERS">TOTAL NUMBER OF BORROWERS</a></li>
+                <li><a href="#tabLoanTotal" data-toggle="tab" title="TOTAL NUMBER OF LOANS" onclick="selectEducationFilter(0)">TOTAL NUMBER OF LOANS</a></li>
+                <li><a href="#tabLoanType" data-toggle="tab" title="TYPE OF LOANS" onclick="selectGenderFilter(0)">TYPE OF LOANS</a></li>
+                <li><a href="#tabLoanTotalAmount" data-toggle="tab" title="TOTAL LOAN AMOUNT" onclick="selectOccupationFilter(0)">TOTAL LOAN AMOUNT</a></li>
+                <li><a href="#tabTotalTenors" data-toggle="tab" title="TENORS" onclick="selectTotalTenors(0)">TENORS</a></li>
+                <li><a href="#tabTotalInterest" data-toggle="tab" title="INTEREST RATES" onclick="getTotalInterest()">INTEREST RATES</a></li>
+              </ul>
+              <div class="tab-content">
+                <div class="active tab-pane" id="tabBorrower">
+                  <h5>TOTAL NUMBER OF BORROWERS</h5>
+                  <div class="chart">
+                    <canvas id="lineChart" style="height:250px"></canvas>
+                  </div>
+                </div>
+                <div class="tab-pane" id="tabLoanTotal">
+                  <h5>TOTAL NUMBER OF LOANS</h5>
+                  <div class="chart">
+                    <canvas id="lineChartTotalLoan" style="height:250px"></canvas>
+                  </div>
+                </div>
+                <div class="tab-pane" id="tabLoanType">
+                  <h5>TYPE OF LOANS</h5>
+                  <div class="pull-right">
+                    <select class="form-control" id="selectGenderYear" onchange="selectLoanTypes(this.value)">
+                      <?php 
+                        foreach ($LoanYear as $value) 
+                        {
+                          $selected = (date("Y") == $value['Year']) ? 'selected' : '';
+                          echo '<option '.$selected.'>'.$value['Year'].'</option>';
+                        }
+                      ?>
+                    </select>
+                  </div>
+                  <br>
+                  <hr>
+                  <div class="chart">
+                    <canvas id="chartLoans" style="height:200px"></canvas>
+                  </div>
+                </div>
+                <div class="tab-pane" id="tabLoanTotalAmount">
+                  <h5>TOTAL LOAN AMOUNT</h5>
+                  <div class="chart">
+                    <canvas id="lineTotalLoanAmount" style="height:250px"></canvas>
+                  </div>
+                </div>
+                <div class="tab-pane" id="tabTotalTenors">
+                  <h5>TENORS</h5>
+                  <div class="pull-right">
+                    <select class="form-control" onchange="selectTotalTenors(this.value)">
+                      <?php 
+                        foreach ($TenorYear as $value) 
+                        {
+                          $selected = (date("Y") == $value['Year']) ? 'selected' : '';
+                          echo '<option '.$selected.'>'.$value['Year'].'</option>';
+                        }
+                      ?>
+                    </select>
+                  </div>
+                  <br>
+                  <hr>
+                  <div class="chart">
+                    <div id="divChartTenors">
+                    </div>
+                  </div>
+                </div>
+                <div class="tab-pane" id="tabTotalInterest">
+                  <h5>INTEREST COLLECTED</h5>
+                  <div class="chart">
+                    <div id="divChartInterestRate">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- <h5>GEOGRAPHICAL CONCENTRATION</h5>
+            <div class="pull-right">
+              <select class="form-control" onchange="selectGeo(this.value)">
+                <?php 
+                  foreach ($LoanYear as $value) 
+                  {
+                    $selected = (date("Y") == $value['Year']) ? 'selected' : '';
+                    echo '<option '.$selected.'>'.$value['Year'].'</option>';
+                  }
+                ?>
+              </select>
+            </div>
+            <br>
+            <hr>
+            <div class="chart">
+              <canvas id="chartLoans" style="height:200px"></canvas>
+            </div> 
+            <hr> -->
+
+          </div>
+        </div>
+      <?php } ?>
+
+      <!-- <div class="box">
+        <div class="box-header with-border">
+          <h3 class="box-title">List of Users</h3>
+        </div>
+        <div class="box-body">
+          <form name="ApproverDocForm" method="post" id="ApproverDocForm">
+            <table id="example1" class="table table-bordered table-hover">
+              <thead>
+              <tr>
+                <th>Employee Number</th>
+                <th>Name</th>
+                <th>Renewed Password?</th>
+                <th>Status</th>
+                <th>Date Created</th>
+                <th>Date Updated</th>
+                <th>Action</th>
+              </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </form>
+        </div>
+      </div> -->
+
     </section>
   <!-- /.content -->
 </div>
@@ -1367,7 +1366,6 @@
       "ajax": { url: '<?php echo base_url()."/datatables_controller/Users/"; ?>', type: 'POST', "dataSrc": "" },
       "columns": [  { data: "EmployeeNumber" }
                     , { data: "Name" }
-                    , { data: "Description" }
                     , {
                       data: "IsNew", "render": function (data, type, row) {
                         if(row.IsNew == 1){

@@ -35,17 +35,34 @@ class sidebar_model extends CI_Model
 
     function checkSideBar()
     {
-      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-      $query_string = $this->db->query("SELECT  DISTINCT RoleId
-                                                FROM R_UserRole
+      $EmployeeNumber = sprintf('%06d', $this->session->userdata('EmployeeNumber'));
+      $query_string = $this->db->query("SELECT  DISTINCT ModuleId
+                                                FROM R_UserAccess
                                                 WHERE EmployeeNumber = '$EmployeeNumber'
-                                                AND StatusId = 1
+                                                  AND StatusId = 1
       ");
       $data = $query_string->result_array();
       $New_Array = array();
       foreach ( $data as $Items ) 
       {
-        $New_Array[] = $Items["RoleId"];
+        $New_Array[] = $Items["ModuleId"];
+      }
+      return $New_Array;
+    }
+
+    function checkSubModules()
+    {
+      $EmployeeNumber = sprintf('%06d', $this->session->userdata('EmployeeNumber'));
+      $query_string = $this->db->query("SELECT  DISTINCT SubModuleId
+                                                FROM R_UserAccess
+                                                WHERE EmployeeNumber = '$EmployeeNumber'
+                                                  AND StatusId = 1
+      ");
+      $data = $query_string->result_array();
+      $New_Array = array();
+      foreach ( $data as $Items ) 
+      {
+        $New_Array[] = $Items["SubModuleId"];
       }
       return $New_Array;
     }

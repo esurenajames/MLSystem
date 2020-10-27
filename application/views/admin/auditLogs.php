@@ -12,10 +12,7 @@
     </ol>
   </section>
 
-  <!-- Main content -->
   <section class="content">
-
-    <!-- Default box -->
     <div class="box">
       <div class="box-header with-border">
         <h3 class="box-title">Audit Logs</h3>
@@ -36,12 +33,8 @@
         </table>
       </div>
     </div>
-    <!-- /.box -->
-
   </section>
-  <!-- /.content -->
 </div>
-<!-- /.content-wrapper -->
 <footer class="main-footer">
   <div class="pull-right hidden-xs">
     <b>Version</b> 1.0.0

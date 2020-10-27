@@ -34,13 +34,6 @@
                     </select>
                   </div>
                 </div>
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label for="exampleInputEmail1">Role</label><br>
-                    <select name="selectRoleId" class="form-control"style="width: 100%" id="selectRoles">
-                    </select>
-                  </div>
-                </div>
               </div>
             </div>
             <div class="modal-footer">
@@ -53,38 +46,33 @@
     </div>
     <!-- /.modal-dialog -->
   </div>
-    <!-- Default box -->
-    <div class="box">
-      <div class="box-header with-border">
-        <h3 class="box-title">List of Users</h3>
-      </div>
-      <div class="box-body">
-        <button class="btn btn-primary pull-right" onclick="newUser()">Add User</button>
-        <br>
-        <br>
-        <table id="example1" class="table table-bordered table-hover">
-          <thead>
-          <tr>
-            <th>Employee Number</th>
-            <th>Name</th>
-            <th>Role</th>
-            <th>Renewed Password?</th>
-            <th>Status</th>
-            <th>Date Created</th>
-            <th>Date Updated</th>
-            <th>Action</th>
-          </tr>
-          </thead>
-          <tbody>
-          </tbody>
-        </table>
-      </div>
+  <div class="box">
+    <div class="box-header with-border">
+      <h3 class="box-title">List of Users</h3>
     </div>
-    <!-- /.box -->
+    <div class="box-body">
+      <button class="btn btn-primary pull-right" onclick="newUser()">Add User</button>
+      <br>
+      <br>
+      <table id="example1" class="table table-bordered table-hover">
+        <thead>
+        <tr>
+          <th>Employee Number</th>
+          <th>Name</th>
+          <th>Renewed Password?</th>
+          <th>Status</th>
+          <th>Date Created</th>
+          <th>Date Updated</th>
+          <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+  </div>
   </section>
-  <!-- /.content -->
 </div>
-<!-- /.content-wrapper -->
 <footer class="main-footer">
   <div class="pull-right hidden-xs">
     <b>Version</b> 1.0.0
@@ -238,7 +226,6 @@
       "ajax": { url: '<?php echo base_url()."/datatables_controller/Users/"; ?>', type: 'POST', "dataSrc": "" },
       "columns": [  { data: "EmployeeNumber" }
                     , { data: "Name" }
-                    , { data: "Description" }
                     , {
                       data: "IsNew", "render": function (data, type, row) {
                         if(row.IsNew == 1){
@@ -270,7 +257,7 @@
                     {
                       data: "StatusId", "render": function (data, type, row) {
                       if(row.StatusId == 1){
-                          return '<a onclick="confirm(\'Are you sure you want to deactivate this user?\', \''+row.UserRoleId+'\', 0,\'UserRoleUpdate\')" class="btn btn-sm btn-danger" title="Deactivate"><span class="fa fa-close"></span></a><a onclick="confirm(\'Are you sure you want to reset this user password?\', \''+row.UserRoleId+'\', 3)" class="btn btn-sm btn-warning" title="Reset Password"><span class="fa fa-exchange"></span></a>';
+                          return '<a href="<?php echo base_url()."home/accessManagement/"; ?>'+row.EmployeeId+'" class="btn btn-sm btn-primary" title="Access Management"><span class="fa fa-calendar-check-o"></span></a>  <a onclick="confirm(\'Are you sure you want to deactivate this user?\', \''+row.UserRoleId+'\', 0,\'UserRoleUpdate\')" class="btn btn-sm btn-danger" title="Deactivate"><span class="fa fa-close"></span></a> <a onclick="confirm(\'Are you sure you want to reset this user password?\', \''+row.UserRoleId+'\', 3)" class="btn btn-sm btn-warning" title="Reset Password"><span class="fa fa-exchange"></span></a>';
                         }
                         else if(row.StatusId == 0){
                           return '<a onclick="confirm(\'Are you sure you want to re-activate this user?\', \''+row.UserRoleId+'\', 1,\'UserRoleUpdate\')" class="btn btn-sm btn-success" title="Deactivate"><span class="fa fa-refresh"></span></a>';

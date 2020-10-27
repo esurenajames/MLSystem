@@ -12,8 +12,7 @@
     </ol>
   </section>
 
-
-    <div class="modal fade" id="modalNewTangible">
+  <div class="modal fade" id="modalNewTangible">
     <div class="modal-dialog modal-md">
       <div class="modal-content">
         <div class="modal-header">
@@ -116,106 +115,42 @@
       </div>
       <!-- /.modal-content -->
     </div>
-    <!-- /.modal-dialog -->
   </div>
 
     <!-- Main content -->
     <section class="content">
-      <?php foreach ($access as $rows){ if($rows['RoleId'] == 3 || $rows['RoleId'] == 4) /*employee | top management*/ { ?>    
-        <div class="row">
-          <div class="col-md-3 col-sm-6 col-xs-12">
-            <div class="info-box">
-              <span class="info-box-icon bg-aqua"><i class="ion ion-ios-people-outline"></i></span>
-
-              <div class="info-box-content">
-                <span class="info-box-text">Total <br> Borrowers</span>
-                <span class="info-box-number">10</span>
-              </div>
-              <!-- /.info-box-content -->
-            </div>
-            <!-- /.info-box -->
-          </div>
-          <!-- /.col -->
-          <div class="col-md-3 col-sm-6 col-xs-12">
-            <div class="info-box">
-              <span class="info-box-icon bg-info"><i class="fa fa-folder-open"></i></span>
-
-              <div class="info-box-content">
-                <span class="info-box-text">Loans Released</span>
-                <span class="info-box-number">10</span>
-              </div>
-              <!-- /.info-box-content -->
-            </div>
-            <!-- /.info-box -->
-          </div>
-          <!-- /.col -->
-
-          <!-- fix for small devices only -->
-          <div class="clearfix visible-sm-block"></div>
-
-          <div class="col-md-3 col-sm-6 col-xs-12">
-            <div class="info-box">
-              <span class="info-box-icon bg-green"><i class="ion ion-ios-calculator"></i></span>
-
-              <div class="info-box-content">
-                <span class="info-box-text">Payments <br> Collected</span>
-                <span class="info-box-number">Php 23,000</span>
-              </div>
-              <!-- /.info-box-content -->
-            </div>
-            <!-- /.info-box -->
-          </div>
-          <!-- /.col -->
-          <div class="col-md-3 col-sm-6 col-xs-12">
-            <div class="info-box">
-              <span class="info-box-icon bg-yellow"><i class="ion ion-ios-briefcase-outline"></i></span>
-
-              <div class="info-box-content">
-                <span class="info-box-text">Due Amount</span>
-                <span class="info-box-number">Php 2,000</span>
-              </div>
-              <!-- /.info-box-content -->
-            </div>
-            <!-- /.info-box -->
-          </div>
-          <!-- /.col -->
-        </div>     
-      <?php } if($rows['RoleId'] == 1) /*admin*/ { ?>
-        <!-- Default box -->
-        <div class="box">
-          <div class="box-header with-border">
-            <h3 class="box-title">List of Assets</h3>
-          </div>
-          <div class="box-body">
-            <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewTangible">Add Asset</button>
-            <br>
-            <br>
-            <form name="ApproverDocForm" method="post" id="ApproverDocForm">
-              <table id="example1" class="table table-bordered table-hover">
-                <thead>
-                <tr>
-                  <th>Type</th>
-                  <th>Category</th>
-                  <th>Asset</th>
-                  <th>Purchase Price</th>
-                  <th>Replacement Value</th>
-                  <th>Serial Number</th>
-                  <th>Vendor</th>
-                  <th>Company Branch</th>
-                  <th>Stocks</th>
-                  <th>Status</th>
-                  <th>Date Created</th>
-                  <th>Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                </tbody>
-              </table>
-            </form>
-          </div>
+      <div class="box">
+        <div class="box-header with-border">
+          <h3 class="box-title">List of Assets</h3>
         </div>
-        <!-- /.box -->
-      <?php } } ?> 
+        <div class="box-body">
+          <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewTangible">Add Asset</button>
+          <br>
+          <br>
+          <form name="ApproverDocForm" method="post" id="ApproverDocForm">
+            <table id="example1" class="table table-bordered table-hover">
+              <thead>
+              <tr>
+                <th>Type</th>
+                <th>Category</th>
+                <th>Asset</th>
+                <th>Purchase Price</th>
+                <th>Replacement Value</th>
+                <th>Serial Number</th>
+                <th>Vendor</th>
+                <th>Company Branch</th>
+                <th>Stocks</th>
+                <th>Status</th>
+                <th>Date Created</th>
+                <th>Action</th>
+              </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </form>
+        </div>
+      </div>
     </section>
   <!-- /.content -->
 </div>

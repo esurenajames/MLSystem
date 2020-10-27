@@ -45,6 +45,9 @@ class LMS extends CI_Controller {
 	        'Name' => $result[0]['Name'],
 	        'Branch' => $result[0]['Branch'],
 	        'BranchId' => $result[0]['BranchId'],
+	        'EmployeeId' => $result[0]['EmployeeId'],
+	        'Password' => $result[0]['Password'],
+	        'ManagerId' => $result[0]['ManagerId'],
         	'logged_in' => 1,
 	      );
 	      $this->session->set_userdata($loginSession);

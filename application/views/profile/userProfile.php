@@ -31,10 +31,9 @@
                     <label for="colorCurrent">Current Password</label>
                     <div class="form-group" id="colorCurrent">
                       <label class="control-label" id="lblSuccess" style="display: none" for="inputSuccess"><i class="fa fa-check"></i></label>
-                      <input type="text" class="form-control" name="NewPassword" id="txtCurrentPassword" oninput="checkCurrentPassword(this.value);" placeholder="Enter Current password">
+                      <input type="password" class="form-control" name="NewPassword" id="txtCurrentPassword" oninput="checkCurrentPassword(this.value);" placeholder="Enter Current password">
                       <span id="successMessage3" style="display: none" class="help-block"></span>
                     </div>
-                    <!-- <input type="password" id="txtNewPassword" class="form-control" id="exampleInputEmail1"> -->
                   </div>
                 </div>
                 <div class="col-md-4">
@@ -42,10 +41,9 @@
                     <label for="exampleInputEmail1">New Password</label>
                     <div class="form-group" id="colorSuccess">
                       <label class="control-label" id="lblSuccess" style="display: none" for="inputSuccess"><i class="fa fa-check"></i></label>
-                      <input type="text" class="form-control" name="NewPassword" id="txtNewPassword" oninput="checkNewPassword(this.value);" placeholder="Enter New password">
+                      <input type="password" class="form-control" name="NewPassword" id="txtNewPassword" oninput="checkNewPassword(this.value);" placeholder="Enter New password">
                       <span id="successMessage" style="display: none" class="help-block"></span>
                     </div>
-                    <!-- <input type="password" id="txtNewPassword" class="form-control" id="exampleInputEmail1"> -->
                   </div>
                 </div>
                 <div class="col-md-4">
@@ -53,7 +51,7 @@
                     <label for="exampleInputEmail1">Confirm Password</label>
                     <div class="form-group" id="colorSuccess2">
                       <label class="control-label" id="lblSuccess2" style="display: none" for="txtConfirmPassword"><i class="fa fa-check"></i></label>
-                      <input type="text" class="form-control" id="txtConfirmPassword" oninput="checkPasswordMatch(this.value);">
+                      <input type="number" class="form-control" id="txtConfirmPassword" oninput="checkPasswordMatch(this.value);">
                       <span id="successMessage2" style="display: none" class="help-block"></span>
                     </div>
                   </div>
@@ -70,20 +68,21 @@
     </div>
     <!-- /.modal-dialog -->
   </div>
+
   <div class="modal fade" id="modalProfilePicture">
     <div class="modal-dialog modal-md">
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">Add Identification</h4>
+          <h4 class="modal-title">Edit User Profile Picture</h4>
         </div>
         <form autocomplete="off" action="<?php echo base_url(); ?>employee_controller/employeeProcessing/8/<?php print_r($detail['EmployeeNumber'])?>" id="frmInsert5" method="post" enctype="multipart/form-data">
           <div class="modal-body">
             <div class="row">
               <div class="col-md-12">
                 <div class="form-group">
-                  <label for="txtHouseNo">Upload Profile Picture <span class="text-red">*</span></label>
+                  <label for="txtHouseNo">Upload Profile Picture<span class="text-red">*</span></label>
                   <input type="file" name="ID[]" required="" id="Attachment" accept=".jpeg, .jpg, .png">
                 </div>
               </div>
@@ -99,7 +98,6 @@
     </div>
     <!-- /.modal-dialog -->
   </div>
-    <!-- Default box -->
 
     <div class="row">
         <div class="col-md-3">
@@ -133,7 +131,7 @@
                   <b>Date Hired</b> <h5 class="pull-right"><?php print_r($detail['DateHired']); ?></h5>
                 </li>
                 <li class="list-group-item">
-                  <b>Branch Assigned</b> <h5 class="pull-right"><?php print_r($detail['Code'] . '-' . $detail['Branch']); ?></h5>
+                  <b>Branch Assigned</b> <h5 class="pull-right"><?php print_r($detail['Branch']); ?></h5>
                 </li>
                 <li class="list-group-item">
                   <b>Manager</b> <h5 class="pull-right"><?php print_r($detail['MngLastName'] . ', ' . $detail['MngFirstName']); ?></h5>
@@ -359,7 +357,7 @@
             element.classList.remove("has-success");
             element.classList.add("has-error");
             $('#successMessage3').slideDown();
-            $('#successMessage3').html('Password does not match');
+            // $('#successMessage3').html('Password does not match');
 
             $('#txtNewPassword').prop('disabled', true);
             $('#txtConfirmPassword').prop('disabled', true);
@@ -369,7 +367,7 @@
             element.classList.remove("has-error");
             element.classList.add("has-success");
             $('#successMessage3').slideDown();
-            $('#successMessage3').html('Password matches current');
+            // $('#successMessage3').html('Password matches current');
 
             $('#txtNewPassword').prop('disabled', false);
             $('#txtConfirmPassword').prop('disabled', false);

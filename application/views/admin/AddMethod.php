@@ -14,7 +14,7 @@
   </section>
 
 
-    <div class="modal fade" id="modalNewMethod">
+  <div class="modal fade" id="modalNewMethod">
     <div class="modal-dialog modal-md">
       <div class="modal-content">
         <div class="modal-header">
@@ -52,101 +52,35 @@
     <!-- /.modal-dialog -->
   </div>
 
-    <!-- Main content -->
-    <section class="content">
-      <?php foreach ($access as $rows){ if($rows['RoleId'] == 3 || $rows['RoleId'] == 4) /*employee | top management*/ { ?>    
-        <div class="row">
-          <div class="col-md-3 col-sm-6 col-xs-12">
-            <div class="info-box">
-              <span class="info-box-icon bg-aqua"><i class="ion ion-ios-people-outline"></i></span>
-
-              <div class="info-box-content">
-                <span class="info-box-text">Total <br> Borrowers</span>
-                <span class="info-box-number">10</span>
-              </div>
-              <!-- /.info-box-content -->
-            </div>
-            <!-- /.info-box -->
-          </div>
-          <!-- /.col -->
-          <div class="col-md-3 col-sm-6 col-xs-12">
-            <div class="info-box">
-              <span class="info-box-icon bg-info"><i class="fa fa-folder-open"></i></span>
-
-              <div class="info-box-content">
-                <span class="info-box-text">Loans Released</span>
-                <span class="info-box-number">10</span>
-              </div>
-              <!-- /.info-box-content -->
-            </div>
-            <!-- /.info-box -->
-          </div>
-          <!-- /.col -->
-
-          <!-- fix for small devices only -->
-          <div class="clearfix visible-sm-block"></div>
-
-          <div class="col-md-3 col-sm-6 col-xs-12">
-            <div class="info-box">
-              <span class="info-box-icon bg-green"><i class="ion ion-ios-calculator"></i></span>
-
-              <div class="info-box-content">
-                <span class="info-box-text">Payments <br> Collected</span>
-                <span class="info-box-number">Php 23,000</span>
-              </div>
-              <!-- /.info-box-content -->
-            </div>
-            <!-- /.info-box -->
-          </div>
-          <!-- /.col -->
-          <div class="col-md-3 col-sm-6 col-xs-12">
-            <div class="info-box">
-              <span class="info-box-icon bg-yellow"><i class="ion ion-ios-briefcase-outline"></i></span>
-
-              <div class="info-box-content">
-                <span class="info-box-text">Due Amount</span>
-                <span class="info-box-number">Php 2,000</span>
-              </div>
-              <!-- /.info-box-content -->
-            </div>
-            <!-- /.info-box -->
-          </div>
-          <!-- /.col -->
-        </div>     
-      <?php } if($rows['RoleId'] == 1) /*admin*/ { ?>
-        <!-- Default box -->
-        <div class="box">
-          <div class="box-header with-border">
-            <h3 class="box-title">List of Modes of Payment</h3>
-          </div>
-          <div class="box-body">
-            <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewMethod">Add Mode of Payment</button>
-            <br>
-            <br>
-            <form name="ApproverDocForm" method="post" id="ApproverDocForm">
-              <table id="example1" class="table table-bordered table-hover">
-                <thead>
-                <tr>
-                  <th>Mode</th>
-                  <th>Description</th>
-                  <th>Status</th>
-                  <th>Date Created</th>
-                  <th>Date Updated</th>
-                  <th>Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                </tbody>
-              </table>
-            </form>
-          </div>
-        </div>
-        <!-- /.box -->
-      <?php } } ?> 
-    </section>
-  <!-- /.content -->
+  <section class="content">
+    <div class="box">
+      <div class="box-header with-border">
+        <h3 class="box-title">List of Modes of Payment</h3>
+      </div>
+      <div class="box-body">
+        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewMethod">Add Mode of Payment</button>
+        <br>
+        <br>
+        <form name="ApproverDocForm" method="post" id="ApproverDocForm">
+          <table id="example1" class="table table-bordered table-hover">
+            <thead>
+            <tr>
+              <th>Mode</th>
+              <th>Description</th>
+              <th>Status</th>
+              <th>Date Created</th>
+              <th>Date Updated</th>
+              <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </form>
+      </div>
+    </div>
+  </section>
 </div>
-<!-- /.content-wrapper -->
 
 <footer class="main-footer">
   <div class="pull-right hidden-xs">

@@ -49,6 +49,7 @@ class borrower_model extends CI_Model
                                                   AND ExtName = '".$input['ExtName']."'
                                                   AND LastName = '".$input['LastName']."'
                                                   AND DateOfBirth = '".$input['DateOfBirth']."'
+                                                  AND MotherName = '".$input['MotherName']."'
 
       ");
       $data = $query_string->num_rows();

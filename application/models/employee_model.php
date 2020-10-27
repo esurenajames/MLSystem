@@ -150,6 +150,7 @@ class employee_model extends CI_Model
                                                     ON US.SecurityQuestionId = SQ.SecurityQuestionId
                                                     WHERE US.EmployeeNumber = '".$EmpNo['EmployeeNumber']."'
                                                     AND US.QuestionNumber = ".$QuestionNo."
+                                                    AND US.StatusId = 1
 
       ");
       $data = $query_string->row_array();
@@ -158,7 +159,9 @@ class employee_model extends CI_Model
 
     function getEmployeeDetail($EmployeeId)
     {
-      $query_string = $this->db->query("SELECT  CONCAT(LastName, ', ', FirstName, ' ', MiddleName, ', ', ExtName) as Name
+      $query_string = $this->db->query("SELECT  CONCAT(LastName, ', ', FirstName, ' ', ExtName) as Name
+                                                , EmployeeNumber
+                                                , EmployeeId
                                                 FROM r_Employee
                                                   WHERE EmployeeId = '".$EmployeeId."'
 
@@ -209,6 +212,8 @@ class employee_model extends CI_Model
                                                 , DATE_FORMAT(EMP.DateOfBirth, '%d %b %Y') as DateOfBirth
                                                 , DATE_FORMAT(EMP.DateHired, '%d %b %Y') as DateHired
                                                 , EMP.StatusId
+                                                , SS.Description as StatusDescription
+
 
                                                 , S.SalutationId
                                                 , EMP.MiddleName
@@ -244,6 +249,8 @@ class employee_model extends CI_Model
                                                     ON P.PositionId = EMP.PositionId
                                                   INNER JOIN branch_has_employee BE
                                                     ON BE.EmployeeNumber = EMP.EmployeeNumber
+                                                  INNER JOIN R_Status SS
+                                                    ON SS.StatusId = EMP.StatusId
                                                   LEFT JOIN branch_has_manager BM
                                                     ON BM.ManagerBranchId = BE.ManagerBranchId
                                                   LEFT JOIN r_branch B
@@ -321,6 +328,7 @@ class employee_model extends CI_Model
                                                     ON MNG.EmployeeNumber = BM.EmployeeNumber
                                                   LEFT JOIN r_ProfilePicture PP
                                                     ON PP.EmployeeNumber = EMP.EmployeeNumber
+                                                    AND PP.StatusId = 1
                                                   WHERE EMP.EmployeeNumber = '$Id'
 
       ");
@@ -353,6 +361,7 @@ class employee_model extends CI_Model
 
     function getAllList()
     {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
       $Roles = $this->maintenance_model->getLoggedInRoles(); // to check if may access syang maview
       $query_string = $this->db->query("SELECT DISTINCT EMP.EmployeeId
                                                 , EMP.EmployeeNumber
@@ -371,7 +380,7 @@ class employee_model extends CI_Model
                                                 , DATE_FORMAT(EMP.DateCreated, '%d %b %Y %h:%i %p') as DateUpdated
                                                 , EMP.StatusId
                                                 , EMP.CreatedBy
-                                                , B.Name as Branch
+                                                , B.Name as Branch                   
                                                 FROM r_Employee EMP
                                                   INNER JOIN R_Salutation S
                                                     ON S.SalutationId = EMP.Salutation
@@ -1069,6 +1078,49 @@ class employee_model extends CI_Model
 
       ");
       $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getAccessManagement()
+    {
+      $query_string = $this->db->query("SELECT  Description
+                                                , ModuleId
+                                                , StatusId
+                                                , ModuleId
+                                                FROM r_modules
+                                                      WHERE StatusId = 1
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getSubmodules()
+    {
+      $query_string = $this->db->query("SELECT  DISTINCT Description
+                                                , ModuleId
+                                                , StatusId
+                                                , Code
+                                                , SubModuleId
+                                                FROM r_submodules
+                                                      WHERE StatusId = 1
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getModuleAccess($Id)
+    {
+      $EmployeeNumber = sprintf('%06d', $Id);
+      $query_string = $this->db->query("SELECT  Description
+                                                , ModuleId
+                                                , StatusId
+                                                , Code
+                                                , SubModuleId
+                                                FROM R_UserAccess
+                                                WHERE EmployeeNumber = '$EmployeeNumber'
+                                                  AND StatusId = 1
+      ");
+      $data = $query_string->result_array();
       return $data;
     }
 

@@ -79,6 +79,7 @@ class borrower_controller extends CI_Controller {
         , 'MiddleName'                  => htmlentities($_POST['MiddleName'], ENT_QUOTES)
         , 'LastName'                    => htmlentities($_POST['LastName'], ENT_QUOTES)
         , 'ExtName'                     => htmlentities($_POST['ExtName'], ENT_QUOTES)
+        , 'MotherName'                  => htmlentities($_POST['MotherName'], ENT_QUOTES)
         , 'DOB'                         => htmlentities($newformat, ENT_QUOTES)
       );
       $query = $this->borrower_model->countBorrower($data);

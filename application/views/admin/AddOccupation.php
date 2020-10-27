@@ -14,7 +14,7 @@
   </section>
 
 
-    <div class="modal fade" id="modalNewOccupation">
+  <div class="modal fade" id="modalNewOccupation">
     <div class="modal-dialog modal-md">
       <div class="modal-content">
         <div class="modal-header">
@@ -52,40 +52,35 @@
     <!-- /.modal-dialog -->
   </div>
 
-    <!-- Main content -->
-    <section class="content">
-        <!-- Default box -->
-        <div class="box">
-          <div class="box-header with-border">
-            <h3 class="box-title">List of Occupations</h3>
-          </div>
-          <div class="box-body">
-            <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewOccupation">Add Occupation</button>
-            <br>
-            <br>
-            <form name="ApproverDocForm" method="post" id="ApproverDocForm">
-              <table id="example1" class="table table-bordered table-hover">
-                <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Description</th>
-                  <th>Status</th>
-                  <th>Date Created</th>
-                  <th>Date Updated</th>
-                  <th>Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                </tbody>
-              </table>
-            </form>
-          </div>
-        </div>
-        <!-- /.box -->
-    </section>
-  <!-- /.content -->
+  <section class="content">
+    <div class="box">
+      <div class="box-header with-border">
+        <h3 class="box-title">List of Occupations</h3>
+      </div>
+      <div class="box-body">
+        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewOccupation">Add Occupation</button>
+        <br>
+        <br>
+        <form name="ApproverDocForm" method="post" id="ApproverDocForm">
+          <table id="example1" class="table table-bordered table-hover">
+            <thead>
+            <tr>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Status</th>
+              <th>Date Created</th>
+              <th>Date Updated</th>
+              <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </form>
+      </div>
+    </div>
+  </section>
 </div>
-<!-- /.content-wrapper -->
 
 <footer class="main-footer">
   <div class="pull-right hidden-xs">

@@ -14,7 +14,7 @@
   </section>
 
 
-    <div class="modal fade" id="modalNewDisbursement">
+  <div class="modal fade" id="modalNewDisbursement">
     <div class="modal-dialog modal-md">
       <div class="modal-content">
         <div class="modal-header">
@@ -46,9 +46,7 @@
     <!-- /.modal-dialog -->
   </div>
 
-    <!-- Main content -->
     <section class="content">
-        <!-- Default box -->
         <div class="box">
           <div class="box-header with-border">
             <h3 class="box-title">List of Disbursements</h3>

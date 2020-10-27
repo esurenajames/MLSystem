@@ -47,6 +47,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'Dashboard';
 		$header['header'] = 'Dashboard';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$data['access'] = $this->sidebar_model->getAccess();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -78,6 +79,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'Banks';
 		$header['header'] = 'Banks';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$data['access'] = $this->sidebar_model->getAccess();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -93,6 +95,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'Collection Management';
 		$header['header'] = 'Collection Management';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$data['access'] = $this->sidebar_model->getAccess();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -108,6 +111,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = "Branches";
 		$header['header'] = 'Branches';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['access'] = $this->sidebar_model->getAccess();
@@ -122,6 +126,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'LoanTypes';
 		$header['header'] = 'Loan Types';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['access'] = $this->sidebar_model->getAccess();
@@ -137,6 +142,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'Conditional';
 		$header['header'] = 'Additional Charges';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['access'] = $this->sidebar_model->getAccess();
@@ -152,6 +158,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'Occupations';
 		$header['header'] = 'Occupations';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['access'] = $this->sidebar_model->getAccess();
@@ -167,6 +174,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'Requirements';
 		$header['header'] = 'Requirements';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['access'] = $this->sidebar_model->getAccess();
@@ -182,6 +190,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'Positions';
 		$header['header'] = 'Positions';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['access'] = $this->sidebar_model->getAccess();
@@ -197,6 +206,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 0;
 		$header['header'] = 'Optional Charges';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['access'] = $this->sidebar_model->getAccess();
@@ -212,6 +222,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'Purposes';
 		$header['header'] = 'Purpose';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['access'] = $this->sidebar_model->getAccess();
@@ -227,6 +238,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'Methods';
 		$header['header'] = 'Methods for Payment';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['access'] = $this->sidebar_model->getAccess();
@@ -242,6 +254,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'Categories';
 		$header['header'] = 'Asset Categories';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['access'] = $this->sidebar_model->getAccess();
@@ -257,6 +270,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'Asset Management';
 		$header['header'] = 'Asset Management';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['Category'] = $this->maintenance_model->getCategory();
@@ -274,6 +288,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'LoanStatus';
 		$header['header'] = 'Loan Status';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['access'] = $this->sidebar_model->getAccess();
@@ -289,6 +304,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'BorrowerStatus';
 		$header['header'] = 'Borrower Status';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['access'] = $this->sidebar_model->getAccess();
@@ -304,6 +320,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = "Industries";
 		$header['header'] = 'Industries';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['access'] = $this->sidebar_model->getAccess();
@@ -319,6 +336,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'Education';
 		$header['header'] = 'Education Level';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['access'] = $this->sidebar_model->getAccess();
@@ -334,6 +352,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'RepaymentCycle';
 		$header['header'] = 'Repayment Cycles';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['access'] = $this->sidebar_model->getAccess();
@@ -349,6 +368,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'Disbursement';
 		$header['header'] = 'Disbursements';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['access'] = $this->sidebar_model->getAccess();
@@ -364,6 +384,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'HistoryLog';
 		$header['header'] = 'History Logs';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['access'] = $this->sidebar_model->getAccess();
@@ -379,6 +400,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'InitialCapital';
 		$header['header'] = 'Set Initial Capital';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['access'] = $this->sidebar_model->getAccess();
@@ -394,6 +416,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'ExpenseType';
 		$header['header'] = 'Types of Expenses';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['access'] = $this->sidebar_model->getAccess();
@@ -409,6 +432,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'Expenses';
 		$header['header'] = 'Expenses';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['ExpenseType'] = $this->maintenance_model->getExpenseType();
@@ -425,6 +449,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'WithdrawalType';
 		$header['header'] = 'Types of Withdrawals';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['access'] = $this->sidebar_model->getAccess();
@@ -440,6 +465,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'Withdrawals';
 		$header['header'] = 'Withdrawals';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['WithdrawalType'] = $this->maintenance_model->getWithdrawalType();
@@ -456,6 +482,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'View Loans';
 		$header['header'] = 'View Loans';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['access'] = $this->sidebar_model->getAccess();
@@ -474,6 +501,7 @@ class home extends CI_Controller {
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['access'] = $this->sidebar_model->getAccess();
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$data['LoanType'] = $this->maintenance_model->getLoanTypes();
 		$data['Purpose'] = $this->maintenance_model->getPurpose();
 		$data['Source'] = $this->maintenance_model->getSource();
@@ -509,6 +537,7 @@ class home extends CI_Controller {
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['access'] = $this->sidebar_model->getAccess();
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 
 
 		$data['detail'] = $this->loanapplication_model->getLoanApplicationDetails($Id);
@@ -545,6 +574,7 @@ class home extends CI_Controller {
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['access'] = $this->sidebar_model->getAccess();
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$data['LoanType'] = $this->maintenance_model->getLoanTypes();
 		$data['Purpose'] = $this->maintenance_model->getPurpose();
 		$data['Source'] = $this->maintenance_model->getSource();
@@ -577,6 +607,7 @@ class home extends CI_Controller {
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['access'] = $this->sidebar_model->getAccess();
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$data['LoanType'] = $this->maintenance_model->getLoanTypes();
 		$data['Purpose'] = $this->maintenance_model->getPurpose();
 		$data['Source'] = $this->maintenance_model->getSource();
@@ -606,6 +637,7 @@ class home extends CI_Controller {
 		$sidebar['sidebar'] = 'Loans';
 		$sidebar['sidebarMenu'] = 'Loan Application';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$header['header'] = 'Loan Application Detail';
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -653,6 +685,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'Loan Application';
 		$header['header'] = 'Loan Application Detail';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['detail'] = $this->loanapplication_model->getLoanApplicationDetails($Id);
@@ -672,6 +705,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'Loan Approvals';
 		$header['header'] = 'Loan Applications for Approval';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$this->load->view('includes/header', $header);
@@ -686,6 +720,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 1;
 		$header['header'] = 'Employee Details';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$data['detail'] = $this->employee_model->getEmployeeDetails($Id);
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -715,6 +750,7 @@ class home extends CI_Controller {
 		$sidebar['sidebar'] = 1;
 		$sidebar['sidebarMenu'] = 0;
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$data['access'] = $this->sidebar_model->getAccess();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -736,6 +772,7 @@ class home extends CI_Controller {
 		$sidebar['sidebar'] = 4;
 		$sidebar['sidebarMenu'] = 2;
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$this->load->view('includes/header');
 		$this->load->view('includes/sidebar', $sidebar);
 		$this->load->view('admin/auditLogs');
@@ -747,6 +784,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'Users';
 		$header['header'] = 'users';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 
@@ -761,6 +799,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'EmployeeManagement';
 		$header['header'] = 'Employees';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['Sex'] = $this->maintenance_model->getSex();
@@ -770,10 +809,31 @@ class home extends CI_Controller {
 		$data['Branch'] = $this->maintenance_model->getBranches();
 		$data['Position'] = $this->maintenance_model->getPosition();
 		$data['Roles'] = $this->maintenance_model->getRoles();
+		$data['Detail'] = $this->employee_model->getEmployeeDetail($this->session->userdata('EmployeeId'));
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
 		$this->load->view('employees/addEmployees', $data);
+	}
+
+	function accessManagement()
+	{
+		$Id = $this->uri->segment(3);
+		$sidebar['sidebar'] = 'EmployeeManagement';
+		$sidebar['sidebarMenu'] = 'EmployeeManagement';
+		$header['header'] = 'Employee Management';
+		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
+		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['Modules'] = $this->employee_model->getAccessManagement();
+		$data['SubModule'] = $this->employee_model->getSubmodules();
+		$data['UserAccess'] = $this->employee_model->getModuleAccess($Id);
+		$data['Detail'] = $this->employee_model->getEmployeeDetail($Id);
+
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('employees/accessMngmt', $data);
 	}
 	
 	function userProfile()
@@ -783,6 +843,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] =
 		$header['header'] = 'User Profile';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['securityQuestions'] = $this->employee_model->getSecurityQuestions();
@@ -803,6 +864,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'BorrowerManagement';
 		$header['header'] = 'Borrowers';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['Sex'] = $this->maintenance_model->getSex();
@@ -825,6 +887,7 @@ class home extends CI_Controller {
 		$sidebar['sidebarMenu'] = 'BorrowerManagement';
 		$header['header'] = 'Borrower Details';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['Sex'] = $this->maintenance_model->getSex();
@@ -854,6 +917,23 @@ class home extends CI_Controller {
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
 		$this->load->view('borrowers/BorrowerDetails', $data);
+	}
+
+	function branchDatabase()
+	{
+		$Id = $this->uri->segment(3);
+		$sidebar['sidebar'] = 'SystemSetup';
+		$sidebar['sidebarMenu'] = 'DB';
+		$header['header'] = 'Database Management';
+		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
+		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['profilePicture'] = $this->sidebar_model->getProfilePicture();
+
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('admin/branchDatabase', $data);
 	}
 
 }

@@ -717,7 +717,7 @@
               }
               else
               {
-                echo '<img class="profile-user-img img-responsive img-circle" src="'.base_url().'borrowerpicture/'. $detail["FileName"].'" class="user-image" alt="User Image">';
+                echo '<img class="profile-user-img img-responsive img-circle" src="'.base_url().'profilepicture/'. $detail["FileName"].'" class="user-image" alt="User Image">';
               }
             ?>
             <h3 class="profile-username text-center"><?php print_r($detail['Salutation'] . ' ' . $detail['LastName'] . ', ' . $detail['FirstName'] . ' '  . $detail['MiddleInitial']) ?></h3>
@@ -741,7 +741,7 @@
                 <b>Civil Status</b> <h5 class="pull-right"><?php print_r($detail['CivilStatus']); ?></h5>
               </li>
               <li class="list-group-item">
-                <b>Status</b> <h5 class="pull-right"><?php print_r($detail['StatusId']); ?></h5>
+                <b>Status</b> <h5 class="pull-right"><?php print_r($detail['StatusDescription']); ?></h5>
               </li>
             </ul>
 

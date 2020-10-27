@@ -31,6 +31,9 @@ class access extends CI_Model
                                                     ELSE BMM.Name
                                                 END as Branch
                                                 , B.BranchId
+                                                , EmployeeId
+                                                , U.Password
+                                                , EMP.ManagerId
                                                 FROM R_Userrole U
                                                   INNER JOIN R_Employee EMP
                                                       ON EMP.EmployeeNumber = U.EmployeeNumber

@@ -47,13 +47,19 @@ class employee_controller extends CI_Controller {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $DateNow = date("Y-m-d H:i:s");
     // audits
-      $auditDetail = 'Security Question updated.';
-      $insertData = array(
+      $auditDetail = 'Security question updated.';
+      $LogAuditData = array(
         'Description' => $auditDetail,
         'CreatedBy' => $EmployeeNumber
       );
-      $auditTable = 'R_Logs';
-      $this->maintenance_model->insertFunction($insertData, $auditTable);
+      $employeeAuditData = array(
+        'Description' => $auditDetail,
+        'CreatedBy' => $EmployeeNumber
+      );
+      $logAuditTable = 'R_Logs';
+      $employeeAuditTable = 'Employee_has_Notifications';
+      $this->maintenance_model->insertFunction($LogAuditData, $logAuditTable);
+      $this->maintenance_model->insertFunction($employeeAuditData, $employeeAuditTable);
     // Update Security Question
       $set = array( 
         'StatusId' => 0
@@ -97,12 +103,27 @@ class employee_controller extends CI_Controller {
       );
       $auditTable2 = 'R_userrole_has_r_securityquestions';
       $this->maintenance_model->insertFunction($insertData2, $auditTable2);
+    // main audits
+      $mainAudits = array(
+        'Description' => 'Updated sescurity question(s)'
+        , 'CreatedBy' => $EmployeeNumber
+      );
+      $insertManagerAudit = array(
+        'Description' => $EmployeeNumber.' updated sescurity question(s)'
+        , 'CreatedBy' => $EmployeeNumber
+      );
+      $auditTable1 = 'Employee_has_Notifications';
+      $auditTable2 = 'R_Logs';
+      $auditTable3 = 'manager_has_notifications';
+      $this->maintenance_model->insertFunction($mainAudits, $auditTable1);
+      $this->maintenance_model->insertFunction($mainAudits, $auditTable2);
+      $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable3);
     // notification
       $this->session->set_flashdata('alertTitle','Success!'); 
       $this->session->set_flashdata('alertText','Security question successfully set!'); 
       $this->session->set_flashdata('alertType','success'); 
     
-    redirect('home/userprofile');
+    redirect('home/userprofile/'.$EmployeeNumber);
   }
 
 	function Users()
@@ -178,7 +199,6 @@ class employee_controller extends CI_Controller {
             , 'column'              => 'EmployeeId'
           );
           $EmployeeId = $this->maintenance_model->getGeneratedId($auditData1);
-
         // generate employee code number
           $branchCode = $this->maintenance_model->getBranchCode($_POST['BranchId']);
           $generatedEmployeeNumber = str_pad($EmployeeId['EmployeeId'], 6, '0', STR_PAD_LEFT);
@@ -191,21 +211,6 @@ class employee_controller extends CI_Controller {
           );
           $table = 'R_Employee';
           $this->maintenance_model->updateFunction1($set, $condition, $table);
-
-        // insert into r_userrole
-          // foreach ($_POST['roleId'] as $value) 
-          // {
-          //   $insertRoles = array(
-          //     'EmployeeNumber'                    => $generatedEmployeeNumber
-          //     , 'RoleId'                          => $value
-          //     , 'Password'                        => $generatedEmployeeNumber
-          //     , 'CreatedBy'                       => $CreatedBy
-          //     , 'UpdatedBy'                       => $CreatedBy
-          //   );
-          //   $insertRoleTable = 'R_Userrole';
-          //   $this->maintenance_model->insertFunction($insertRoles, $insertRoleTable);
-          // }
-
         // Insert Employee Type
           if($_POST['EmployeeType'] == 'Manager') // Manager
           {
@@ -237,6 +242,17 @@ class employee_controller extends CI_Controller {
           }
           else if($_POST['EmployeeType'] == 'Employee')// employee
           {
+            // set manager of employee
+              $setMan = array( 
+                'ManagerId' => htmlentities($_POST['ManagerId'], ENT_QUOTES)
+              );
+
+              $conditionMan = array( 
+                'EmployeeNumber' => $generatedEmployeeNumber
+              );
+              $tableMan = 'R_Employee';
+              $this->maintenance_model->updateFunction1($setMan, $conditionMan, $tableMan);
+            // branch has employees
             $insertEmployeeBranch = array(
               'EmployeeNumber'                => $set['EmployeeNumber']
               , 'BranchId'                    => htmlentities($_POST['BranchId'], ENT_QUOTES)
@@ -246,10 +262,11 @@ class employee_controller extends CI_Controller {
             );
             $insertEmployeeBranchTable = 'Branch_has_Employee';
             $this->maintenance_model->insertFunction($insertEmployeeBranch, $insertEmployeeBranchTable);
+
             // insert manager_has_notification
               $EmployeeName = htmlentities($_POST['LastName'], ENT_QUOTES) . ', ' . htmlentities($_POST['FirstName'], ENT_QUOTES) ;
               $insertNotification = array(
-                'Description'                   => 'Added '.$EmployeeName.' with employee number ' . $generatedEmployeeNumber . ' to your branch. Please notify ' . $EmployeeName . ' that assigned password is assigned employee number.'
+                'Description'                   => 'Added '.$EmployeeName.' with employee number ' . $generatedEmployeeNumber . ' to your branch.'
                 , 'ManagerBranchId'             => htmlentities($_POST['ManagerId'], ENT_QUOTES)
                 , 'CreatedBy'                   => $CreatedBy
               );
@@ -281,7 +298,6 @@ class employee_controller extends CI_Controller {
             );
             $insertContactTable2 = 'employee_has_contactnumbers';
             $this->maintenance_model->insertFunction($insertContact2, $insertContactTable2);
-
         // insert telephone number
           if(htmlentities($_POST['TelephoneNumber'], ENT_QUOTES) != '')
           {
@@ -309,7 +325,6 @@ class employee_controller extends CI_Controller {
               $insertTelephoneTable2 = 'employee_has_contactnumbers';
               $this->maintenance_model->insertFunction($insertTelephone2, $insertTelephoneTable2);
           }
-
         // insert email address
           // insert into email addresses
             $insertDataEmail = array(
@@ -334,7 +349,6 @@ class employee_controller extends CI_Controller {
             );
             $insertTableEmail2 = 'employee_has_emails';
             $this->maintenance_model->insertFunction($insertDataEmail2, $insertTableEmail2);
-
         // insert city address
           // insert into addresses
             $insertDataAddress = array(
@@ -361,7 +375,6 @@ class employee_controller extends CI_Controller {
               );
             $insertTableAddress2 = 'employee_has_address';
             $this->maintenance_model->insertFunction($insertDataAddress2, $insertTableAddress2);
-
         // insert province address
           if(htmlentities($_POST['IsSameAddress'], ENT_QUOTES) == 1)
           {
@@ -417,28 +430,10 @@ class employee_controller extends CI_Controller {
               $insertTableAddress2 = 'employee_has_address';
               $this->maintenance_model->insertFunction($insertDataAddress2, $insertTableAddress2);
           }
-
         // admin audits
-          $auditquery = $this->employee_model->getEmployeeDetail($EmployeeId['EmployeeId']);
-          $auditDetail = 'Added '.$auditquery['Name'].' in employee list.';
-          $insertData = array(
-            'Description'   => $auditDetail,
-            'CreatedBy'     => $CreatedBy,
-            'DateCreated'   => $DateNow
-          );
-          $this->maintenance_model->insertAdminLog($insertData);
-
-        // employee audits
-          $auditEmployee = 'Added in employee list.';
-          $insertAuditEmployee = array(
-            'Description'       => $auditEmployee,
-            'CreatedBy'         => $CreatedBy,
-            'EmployeeNumber'    => $generatedEmployeeNumber,
-            'DateCreated'       => $DateNow
-          );
-          $auditTable = 'employee_has_notifications';
-          $this->maintenance_model->insertFunction($insertAuditEmployee, $auditTable);
-
+          $auditLogsManager = 'Added '. $generatedEmployeeNumber . ' in employee list.';
+          $auditAffectedEmployee = 'Added in employee list.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $generatedEmployeeNumber);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Employee successfully recorded!'); 
@@ -1021,7 +1016,7 @@ class employee_controller extends CI_Controller {
           );
           $table = 'r_ProfilePicture';
           $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // insert into address table
+        // insert into table
           $insertData = array(
             'FileName'                                => htmlentities($attachment, ENT_QUOTES)
             , 'EmployeeNumber'                        => $EmployeeNumber['EmployeeNumber']
@@ -1030,7 +1025,7 @@ class employee_controller extends CI_Controller {
           $this->maintenance_model->insertFunction($insertData, $insertTable);
         // notifications
           $auditMainAndManagerLog = 'Changed profile picture.';
-          $auditEmpDetail = 'Changed profile picture.';
+          $auditEmpDetail = $EmployeeNumber['EmployeeNumber'] . ' changed profile picture.';
           $insertEmpLog = array(
             'Description'       => $auditEmpDetail
             , 'EmployeeNumber'  => $this->uri->segment(4)
@@ -1706,6 +1701,57 @@ class employee_controller extends CI_Controller {
     $output = $this->employee_model->getEmployeeDetails($this->input->post('Id'));
     $this->output->set_output(print(json_encode($output)));
     exit();
+  }
+
+  function accessmanagement()
+  {
+    $CreatedBy = $this->session->userdata('EmployeeNumber');
+    $DateNow = date("Y-m-d H:i:s");
+    $EmployeeNumber = sprintf('%06d', $this->uri->segment(3));
+    for($count = 0; $count < count($this->input->post('countRow')); $count++)
+    {
+      $set = array( 
+        'StatusId' => $_POST['isSelected'][$count]
+      );
+
+      $condition = array( 
+        'SubModuleId'     => $_POST['SubModuleId'][$count],
+        'EmployeeNumber'  => $EmployeeNumber
+      );
+      $table = 'R_UserAccess';
+      $this->maintenance_model->updateFunction1($set, $condition, $table);
+    }
+    // notification
+      $this->session->set_flashdata('alertTitle','Success!'); 
+      $this->session->set_flashdata('alertText','Record successfully added!'); 
+      $this->session->set_flashdata('alertType','success'); 
+      redirect('home/accessmanagement/'. $this->uri->segment(3));
+  }
+
+  function AuditFunction($auditLogsManager, $auditAffectedEmployee, $ManagerId, $AffectedEmployeeNumber)
+  {
+    $CreatedBy = $this->session->userdata('EmployeeNumber');
+    $DateNow = date("Y-m-d H:i:s");
+    $insertMainLog = array(
+      'Description'       => $auditLogsManager
+      , 'CreatedBy'       => $CreatedBy
+    );
+    $auditTable1 = 'R_Logs';
+    $this->maintenance_model->insertFunction($insertMainLog, $auditTable1);
+    $insertManagerAudit = array(
+      'Description'         => $auditLogsManager
+      , 'ManagerBranchId'   => $ManagerId
+      , 'CreatedBy'         => $CreatedBy
+    );
+    $auditTable3 = 'manager_has_notifications';
+    $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable3);
+    $insertEmpLog = array(
+      'Description'       => $auditAffectedEmployee
+      , 'EmployeeNumber'  => $AffectedEmployeeNumber
+      , 'CreatedBy'       => $CreatedBy
+    );
+    $auditTable2 = 'employee_has_notifications';
+    $this->maintenance_model->insertFunction($insertEmpLog, $auditTable2);
   }
 
 }

@@ -41,14 +41,14 @@ class maintenance_model extends CI_Model
       $query_string = $this->db->query("SELECT 	DISTINCT UR.EmployeeNumber
       																					, UR.StatusId
                                                 , IsNew
-      																					, UR.UserRoleId
-      																					, R.Description
                                                 , DATE_FORMAT(UR.DateCreated, '%d %b %Y %r') as DateCreated
                                                 , DATE_FORMAT(UR.DateUpdated, '%d %b %Y %r') as DateUpdated
+                                                , UserRoleId
+                                                , EmployeeId
       																					FROM R_UserRole UR
-      																						INNER JOIN R_Role R
-      																							ON R.RoleId = UR.RoleId
-                                                      AND UR.EmployeeNumber != '000000'
+                                                  INNER JOIN R_Employee EMP
+                                                    ON EMP.EmployeeNumber = UR.EmployeeNumber
+                                                  WHERE UR.EmployeeNumber != '000000'
 			");
       $data = $query_string->result_array();
       return $data;
