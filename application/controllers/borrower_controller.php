@@ -1662,4 +1662,9 @@ class borrower_controller extends CI_Controller {
     exit();
   }
 
+  function generateReport()
+  {
+    return 'hellsssaaa';
+  }
+
 }

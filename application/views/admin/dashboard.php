@@ -1,16 +1,14 @@
-
 <style type="text/css">
   .tab-content>.tab-pane {
     display: block;
     height: 0;
     overflow: hidden;
-}
-.tab-content>.tab-pane.active {
-    height: auto;
-}
+  }
+  .tab-content>.tab-pane.active {
+      height: auto;
+  }
 </style>
 <div class="content-wrapper">
-  <!-- Content Header (Page header) -->
   <section class="content-header">
     <h1>
       Dashboard
@@ -245,8 +243,16 @@
               <div class="tab-content">
                 <div class="active tab-pane" id="tabAge">
                   <h5>AGE</h5>
+                  <div class="pull-left">
+                    <label>Report Type</label>
+                    <select class="form-control" onchange="changeAgeReport(this.value)">
+                      <option selected="">Bar Graph</option>
+                      <option>Pie Chart</option>
+                      <option>Line Graph</option>
+                    </select>
+                  </div>
                   <div class="pull-right">
-                    <select class="form-control">
+                    <select class="form-control" id="yearAge" onchange="selectAgeFilter(this.value)">
                       <?php 
                         foreach ($ageYear as $value) 
                         {
@@ -257,13 +263,14 @@
                     </select>
                   </div>
                   <div class="chart">
-                    <canvas id="barChart" style="height:230px"></canvas>
+                    <div id="divBarChart">
+                    </div>
                   </div>
                 </div>
                 <div class="tab-pane" id="tabEd">
                   <h5>EDUCATION</h5>
                   <div class="pull-right">
-                    <select class="form-control" onchange="selectEducationFilter(this.value)">
+                    <select class="form-control" onchange="selectEducationFilter(this.value)" id="yearEducation">
                       <?php 
                         foreach ($educationYear as $value) 
                         {
@@ -515,9 +522,6 @@
 <?php $this->load->view('includes/footer'); ?>
 
 <script>
-  var varStatus = 0;
-  var varNewPassword = 0;
-
   if("<?php print_r($this->session->flashdata('alertTitle')) ?>" != '')
   {
     swal({
@@ -528,6 +532,23 @@
       confirmButtonClass: 'btn btn-primary'
     });
   }
+
+// for report types 
+  function changeAgeReport(value)
+  {
+    if(value == 'Bar Graph')
+    {
+      selectAgeFilter($('#yearAge').val());
+    }
+    else if(value == 'Pie Graph')
+    {
+      alert('sdad')
+    }
+  }
+
+// for password
+  var varStatus = 0;
+  var varNewPassword = 0;
   
   function confirm(Text, UserRoleId, updateType)
   { 
@@ -648,8 +669,78 @@
     }
   }
 
+// for bar charts
   var d = new Date();
   var varCurrentYear = d.getFullYear();
+
+  function selectAgeFilter(value)
+  {
+    $.ajax({
+      url: "<?php echo base_url(); ?>admin_controller/getAgePopulation",
+      type: "POST",
+      async: false,
+      dataType: "JSON",
+      success: function(data) {
+        var bracket = [];
+        var age = [];
+
+        for(var i in data) {
+          bracket.push("Age " + data[i].AgeBracket);
+          age.push(data[i].TotalAge);
+        }
+
+        var chartdata = {
+          labels: bracket,
+          datasets : [
+            {
+              label: 'Age Bracket',
+              fillColor           : 'rgb(54, 145, 236)',
+              strokeColor         : 'rgb(26, 114, 203)',
+              pointColor          : 'rgba(210, 214, 222, 1)',
+              data: age
+            }
+          ]
+        };
+        $('#divBarChart').html('');
+        $('#divBarChart').html('<canvas id="barChart" style="height:230px"></canvas>');
+        var barChartCanvas                   = $('#barChart').get(0).getContext('2d')
+        var barChart                         = new Chart(barChartCanvas)
+        var barChartData                     = chartdata
+        var barChartOptions                  = {
+          //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
+          scaleBeginAtZero        : true,
+          //Boolean - Whether grid lines are shown across the chart
+          scaleShowGridLines      : true,
+          //String - Colour of the grid lines
+          scaleGridLineColor      : 'rgba(0,0,0,.05)',
+          //Number - Width of the grid lines
+          scaleGridLineWidth      : 1,
+          //Boolean - Whether to show horizontal lines (except X axis)
+          scaleShowHorizontalLines: true,
+          //Boolean - Whether to show vertical lines (except Y axis)
+          scaleShowVerticalLines  : true,
+          //Boolean - If there is a stroke on each bar
+          barShowStroke           : true,
+          //Number - Pixel width of the bar stroke
+          barStrokeWidth          : 2,
+          //Number - Spacing between each of the X value sets
+          barValueSpacing         : 5,
+          //Number - Spacing between data sets within X values
+          barDatasetSpacing       : 1,
+          //Boolean - whether to make the chart responsive
+          responsive              : true,
+          maintainAspectRatio     : true
+        }
+
+        barChartOptions.datasetFill = false
+        barChart.Bar(barChartData, barChartOptions)
+      },
+      error: function(data) {
+        console.log(data);
+      }
+    });
+  }
+
   function selectEducationFilter(value)
   {
     if(value == 0)
@@ -1361,6 +1452,8 @@
   }
 
   $(function () {
+    selectPieChartAge();
+    // changeAgeReport('Bar Graph');
     UserTable = $('#example1').DataTable({
       "pageLength": 10,
       "ajax": { url: '<?php echo base_url()."/datatables_controller/Users/"; ?>', type: 'POST', "dataSrc": "" },
@@ -1437,310 +1530,244 @@
     });
     $('#modalNewPassword').modal('show')
 
-    // AGE
-    $.ajax({
-      url: "<?php echo base_url(); ?>admin_controller/getAgePopulation",
-      type: "POST",
-      async: false,
-      dataType: "JSON",
-      success: function(data) {
-        var bracket = [];
-        var age = [];
-
-        for(var i in data) {
-          bracket.push("Age " + data[i].AgeBracket);
-          age.push(data[i].TotalAge);
-        }
-
-        var chartdata = {
-          labels: bracket,
-          datasets : [
-            {
-              label: 'Age Bracket',
-              fillColor           : 'rgb(54, 145, 236)',
-              strokeColor         : 'rgb(26, 114, 203)',
-              pointColor          : 'rgba(210, 214, 222, 1)',
-              data: age
-            }
-          ]
-        };
-
-        var barChartCanvas                   = $('#barChart').get(0).getContext('2d')
-        var barChart                         = new Chart(barChartCanvas)
-        var barChartData                     = chartdata
-        var barChartOptions                  = {
-          //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
-          scaleBeginAtZero        : true,
-          //Boolean - Whether grid lines are shown across the chart
-          scaleShowGridLines      : true,
-          //String - Colour of the grid lines
-          scaleGridLineColor      : 'rgba(0,0,0,.05)',
-          //Number - Width of the grid lines
-          scaleGridLineWidth      : 1,
-          //Boolean - Whether to show horizontal lines (except X axis)
-          scaleShowHorizontalLines: true,
-          //Boolean - Whether to show vertical lines (except Y axis)
-          scaleShowVerticalLines  : true,
-          //Boolean - If there is a stroke on each bar
-          barShowStroke           : true,
-          //Number - Pixel width of the bar stroke
-          barStrokeWidth          : 2,
-          //Number - Spacing between each of the X value sets
-          barValueSpacing         : 5,
-          //Number - Spacing between data sets within X values
-          barDatasetSpacing       : 1,
-          //Boolean - whether to make the chart responsive
-          responsive              : true,
-          maintainAspectRatio     : true
-        }
-
-        barChartOptions.datasetFill = false
-        barChart.Bar(barChartData, barChartOptions)
-      },
-      error: function(data) {
-        console.log(data);
-      }
-    });
-
     // TOTAL NUMBER OF BORROWERS
-    $.ajax({
-      url: "<?php echo base_url(); ?>admin_controller/getTotalBorrowers",
-      type: "POST",
-      async: false,
-      dataType: "JSON",
-      success: function(data) {
-        var userid = [];
-        var facebook_follower = [];
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getTotalBorrowers",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        success: function(data) {
+          var userid = [];
+          var facebook_follower = [];
 
-        for(var i in data) {
-          userid.push(data[i].DateCreated);
-          facebook_follower.push(data[i].TotalBorrowers);
+          for(var i in data) {
+            userid.push(data[i].DateCreated);
+            facebook_follower.push(data[i].TotalBorrowers);
+          }
+
+
+          var chartdata = {
+            labels: userid,
+            datasets: [
+              {
+                fill: false,
+                lineTension: 0.1,
+                fillColor           : 'rgba(210, 214, 222, 1)',
+                strokeColor         : 'rgba(210, 214, 222, 1)',
+                pointColor          : 'rgba(210, 214, 222, 1)',
+                pointStrokeColor    : '#c1c7d1',
+                pointHighlightFill  : '#fff',
+                pointHighlightStroke: 'rgba(220,220,220,1)',
+                data: facebook_follower
+              }
+            ]
+          };
+
+          var areaChartOptionssss = {
+            //Boolean - If we should show the scale at all
+            showScale               : true,
+            //Boolean - Whether grid lines are shown across the chart
+            scaleShowGridLines      : false,
+            //String - Colour of the grid lines
+            scaleGridLineColor      : 'rgba(0,0,0,.05)',
+            //Number - Width of the grid lines
+            scaleGridLineWidth      : 1,
+            //Boolean - Whether to show horizontal lines (except X axis)
+            scaleShowHorizontalLines: true,
+            //Boolean - Whether to show vertical lines (except Y axis)
+            scaleShowVerticalLines  : true,
+            //Boolean - Whether the line is curved between points
+            bezierCurve             : true,
+            //Number - Tension of the bezier curve between points
+            bezierCurveTension      : 0.3,
+            //Boolean - Whether to show a dot for each point
+            pointDot                : false,
+            //Number - Radius of each point dot in pixels
+            pointDotRadius          : 4,
+            //Number - Pixel width of point dot stroke
+            pointDotStrokeWidth     : 1,
+            //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
+            pointHitDetectionRadius : 20,
+            //Boolean - Whether to show a stroke for datasets
+            datasetStroke           : true,
+            //Number - Pixel width of dataset stroke
+            datasetStrokeWidth      : 2,
+            //Boolean - Whether to fill the dataset with a color
+            datasetFill             : true,
+            //String - A legend template
+            legendTemplate          : '<ul class="<%=name.toLowerCase()%>-legend"><% for (var i=0; i<datasets.length; i++){%><li><span style="background-color:<%=datasets[i].lineColor%>"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>',
+            //Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+            maintainAspectRatio     : true,
+            //Boolean - whether to make the chart responsive to window resizing
+            responsive              : true
+          }
+
+          var lineChartCanvas          = $('#lineChart').get(0).getContext('2d')
+          var lineChart                = new Chart(lineChartCanvas)
+          var lineChartOptions         = areaChartOptionssss
+          lineChartOptions.datasetFill = false
+          lineChart.Line(chartdata, lineChartOptions)
+        },
+        error: function(data) {
+          console.log(data);
         }
-
-
-        var chartdata = {
-          labels: userid,
-          datasets: [
-            {
-              fill: false,
-              lineTension: 0.1,
-              fillColor           : 'rgba(210, 214, 222, 1)',
-              strokeColor         : 'rgba(210, 214, 222, 1)',
-              pointColor          : 'rgba(210, 214, 222, 1)',
-              pointStrokeColor    : '#c1c7d1',
-              pointHighlightFill  : '#fff',
-              pointHighlightStroke: 'rgba(220,220,220,1)',
-              data: facebook_follower
-            }
-          ]
-        };
-
-        var areaChartOptionssss = {
-          //Boolean - If we should show the scale at all
-          showScale               : true,
-          //Boolean - Whether grid lines are shown across the chart
-          scaleShowGridLines      : false,
-          //String - Colour of the grid lines
-          scaleGridLineColor      : 'rgba(0,0,0,.05)',
-          //Number - Width of the grid lines
-          scaleGridLineWidth      : 1,
-          //Boolean - Whether to show horizontal lines (except X axis)
-          scaleShowHorizontalLines: true,
-          //Boolean - Whether to show vertical lines (except Y axis)
-          scaleShowVerticalLines  : true,
-          //Boolean - Whether the line is curved between points
-          bezierCurve             : true,
-          //Number - Tension of the bezier curve between points
-          bezierCurveTension      : 0.3,
-          //Boolean - Whether to show a dot for each point
-          pointDot                : false,
-          //Number - Radius of each point dot in pixels
-          pointDotRadius          : 4,
-          //Number - Pixel width of point dot stroke
-          pointDotStrokeWidth     : 1,
-          //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
-          pointHitDetectionRadius : 20,
-          //Boolean - Whether to show a stroke for datasets
-          datasetStroke           : true,
-          //Number - Pixel width of dataset stroke
-          datasetStrokeWidth      : 2,
-          //Boolean - Whether to fill the dataset with a color
-          datasetFill             : true,
-          //String - A legend template
-          legendTemplate          : '<ul class="<%=name.toLowerCase()%>-legend"><% for (var i=0; i<datasets.length; i++){%><li><span style="background-color:<%=datasets[i].lineColor%>"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>',
-          //Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
-          maintainAspectRatio     : true,
-          //Boolean - whether to make the chart responsive to window resizing
-          responsive              : true
-        }
-
-        var lineChartCanvas          = $('#lineChart').get(0).getContext('2d')
-        var lineChart                = new Chart(lineChartCanvas)
-        var lineChartOptions         = areaChartOptionssss
-        lineChartOptions.datasetFill = false
-        lineChart.Line(chartdata, lineChartOptions)
-      },
-      error: function(data) {
-        console.log(data);
-      }
-    });
+      });
     // TOTAL LOANS
-    $.ajax({
-      url: "<?php echo base_url(); ?>admin_controller/getTotalLoans",
-      type: "POST",
-      async: false,
-      dataType: "JSON",
-      success: function(data) {
-        var userid = [];
-        var facebook_follower = [];
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getTotalLoans",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        success: function(data) {
+          var userid = [];
+          var facebook_follower = [];
 
-        for(var i in data) {
-          userid.push(data[i].DateCreated);
-          facebook_follower.push(data[i].Total);
+          for(var i in data) {
+            userid.push(data[i].DateCreated);
+            facebook_follower.push(data[i].Total);
+          }
+
+
+          var chartdata = {
+            labels: userid,
+            datasets: [
+              {
+                fill: false,
+                lineTension: 0.1,
+                backgroundColor: "rgba(59, 89, 152, 0.75)",
+                data: facebook_follower
+              }
+            ]
+          };
+
+          var areaChartOptions = {
+            //Boolean - If we should show the scale at all
+            showScale               : true,
+            //Boolean - Whether grid lines are shown across the chart
+            scaleShowGridLines      : false,
+            //String - Colour of the grid lines
+            scaleGridLineColor      : 'rgba(0,0,0,.05)',
+            //Number - Width of the grid lines
+            scaleGridLineWidth      : 1,
+            //Boolean - Whether to show horizontal lines (except X axis)
+            scaleShowHorizontalLines: true,
+            //Boolean - Whether to show vertical lines (except Y axis)
+            scaleShowVerticalLines  : true,
+            //Boolean - Whether the line is curved between points
+            bezierCurve             : true,
+            //Number - Tension of the bezier curve between points
+            bezierCurveTension      : 0.3,
+            //Boolean - Whether to show a dot for each point
+            pointDot                : false,
+            //Number - Radius of each point dot in pixels
+            pointDotRadius          : 4,
+            //Number - Pixel width of point dot stroke
+            pointDotStrokeWidth     : 1,
+            //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
+            pointHitDetectionRadius : 20,
+            //Boolean - Whether to show a stroke for datasets
+            datasetStroke           : true,
+            //Number - Pixel width of dataset stroke
+            datasetStrokeWidth      : 2,
+            //Boolean - Whether to fill the dataset with a color
+            datasetFill             : true,
+            //String - A legend template
+            legendTemplate          : '<ul class="<%=name.toLowerCase()%>-legend"><% for (var i=0; i<datasets.length; i++){%><li><span style="background-color:<%=datasets[i].lineColor%>"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>',
+            //Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+            maintainAspectRatio     : true,
+            //Boolean - whether to make the chart responsive to window resizing
+            responsive              : true
+          }
+
+          var lineChartCanvas          = $('#lineChartTotalLoan').get(0).getContext('2d')
+          var lineChart                = new Chart(lineChartCanvas)
+          var lineChartOptions         = areaChartOptions
+          lineChartOptions.datasetFill = false
+          lineChart.Line(chartdata, lineChartOptions)
+        },
+        error: function(data) {
+          console.log(data);
         }
-
-
-        var chartdata = {
-          labels: userid,
-          datasets: [
-            {
-              fill: false,
-              lineTension: 0.1,
-              backgroundColor: "rgba(59, 89, 152, 0.75)",
-              data: facebook_follower
-            }
-          ]
-        };
-
-        var areaChartOptions = {
-          //Boolean - If we should show the scale at all
-          showScale               : true,
-          //Boolean - Whether grid lines are shown across the chart
-          scaleShowGridLines      : false,
-          //String - Colour of the grid lines
-          scaleGridLineColor      : 'rgba(0,0,0,.05)',
-          //Number - Width of the grid lines
-          scaleGridLineWidth      : 1,
-          //Boolean - Whether to show horizontal lines (except X axis)
-          scaleShowHorizontalLines: true,
-          //Boolean - Whether to show vertical lines (except Y axis)
-          scaleShowVerticalLines  : true,
-          //Boolean - Whether the line is curved between points
-          bezierCurve             : true,
-          //Number - Tension of the bezier curve between points
-          bezierCurveTension      : 0.3,
-          //Boolean - Whether to show a dot for each point
-          pointDot                : false,
-          //Number - Radius of each point dot in pixels
-          pointDotRadius          : 4,
-          //Number - Pixel width of point dot stroke
-          pointDotStrokeWidth     : 1,
-          //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
-          pointHitDetectionRadius : 20,
-          //Boolean - Whether to show a stroke for datasets
-          datasetStroke           : true,
-          //Number - Pixel width of dataset stroke
-          datasetStrokeWidth      : 2,
-          //Boolean - Whether to fill the dataset with a color
-          datasetFill             : true,
-          //String - A legend template
-          legendTemplate          : '<ul class="<%=name.toLowerCase()%>-legend"><% for (var i=0; i<datasets.length; i++){%><li><span style="background-color:<%=datasets[i].lineColor%>"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>',
-          //Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
-          maintainAspectRatio     : true,
-          //Boolean - whether to make the chart responsive to window resizing
-          responsive              : true
-        }
-
-        var lineChartCanvas          = $('#lineChartTotalLoan').get(0).getContext('2d')
-        var lineChart                = new Chart(lineChartCanvas)
-        var lineChartOptions         = areaChartOptions
-        lineChartOptions.datasetFill = false
-        lineChart.Line(chartdata, lineChartOptions)
-      },
-      error: function(data) {
-        console.log(data);
-      }
-    });
+      });
     // TOTAL LOAN AMOUNT
-    $.ajax({
-      url: "<?php echo base_url(); ?>admin_controller/getTotalLoanAmount",
-      type: "POST",
-      async: false,
-      dataType: "JSON",
-      success: function(data) {
-        var userid = [];
-        var facebook_follower = [];
-        var total_label = [];
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getTotalLoanAmount",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        success: function(data) {
+          var userid = [];
+          var facebook_follower = [];
+          var total_label = [];
 
-        for(var i in data) {
-          userid.push(data[i].DateCreated);
-          facebook_follower.push(data[i].Total);
+          for(var i in data) {
+            userid.push(data[i].DateCreated);
+            facebook_follower.push(data[i].Total);
+          }
+
+
+          var chartdata = {
+            labels: userid,
+            datasets: [
+              {
+                fill: false,
+                lineTension: 0.1,
+                backgroundColor: "rgba(59, 89, 152, 0.75)",
+                data: facebook_follower
+              }
+            ]
+          };
+
+          var areaChartOptions = {
+            //Boolean - If we should show the scale at all
+            showScale               : true,
+            //Boolean - Whether grid lines are shown across the chart
+            scaleShowGridLines      : false,
+            //String - Colour of the grid lines
+            scaleGridLineColor      : 'rgba(0,0,0,.05)',
+            //Number - Width of the grid lines
+            scaleGridLineWidth      : 1,
+            //Boolean - Whether to show horizontal lines (except X axis)
+            scaleShowHorizontalLines: true,
+            //Boolean - Whether to show vertical lines (except Y axis)
+            scaleShowVerticalLines  : true,
+            //Boolean - Whether the line is curved between points
+            bezierCurve             : true,
+            //Number - Tension of the bezier curve between points
+            bezierCurveTension      : 0.3,
+            //Boolean - Whether to show a dot for each point
+            pointDot                : false,
+            //Number - Radius of each point dot in pixels
+            pointDotRadius          : 4,
+            //Number - Pixel width of point dot stroke
+            pointDotStrokeWidth     : 1,
+            //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
+            pointHitDetectionRadius : 20,
+            //Boolean - Whether to show a stroke for datasets
+            datasetStroke           : true,
+            //Number - Pixel width of dataset stroke
+            datasetStrokeWidth      : 2,
+            //Boolean - Whether to fill the dataset with a color
+            datasetFill             : true,
+            //String - A legend template
+            legendTemplate          : '<ul class="<%=name.toLowerCase()%>-legend"><% for (var i=0; i<datasets.length; i++){%><li><span style="background-color:<%=datasets[i].lineColor%>"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>',
+            //Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+            maintainAspectRatio     : true,
+            //Boolean - whether to make the chart responsive to window resizing
+            responsive              : true
+          }
+
+          var lineChartCanvas          = $('#lineTotalLoanAmount').get(0).getContext('2d')
+          var lineChart                = new Chart(lineChartCanvas)
+          var lineChartOptions         = areaChartOptions
+          lineChartOptions.datasetFill = false
+          lineChart.Line(chartdata, lineChartOptions)
+        },
+        error: function(data) {
+          console.log(data);
         }
-
-
-        var chartdata = {
-          labels: userid,
-          datasets: [
-            {
-              fill: false,
-              lineTension: 0.1,
-              backgroundColor: "rgba(59, 89, 152, 0.75)",
-              data: facebook_follower
-            }
-          ]
-        };
-
-        var areaChartOptions = {
-          //Boolean - If we should show the scale at all
-          showScale               : true,
-          //Boolean - Whether grid lines are shown across the chart
-          scaleShowGridLines      : false,
-          //String - Colour of the grid lines
-          scaleGridLineColor      : 'rgba(0,0,0,.05)',
-          //Number - Width of the grid lines
-          scaleGridLineWidth      : 1,
-          //Boolean - Whether to show horizontal lines (except X axis)
-          scaleShowHorizontalLines: true,
-          //Boolean - Whether to show vertical lines (except Y axis)
-          scaleShowVerticalLines  : true,
-          //Boolean - Whether the line is curved between points
-          bezierCurve             : true,
-          //Number - Tension of the bezier curve between points
-          bezierCurveTension      : 0.3,
-          //Boolean - Whether to show a dot for each point
-          pointDot                : false,
-          //Number - Radius of each point dot in pixels
-          pointDotRadius          : 4,
-          //Number - Pixel width of point dot stroke
-          pointDotStrokeWidth     : 1,
-          //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
-          pointHitDetectionRadius : 20,
-          //Boolean - Whether to show a stroke for datasets
-          datasetStroke           : true,
-          //Number - Pixel width of dataset stroke
-          datasetStrokeWidth      : 2,
-          //Boolean - Whether to fill the dataset with a color
-          datasetFill             : true,
-          //String - A legend template
-          legendTemplate          : '<ul class="<%=name.toLowerCase()%>-legend"><% for (var i=0; i<datasets.length; i++){%><li><span style="background-color:<%=datasets[i].lineColor%>"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>',
-          //Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
-          maintainAspectRatio     : true,
-          //Boolean - whether to make the chart responsive to window resizing
-          responsive              : true
-        }
-
-        var lineChartCanvas          = $('#lineTotalLoanAmount').get(0).getContext('2d')
-        var lineChart                = new Chart(lineChartCanvas)
-        var lineChartOptions         = areaChartOptions
-        lineChartOptions.datasetFill = false
-        lineChart.Line(chartdata, lineChartOptions)
-      },
-      error: function(data) {
-        console.log(data);
-      }
-    });
+      });
     
-
     // Create the chart
       var brands = {}, brandsData = [], versions = {}, drilldownSeries = [];
 

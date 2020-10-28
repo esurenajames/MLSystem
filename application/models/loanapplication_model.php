@@ -194,8 +194,8 @@ class loanapplication_model extends CI_Model
   function getCharges($Id)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $query = $this->db->query("SELECT  SUM(CASE
-                                            WHEN C.ChargeType = 'Flat Rate'
+    $query = $this->db->query("SELECT DISTINCT SUM(CASE
+                                            WHEN C.ChargeType = 1
                                                   THEN C.Amount
                                                   ELSE C.Amount/100 * A.PrincipalAmount
                                               END
@@ -207,8 +207,8 @@ class loanapplication_model extends CI_Model
                                             ON C.ChargeId = AHC.ChargeId
                                           INNER JOIN t_application A
                                             ON A.ApplicationId = AHC.ApplicationId
-                                          WHERE A.ApplicationId = $Id
-                                          AND AHC.StatusId = 7
+                                          WHERE A.ApplicationId = 5
+                                          AND AHC.StatusId = 2
     ");
 
     $data = $query->row_array();
@@ -898,6 +898,30 @@ class loanapplication_model extends CI_Model
     return $ObligationDetail;
   }
 
+  function getDetails($Type, $Id)
+  {
+    if($Type == 1) // collection
+    {
+      $query_string = $this->db->query("SELECT  DATE_FORMAT(PM.DateCreated, '%b %d, %Y') as PaymentDate
+                                              , DATE_FORMAT(PM.DateCollected, '%b %d, %Y') as DateCollected
+                                              , AmountPaid
+                                              , ChangeAmount
+                                              , CB.BankName as ChangeThrough
+                                              , PB.BankName as PaymentThrough
+                                              , PM.Description
+                                              , CONCAT('PYM-', LPAD(PM.PaymentMadeId, 6, 0)) as TransactionNumber 
+                                              FROM t_paymentsmade PM
+                                                    INNER JOIN r_bank CB
+                                                        ON CB.BankId = PM.ChangeId
+                                                    INNER JOIN r_bank PB
+                                                        ON PB.BankId = PM.BankId
+                                                            WHERE PM.PaymentMadeId = $Id
+      ");
+    }
+    $detail = $query_string->row_array();
+    return $detail;
+  }
+
   function getExpenseDetails($Id)
   {
     $query_string = $this->db->query("SELECT  ApplicationId
@@ -1282,14 +1306,8 @@ class loanapplication_model extends CI_Model
                                         , Description
                                         , IsMandatory
                                         FROM r_requirements R
-                                          INNER JOIN Requirement_has_type RT
-                                          ON R.RequirementTypeId = RT.RequirementTypeId
                                           WHERE R.StatusId = 1 
                                           AND requirementId NOT IN (SELECT RequirementId FROM Application_has_Requirements AR WHERE AR.ApplicationId = $Id )
-                                          AND RT.RequirementTypeId = (SELECT DISTINCT RR.RequirementTypeId FROM r_requirements RR
-                                                                          INNER JOIN Application_has_Requirements AHR 
-                                                                            ON AHR.RequirementId = RR.requirementId
-                                                                              WHERE AHR.ApplicationId = $Id)
     ");
     $output = '<option selected disabled value="">Select Requirement Type</option>';
     foreach ($query->result() as $row)

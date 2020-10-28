@@ -64,7 +64,7 @@
                         <a href="http://localhost/ELendingTool/home/AddLoanType"> Add/Edit Loan Types</a>
                       </div>
                     </div>
-                    <div class="col-md-12">
+                    <!-- <div class="col-md-12">
                       <label></label>
                       <label><input id='chkPenalty' name="IsPenalized" onclick='onchangeIsPenalized()' type='checkbox'> Enable Late Repayment Penalty?</label>
                     </div>
@@ -85,7 +85,7 @@
                         <label>Grace Period</label>
                         <input type="number" min="0" class="form-control" name="GracePeriod">
                       </div>
-                    </div>
+                    </div> -->
                   </div>
                   <br>
                   <div class="row">
@@ -648,7 +648,7 @@
                             echo "<td>".$value['Name']."</td>";
                             echo "<td>".$value['Description']."
                               <input type='hidden' name='RequirementId[]' id='txtRequirementId".$rowCount."' value='".$value['RequirementId']."'>
-                              <input type='hidden' name='isRequirementSelected[]' id='isRequirementSelected".$rowCount."'>
+                              <input type='' value='".$isSelected."' name='isRequirementSelected[]' id='isRequirementSelected".$rowCount."'>
                               <input type='hidden' name='RequirementNo[]' id='requirementRowCount".$rowCount."' value='".$rowCount."'>
                             </td>";
                             echo "</tr>";
@@ -1001,40 +1001,70 @@
         var weekly = 0;
         var daily = 0;
       
-        if (repaymentType == 1) // daily
-        {
-          yearly = 360;
-          monthly = 30;
-          biweekly = 14;
-          weekly = 7;
-          daily = 1;
-        }  
-        else if (repaymentType == 2) // weekly
-        {
-          yearly = 52;
-          monthly = 4;
-          biweekly = 2;
-          weekly = 1;
-          daily = 1/7;
-        }
-        else if (repaymentType == 3) // monthly
-        {
-          yearly = 12;
-          monthly = 1;
-          biweekly = 1/2;
-          weekly = 1/4;
-          daily = 1/30;
-        }
-        else if (repaymentType == 4) // yearly
-        {
-          yearly = 1;
-          monthly = 1/12;
-          biweekly = 1/24;
-          weekly = 1/38;
-          daily = 1/360;
-        } 
-        else
-        {
+        // if (repaymentType == 1) // daily
+        // {
+        //   yearly = 360;
+        //   monthly = 30;
+        //   biweekly = 14;
+        //   weekly = 7;
+        //   daily = 1;
+        // }  
+        // else if (repaymentType == 2) // weekly
+        // {
+        //   yearly = 52;
+        //   monthly = 4;
+        //   biweekly = 2;
+        //   weekly = 1;
+        //   daily = 1/7;
+        // }
+        // else if (repaymentType == 3) // monthly
+        // {
+        //   yearly = 12;
+        //   monthly = 1;
+        //   biweekly = 1/2;
+        //   weekly = 1/4;
+        //   daily = 1/30;
+        // }
+        // else if (repaymentType == 4) // yearly
+        // {
+        //   yearly = 1;
+        //   monthly = 1/12;
+        //   biweekly = 1/24;
+        //   weekly = 1/38;
+        //   daily = 1/360;
+        // } 
+        // else
+        // {
+        //   $.ajax({
+        //     url: "<?php echo base_url();?>" + "/loanapplication_controller/getRepaymentCount",
+        //     type: "POST",
+        //     async: false,
+        //     data: {
+        //       Id : repaymentType
+        //     },
+        //     dataType: "JSON",
+        //     beforeSend: function(){
+        //         $('.loading').show();
+        //     },
+        //     success: function(data)
+        //     {
+        //       $('#txtRepayments').val($('#txtTermNo').val() * data['RepaymentNo'])
+        //     },
+        //     error: function()
+        //     {
+        //       setTimeout(function() {
+        //         swal({
+        //           title: 'Warning!',
+        //           text: 'Something went wrong, please contact the administrator or refresh page!',
+        //           type: 'warning',
+        //           buttonsStyling: false,
+        //           confirmButtonClass: 'btn btn-primary'
+        //         });
+        //       }, 2000);
+        //     }
+        //   });
+        // }
+
           $.ajax({
             url: "<?php echo base_url();?>" + "/loanapplication_controller/getRepaymentCount",
             type: "POST",
@@ -1063,7 +1093,6 @@
               }, 2000);
             }
           });
-        }
          
         if (termType == "Days")
         {

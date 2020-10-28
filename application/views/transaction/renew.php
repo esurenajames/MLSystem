@@ -79,28 +79,7 @@
                         <a href=""> Add/Edit Loan Products</a>
                       </div>
                     </div>
-                    <div class="col-md-12">
-                      <label></label>
-                      <label><input id='chkPenalty' name="IsPenalized" onclick='onchangeIsPenalized()' <?php if($detail['IsPenalized']) echo "checked"; else { echo "";} ?> type='checkbox'> Enable Late Repayment Penalty?</label>
-                    </div>
                     <br>
-                    <div id="divPenalty" style="display: <?php if($detail['IsPenalized']) echo ""; else { echo "none";} ?>">
-                      <div class="col-md-4">
-                        <label>Penalty Type</label>
-                        <select class="form-control" id="selectPenaltyType" onchange="onchangePenaltyType()" name="PenaltyType">
-                          <option <?php if($detail['PenaltyType'] == 'Flat Rate') echo "selected"; else { echo "";} ?>>Flat Rate</option>
-                          <option<?php if($detail['PenaltyType'] == 'Percentage') echo "selected"; else { echo "";} ?>>Percentage</option>
-                        </select>
-                      </div>
-                      <div class="col-md-4">
-                        <label id="inputLblPenaltyType">Amount</label>
-                        <input type="number" value="<?php print_r($detail["PenaltyAmount"]) ?>" min="0" class="form-control" name="PenaltyAmount">
-                      </div>
-                      <div class="col-md-4">
-                        <label>Grace Period</label>
-                        <input type="number" min="0" class="form-control" name="PenaltyAmount" value="<?php print_r($detail["GracePeriod"]) ?>">
-                      </div>
-                    </div>
                   </div>
                   <br>
                   <div class="row">
@@ -1221,77 +1200,6 @@
     function requirementType(value)
     {
       var table = $("#dtblRequirement tbody");
-      $.ajax({
-        url: "<?php echo base_url();?>" + "/admin_controller/getRequirements",
-        type: "POST",
-        async: false,
-        data: {
-          Id : value
-        },
-        dataType: "JSON",
-        beforeSend: function(){
-            $('.loading').show();
-        },
-        success: function(data)
-        {
-          if(data == 0)
-          {
-            table.empty();
-            table.append("<tr><td colspan='3'><center>No data available</center></td>" +
-                "</tr>");
-          }
-          else
-          {
-            var varDescription, isChecked;
-            var rowCount = 0;
-            var isSelected = 0; 
-            table.empty();
-            $.each(data, function (a, b) {
-              rowCount = rowCount + 1;
-              if(b.IsMandatory == 1)
-              {
-                isChecked = 'checked disabled'; 
-                isSelected = 1;
-              }
-              else
-              {
-                isChecked = '';
-                isSelected = 0;
-              }
-
-              if(b.Description == null)
-              {
-                varDescription = 'N/A'
-              }
-              else
-              {
-                varDescription = b.Description
-              }
-              table.append("<tr><td><center><label><input onclick='chkRequirements("+rowCount+")' id='selectCheckReq"+rowCount+"' "+isChecked+" type='checkbox' value='"+b.RequirementId+"'></label></center></td>" +
-                "<td>"+b.Name+"</td>"+
-                "<td>"+varDescription+
-                "<input type='hidden' name='RequirementId[]' id='txtRequirementId"+rowCount+"' value='"+b.RequirementId+"'>"+
-                "<input type='hidden' name='isRequirementSelected[]' id='isRequirementSelected"+rowCount+"' value='"+isSelected+"'>"+
-                "<input type='hidden' name='RequirementNo[]' id='requirementRowCount"+rowCount+"' value='"+rowCount+"'>"+
-                "</td>"+
-                "</tr>");
-            });
-          }
-          $('#divRequirementList').slideDown();
-        },
-        error: function()
-        {
-          setTimeout(function() {
-            swal({
-              title: 'Warning!',
-              text: 'Something went wrong, please contact the administrator or refresh page!',
-              type: 'warning',
-              buttonsStyling: false,
-              confirmButtonClass: 'btn btn-primary'
-            });
-          }, 2000);
-        }
-      });
     }
 
     function changeAmount(value, type)
@@ -1746,6 +1654,7 @@
       }
     });
 
+    console.log('<?php print_r($detail["rawLoanReleaseDate"]) ?>')
     $('#loanReleaseDate').daterangepicker({
         "startDate": moment('<?php print_r($detail["rawLoanReleaseDate"]) ?>').format('DD MMM YY'),
         "singleDatePicker": true,
@@ -1909,122 +1818,6 @@
     // requirements
       var table = $("#dtblRequirement tbody");
       var selectedRequirementId = [];
-      $.ajax({
-        url: "<?php echo base_url();?>" + "/admin_controller/getRequirements",
-        type: "POST",
-        async: false,
-        data: {
-          Id : $('#selectRequirementType').val()
-        },
-        dataType: "JSON",
-        beforeSend: function(){
-            $('.loading').show();
-        },
-        success: function(data)
-        {
-          if(data == 0)
-          {
-            table.empty();
-            table.append("<tr><td colspan='3'><center>No data available</center></td>" +
-                "</tr>");
-          }
-          else
-          {
-            $.ajax({
-              url: "<?php echo base_url()?>/loanapplication_controller/getRequirementsList",
-              type: "POST",
-              async: false,
-              data: {
-                Id : $('#txtApplicationId').val()
-              },
-              dataType: "JSON",
-              beforeSend: function(){
-                  $('.loading').show();
-              },
-              success: function(datum)
-              {
-                $.each(datum, function (a, c) {
-                  selectedRequirementId.push(c.RequirementId);
-                });
-
-                var varDescription;
-                var rowCount = 0;
-                var isSelected = 0; 
-                var isCheckedd = 0;
-                table.empty();
-                $.each(data, function (a, b) {
-                  rowCount = rowCount + 1;
-                  if(b.IsMandatory == 1)
-                  {
-                    isCheckedd = 'disabled'; 
-                    isSelected = 1;
-                  }
-                  else
-                  {
-                    isCheckedd = '';
-                    isSelected = 0;
-                  }
-
-                  if(b.Description == null)
-                  {
-                    varDescription = 'N/A'
-                  }
-                  else
-                  {
-                    varDescription = b.Description
-                  }
-
-                  if(selectedRequirementId.includes(b.RequirementId))
-                  {
-                    selectedRequirement = 'checked'; 
-                    isSelected = 1;
-                  }
-                  else
-                  {
-                    selectedRequirement = '';
-                    isSelected = 0;
-                  }
-
-                  table.append("<tr><td><center><label><input onclick='chkRequirements("+rowCount+")' id='selectCheckReq"+rowCount+"' "+selectedRequirement+" "+isCheckedd+" type='checkbox' value='"+b.RequirementId+"'></label></center></td>" +
-                    "<td>"+b.Name+"</td>"+
-                    "<td>"+varDescription+
-                    "<input type='hidden' name='RequirementId[]' id='txtRequirementId"+rowCount+"' value='"+b.RequirementId+"'>"+
-                    "<input type='hidden' name='isRequirementSelected[]' id='isRequirementSelected"+rowCount+"' value='"+isSelected+"'>"+
-                    "<input type='hidden' name='RequirementNo[]' id='requirementRowCount"+rowCount+"' value='"+rowCount+"'>"+
-                    "</td>"+
-                    "</tr>");
-                });
-              },
-              error: function()
-              {
-                setTimeout(function() {
-                  swal({
-                    title: 'Warning!',
-                    text: 'Something went wrong, please contact the administrator or refresh page!',
-                    type: 'warning',
-                    buttonsStyling: false,
-                    confirmButtonClass: 'btn btn-primary'
-                  });
-                  // location.reload();
-                }, 2000);
-              }
-            });
-          }
-          $('#divRequirementList').slideDown();
-        },
-        error: function()
-        {
-          setTimeout(function() {
-            swal({
-              title: 'Warning!',
-              text: 'Something went wrong, please contact the administrator or refresh page!',
-              type: 'warning',
-              buttonsStyling: false,
-              confirmButtonClass: 'btn btn-primary'
-            });
-          }, 2000);
-        }
-      });
 
     $('#smartwizard').smartWizard({
       theme: 'dots',

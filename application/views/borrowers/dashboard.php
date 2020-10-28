@@ -7,7 +7,8 @@
       Borrowers
     </h1>
     <ol class="breadcrumb">
-      <li><a href="#" class="active"><i class="fa fa-dashboard"></i> Borrower's Management</a></li>
+      <li><a href="#" class="active"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+      <li>Borrower's Management</li>
       <li>Borrowers</a></li>
     </h1>
     </ol>
@@ -321,6 +322,59 @@
     </div>
   </div>
 
+  <div class="modal fade" id="modalReport">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Generate Reports</h4>
+        </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-12">
+                <select class="form-control" id="selectReportType" onchange="ReportType(this.value)">
+                  <option selected="" disabled="">Select Report Type</option>
+                  <option value="1">Demographics</option>
+                  <option value="2">Custom</option>
+                </select>
+              </div>
+              <div id="divDemographics">
+                <div class="col-md-6">
+                  <label>Select Year From</label>
+                  <select class="form-control" id="yearFrom">
+                    <?php 
+                      foreach ($ageYear as $value) 
+                      {
+                        $selected = (date("Y") == $value['Year']) ? 'selected' : '';
+                        echo '<option '.$selected.'>'.$value['Year'].'</option>';
+                      }
+                    ?>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label>Select Year To</label>
+                  <select class="form-control" id="yearTo">
+                    <?php 
+                      foreach ($ageYear as $value) 
+                      {
+                        $selected = (date("Y") == $value['Year']) ? 'selected' : '';
+                        echo '<option '.$selected.'>'.$value['Year'].'</option>';
+                      }
+                    ?>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <a class="btn btn-primary" onclick="generateReport()">Submit</a>
+          </div>
+      </div>
+    </div>
+  </div>
+
     <!-- Main content -->
     <section class="content">
       <div class="box">
@@ -329,8 +383,9 @@
         </div>
         <div class="box-body">
           <div class="pull-right">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalNewRecord">Add Borrower</button>
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalImport2">Import Borrower</button>
+            <button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#modalReport">Generate Report</button>
+            <button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#modalNewRecord">Add Borrower</button>
+            <button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#modalImport2">Import Borrower</button>
           </div>
           <br>
           <br>
@@ -385,6 +440,44 @@
 </script>
 
 <script>
+
+  function ReportType(value)
+  {
+    if(value == 1) // demo graphics
+    {
+
+    }
+  }
+
+  function generateReport()
+  {
+    $.ajax({                
+        url: "<?php echo base_url();?>" + "/borrower_controller/generateReport",
+        method: "POST",
+        data:   {
+                  yearFrom : $('#yearFrom').val()
+                  , yearTo : $('#yearTo').val()
+                },
+        beforeSend: function(){
+            $('.loading').show();
+        },
+        success: function(data)
+        {
+          console.log(data)
+        },
+        error: function (response) 
+        {
+          refreshPage();
+          swal({
+            title: 'Warning!',
+            text: 'Something went wrong, please contact the administrator or refresh page!',
+            type: 'warning',
+            buttonsStyling: false,
+            confirmButtonClass: 'btn btn-primary'
+          });
+        }
+    });
+  }
 
 
   function confirm(Text, Id, updateType, tableType)
@@ -483,7 +576,7 @@
                     {
                       data: "StatusId", "render": function (data, type, row) {
                       if(row.StatusId == 1){
-                          return '<a href="<?php echo base_url();?>home/BorrowerDetails/'+row.BorrowerId+'" class="btn btn-default" title="View"><span class="fa fa-info-circle"></span></a> <a href="<?php echo base_url();?>home/createBorrowerLoan/'+row.BorrowerId+'" class="btn btn-success" title="Create Loan"><span class="fa fa-plus-square"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this borrower?\', \''+row.BorrowerId+'\', 2, \'BorrowerUpdate\')" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a>';
+                          return '<a href="<?php echo base_url();?>home/BorrowerDetails/'+row.BorrowerId+'" class="btn btn-sm btn-default" title="View"><span class="fa fa-info-circle"></span></a> <a href="<?php echo base_url();?>home/createBorrowerLoan/'+row.BorrowerId+'" class="btn btn-sm btn-success" title="Create Loan"><span class="fa fa-plus-square"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this borrower?\', \''+row.BorrowerId+'\', 2, \'BorrowerUpdate\')" class="btn btn-sm btn-danger" title="Deactivate"><span class="fa fa-close"></span></a>';
                         }
                         else
                         {

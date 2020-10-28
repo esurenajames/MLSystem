@@ -759,7 +759,7 @@ class admin_controller extends CI_Controller {
     if ($_POST['FormType'] == 1) // add Bank
     {
       $data = array(
-        'Type'                     => htmlentities($_POST['ChargeType'], ENT_QUOTES)
+        'ChargeType'                     => htmlentities($_POST['ChargeType'], ENT_QUOTES)
         , 'Name'                   => htmlentities($_POST['ConditionalName'], ENT_QUOTES)
         , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
         , 'Amount'              => htmlentities($_POST['Amount'], ENT_QUOTES)
@@ -770,12 +770,12 @@ class admin_controller extends CI_Controller {
       {
         // insert Bank details
           $insertCharge = array(
-            'Type'                     => htmlentities($_POST['ChargeType'], ENT_QUOTES)
-            , 'Name'                   => htmlentities($_POST['ConditionalName'], ENT_QUOTES)
-            , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
+            'ChargeType'            => htmlentities($_POST['ChargeType'], ENT_QUOTES)
+            , 'Name'                => htmlentities($_POST['ConditionalName'], ENT_QUOTES)
+            , 'Description'         => htmlentities($_POST['Description'], ENT_QUOTES)
             , 'Amount'              => htmlentities($_POST['Amount'], ENT_QUOTES)
-            , 'CreatedBy'              => $EmployeeNumber
-            , 'UpdatedBy'              => $EmployeeNumber
+            , 'CreatedBy'           => $EmployeeNumber
+            , 'UpdatedBy'           => $EmployeeNumber
           );
           $insertChargeTable = 'R_Charges';
           $this->maintenance_model->insertFunction($insertCharge, $insertChargeTable);

@@ -25,11 +25,11 @@
 <div class="content-wrapper">
   <section class="content-header">
     <h1>
-      Loan Calculator
+      Create Loan Application
     </h1>
     <ol class="breadcrumb">
       <li><a href="#" class="active"><i class="fa fa-dashboard"></i>Loans</a></li>
-      <li><a href="#"></i>Loan Calculator</a></li>
+      <li><a href="#"></i>Loan Application</a></li>
     </h1>
     </ol>
   </section>
@@ -61,10 +61,10 @@
                             echo $LoanType;
                           ?>
                         </select>
-                        <a href=""> Add/Edit Loan Products</a>
+                        <a href="http://localhost/ELendingTool/home/AddLoanType"> Add/Edit Loan Types</a>
                       </div>
                     </div>
-                    <div class="col-md-12">
+                    <!-- <div class="col-md-12">
                       <label></label>
                       <label><input id='chkPenalty' name="IsPenalized" onclick='onchangeIsPenalized()' type='checkbox'> Enable Late Repayment Penalty?</label>
                     </div>
@@ -85,7 +85,7 @@
                         <label>Grace Period</label>
                         <input type="number" min="0" class="form-control" name="GracePeriod">
                       </div>
-                    </div>
+                    </div> -->
                   </div>
                   <br>
                   <div class="row">
@@ -112,7 +112,7 @@
                             echo $Purpose;
                           ?>
                         </select>
-                        <a href=""> Add/Edit Purpose</a>
+                        <a href="http://localhost/ELendingTool/home/AddPurpose"> Add/Edit Purpose</a>
                       </div>
                     </div>
                     <div class="col-md-4">
@@ -174,7 +174,7 @@
                             echo $repaymentCycle;
                           ?>
                         </select>
-                        <a href=""> Add/Edit Repayment Cycle</a>
+                        <a href="http://localhost/ELendingTool/home/AddRepaymentCycle"> Add/Edit Repayment Cycle</a>
                       </div>
                     </div>
                     <div class="col-md-6">
@@ -221,8 +221,8 @@
                   <br>
                   <h4>Additional Charges <small><a href="http://localhost/ELendingTool/home/AddConditional"> Add/Edit Additional Charges</a></small> <a class="btn btn-sm btn-primary pull-right" id="btnAddCharges" onclick="btnCharges()">Add Charges</a> <a class="btn btn-sm btn-primary pull-right" style="display: none" onclick="btnRemoveCharges()" id="btnRemoveCharges">Remove Charges</a></h4>
                   <hr>
+                  <input type="hidden" id="txtIsCharged">
                   <div id="divAdditionalCharges" style="display: none">
-                    <input type="hidden" id="txtIsCharged">
                     <div class="row">
                       <div class="col-md-12">
                         <table id="example3" class="table table-bordered table-hover" style="width: 100%">
@@ -257,7 +257,7 @@
                       <h6 class="lblTotalLoanCost">Php 0.00</h6>
                     </div>
                     <div class="col-md-4">
-                      <label>Amount per Collection</label>
+                      <label>Principal per Collection</label>
                       <h6 class="lblPrincipalPerCollection">Php 0.00</h6>
                     </div>
                     <div class="col-md-4">
@@ -276,7 +276,7 @@
                 </div>
                 <div id="BD" class="">
                   <div class="row">
-                    <div class="col-md-12">
+                    <div class="col-md-12" id="divSelectBorrower">
                       <label>Select Borrower</label>
                       <select class="form-control select2" name="borrowerId" style="width: 100%" onchange="displayBorrowerDetails(this.value)" id="selectBorrowerNumber">
                         <?php
@@ -504,7 +504,7 @@
                       <h6 class="lblTotalLoanCost">Php 0.00</h6>
                     </div>
                     <div class="col-md-3">
-                      <label>Loan Amount per Collection</label>
+                      <label>Principal per Collection</label>
                       <h6 class="lblPrincipalPerCollection">Php 0.00</h6>
                     </div>
                     <div class="col-md-3">
@@ -615,27 +615,48 @@
                   </div>
                   <h4>Requirements <small><a href=""> Add/Edit Requirements</a></small> </h4>
                   <hr>
-                  <label>Select Requirement Type<span class="text-red">*</span></label><br>
-                  <select class="form-control" style="width: 100%" onchange="requirementType(this.value)" required="" name="RequirementType" id="selectRequirementType">
-                    <?php
-                      echo $requirementType;
-                    ?>
-                  </select>
-                  <br>
-                  <div id="divRequirementList" style="display: none">
-                    <label>Select Requirements to be Submitted:<span class="text-red">*</span></label><br>
-                    <table id="dtblRequirement" class="table table-bordered table-hover" style="width: 100%">
-                      <thead>
-                      <tr>
-                        <th width="15px">Select</th>
-                        <th>Name</th>
-                        <th>Description</th>
-                      </tr>
-                      </thead>
-                      <tbody>
-                      </tbody>
-                    </table>
-                  </div>
+                  <label>Select Requirements to be Submitted:<span class="text-red">*</span></label><br>
+                  <table id="dtblRequirement" class="table table-bordered table-hover" style="width: 100%">
+                    <thead>
+                    <tr>
+                      <th width="15px">Select</th>
+                      <th>Name</th>
+                      <th>Description</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                      <?php
+                        if($RequirementList != 0)
+                        {
+                          $rowCount = 0;
+                          foreach ($RequirementList as $value) 
+                          {
+                            $rowCount = $rowCount + 1;
+                            if($value['IsMandatory'] == 1)
+                            {
+                              $isChecked = 'checked disabled'; 
+                              $isSelected = 1;
+                            }
+                            else
+                            {
+                              $isChecked = '';
+                              $isSelected = 0;
+                            }
+
+                            echo "<tr>";
+                            echo "<td><center><label><input onclick='chkRequirements(".$rowCount.")' id='selectCheckReq".$rowCount."' ".$isChecked." type='checkbox' value='".$value['Description']."'></label></center></td>";
+                            echo "<td>".$value['Name']."</td>";
+                            echo "<td>".$value['Description']."
+                              <input type='hidden' name='RequirementId[]' id='txtRequirementId".$rowCount."' value='".$value['RequirementId']."'>
+                              <input type='' value='".$isSelected."' name='isRequirementSelected[]' id='isRequirementSelected".$rowCount."'>
+                              <input type='hidden' name='RequirementNo[]' id='requirementRowCount".$rowCount."' value='".$rowCount."'>
+                            </td>";
+                            echo "</tr>";
+                          }
+                        }
+                      ?>
+                    </tbody>
+                  </table>
                   <h4>Workflow</h4>
                   <hr>
                   <div class="row">
@@ -757,6 +778,8 @@
           tenureRisk = 0
         }
       // compute risk
+      console.log('NETMONTHLYINCOME: '+NetMonthlyIncome)
+      console.log('TENURE: '+varTenure)
         riskAssessment = (incomeRisk + ageRisk + tenureRisk) / 3
         if(Math.ceil(riskAssessment) <= 25)
         {
@@ -768,7 +791,7 @@
         }
         else if(Math.ceil(riskAssessment) >= 56 && Math.ceil(riskAssessment) <= 100)
         {
-          riskLevel = 'Meduim Risk'
+          riskLevel = 'High Risk'
         }
         $('#lblRiskAssessment').html(parseInt(Math.ceil(riskAssessment)).toLocaleString('en-US', {minimumFractionDigits: 2}) + '% - ' + riskLevel);
     }
@@ -826,7 +849,7 @@
   // BORROWERS
     var varBorrowerId = 0;
     var varBorrowerAge = 0;
-    var varTenure = 1;
+    var varTenure;
     function displayBorrowerDetails(value)
     {
       varBorrowerId = value;
@@ -861,34 +884,34 @@
           $('.lblBorrowerStatus').html(data['StatusDescription']);
           $('.divBorrowerBtn').html('<a target="_blank" href="<?php echo base_url();?>home/BorrowerDetails/'+data['BorrowerId']+'">View Borrower Details</a>');
 
-          // $.ajax({
-          //   url: "<?php echo base_url();?>" + "/loanapplication_controller/getTenure",
-          //   type: "POST",
-          //   async: false,
-          //   data: {
-          //     Id : varBorrowerId
-          //   },
-          //   dataType: "JSON",
-          //   beforeSend: function(){
-          //       $('.loading').show();
-          //   },
-          //   success: function(data)
-          //   {
-          //     varTenure = data['AvgYears'];
-          //   },
-          //   error: function()
-          //   {
-          //     setTimeout(function() {
-          //       swal({
-          //         title: 'Warning!',
-          //         text: 'Something went wrong, please contact the administrator or refresh page!',
-          //         type: 'warning',
-          //         buttonsStyling: false,
-          //         confirmButtonClass: 'btn btn-primary'
-          //       });
-          //     }, 2000);
-          //   }
-          // });
+          $.ajax({
+            url: "<?php echo base_url();?>" + "/loanapplication_controller/getTenure",
+            type: "POST",
+            async: false,
+            data: {
+              Id : varBorrowerId
+            },
+            dataType: "JSON",
+            beforeSend: function(){
+                $('.loading').show();
+            },
+            success: function(data)
+            {
+              varTenure = data['AvgYears'];
+            },
+            error: function()
+            {
+              setTimeout(function() {
+                swal({
+                  title: 'Warning!',
+                  text: 'Something went wrong, please contact the administrator or refresh page!',
+                  type: 'warning',
+                  buttonsStyling: false,
+                  confirmButtonClass: 'btn btn-primary'
+                });
+              }, 2000);
+            }
+          });
         },
         error: function()
         {
@@ -970,7 +993,7 @@
       var loanRepaymentNo = $('#txtRepayments').val();
       var loanDurationNo = $('#txtTermNo').val();
 
-      if (repaymentType != "")
+      if (repaymentType != null)
       {
         var totalRepayments = 0;
         var yearly = 0;
@@ -978,45 +1001,98 @@
         var weekly = 0;
         var daily = 0;
       
-        if (repaymentType == 1) // daily
-        {
-          yearly = 360;
-          monthly = 30;
-          biweekly = 14;
-          weekly = 7;
-          daily = 1;
-        }  
-        else if (repaymentType == 2) // weekly
-        {
-          yearly = 52;
-          monthly = 4;
-          biweekly = 2;
-          weekly = 1;
-          daily = 1/7;
-        }
-        else if (repaymentType == 3) // monthly
-        {
-          yearly = 12;
-          monthly = 1;
-          biweekly = 1/2;
-          weekly = 1/4;
-          daily = 1/30;
-        }
-        else if (repaymentType == 4) // yearly
-        {
-          yearly = 1;
-          monthly = 1/12;
-          biweekly = 1/24;
-          weekly = 1/38;
-          daily = 1/360;
-        } 
-        else
-        {
-          yearly = 1;
-          monthly = 1;
-          weekly = 1;
-          daily = 1;
-        }
+        // if (repaymentType == 1) // daily
+        // {
+        //   yearly = 360;
+        //   monthly = 30;
+        //   biweekly = 14;
+        //   weekly = 7;
+        //   daily = 1;
+        // }  
+        // else if (repaymentType == 2) // weekly
+        // {
+        //   yearly = 52;
+        //   monthly = 4;
+        //   biweekly = 2;
+        //   weekly = 1;
+        //   daily = 1/7;
+        // }
+        // else if (repaymentType == 3) // monthly
+        // {
+        //   yearly = 12;
+        //   monthly = 1;
+        //   biweekly = 1/2;
+        //   weekly = 1/4;
+        //   daily = 1/30;
+        // }
+        // else if (repaymentType == 4) // yearly
+        // {
+        //   yearly = 1;
+        //   monthly = 1/12;
+        //   biweekly = 1/24;
+        //   weekly = 1/38;
+        //   daily = 1/360;
+        // } 
+        // else
+        // {
+        //   $.ajax({
+        //     url: "<?php echo base_url();?>" + "/loanapplication_controller/getRepaymentCount",
+        //     type: "POST",
+        //     async: false,
+        //     data: {
+        //       Id : repaymentType
+        //     },
+        //     dataType: "JSON",
+        //     beforeSend: function(){
+        //         $('.loading').show();
+        //     },
+        //     success: function(data)
+        //     {
+        //       $('#txtRepayments').val($('#txtTermNo').val() * data['RepaymentNo'])
+        //     },
+        //     error: function()
+        //     {
+        //       setTimeout(function() {
+        //         swal({
+        //           title: 'Warning!',
+        //           text: 'Something went wrong, please contact the administrator or refresh page!',
+        //           type: 'warning',
+        //           buttonsStyling: false,
+        //           confirmButtonClass: 'btn btn-primary'
+        //         });
+        //       }, 2000);
+        //     }
+        //   });
+        // }
+
+          $.ajax({
+            url: "<?php echo base_url();?>" + "/loanapplication_controller/getRepaymentCount",
+            type: "POST",
+            async: false,
+            data: {
+              Id : repaymentType
+            },
+            dataType: "JSON",
+            beforeSend: function(){
+                $('.loading').show();
+            },
+            success: function(data)
+            {
+              $('#txtRepayments').val($('#txtTermNo').val() * data['RepaymentNo'])
+            },
+            error: function()
+            {
+              setTimeout(function() {
+                swal({
+                  title: 'Warning!',
+                  text: 'Something went wrong, please contact the administrator or refresh page!',
+                  type: 'warning',
+                  buttonsStyling: false,
+                  confirmButtonClass: 'btn btn-primary'
+                });
+              }, 2000);
+            }
+          });
          
         if (termType == "Days")
         {
@@ -1124,82 +1200,6 @@
       }
     }
 
-    function requirementType(value)
-    {
-      var table = $("#dtblRequirement tbody");
-      $.ajax({
-        url: "<?php echo base_url();?>" + "/admin_controller/getRequirements",
-        type: "POST",
-        async: false,
-        data: {
-          Id : value
-        },
-        dataType: "JSON",
-        beforeSend: function(){
-            $('.loading').show();
-        },
-        success: function(data)
-        {
-          if(data == 0)
-          {
-            table.empty();
-            table.append("<tr><td colspan='3'><center>No data available</center></td>" +
-                "</tr>");
-          }
-          else
-          {
-            var varDescription, isChecked;
-            var rowCount = 0;
-            var isSelected = 0; 
-            table.empty();
-            $.each(data, function (a, b) {
-              rowCount = rowCount + 1;
-              if(b.IsMandatory == 1)
-              {
-                isChecked = 'checked disabled'; 
-                isSelected = 1;
-              }
-              else
-              {
-                isChecked = '';
-                isSelected = 0;
-              }
-
-              if(b.Description == null)
-              {
-                varDescription = 'N/A'
-              }
-              else
-              {
-                varDescription = b.Description
-              }
-              table.append("<tr><td><center><label><input onclick='chkRequirements("+rowCount+")' id='selectCheckReq"+rowCount+"' "+isChecked+" type='checkbox' value='"+b.RequirementId+"'></label></center></td>" +
-                "<td>"+b.Name+"</td>"+
-                "<td>"+varDescription+
-                "<input type='hidden' name='RequirementId[]' id='txtRequirementId"+rowCount+"' value='"+b.RequirementId+"'>"+
-                "<input type='hidden' name='isRequirementSelected[]' id='isRequirementSelected"+rowCount+"' value='"+isSelected+"'>"+
-                "<input type='hidden' name='RequirementNo[]' id='requirementRowCount"+rowCount+"' value='"+rowCount+"'>"+
-                "</td>"+
-                "</tr>");
-            });
-          }
-          $('#divRequirementList').slideDown();
-        },
-        error: function()
-        {
-          setTimeout(function() {
-            swal({
-              title: 'Warning!',
-              text: 'Something went wrong, please contact the administrator or refresh page!',
-              type: 'warning',
-              buttonsStyling: false,
-              confirmButtonClass: 'btn btn-primary'
-            });
-          }, 2000);
-        }
-      });
-    }
-
     function changeAmount(value, type)
     {
       if(type == 1) // income
@@ -1305,7 +1305,7 @@
       {
         swal({
           title: 'Warning!',
-          text: 'Principal Amount cannot be blank!',
+          text: 'Loan Amount cannot be blank!',
           type: 'warning',
           buttonsStyling: false,
           confirmButtonClass: 'btn btn-primary'
@@ -1375,7 +1375,7 @@
                     "<input type='hidden' name='ChargeId[]' value='"+b.ChargeId+"'>"+
                     "<input type='hidden' id='txtChargeAmount"+row+"' value='"+parseInt(b.Amount)+"'>"+
                     "<input type='hidden' name='IsSelected[]' id='isSelected"+row+"' value='"+isSelected+"'>"+
-                    "<input type='hidden' class='chargeTotal[]' value='"+parseInt(total)+"'>"+
+                    "<input type='hidden' name='chargeTotal[]' value='"+parseInt(total)+"'>"+
                     "<input type='hidden' id='txtChargeType"+row+"' value='"+b.ChargeType+"'> "+
                     "Php "+parseInt(total).toLocaleString('en-US', {minimumFractionDigits: 2})+"</td>"+
                   "</tr>"
@@ -1497,7 +1497,7 @@
         output += '<td id="rowNumber' + MonthlyIncomeCount + '">' + MonthlyIncomeCount + '</td>'
         output += '<td><input type="text" class="form-control incomeSource" name="MISourceIncome[]"><input type="hidden" required="" class="form-control" name="countMonthlyIncome[]" value="' + MonthlyIncomeCount + '"></td>'
         output += '<td><input type="text" class="form-control" name="MIDetails[]"></td>'
-        output += '<td><input required="" type="text" class="form-control incomeAmount" min="0"  placeholder="0.00" oninput="changeAmount(this.value, 1, '+MonthlyIncomeCount+')" name="MIAmount[]"></td>'
+        output += '<td><input required="" type="number" class="form-control incomeAmount" min="0"  placeholder="0.00" oninput="changeAmount(this.value, 1, '+MonthlyIncomeCount+')" name="MIAmount[]"></td>'
         output += '<td><a id="' + MonthlyIncomeCount + '" class="btn btnRemoveIncome btn-sm btn-danger" title="Remove"><span class="fa fa-minus"></span></a> </td>'
         output += '</tr>'
         $('#tblMonthlyIncome').append(output);
@@ -1723,8 +1723,10 @@
     $("#smartwizard").on("leaveStep", function(e, anchorObject, stepNumber, stepDirection) {
       if(stepNumber == 0 && stepDirection == 'forward') // loan product
       {
+        varIsPenalized = 0;
+        IsGo = 0;
+        var varChargeNo;
         // for sources
-          IsGo = 0;
           if($('#selectSource').val() == 'Through Agent')
           {
             if($('#txtAgentName').val() == '')
@@ -1741,7 +1743,6 @@
             IsGo = 1;
           }
         // for penalties
-          varIsPenalized = 0;
           if($('#chkPenalty').is(":checked") == true)
           {
             if($('#selectPenaltyType').val() == '' || $('#txtPenaltyAmount').val() <= 0 || $('#txtPenaltyAmount').val() < 0)
@@ -1758,18 +1759,23 @@
             varIsPenalized = 1;
           }
         // for charges
-          varChargeNo = 0;
           if($('#txtIsCharged').val() == 1)
           {
             $('input[type="checkbox"]').click(function(){
-              varChargeNo = $('.checkCharges:checked').length;
+              if($('.checkCharges:checked').length > 0)
+              {
+                varChargeNo = 1;
+              }
+              else
+              {
+                varChargeNo = 0
+              }
             });
           }
           else
           {
             varChargeNo = 1;
           }
-          
         if($('#selectLoanType').val() == '' || IsGo == 0 || $('#selectPurpose').val() == '' || $('#selectDisbursedBy').val() == '' || $('#txtPrincipalAmount').val() == '' || $('#selectTerm').val() == '' || $('#selectTermType').val() == '' || $('#txtRepayments').val() == '' || $('#selectRepaymentType').val() == '' || $('#selectInterestType').val() == '' || $('#txtInterest').val() == '' || $('#selectInterestFrequency').val() == '' || varIsPenalized == 0 || varChargeNo == 0)
         {
           swal({
@@ -1945,6 +1951,18 @@
         }
       }
     });
+
+// FOR SPECIFIC BORROWER LOAN APPLICATION
+  if('<?php print_r($BorrowerId) ?>' != '')
+  {
+    $('#divSelectBorrower').hide();
+    $('#selectBorrowerNumber').val('<?php print_r($BorrowerId) ?>').change();
+  }
+  else
+  {
+    $('#divSelectBorrower').show();
+    $('#selectBorrowerNumber').val(0);
+  }
 
   })
 

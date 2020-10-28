@@ -58,6 +58,9 @@ class loanapplication_controller extends CI_Controller {
     $DateNow = date("Y-m-d H:i:s");
     // loan product details
       $UndertakingId = $this->maintenance_model->selectSpecific('r_loanundertaking', 'StatusId', 1);
+
+      $time = strtotime($_POST['loanReleaseDate']);
+      $newformat = date('Y-m-d', $time);
       $insertData = array(
         'LoanId'                    => $_POST['LoanTypeId'],
         'BorrowerId'                => $_POST['borrowerId'],
@@ -74,7 +77,7 @@ class loanapplication_controller extends CI_Controller {
         'SpouseMonthlyIncome'       => $_POST['SpouseMonthlySalary'],
 
         'PurposeId'                 => $_POST['PurposeId'],
-        'LoanReleaseDate'           => $_POST['loanReleaseDate'],
+        'LoanReleaseDate'           => $newformat,
         'DisbursementId'            => $_POST['DisbursedBy'],
         'PrincipalAmount'           => $_POST['PrincipalAmount'],
         'Notes'                     => $_POST['Notes'],
@@ -196,7 +199,7 @@ class loanapplication_controller extends CI_Controller {
             $auditTable = 'application_has_charges';
             $this->maintenance_model->insertFunction($insertData, $auditTable);
 
-            $charge = $this->maintenance_model->selectSpecific('R_Charge', 'ChargeId', $_POST['ChargeId'][$count]);
+            $charge = $this->maintenance_model->selectSpecific('R_Charges', 'ChargeId', $_POST['ChargeId'][$count]);
             // insert into payments
               $insertData1 = array( 
                 'BankId'            => 1,
@@ -215,52 +218,49 @@ class loanapplication_controller extends CI_Controller {
                 'CreatedBy'         => $EmployeeNumber
               );
               $table = 't_paymentsmade';
-              $this->maintenance_model->insertFunction($insertData1, $table1);
+              $this->maintenance_model->insertFunction($insertData1, $table);
           }
         }
       }
     // requirements needed
-      if(isset($_POST['RequirementNo']))
+      for($count = 0; $count < count($_POST['RequirementNo']); $count++)
       {
-        for($count = 0; $count < count($_POST['RequirementNo']); $count++)
+        if($_POST['isRequirementSelected'][$count] == 1)
         {
-          if($_POST['isRequirementSelected'][$count] == 1)
-          {
-            // check if already submitted or not
-              $insertData = array(
-                'ApplicationId'         => $generatedId['ApplicationId'],
-                'RequirementId'         => $_POST['RequirementId'][$count],
-                'CreatedBy'             => $EmployeeNumber
+          // check if already submitted or not
+            $insertData = array(
+              'ApplicationId'         => $generatedId['ApplicationId'],
+              'RequirementId'         => $_POST['RequirementId'][$count],
+              'CreatedBy'             => $EmployeeNumber
+            );
+            $auditTable = 'application_has_requirements';
+            $this->maintenance_model->insertFunction($insertData, $auditTable);
+            $requirementId = $this->loanapplication_model->getSubmittedReqs($_POST['borrowerId']);
+            foreach ($requirementId as $reqID) 
+            {
+              $getData2 = array(
+                'table'                 => 'application_has_requirements'
+                , 'column'              => 'ApplicationRequirementId'
+                , 'CreatedBy'           => $EmployeeNumber
               );
-              $auditTable = 'application_has_requirements';
-              $this->maintenance_model->insertFunction($insertData, $auditTable);
-              $requirementId = $this->loanapplication_model->getSubmittedReqs($_POST['borrowerId']);
-              foreach ($requirementId as $reqID) 
+              $generatedId2 = $this->maintenance_model->getGeneratedId2($getData2);
+              if($reqID['IdentificationId'] == $_POST['RequirementId'][$count])
               {
-                $getData2 = array(
-                  'table'                 => 'application_has_requirements'
-                  , 'column'              => 'ApplicationRequirementId'
-                  , 'CreatedBy'           => $EmployeeNumber
+                $set = array( 
+                  'DateUpdated'       => $DateNow, 
+                  'UpdatedBy'         => $EmployeeNumber, 
+                  'StatusId'          => 7, 
                 );
-                $generatedId2 = $this->maintenance_model->getGeneratedId2($getData2);
-                if($reqID['IdentificationId'] == $_POST['RequirementId'][$count])
-                {
-                  $set = array( 
-                    'DateUpdated'       => $DateNow, 
-                    'UpdatedBy'         => $EmployeeNumber, 
-                    'StatusId'          => 7, 
-                  );
-                  $condition = array( 
-                    'RequirementId'   => $reqID['IdentificationId'],
-                    'ApplicationId'   =>$generatedId['ApplicationId']
-                  );
-                  $table = 'application_has_requirements';
-                  $this->maintenance_model->updateFunction1($set, $condition, $table);
-                  print_r($reqID['IdentificationId'] . ' : ' . $_POST['RequirementId'][$count] . ' : '. '7' .'<br>');
-                }
+                $condition = array( 
+                  'RequirementId'   => $reqID['IdentificationId'],
+                  'ApplicationId'   =>$generatedId['ApplicationId']
+                );
+                $table = 'application_has_requirements';
+                $this->maintenance_model->updateFunction1($set, $condition, $table);
+                print_r($reqID['IdentificationId'] . ' : ' . $_POST['RequirementId'][$count] . ' : '. '7' .'<br>');
               }
+            }
 
-          }
         }
       }
     // loan status
@@ -295,7 +295,7 @@ class loanapplication_controller extends CI_Controller {
       $this->session->set_flashdata('alertText','Successfully submitted loan application!'); 
       $this->session->set_flashdata('alertType','success'); 
     
-    // redirect('home/loandetail/' . $generatedId['ApplicationId']);
+    redirect('home/loandetail/' . $generatedId['ApplicationId']);
   }
 
   function restructureLoan()
@@ -1577,15 +1577,11 @@ class loanapplication_controller extends CI_Controller {
           , 'CreatedBy'           => $EmployeeNumber
         );
         $generatedId = $this->maintenance_model->getGeneratedId2($getData);
-      // insert Application_has_notification
-          $CollateralName = htmlentities($_POST['ProductName'], ENT_QUOTES);
-          $insertNotification = array(
-            'Description'                   => 'Added '.$CollateralName.' to the Collateral tab '
-            , 'ApplicationId'               => $this->uri->segment(3)
-            , 'CreatedBy'                   => $EmployeeNumber
-          );
-          $insertNotificationTable = 'Application_has_Notifications';
-          $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
+      // admin audits
+        $transNo = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $this->uri->segment(3));
+        $auditApplication = 'Added collateral #CLR-' .sprintf('%05d', $generatedId['CollateralId']). ' in collateral list.';
+        $auditLogsManager = 'Added collateral #CLR-' .sprintf('%05d', $generatedId['CollateralId']). ' to application #'.$transNo['TransactionNumber'].'.';
+        $this->auditLoanApplication($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditApplication, $this->uri->segment(3));
       // insert collateral into loan
         $insertData2 = array(
           'CollateralId'         => $generatedId['CollateralId'],
@@ -1920,6 +1916,13 @@ class loanapplication_controller extends CI_Controller {
     exit();
   }
 
+  function getDetails()
+  {
+    $output = $this->loanapplication_model->getDetails($this->input->post('Type'), $this->input->post('Id'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
   function getExpenseDetails()
   {
     $output = $this->loanapplication_model->getExpenseDetails($this->input->post('Id'));
@@ -2049,22 +2052,40 @@ class loanapplication_controller extends CI_Controller {
     else
     {
       // insert into payments
-        $insertData = array( 
-          'BankId'            => $_POST['BankId'],
-          'ApplicationId'     => $this->uri->segment(3),
-          'Amount'            => $_POST['AmountDue'],
-          'Description'       => $_POST['Remarks'],
-          'AmountPaid'        => $_POST['Amount'],
-          'IsInterest'        => isset($_POST['chkPayment'][0]),
-          'IsPrincipalCollection' => isset($_POST['chkPayment'][1]),
-          'InterestAmount'    => $_POST['InterestAmountCollected'],
-          'PrincipalAmount'   => $_POST['PrincipalAmountCollected'],
-          'ChangeId'          => $_POST['ChangeMethod'],
-          'ChangeAmount'      => $_POST['ChangeAmount'],
-          'DateCollected'     => $varDateCollected,
-          'PaymentDate'       => $varDatePayment,
-          'CreatedBy'         => $EmployeeNumber
-        );
+        if(isset($_POST['chkPayment3'][0]))
+        {        
+          $insertData = array( 
+            'BankId'            => $_POST['BankId'],
+            'ApplicationId'     => $this->uri->segment(3),
+            'Amount'            => $_POST['Amount'],
+            'Description'       => $_POST['Remarks'],
+            'AmountPaid'        => $_POST['Amount'],
+            'IsOthers'          => isset($_POST['chkPayment3'][0]),
+            'ChangeId'          => $_POST['ChangeMethod'],
+            'DateCollected'     => $varDateCollected,
+            'PaymentDate'       => $varDatePayment,
+            'CreatedBy'         => $EmployeeNumber
+          );
+        }
+        else
+        {        
+          $insertData = array( 
+            'BankId'            => $_POST['BankId'],
+            'ApplicationId'     => $this->uri->segment(3),
+            'Amount'            => $_POST['AmountDue'],
+            'Description'       => $_POST['Remarks'],
+            'AmountPaid'        => $_POST['Amount'],
+            'IsInterest'        => isset($_POST['chkPayment2'][0]),
+            'IsPrincipalCollection' => isset($_POST['chkPayment1'][0]),
+            'InterestAmount'    => $_POST['InterestAmountCollected'],
+            'PrincipalAmount'   => $_POST['PrincipalAmountCollected'],
+            'ChangeId'          => $_POST['ChangeMethod'],
+            'ChangeAmount'      => $_POST['ChangeAmount'],
+            'DateCollected'     => $varDateCollected,
+            'PaymentDate'       => $varDatePayment,
+            'CreatedBy'         => $EmployeeNumber
+          );
+        }
         $table = 't_paymentsmade';
         $this->maintenance_model->insertFunction($insertData, $table);
       // get generated application id
@@ -2163,6 +2184,65 @@ class loanapplication_controller extends CI_Controller {
     $output = $this->loanapplication_model->getDue($this->input->post('Id'));
     $this->output->set_output(print(json_encode($output)));
     exit();
+  }
+
+  function AuditFunction($auditLogsManager, $auditAffectedEmployee, $ManagerId, $AffectedEmployeeNumber)
+  {
+    $CreatedBy = $this->session->userdata('EmployeeNumber');
+    $DateNow = date("Y-m-d H:i:s");
+    $insertMainLog = array(
+      'Description'       => $auditLogsManager
+      , 'CreatedBy'       => $CreatedBy
+    );
+    $auditTable1 = 'R_Logs';
+    $this->maintenance_model->insertFunction($insertMainLog, $auditTable1);
+    $insertManagerAudit = array(
+      'Description'         => $auditLogsManager
+      , 'ManagerBranchId'   => $ManagerId
+      , 'CreatedBy'         => $CreatedBy
+    );
+    $auditTable3 = 'manager_has_notifications';
+    $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable3);
+    $insertEmpLog = array(
+      'Description'       => $auditAffectedEmployee
+      , 'EmployeeNumber'  => $AffectedEmployeeNumber
+      , 'CreatedBy'       => $CreatedBy
+    );
+    $auditTable2 = 'employee_has_notifications';
+    $this->maintenance_model->insertFunction($insertEmpLog, $auditTable2);
+  }
+
+  function auditLoanApplication($auditLogsManager, $auditAffectedEmployee, $ManagerId, $AffectedEmployeeNumber, $auditLoanDets ,$ApplicationId)
+  {
+    $CreatedBy = $this->session->userdata('EmployeeNumber');
+    $DateNow = date("Y-m-d H:i:s");
+    $insertMainLog = array(
+      'Description'       => $auditLogsManager
+      , 'CreatedBy'       => $CreatedBy
+    );
+    $auditTable1 = 'R_Logs';
+    $this->maintenance_model->insertFunction($insertMainLog, $auditTable1);
+    $insertManagerAudit = array(
+      'Description'         => $auditLogsManager
+      , 'ManagerBranchId'   => $ManagerId
+      , 'CreatedBy'         => $CreatedBy
+    );
+    $auditTable3 = 'manager_has_notifications';
+    $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable3);
+    $insertEmpLog = array(
+      'Description'       => $auditAffectedEmployee
+      , 'EmployeeNumber'  => $AffectedEmployeeNumber
+      , 'CreatedBy'       => $CreatedBy
+    );
+    $auditTable2 = 'employee_has_notifications';
+    $this->maintenance_model->insertFunction($insertEmpLog, $auditTable2);
+    $insertApplicationLog = array(
+      'Description'       => $auditLoanDets
+      , 'ApplicationId'   => $ApplicationId
+      , 'CreatedBy'       => $CreatedBy
+    );
+    $auditLoanApplicationTable = 'application_has_notifications';
+    $this->maintenance_model->insertFunction($insertApplicationLog, $auditLoanApplicationTable);
   }
 
   

@@ -53,7 +53,7 @@
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="modalApprovalUpdateTitle"></h4>
+          <h4 class="modal-title" id="modalPaymentTitle"></h4>
         </div>
         <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/loanapproval/<?php print_r($detail['ApplicationId']) ?>" method="post">
           <div class="modal-body">
@@ -99,10 +99,6 @@
               <div class="col-md-6">
                 <label>Payment Method:</label>
                 <h6 id="lblPaymentMethod"></h6>
-              </div>
-              <div class="col-md-6">
-                <label>Bank</label>
-                <h6 id="lblBankMethod"></h6>
               </div>
               <div class="col-md-12">
                 <label>Remarks</label>
@@ -171,8 +167,9 @@
                 <input id='txtTotalPenalty' name="TotalPenalty" type='hidden' onclick="onchangePenaltyType()">
               </div>
               <div class="col-md-12">
-                <label><input id='chkPayment1' name="chkPayment[]" value="PC" type='checkbox' onclick="onchangePrincipalPayment()" checked=""> Principal Collection</label> 
-                <label><input id='chkPayment2' name="chkPayment[]" value="IC" type='checkbox' onclick="onchangePrincipalInterestPayment()" checked=""> Interest</label><br>
+                <label><input id='chkPayment1' name="chkPayment1[]" value="PC" type='checkbox' onclick="onchangePrincipalPayment()" checked=""> Principal Collection</label> 
+                <label><input id='chkPayment2' name="chkPayment2[]" value="IC" type='checkbox' onclick="onchangePrincipalInterestPayment()" checked=""> Interest</label>
+                <label><input id='chkPayment3' name="chkPayment3[]" value="OC" type='checkbox' onclick="onchangeOthers()"> Others</label><br>
                 <label>Total Amount Due:</label><br>
                 <h6 id="lblTotalAmountDue"></h6>
                 <input type="hidden" id="txtAmountDue" value="<?php print_r(round($paymentDues['InterestPerCollection'], 2) + round($paymentDues['PrincipalPerCollection'], 2)) ?>" name="AmountDue"> 
@@ -215,7 +212,7 @@
               </div>
               <div class="col-md-12">
                 <label>Remarks</label>
-                <textarea class="form-control" name="Remarks"></textarea>
+                <textarea class="form-control" id="collectionRemarks" name="Remarks"></textarea>
               </div>
             </div>
           </div>
@@ -979,12 +976,7 @@
 			    			$totalDue = $TotalInterest + $detail['RawPrincipalAmount'];
 	    					print_r('Php '. number_format($TotalInterest, 2));
 			    		?><br>
-
-
-
-
-
-			    		<label>Additional Charges:</label> 
+			    		<label>Charges:</label> 
 			    		<?php 
 			    			if($charges['TotalCharges'] != null)
 				    		{
@@ -1108,7 +1100,7 @@
                           if($value['StatusId'] == 1)
                           {
                             $status = '<span class="badge bg-green">Active</span>';
-                            $action = '<a class="btn btn-default btn-sm" title="View" data-toggle="modal" data-target="#modalPaymentDetails"><span class="fa fa-info-circle"></span></a> <a class="btn btn-danger btn-sm" title="Deactivated" data-toggle="modal" data-target="#modalUpdate" onclick="approvalType(4, '.$value['PaymentMadeId'].')"><span class="fa fa-close"></span></a>';
+                            $action = '<a class="btn btn-default btn-sm" title="View" data-toggle="modal" data-target="#modalPaymentDetails" onclick="viewDetails(1, '.$value['PaymentMadeId'].')"><span class="fa fa-info-circle"></span></a> <a class="btn btn-danger btn-sm" title="Deactivated" data-toggle="modal" data-target="#modalUpdate" onclick="approvalType(4, '.$value['PaymentMadeId'].')"><span class="fa fa-close"></span></a>';
                           }
                           else 
                           {
@@ -1302,8 +1294,15 @@
                         echo "<tr>";
                         echo "<td>".$rowNumber."</td>";
                         echo "<td>".$value['Name']."</td>";
-                        echo "<td>".$value['ChargeType']."</td>";
                         echo "<td>".$value['Amount']."</td>";
+                        if($value['ChargeType'] == 1) // pecentage
+                        {
+                          echo "<td>Percentage</td>";
+                        }
+                        else
+                        { 
+                          echo "<td>Flat Rate</td>";
+                        }
                         echo "<td> Php ".number_format($value['TotalCharge'], 2)."</td>";
                          if ($value['StatusId'] == 1) // Pending 
                          {
@@ -1602,63 +1601,63 @@
   });
 
   // charges type
-  function onclickCharge(type)
-  {
-    if(type == 1) // add new
+    function onclickCharge(type)
     {
-
-    }
-    else
-    {
-      $('#txtChargeId').val();
-    }
-    $('#txtChargeFormType').val(type);
-  }
-
-  function displayCharge(value)
-  {
-    $.ajax({
-      url: '<?php echo base_url()?>' + "/loanapplication_controller/getChargeDetails",
-      type: "POST",
-      async: false,
-      data: {
-        Id    : value,
-        Type  : 1
-      },
-      dataType: "JSON",
-      beforeSend: function(){
-          $('.loading').show();
-      },
-      success: function(data)
+      if(type == 1) // add new
       {
-        $('#divChargeDisplay').slideDown();
-        if(data['ChargeType'] == 'Percentage')
-        {
-          $('#lblChargeAmount').html(parseInt(data['Amount']).toLocaleString('en-US', {minimumFractionDigits: 2})+'%');
-          $('#lblChargeTotal').html('Php ' + parseInt(data['Amount']/100 * '<?php print_r($detail['RawPrincipalAmount'])?>').toLocaleString('en-US', {minimumFractionDigits: 2}));
-        }
-        else
-        {
-          $('#lblChargeAmount').html('Php ' + parseInt(data['Amount']).toLocaleString('en-US', {minimumFractionDigits: 2}));
-          $('#lblChargeTotal').html('Php ' + parseInt(data['Amount']).toLocaleString('en-US', {minimumFractionDigits: 2}));
-        }
-        $('#lblChargeType').html(data['ChargeType']);
-      },
-      error: function()
-      {
-        setTimeout(function() {
-          swal({
-            title: 'Warning!',
-            text: 'Something went wrong, please contact the administrator or refresh page!',
-            type: 'warning',
-            buttonsStyling: false,
-            confirmButtonClass: 'btn btn-primary'
-          });
-          // location.reload();
-        }, 2000);
+
       }
-    });
-  }
+      else
+      {
+        $('#txtChargeId').val();
+      }
+      $('#txtChargeFormType').val(type);
+    }
+
+    function displayCharge(value)
+    {
+      $.ajax({
+        url: '<?php echo base_url()?>' + "/loanapplication_controller/getChargeDetails",
+        type: "POST",
+        async: false,
+        data: {
+          Id    : value,
+          Type  : 1
+        },
+        dataType: "JSON",
+        beforeSend: function(){
+            $('.loading').show();
+        },
+        success: function(data)
+        {
+          $('#divChargeDisplay').slideDown();
+          if(data['ChargeType'] == 'Percentage')
+          {
+            $('#lblChargeAmount').html(parseInt(data['Amount']).toLocaleString('en-US', {minimumFractionDigits: 2})+'%');
+            $('#lblChargeTotal').html('Php ' + parseInt(data['Amount']/100 * '<?php print_r($detail['RawPrincipalAmount'])?>').toLocaleString('en-US', {minimumFractionDigits: 2}));
+          }
+          else
+          {
+            $('#lblChargeAmount').html('Php ' + parseInt(data['Amount']).toLocaleString('en-US', {minimumFractionDigits: 2}));
+            $('#lblChargeTotal').html('Php ' + parseInt(data['Amount']).toLocaleString('en-US', {minimumFractionDigits: 2}));
+          }
+          $('#lblChargeType').html(data['ChargeType']);
+        },
+        error: function()
+        {
+          setTimeout(function() {
+            swal({
+              title: 'Warning!',
+              text: 'Something went wrong, please contact the administrator or refresh page!',
+              type: 'warning',
+              buttonsStyling: false,
+              confirmButtonClass: 'btn btn-primary'
+            });
+            // location.reload();
+          }, 2000);
+        }
+      });
+    }
 
   // repayment functions
     var varPrincipalCollection = '<?php print_r( round($paymentDues['InterestPerCollection'], 2) + round($paymentDues['PrincipalPerCollection'], 2)) ?>';
@@ -1672,11 +1671,19 @@
     var varTotalLapseDays2 = 0;
     var varChange2 = 0; 
     var varTotalAmountDue2 = 0;
+    var varProcessPayment = 0;
     function computePayment()
     {
-      varChange = $('#txtAmountPaid').val() - varTotalAmountDue;
-      $('#lblChange').html('Php ' + Math.abs(varChange).toLocaleString('en-US', {minimumFractionDigits: 2}))
-      $('#txtChangeAmount').val(Math.abs(Math.round(varChange*100)/100));
+      if(varProcessPayment != 1)
+      {
+        varChange = $('#txtAmountPaid').val() - varTotalAmountDue;
+        $('#lblChange').html('Php ' + Math.abs(varChange).toLocaleString('en-US', {minimumFractionDigits: 2}))
+        $('#txtChangeAmount').val(Math.abs(Math.round(varChange*100)/100));
+      }
+      else
+      {
+        $('#lblChange').html('Php 0.00')
+      }
     }
 
     function computePayment2()
@@ -1731,6 +1738,37 @@
         $('#lblChange').html('Php 0.00');
         $('#txtInterestAmountCollected').val(<?php print_r(round($paymentDues['InterestPerCollection'], 2)) ?>);
         $('#lblTotalAmountDue').html('Php ' + varTotalAmountDue.toLocaleString('en-US', {minimumFractionDigits: 2}));
+      }
+    }
+
+    function onchangeOthers()
+    {
+      if($('#chkPayment3').is(":checked") == true)
+      {
+        varProcessPayment = 1;
+        document.getElementById("chkPayment1").checked = false;
+        document.getElementById("chkPayment2").checked = false;
+        varTotalAmountDue = varTotalAmountDue + parseFloat($('#txtAmountPaid').val(), 2);
+        $('#txtAmountDue').val(varTotalAmountDue);
+        $('#txtTotalDue').val(varTotalAmountDue);
+        $('#txtAmountPaid').val(0.00);
+        $('#lblChange').html('Php 0.00');
+        $('#txtInterestAmountCollected').val(<?php print_r(round($paymentDues['InterestPerCollection'], 2)) ?>);
+        $('#lblTotalAmountDue').html('Php 0.00');
+      }
+      else
+      {
+        document.getElementById("chkPayment1").checked = true;
+        document.getElementById("chkPayment2").checked = true;
+        varTotalAmountDue = 0;
+        varProcessPayment = 0;
+        $('#txtAmountDue').val(varTotalAmountDue);
+        $('#txtTotalDue').val(varTotalAmountDue);
+        $('#txtAmountPaid').val(0.00);
+        $('#lblChange').html('Php 0.00');
+        $('#lblTotalAmountDue').html('Php 0.00');
+        onchangePrincipalPayment()
+        onchangePrincipalInterestPayment()
       }
     }
 
@@ -1885,6 +1923,52 @@
         }
       }
       $('#txtTotalPenalty2').val(varTotalPenalty2);
+    }
+
+    function viewDetails(type, Id)
+    {
+      $.ajax({
+        url: '<?php echo base_url()?>' + "/loanapplication_controller/getDetails",
+        type: "POST",
+        async: false,
+        data: {
+          Type : type,
+          Id : Id
+        },
+        dataType: "JSON",
+        beforeSend: function(){
+            $('.loading').show();
+        },
+        success: function(data)
+        {
+          console.log(data)
+          if(type == 1) // collection
+          {
+            $('#modalPaymentTitle').html('View Collection #' + data['TransactionNumber'])
+            $('#lblPaymentForDate').html(data['PaymentDate']);
+            $('#lblCollectionDate').html(data['DateCollected']);
+            $('#lblAmountPaid').html(parseFloat(data['AmountPaid'], 2).toLocaleString('en-US', {minimumFractionDigits: 2}));
+            $('#lblDisplayChange').html(parseFloat(data['ChangeAmount'], 2).toLocaleString('en-US', {minimumFractionDigits: 2}));
+            $('#lblChangedThroughId').html(data['ChangeThrough']);
+            $('#lblPaymentMethod').html(data['PaymentThrough']);
+            $('#lblRemarks').html(data['Description']);
+          }
+          $('.loading').show();
+        },
+        error: function()
+        {
+          setTimeout(function() {
+            swal({
+              title: 'Warning!',
+              text: 'Something went wrong, please contact the administrator or refresh page!',
+              type: 'warning',
+              buttonsStyling: false,
+              confirmButtonClass: 'btn btn-primary'
+            });
+            // location.reload();
+          }, 2000);
+        }
+      });
     }
 
   function confirm(Text, Id, updateType, Type)
@@ -2487,44 +2571,90 @@
   });
 
   $("#frmSubmitRepayment").on('submit', function (e) {
-    if($('#txtAmountPaid').val() < $('#txtTotalDue').val())
+    isOkay = 0;
+    if(varProcessPayment != 1) // princiapl and interest
     {
-      e.preventDefault();
-      swal({
-        title: 'Info',
-        text: 'Please make sure that total due is paid before submitting',
-        type: 'info',
-        buttonsStyling: false,
-        confirmButtonClass: 'btn btn-primary'
-      });
-    }
-    else if($('#txtTotalDue').val() == 0)
-    {
-      e.preventDefault();
-      swal({
-        title: 'Info',
-        text: 'No payment is required for this transaction.',
-        type: 'info',
-        buttonsStyling: false,
-        confirmButtonClass: 'btn btn-primary'
-      });
+      if($('#txtAmountPaid').val() < $('#txtTotalDue').val())
+      {
+        e.preventDefault();
+        swal({
+          title: 'Info',
+          text: 'Please make sure that total due is paid before submitting',
+          type: 'info',
+          buttonsStyling: false,
+          confirmButtonClass: 'btn btn-primary'
+        });
+      }
+      else if($('#txtTotalDue').val() == 0)
+      {
+        e.preventDefault();
+        swal({
+          title: 'Info',
+          text: 'No payment is required for this transaction.',
+          type: 'info',
+          buttonsStyling: false,
+          confirmButtonClass: 'btn btn-primary'
+        });
+      }
+      else
+      {
+        e.preventDefault();
+        swal({
+          title: 'Confirm',
+          text: 'Are you sure you want to submit payment?',
+          type: 'warning',
+          showCancelButton: true,
+          buttonsStyling: false,
+          confirmButtonClass: 'btn btn-success',
+          confirmButtonText: 'Confirm',
+          cancelButtonClass: 'btn btn-secondary'
+        }).then(function(){
+          e.currentTarget.submit();
+          $('.loading').show();
+        });
+      }
     }
     else
     {
-      e.preventDefault();
-      swal({
-        title: 'Confirm',
-        text: 'Are you sure you want to submit payment?',
-        type: 'warning',
-        showCancelButton: true,
-        buttonsStyling: false,
-        confirmButtonClass: 'btn btn-success',
-        confirmButtonText: 'Confirm',
-        cancelButtonClass: 'btn btn-secondary'
-      }).then(function(){
-        e.currentTarget.submit();
-        $('.loading').show();
-      });
+      if($('#collectionRemarks').val() == "")
+      {
+        e.preventDefault();
+        swal({
+          title: 'Info',
+          text: 'Please make sure that remarks are indicated for this payment',
+          type: 'info',
+          buttonsStyling: false,
+          confirmButtonClass: 'btn btn-primary'
+        });
+      }
+      else if($('#txtAmountPaid').val() == 0)
+      {
+        e.preventDefault();
+        swal({
+          title: 'Info',
+          text: 'No payment is required for this transaction.',
+          type: 'info',
+          buttonsStyling: false,
+          confirmButtonClass: 'btn btn-primary'
+        });
+      }
+      else
+      {
+        e.preventDefault();
+        swal({
+          title: 'Confirm',
+          text: 'Are you sure you want to submit payment?',
+          type: 'warning',
+          showCancelButton: true,
+          buttonsStyling: false,
+          confirmButtonClass: 'btn btn-success',
+          confirmButtonText: 'Confirm',
+          cancelButtonClass: 'btn btn-secondary'
+        }).then(function(){
+          e.currentTarget.submit();
+          $('.loading').show();
+        });
+      }
     }
   });
 

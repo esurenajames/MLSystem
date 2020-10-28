@@ -68,6 +68,9 @@ class home extends CI_Controller {
 		$data['LoanYear'] = $this->maintenance_model->getYearFilter('T_Application');
 		$data['TenorYear'] = $this->maintenance_model->getYearFilter('T_Application');
 		// $data['LoanYear'] = $this->maintenance_model->getYearFilter('T_Application');
+
+		// FOR PIE CHARTS
+
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
 		$this->load->view('admin/dashboard', $data);
@@ -589,7 +592,7 @@ class home extends CI_Controller {
 
 		$data['repaymentCycle'] = $this->maintenance_model->getRepayments();
 		$data['disbursements'] = $this->maintenance_model->getDisbursements();
-		$data['requirementType'] = $this->maintenance_model->getRequirementType();
+		// $data['requirementType'] = $this->maintenance_model->getRequirementType();
 		$data['loanStatus'] = $this->maintenance_model->getLoanStatus();
 		$data['borrowerList'] = $this->maintenance_model->getBorrowerList();
 
@@ -611,6 +614,7 @@ class home extends CI_Controller {
 		$data['LoanType'] = $this->maintenance_model->getLoanTypes();
 		$data['Purpose'] = $this->maintenance_model->getPurpose();
 		$data['Source'] = $this->maintenance_model->getSource();
+		$data['BorrowerId'] = $this->uri->segment(3);
 
 
 		$data['Sex'] = $this->maintenance_model->getSex();
@@ -625,6 +629,7 @@ class home extends CI_Controller {
 		$data['requirementType'] = $this->maintenance_model->getRequirementType();
 		$data['loanStatus'] = $this->maintenance_model->getLoanStatus();
 		$data['borrowerList'] = $this->maintenance_model->getBorrowerList();
+		$data['RequirementList'] = $this->loanapplication_model->getRequirementForApplication();
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
@@ -874,6 +879,9 @@ class home extends CI_Controller {
 		$data['Branch'] = $this->maintenance_model->getBranches();
 		$data['Position'] = $this->maintenance_model->getPosition();
 		$data['Roles'] = $this->maintenance_model->getRoles();
+
+		
+		$data['ageYear'] = $this->maintenance_model->getYearFilter('r_borrowers');
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);

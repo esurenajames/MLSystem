@@ -433,7 +433,7 @@ class employee_controller extends CI_Controller {
         // admin audits
           $auditLogsManager = 'Added '. $generatedEmployeeNumber . ' in employee list.';
           $auditAffectedEmployee = 'Added in employee list.';
-          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $generatedEmployeeNumber);
+          $this->auditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $generatedEmployeeNumber);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Employee successfully recorded!'); 

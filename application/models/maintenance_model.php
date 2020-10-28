@@ -1209,32 +1209,33 @@ class maintenance_model extends CI_Model
         return $data;
       }
 
-      /*AGE*/
-      function getAge()
-      {
-        $query_string = $this->db->query("SELECT  DISTINCT CASE
-                                                    WHEN YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 18 AND 24
-                                                      THEN '18-24 years old'
-                                                    WHEN YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 25 AND 31
-                                                      THEN '25-31 years old'
-                                                    WHEN YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 32 AND 39
-                                                      THEN '32-39 years old'
-                                                    WHEN YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 40 AND 47
-                                                      THEN '40-47 years old'
-                                                    WHEN YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 48 AND 55
-                                                      THEN '48-55 years old'
-                                                    WHEN YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 56 AND 65
-                                                      THEN '56-65 years old'
-                                                    WHEN YEAR(CURDATE()) - YEAR(DateOfBirth) < 65
-                                                      THEN 'Above 65 years old'
-                                                  END as AgeBracket
-                                                  , COUNT(YEAR(CURDATE()) - YEAR(DateOfBirth)) as TotalAge
-                                                      FROM r_borrowers
-                                                        GROUP BY AgeBracket
-        ");
-        $data = $query_string->result_array();
-        return $data;
-      }
+    /*AGE*/
+    function getAge()
+    {
+      $query_string = $this->db->query("SELECT  DISTINCT CASE
+                                                  WHEN YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 18 AND 24
+                                                    THEN '18-24 years old'
+                                                  WHEN YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 25 AND 31
+                                                    THEN '25-31 years old'
+                                                  WHEN YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 32 AND 39
+                                                    THEN '32-39 years old'
+                                                  WHEN YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 40 AND 47
+                                                    THEN '40-47 years old'
+                                                  WHEN YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 48 AND 55
+                                                    THEN '48-55 years old'
+                                                  WHEN YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 56 AND 65
+                                                    THEN '56-65 years old'
+                                                  WHEN YEAR(CURDATE()) - YEAR(DateOfBirth) > 65
+                                                    THEN 'Above 65 years old'
+                                                  ELSE ''
+                                                END as AgeBracket
+                                                , COUNT(YEAR(CURDATE()) - YEAR(DateOfBirth)) as TotalAge
+                                                    FROM r_borrowers
+                                                      GROUP BY AgeBracket
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
     /*EDUCATION*/
     function getEducation($Year)
     {

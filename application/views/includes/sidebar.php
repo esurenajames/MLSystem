@@ -166,24 +166,24 @@
           </li>
         <?php } ?>
 
-        <!-- <?php if(in_array('11', $access)) { ?>
-          <li <?php if($sidebar == 'Branch Management'){echo 'class="treeview active"';} else {echo 'class="treeview"';}?>>
+        <?php if(in_array('11', $access)) { ?>
+          <li <?php if($sidebar == 'Reports'){echo 'class="treeview active"';} else {echo 'class="treeview"';}?>>
             <a href="#">
-              <i class="fa fa-building"></i> <span>Branch Management</span>
+              <i class="fa fa-building"></i> <span>Reports</span>
               <span class="pull-right-container">
                 <i class="fa fa-angle-left pull-right"></i>
               </span>
             </a>
             <ul class="treeview-menu">
               <?php if(in_array('52', $subModule)) { ?>
-                <li <?php if($sidebar == 'Branch Management' && $sidebarMenu == 'Employees'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddExpense"><i class="fa fa-circle-o"></i>View Employees</a></li>
+                <li <?php if($sidebar == 'Reports' && $sidebarMenu == 'Borrowers'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddExpense"><i class="fa fa-circle-o"></i>Borrowers</a></li>
               <?php } ?>
               <?php if(in_array('53', $subModule)) { ?>
-                <li <?php if($sidebar == 'Branch Management' && $sidebarMenu == 'Branches'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddExpense"><i class="fa fa-circle-o"></i>View Branches</a></li>
+                <li <?php if($sidebar == 'Reports' && $sidebarMenu == 'Loans'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddExpense"><i class="fa fa-circle-o"></i>Loans</a></li>
               <?php } ?>
             </ul>
           </li>
-        <?php } ?> -->
+        <?php } ?>
       </ul>
     </section>
     <!-- /.sidebar -->
