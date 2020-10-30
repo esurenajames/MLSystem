@@ -76,7 +76,7 @@
                             }
                           ?>
                         </select>
-                        <a href=""> Add/Edit Loan Products</a>
+                        <a target="_blank" href="<?php echo base_url();?>home/AddLoanType"> Add/Edit Loan Types</a>
                       </div>
                     </div>
                     <br>
@@ -117,7 +117,7 @@
                             }
                           ?>
                         </select>
-                        <a href=""> Add/Edit Purpose</a>
+                        <a target="_blank" href="<?php echo base_url();?>/home/AddPurpose"> Add/Edit Purpose</a>
                       </div>
                     </div>
                     <div class="col-md-4">
@@ -198,11 +198,11 @@
                               {
                                 $selected = '';                                
                               }
-                              echo "<option ".$selected." value='".$value['RepaymentId']."'>".$value['Name']."</option>";
+                              echo "<option ".$selected." data-city='".$value['Name']."' value='".$value['RepaymentId']."'>".$value['Name']."</option>";
                             }
                           ?>
                         </select>
-                        <a href=""> Add/Edit Repayment Cycle</a>
+                        <a target="_blank" href="<?php echo base_url();?>/home/AddRepaymentCycle"> Add/Edit Repayment Cycle</a>
                       </div>
                     </div>
                     <div class="col-md-6">
@@ -261,7 +261,7 @@
                     </div>
                   </div>
                   <br>
-                  <h4>Additional Charges <small><a href=""> Add/Edit Additional Charges</a></small> <a class="btn btn-sm btn-primary pull-right" id="btnAddCharges"  style="display: <?php if($charges['TotalCharges'] > 0) echo "none"; else { echo "";} ?>" onclick="btnCharges()">Add Charges</a> <a class="btn btn-sm btn-primary pull-right" style="display:  <?php if($charges['TotalCharges'] > 0) echo ""; else { echo "none";} ?>" onclick="btnRemoveCharges()" id="btnRemoveCharges">Remove Charges</a></h4>
+                  <h4>Additional Charges <small><a href="<?php echo base_url();?>/home/AddConditional"> Add/Edit Additional Charges</a></small> <a class="btn btn-sm btn-primary pull-right" id="btnAddCharges"  style="display: <?php if($charges['TotalCharges'] > 0) echo "none"; else { echo "";} ?>" onclick="btnCharges()">Add Charges</a> <a class="btn btn-sm btn-primary pull-right" style="display:  <?php if($charges['TotalCharges'] > 0) echo ""; else { echo "none";} ?>" onclick="btnRemoveCharges()" id="btnRemoveCharges">Remove Charges</a></h4>
                   <hr>
                   <div id="divAdditionalCharges" style="display: <?php if($charges['TotalCharges'] > 0) echo ""; else { echo "none";} ?>">
                     <div class="row">
@@ -712,31 +712,72 @@
                     <div class="col-md-3">
                       <label>Risk Assessment Level</label>
                       <h6 id="lblRiskAssessment"></h6>
+                      <input type="hidden" name="RiskLevel" id="txtRiskLevel">
+                      <input type="hidden" name="RiskAssessment" id="txtRiskAssessment">
                     </div>
                   </div>
                   <h4>Requirements <small><a href=""> Add/Edit Requirements</a></small> </h4>
-                  <hr>
-                  <label>Select Requirement Type<span class="text-red">*</span></label><br>
-                  <select class="form-control" style="width: 100%" onchange="requirementType(this.value)" required="" name="RequirementType" id="selectRequirementType">
-                    <?php
-                      echo $requirementType;
-                    ?>
-                  </select>
                   <br>
-                  <div id="divRequirementList" style="display: none">
-                    <label>Select Requirements to be Submitted:<span class="text-red">*</span></label><br>
-                    <table id="dtblRequirement" class="table table-bordered table-hover" style="width: 100%">
-                      <thead>
-                      <tr>
-                        <th width="15px">Select</th>
-                        <th>Name</th>
-                        <th>Description</th>
-                      </tr>
-                      </thead>
-                      <tbody>
-                      </tbody>
-                    </table>
-                  </div>
+                  <table id="dtblRequirement" class="table table-bordered table-hover" style="width: 100%">
+                    <thead>
+                    <tr>
+                      <th width="15px">Select</th>
+                      <th>Name</th>
+                      <th>Description</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                      <?php
+                        if($RequirementList != 0)
+                        {
+                          $rowCount = 0;
+                          foreach ($RequirementList as $value) 
+                          {
+                            $rowCount = $rowCount + 1;
+                            foreach ($selectedRequirements as $selectedValue) 
+                            {
+                              if($selectedValue['RequirementId'] == $value['RequirementId'])
+                              {
+                                if($value['IsMandatory'] == 1)
+                                {
+                                  $isChecked = 'checked disabled'; 
+                                  $isSelected = 1;
+                                }
+                                else
+                                {
+                                  $isChecked = 'checked';
+                                  $isSelected = 1;
+                                }
+                              }
+                              else
+                              {
+                                if($value['IsMandatory'] == 1)
+                                {
+                                  $isChecked = 'checked disabled'; 
+                                  $isSelected = 1;
+                                }
+                                else
+                                {
+                                  $isChecked = '';
+                                  $isSelected = 0;
+                                }
+                              }
+                            }
+
+                            echo "<tr>";
+                            echo "<td><center><label><input onclick='chkRequirements(".$rowCount.")' id='selectCheckReq".$rowCount."' ".$isChecked." type='checkbox' value='".$value['Description']."'></label></center></td>";
+                            echo "<td>".$value['Name']."</td>";
+                            echo "<td>".$value['Description']."
+                              <input type='hidden' name='RequirementId[]' id='txtRequirementId".$rowCount."' value='".$value['RequirementId']."'>
+                              <input type='hidden' value='".$isSelected."' name='isRequirementSelected[]' id='isRequirementSelected".$rowCount."'>
+                              <input type='hidden' name='RequirementNo[]' id='requirementRowCount".$rowCount."' value='".$rowCount."'>
+                            </td>";
+                            echo "</tr>";
+                          }
+                        }
+                      ?>
+                    </tbody>
+                  </table>
                   <h4>Workflow</h4>
                   <hr>
                   <div class="row">
@@ -871,9 +912,11 @@
         }
         else if(Math.ceil(riskAssessment) >= 56 && Math.ceil(riskAssessment) <= 100)
         {
-          riskLevel = 'Meduim Risk'
+          riskLevel = 'High Risk'
         }
         $('#lblRiskAssessment').html(parseInt(Math.ceil(riskAssessment)).toLocaleString('en-US', {minimumFractionDigits: 2}) + '% - ' + riskLevel);
+        $('#txtRiskAssessment').val(Math.ceil(riskAssessment));
+        $('#txtRiskLevel').val(riskLevel);
     }
   // SUMMARY 
     function loanSummary()
@@ -885,7 +928,7 @@
       $('#lblDisbursedType').html($('#selectDisbursedBy option:selected').data('city'));
       $('#lblPrincipalAmount').html('Php ' + parseInt($('#txtPrincipalAmount').val()).toLocaleString('en-US', {minimumFractionDigits: 2}));
       $('#lblTerm').html($('#txtTermNo').val() + ' '  + $('#selectTermType').val());
-      $('#lblRepayments').html($('#txtRepayments').val() + ' ' + $('#selectRepaymentType option:selected').data('city'));
+      $('#lblRepayments').html($('#txtRepayments').val() + ' - ' + $('#selectRepaymentType option:selected').data('city'));
       $('#lblInterestType').html($('#selectInterestType').val());
       $('#lblInterestAmount').html($('#txtInterest').val() * $('#txtTermNo').val());
       $('#lblInterestFrequency').html($('#selectInterestFrequency').val());
@@ -1375,7 +1418,7 @@
                     "<input type='hidden' name='ChargeId[]' value='"+b.ChargeId+"'>"+
                     "<input type='hidden' id='txtChargeAmount"+row+"' value='"+parseInt(b.Amount)+"'>"+
                     "<input type='hidden' name='IsSelected[]' id='isSelected"+row+"' value='"+isSelected+"'>"+
-                    "<input type='hidden' class='chargeTotal[]' value='"+parseInt(total)+"'>"+
+                    "<input type='hidden' name='chargeTotal[]' value='"+parseInt(total)+"'>"+
                     "<input type='hidden' id='txtChargeType"+row+"' value='"+b.ChargeType+"'> "+
                     "Php "+parseInt(total).toLocaleString('en-US', {minimumFractionDigits: 2})+"</td>"+
                   "</tr>"
@@ -1760,7 +1803,7 @@
                       "<input type='hidden' name='ChargeId[]' value='"+b.ChargeId+"'>"+
                       "<input type='hidden' id='txtChargeAmount"+rowsss+"' value='"+parseInt(b.Amount)+"'>"+
                       "<input type='hidden' name='IsSelected[]' id='isSelected"+rowsss+"' value='"+isSelected+"'>"+
-                      "<input type='hidden' class='chargeTotal[]' value='"+parseInt(total)+"'>"+
+                      "<input type='hidden' name='chargeTotal[]' value='"+parseInt(total)+"'>"+
                       "<input type='hidden' id='txtChargeType"+rowsss+"' value='"+b.ChargeType+"'> "+
                       "Php "+parseInt(total).toLocaleString('en-US', {minimumFractionDigits: 2})+"</td>"+
                     "</tr>"

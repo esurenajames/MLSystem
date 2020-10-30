@@ -76,6 +76,9 @@ class loanapplication_controller extends CI_Controller {
         'BorrowerMonthlyIncome'     => $_POST['BorrowerMonthlySalary'],
         'SpouseMonthlyIncome'       => $_POST['SpouseMonthlySalary'],
 
+        'RiskLevel'                 => $_POST['RiskLevel'],
+        'RiskAssessment'            => $_POST['RiskAssessment'],
+
         'PurposeId'                 => $_POST['PurposeId'],
         'LoanReleaseDate'           => $newformat,
         'DisbursementId'            => $_POST['DisbursedBy'],
@@ -185,28 +188,28 @@ class loanapplication_controller extends CI_Controller {
     // additional charges
       if(isset($_POST['ChargeNo']))
       {
-        for($count = 0; $count < count($_POST['ChargeNo']); $count++)
+        for($chargeRow = 0; $chargeRow < count($_POST['ChargeNo']); $chargeRow++)
         {
-          if($_POST['IsSelected'][$count] == 1)
+          if($_POST['IsSelected'][$chargeRow] == 1)
           {
             $insertData = array(
               'ApplicationId'         => $generatedId['ApplicationId'],
-              'ChargeId'              => $_POST['ChargeId'][$count],
-              'Amount'                => $_POST['chargeTotal'][$count],
+              'ChargeId'              => $_POST['ChargeId'][$chargeRow],
+              'Amount'                => $_POST['chargeTotal'][$chargeRow],
               'StatusId'              => 2,
               'CreatedBy'             => $EmployeeNumber
             );
             $auditTable = 'application_has_charges';
             $this->maintenance_model->insertFunction($insertData, $auditTable);
 
-            $charge = $this->maintenance_model->selectSpecific('R_Charges', 'ChargeId', $_POST['ChargeId'][$count]);
+            $charge = $this->maintenance_model->selectSpecific('R_Charges', 'ChargeId', $_POST['ChargeId'][$chargeRow]);
             // insert into payments
               $insertData1 = array( 
                 'BankId'            => 1,
                 'ApplicationId'     => $generatedId['ApplicationId'],
-                'Amount'            => $_POST['chargeTotal'][$count],
+                'Amount'            => $_POST['chargeTotal'][$chargeRow],
                 'Description'       => 'Payment for ' . $charge['Name'],
-                'AmountPaid'        => $_POST['chargeTotal'][$count],
+                'AmountPaid'        => $_POST['chargeTotal'][$chargeRow],
                 'IsInterest'        => 0,
                 'IsPrincipalCollection' => 0,
                 'InterestAmount'    => 0,
@@ -295,7 +298,7 @@ class loanapplication_controller extends CI_Controller {
       $this->session->set_flashdata('alertText','Successfully submitted loan application!'); 
       $this->session->set_flashdata('alertType','success'); 
     
-    redirect('home/loandetail/' . $generatedId['ApplicationId']);
+    // redirect('home/loandetail/' . $generatedId['ApplicationId']);
   }
 
   function restructureLoan()
@@ -675,6 +678,26 @@ class loanapplication_controller extends CI_Controller {
     }
     else if($_POST['ApprovalType'] == 4) // deactivated payment
     {
+      $detail = $this->maintenance_model->selectSpecific('t_paymentsmade', 'PaymentMadeId', $_POST['ChargeId']);
+      if($detail['IsOthers'] == 1)
+      {
+        $newBalance = $detail['AmountPaid'] + $_POST['CurrentBalance'];
+      }
+      else
+      {
+        $newBalance = $detail['Amount'] + $_POST['CurrentBalance'];
+      }
+      if($newBalance > 0)
+      {
+        $set = array( 
+          'StatusId' => 1
+        );
+        $condition = array( 
+          'ApplicationId' => $this->uri->segment(3)
+        );
+        $table = 't_application';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
       // update status
         $set = array( 
           'DateUpdated' => $DateNow, 
@@ -689,7 +712,6 @@ class loanapplication_controller extends CI_Controller {
         $insertData = array(
           'ApplicationId'             => $this->uri->segment(3),
           'Description'               => 'Deactivated payment #PYM-'. sprintf('%05d', $_POST['ChargeId']).'.',
-          'Remarks'                   => $_POST['Description'],
           'CreatedBy'                 => $EmployeeNumber
         );
         $auditTable = 'application_has_notifications';
@@ -2051,6 +2073,18 @@ class loanapplication_controller extends CI_Controller {
     }
     else
     {
+      // status update
+        if($_POST['updateStatus'] == 1) // update to matured
+        {
+          $set = array( 
+            'StatusId' => 4
+          );
+          $condition = array( 
+            'ApplicationId' => $this->uri->segment(3)
+          );
+          $table = 't_application';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+        }
       // insert into payments
         if(isset($_POST['chkPayment3'][0]))
         {        

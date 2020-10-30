@@ -28,7 +28,25 @@
                 <textarea class="form-control" name="Description"></textarea>
                 <input type="hidden" name="ApprovalType" id="txtApprovalType">
                 <input type="hidden" name="ChargeId" id="txtChargeId">
+                <?php
+                  $TotalInterests = 0;
+                  $totalDues = 0;
+                  if($detail['InterestType'] == 'Percentage')
+                  {
+                    $TotalInterests = ($detail['RawPrincipalAmount'] * ($detail['Amount']/100)) * $detail['TermNo'];
+                  }
+                  else
+                  {
+                    $TotalInterests = (($detail['Amount'])) * $detail['TermNo'];
+                  }
+                  $totalDues = $TotalInterests + $detail['RawPrincipalAmount'];
+                ?>
 
+                <?php 
+                  $balanceDues = $totalDues - $payments['Total'];
+
+                ?>
+                <input type="" id="txtTotalBalance" name="CurrentBalance" value="<?php print_r($balanceDues) ?>">
               </div>
               <div class="col-md-12">
                 <div class="form-group">
@@ -125,6 +143,7 @@
         <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/addRepayment/<?php print_r($detail['ApplicationId']) ?>" method="post" id="frmSubmitRepayment">
           <div class="modal-body">
             <div class="row">
+              <input type="hidden" id="txtForMaturity" value="0" name="updateStatus">
               <div class="col-md-3">
                 <label>Term:</label><br> <?php print_r($detail['TermNo']) ?> / <?php print_r($detail['TermType']) ?><br>
               </div>
@@ -173,7 +192,7 @@
                 <label>Total Amount Due:</label><br>
                 <h6 id="lblTotalAmountDue"></h6>
                 <input type="hidden" id="txtAmountDue" value="<?php print_r(round($paymentDues['InterestPerCollection'], 2) + round($paymentDues['PrincipalPerCollection'], 2)) ?>" name="AmountDue"> 
-                <input type="hidden" id="txtTotalDue" value="" name="totalDue">
+                <input type="" id="txtTotalDue" value="" name="totalDue">
                 <input type="hidden" id="txtInterestAmountCollected" name="InterestAmountCollected" value="<?php print_r(round($paymentDues['InterestPerCollection'], 2)) ?>">
                 <input type="hidden" id="txtPrincipalAmountCollected" name="PrincipalAmountCollected" value="<?php print_r(round($paymentDues['PrincipalPerCollection'], 2)) ?>">
               </div>
@@ -926,7 +945,16 @@
 		      		<label>Contact Number: </label> <?php print_r($detail['ContactNumber']) ?><br>
 		      		<label>Email: </label> <?php print_r($detail['EmailAddress']) ?><br>
 			    		<label>Date Approved:</label> <?php print_r($detail['DateApproved']) ?><br>
-			    		<label>Status:</label> <?php print_r($detail['StatusDescription'] . '/' . $detail['ApprovalType']) ?>  <br>
+			    		<label>Status:</label> <?php 
+                  if(($detail['StatusId'] == 1 && count($approvers) == 0) || ($detail['StatusId'] == 2 && count($approvers) == 0) || ($detail['StatusId'] == 4 && count($approvers) == 0)) // approved
+                  {
+                    print_r($detail['StatusDescription']);
+                  }
+                  if(($detail['StatusId'] == 1 && count($approvers) > 0) || ($detail['StatusId'] == 2 && count($approvers) > 0) || ($detail['StatusId'] == 4 && count($approvers) > 0)) // approved
+                  {
+                    print_r($detail['StatusDescription'] . '/' . $detail['ApprovalType']);
+                  }
+                ?>  <br>
 			    			<?php 
 				    			foreach ($approvers as $value) 
 				    			{
@@ -946,61 +974,121 @@
 		    </div>
 	    </div>
   	<!-- LOAN DETAILS -->
+      <div class="box">
+        <div class="box-header with-border">
+          <h3 class="box-title"><label>Loan Application Details:</label></h3>
+        </div>
+        <div class="box-body">
+          <div class="row">
+            <div class="col-md-4">
+              <label>Source:</label> <?php print_r($detail['Source']) ?>  <?php print_r($detail['SourceName']) ?> <br>
+              <label>Purpose:</label> <?php print_r($detail['PurposeName']) ?><br>
+              <label>Principal Per Collection:</label> Php <?php print_r(number_format($detail['PrincipalPerCollection'], 2)) ?><br>
+              <label>Interest Per Collection:</label> Php <?php print_r(number_format($paymentDues['InterestPerCollection'], 2)) ?><br>
+            </div>
+            <div class="col-md-4">
+              <label>Loan Type:</label> <?php print_r($detail['LoanType']) ?><br>
+              <label>Term:</label> <?php print_r($detail['TermNo']) ?> / <?php print_r($detail['TermType']) ?><br>
+              <label>Disbursed By:</label> <?php print_r($detail['DisbursedBy']) ?><br>
+              <label>Repayment:</label> <?php print_r($detail['RepaymentNo']) ?> / <?php print_r($repayment['Name']) ?><br>
+            </div>
+            <div class="col-md-4">
+              <label>Borrower Monthly Salary: </label> <?php print_r('Php '. number_format($detail['BorrowerMonthlyIncome'], 2)); ?><br>
+              <label>Spouse Monthly Salary: </label> <?php print_r('Php '. number_format($detail['SpouseMonthlyIncome'], 2)); ?><br>
+              <label>Risk Assessment: </label> <?php print_r($detail['RiskLevel']); ?> - <?php print_r(number_format($detail['RiskAssessment'], 2)); ?>%<br>
+            </div>
+          </div>
+        </div>
+      </div>
+
 		  <div class="box">
 		    <div class="box-header with-border">
 		      <h3 class="box-title"><label>Loan Application No:</label> <?php print_r($detail['TransactionNumber']) ?></h3>
-          <button class="btn btn-sm btn-primary pull-right" data-toggle="modal" data-target="#modalRestructure">Re-Structure</button>
+          <?php 
+            if($detail['StatusId'] == 1)
+            {
+              echo '<button class="btn btn-sm btn-primary pull-right" data-toggle="modal" data-target="#modalRestructure">Re-Structure</button>';
+            }
+          ?>
 		    </div>
 		    <div class="box-body">
 			    <div class="row">
-			    	<div class="col-md-4">
-			    		<label>Loan Type:</label> <?php print_r($detail['LoanType']) ?><br>
-			    		<label>Disbursed By:</label> <?php print_r($detail['DisbursedBy']) ?><br>
-			    		<label>Term:</label> <?php print_r($detail['TermNo']) ?> / <?php print_r($detail['TermType']) ?><br>
-			    		<label>Repayment:</label> <?php print_r($detail['RepaymentNo']) ?> / <?php print_r($repayment['Name']) ?><br>
+            <div class="col-md-3">
+              <label>Total Cost of Loan:</label> Php <?php 
+                $chargeFinalCost = 0;
+                if($charges['TotalCharges'] != null)
+                {
+                  $chargeFinalCost = floatval($charges['TotalCharges']);
+                }
+                else
+                {
+                  $chargeFinalCost = floatval(0);
+                }
+
+                print_r(number_format($chargeFinalCost + $TotalInterest, 2));
+              ?><br>
+              <label>Loan Amount:</label> Php <?php print_r($detail['PrincipalAmount']) ?><br>
+              <label>Charges:</label> 
+                <?php 
+                  if($charges['TotalCharges'] != null)
+                  {
+                    print_r('Php ' . number_format($charges['TotalCharges'], 2));
+                  }
+                  else
+                  {
+                    print_r('Php 0.00');
+                  }
+                ?><br>
+              <label>Net Loan Amount:</label> Php 
+                <?php
+                  $chargeFinal = 0;
+                  if($charges['TotalCharges'] != null)
+                  {
+                    $chargeFinal = floatval($charges['TotalCharges']);
+                  }
+                  else
+                  {
+                    $chargeFinal = floatval(0);
+                  }
+                  print_r(number_format(floatval($detail['RawPrincipalAmount']) - $chargeFinal, 2));
+                ?><br>
+            </div>
+            <div class="col-md-3">
+              <label>Interest Rate:</label> <?php print_r($detail['InterestRate']) ?><br>
+              <label>Interest:</label> 
+              <?php
+                $TotalInterest = 0;
+                if($detail['InterestType'] == 'Percentage')
+                {
+                  $TotalInterest = ($detail['RawPrincipalAmount'] * ($detail['Amount']/100)) * $detail['TermNo'];
+                }
+                else
+                {
+                  $TotalInterest = (($detail['Amount'])) * $detail['TermNo'];
+                }
+                $totalDue = $TotalInterest + $detail['RawPrincipalAmount'];
+                print_r('Php '. number_format($TotalInterest, 2));
+              ?><br>
+              <label>Amount Disbursed: </label> <?php print_r('Php '. number_format($totalDue, 2)); ?><br>
+            </div>
+			    	<div class="col-md-3">
+              <label>Principal Collection:</label> Php <?php print_r(number_format($principalpaid['Total'], 2));?><br>
+              <label>Interest Collected: </label> Php <?php print_r(number_format($interestPaid['Total'], 2));?><br>
+              <label>Other Collection: </label> Php <?php print_r(number_format($otherPaid['Total'], 2));?><br>
 			    	</div>
-			    	<div class="col-md-4">
-			    		<label>Loan Amount:</label> Php <?php print_r($detail['PrincipalAmount']) ?><br>
-			    		<label>Interest Rate:</label> <?php print_r($detail['InterestRate']) ?><br>
-			    		<label>Interest:</label> 
-			    		<?php
-			    			$TotalInterest = 0;
-				        if($detail['InterestType'] == 'Percentage')
-				        {
-				        	$TotalInterest = ($detail['RawPrincipalAmount'] * ($detail['Amount']/100)) * $detail['TermNo'];
-				        }
-				        else
-				        {
-				        	$TotalInterest = (($detail['Amount'])) * $detail['TermNo'];
-				        }
-			    			$totalDue = $TotalInterest + $detail['RawPrincipalAmount'];
-	    					print_r('Php '. number_format($TotalInterest, 2));
-			    		?><br>
-			    		<label>Charges:</label> 
-			    		<?php 
-			    			if($charges['TotalCharges'] != null)
-				    		{
-				    			print_r('Php ' . number_format($charges['TotalCharges'], 2));
-				    		}
-				    		else
-				    		{
-				    			print_r('Php 0.00');
-				    		}
-				    	?><br>
-			    	</div>
-			    	<div class="col-md-4">
-			    		<label>Penalty:</label>
-			    		<?php 
-			    			if($penalties['Total'] != null)
-				    		{
-				    			print_r('Php ' .number_format($penalties['Total'], 2));
-				    		}
-				    		else
-				    		{
-				    			print_r('Php 0.00');
-				    		}
-				    	?><br>
-			    		<label>Due: </label> <?php print_r('Php '. number_format($totalDue, 2)); ?><br>
+			    	<div class="col-md-3">
+              <label>Penalty:</label>
+              <?php 
+                if($penalties['Total'] != null)
+                {
+                  print_r('Php ' .number_format($penalties['Total'], 2));
+                }
+                else
+                {
+                  print_r('Php 0.00');
+                }
+              ?><br>
+              <label>Due: </label> <?php print_r('Php '. number_format($totalDue, 2)); ?><br>
 			    		<label>Paid: </label>
 			    		<?php 
 			    			if($payments['Total'] != null)
@@ -1016,9 +1104,12 @@
 			    		<?php 
 			    			$balanceDue = $totalDue - $payments['Total'];
 
-			    		print_r('Php ' . number_format($balanceDue, 2)) 
+			    		   print_r('Php ' . number_format($balanceDue, 2)) 
 
 			    		?><br>
+
+              <input type="hidden" id="txtBalance" value="<?php print_r($balanceDue) ?>">
+              <input type="hidden" id="txtPaid" value="<?php print_r($payments['Total']) ?>">
 			    	</div>
 			    </div>
 		    </div>
@@ -1073,7 +1164,12 @@
               </div>
               <div class="tab-pane" id="tabRepayments">
               	<h4>Collections</h4>
-              	<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalRepayment" onclick="computePayment()">Add Collection</a>
+                <?php 
+                  if($detail['StatusId'] == 1)
+                  {
+                    echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalRepayment" onclick="computePayment()">Add Collection</a>';
+                  }
+                ?>
               	<br>
               	<br>
                 <table id="dtblRepayment" class="table table-bordered table-hover" style="width: 100%">
@@ -1127,7 +1223,12 @@
               <div class="tab-pane" id="tabPenalty">
                 <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/penaltySettings/<?php print_r($detail['ApplicationId']) ?>" method="post">
                   <h4>Penalties</h4>
-                  <a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalPenalty">Add Penalty</a>
+                  <?php 
+                    if($detail['StatusId'] == 1)
+                    {
+                      echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalPenalty">Add Penalty</a>';
+                    }
+                  ?>                  
                   <br>
                   <br>
                   <div class="row">
@@ -1186,7 +1287,12 @@
               </div>
               <div class="tab-pane" id="tabCollateral">
               	<h4>Collateral</h4>
-              	<a class="btn btn-primary btn-sm pull-right" onclick="onCollateralChange(1)" data-toggle="modal" data-target="#modalCollateral">Add Collateral</a>
+                <?php 
+                  if($detail['StatusId'] == 1)
+                  {
+                    echo '<a class="btn btn-primary btn-sm pull-right" onclick="onCollateralChange(1)" data-toggle="modal" data-target="#modalCollateral">Add Collateral</a>';
+                  }
+                ?>
               	<br>
               	<br>
                 <table id="dtblCollateral" class="table table-bordered table-hover" style="width: 100%">
@@ -1224,7 +1330,12 @@
               </div>
               <div class="tab-pane" id="tabRequirements">
               	<h4>Requirements</h4>
-              	<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalRequirement">Add Requirements</a>
+                <?php 
+                  if($detail['StatusId'] == 1)
+                  {
+                    echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalRequirement">Add Requirements</a>';
+                  }
+                ?>
               	<br>
               	<br>
                 <table id="dtblRequirements" class="table table-bordered table-hover" style="width: 100%">
@@ -1270,7 +1381,12 @@
               </div>
               <div class="tab-pane" id="tabCharges">
                 <h4>Charges</h4>
-                <a class="btn btn-primary btn-sm pull-right" data-toggle="modal" onclick="onclickCharge(1)" data-target="#modalCharge">Add Charge</a>
+                <?php 
+                  if($detail['StatusId'] == 1)
+                  {
+                    echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" onclick="onclickCharge(1)" data-target="#modalCharge">Add Charge</a>';
+                  }
+                ?>
                 <br>
                 <br>
                 <table id="dtblCharges" class="table table-bordered table-hover" style="width: 100%">
@@ -1324,7 +1440,12 @@
               </div>
               <div class="tab-pane" id="tabIncome">
               	<h4>Sources of Other Income</h4>
-              	<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalIncome">Add Income</a>
+                <?php 
+                  if($detail['StatusId'] == 1)
+                  {
+                    echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalIncome">Add Income</a>';
+                  }
+                ?>
               	<br>
               	<br>
                 <table id="dtblIncome" class="table table-bordered table-hover" style="width: 100%">
@@ -1374,7 +1495,12 @@
               <div class="tab-pane" id="tabExpense">
               	<h4>Monthly Expenses</h4>
               	<br>
-              	<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalExpense">Add Expense</a>
+                <?php 
+                  if($detail['StatusId'] == 1)
+                  {
+                    echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalExpense">Add Expense</a>';
+                  }
+                ?>
               	<br>
               	<br>
                 <table id="dtblExpense" class="table table-bordered table-hover" style="width: 100%">
@@ -1424,7 +1550,12 @@
               <div class="tab-pane" id="tabObligations">
               	<h4>Monthly Obligations</h4>
               	<br>
-              	<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalObligation">Add Obligations</a>
+                <?php 
+                  if($detail['StatusId'] == 1)
+                  {
+                    echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalObligation">Add Obligations</a>';
+                  }
+                ?>
               	<br>
               	<br>
                 <table id="dtblObligations" class="table table-bordered table-hover" style="width: 100%">
@@ -1474,7 +1605,12 @@
               <div class="tab-pane" id="tabComments">
               	<h4>Comments</h4>
               	<br>
-              	<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalComment">Add Comment</a>
+                <?php 
+                  if($detail['StatusId'] == 1)
+                  {
+                    echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalComment">Add Comment</a>';
+                  }
+                ?>
               	<br>
               	<br>
                 <table id="dtblComments" class="table table-bordered table-hover" style="width: 100%">
@@ -1567,7 +1703,7 @@
   });
   
   $('#dtblRepayment').DataTable({
-    "order": [[0, "desc"]]
+    "order": [[6, "desc"]]
   });
   
   $('#dtblPenalty').DataTable({
@@ -1599,6 +1735,11 @@
   $('#dtblHistory').DataTable({
     "order": [[0, "desc"]]
   });
+
+  $('#dtblCharges').DataTable({
+    "order": [[0, "desc"]]
+  });
+
 
   // charges type
     function onclickCharge(type)
@@ -2574,7 +2715,7 @@
     isOkay = 0;
     if(varProcessPayment != 1) // princiapl and interest
     {
-      if($('#txtAmountPaid').val() < $('#txtTotalDue').val())
+      if($('#txtAmountPaid').val()+1 <= $('#txtTotalDue').val())
       {
         e.preventDefault();
         swal({
@@ -2598,10 +2739,21 @@
       }
       else
       {
+        newFinal = parseFloat($('#txtPaid').val(), 2) + parseFloat($('#txtTotalDue').val(), 2);
+        if(newFinal >= $('#txtBalance').val())
+        {
+          $('#txtForMaturity').val(1);
+          Text = 'Are you sure you want to submit payment? Once confirmed, payment will be tagged as matured.';
+        }
+        else
+        {
+          $('#txtForMaturity').val(0);
+          Text = 'Are you sure you want to submit payment? Once confirmed, payment will be added to collections.';
+        }
         e.preventDefault();
         swal({
           title: 'Confirm',
-          text: 'Are you sure you want to submit payment?',
+          text: Text,
           type: 'warning',
           showCancelButton: true,
           buttonsStyling: false,
@@ -2640,10 +2792,21 @@
       }
       else
       {
+        newFinal = parseFloat($('#txtPaid').val(), 2) + parseFloat($('#txtAmountPaid').val(), 2);
+        if(newFinal >= $('#txtBalance').val())
+        {
+          $('#txtForMaturity').val(1);
+          Text = 'Are you sure you want to submit payment? Once confirmed, payment will be tagged as matured.';
+        }
+        else
+        {
+          $('#txtForMaturity').val(0);
+          Text = 'Are you sure you want to submit payment? Once confirmed, payment will be added to collections.';
+        }
         e.preventDefault();
         swal({
           title: 'Confirm',
-          text: 'Are you sure you want to submit payment?',
+          text: Text,
           type: 'warning',
           showCancelButton: true,
           buttonsStyling: false,

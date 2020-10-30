@@ -543,6 +543,8 @@ class home extends CI_Controller {
 		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 
 
+		$data['RequirementList'] = $this->loanapplication_model->getRequirementForApplication();
+		$data['selectedRequirements'] = $this->loanapplication_model->getRequirementSelected($Id);
 		$data['detail'] = $this->loanapplication_model->getLoanApplicationDetails($Id);
 		$data['LoanType'] = $this->loanapplication_model->getLoanTypes();
 		$data['Purpose'] = $this->loanapplication_model->getPurpose();
@@ -667,6 +669,11 @@ class home extends CI_Controller {
 		$data['chargeList'] = $this->loanapplication_model->displayCharges($Id);
 		$data['selectCharges'] = $this->loanapplication_model->selectCharges($Id);
 		$data['selectChanges'] = $this->loanapplication_model->selectChanges($Id);
+
+		$data['interestPaid'] = $this->loanapplication_model->getInterestPaid($Id);
+		$data['principalpaid'] = $this->loanapplication_model->getPrincipalPaid($Id);
+		$data['otherPaid'] = $this->loanapplication_model->getOtherPaid($Id);
+
 
 		$data['Payments'] = $this->loanapplication_model->getPaymentsMade($Id);
 		$data['disbursements'] = $this->maintenance_model->getPaymentMethod();

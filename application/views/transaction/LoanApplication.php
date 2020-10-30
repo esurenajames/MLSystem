@@ -61,7 +61,7 @@
                             echo $LoanType;
                           ?>
                         </select>
-                        <a href="http://localhost/ELendingTool/home/AddLoanType"> Add/Edit Loan Types</a>
+                        <a href="<?php echo base_url();?>home/AddLoanType"> Add/Edit Loan Types</a>
                       </div>
                     </div>
                     <!-- <div class="col-md-12">
@@ -112,7 +112,7 @@
                             echo $Purpose;
                           ?>
                         </select>
-                        <a href="http://localhost/ELendingTool/home/AddPurpose"> Add/Edit Purpose</a>
+                        <a target="_blank" href="<?php echo base_url();?>/home/AddPurpose"> Add/Edit Purpose</a>
                       </div>
                     </div>
                     <div class="col-md-4">
@@ -174,7 +174,7 @@
                             echo $repaymentCycle;
                           ?>
                         </select>
-                        <a href="http://localhost/ELendingTool/home/AddRepaymentCycle"> Add/Edit Repayment Cycle</a>
+                        <a target="_blank" href="<?php echo base_url();?>/home/AddRepaymentCycle"> Add/Edit Repayment Cycle</a>
                       </div>
                     </div>
                     <div class="col-md-6">
@@ -219,7 +219,7 @@
                     </div>
                   </div>
                   <br>
-                  <h4>Additional Charges <small><a href="http://localhost/ELendingTool/home/AddConditional"> Add/Edit Additional Charges</a></small> <a class="btn btn-sm btn-primary pull-right" id="btnAddCharges" onclick="btnCharges()">Add Charges</a> <a class="btn btn-sm btn-primary pull-right" style="display: none" onclick="btnRemoveCharges()" id="btnRemoveCharges">Remove Charges</a></h4>
+                  <h4>Additional Charges <small><a target="_blank" href="<?php echo base_url();?>/home/AddConditional"> Add/Edit Additional Charges</a></small> <a class="btn btn-sm btn-primary pull-right" id="btnAddCharges" onclick="btnCharges()">Add Charges</a> <a class="btn btn-sm btn-primary pull-right" style="display: none" onclick="btnRemoveCharges()" id="btnRemoveCharges">Remove Charges</a></h4>
                   <hr>
                   <input type="hidden" id="txtIsCharged">
                   <div id="divAdditionalCharges" style="display: none">
@@ -611,6 +611,8 @@
                     <div class="col-md-3">
                       <label>Risk Assessment Level</label>
                       <h6 id="lblRiskAssessment"></h6>
+                      <input type="hidden" name="RiskLevel" id="txtRiskLevel">
+                      <input type="hidden" name="RiskAssessment" id="txtRiskAssessment">
                     </div>
                   </div>
                   <h4>Requirements <small><a href=""> Add/Edit Requirements</a></small> </h4>
@@ -648,7 +650,7 @@
                             echo "<td>".$value['Name']."</td>";
                             echo "<td>".$value['Description']."
                               <input type='hidden' name='RequirementId[]' id='txtRequirementId".$rowCount."' value='".$value['RequirementId']."'>
-                              <input type='' value='".$isSelected."' name='isRequirementSelected[]' id='isRequirementSelected".$rowCount."'>
+                              <input type='hidden' value='".$isSelected."' name='isRequirementSelected[]' id='isRequirementSelected".$rowCount."'>
                               <input type='hidden' name='RequirementNo[]' id='requirementRowCount".$rowCount."' value='".$rowCount."'>
                             </td>";
                             echo "</tr>";
@@ -794,6 +796,8 @@
           riskLevel = 'High Risk'
         }
         $('#lblRiskAssessment').html(parseInt(Math.ceil(riskAssessment)).toLocaleString('en-US', {minimumFractionDigits: 2}) + '% - ' + riskLevel);
+        $('#txtRiskAssessment').val(Math.ceil(riskAssessment));
+        $('#txtRiskLevel').val(riskLevel);
     }
   // SUMMARY 
     function loanSummary()
@@ -805,7 +809,7 @@
       $('#lblDisbursedType').html($('#selectDisbursedBy option:selected').data('city'));
       $('#lblPrincipalAmount').html($('#txtPrincipalAmount').val());
       $('#lblTerm').html($('#txtTermNo').val() + ' '  + $('#selectTermType').val());
-      $('#lblRepayments').html($('#txtRepayments').val() + ' ' + $('#selectRepaymentType option:selected').data('city'));
+      $('#lblRepayments').html($('#txtRepayments').val() + ' - ' + $('#selectRepaymentType option:selected').data('city'));
       $('#lblInterestType').html($('#selectInterestType').val());
       $('#lblInterestAmount').html($('#txtInterest').val());
       $('#lblInterestFrequency').html($('#selectInterestFrequency').val());
@@ -1078,7 +1082,7 @@
             },
             success: function(data)
             {
-              $('#txtRepayments').val($('#txtTermNo').val() * data['RepaymentNo'])
+              $('#txtRepayments').val(data['RepaymentNo'])
             },
             error: function()
             {

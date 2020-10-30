@@ -18,7 +18,24 @@ class loanapplication_model extends CI_Model
                                       , TIMESTAMPDIFF(YEAR, B.DateOfBirth, CURDATE()) as Age
                                       , CN.Number as ContactNumber
                                       , E.EmailAddress
+                                      , A.Source
+                                      , CASE
+                                          WHEN A.SourceName = ''
+                                          THEN ''
+                                          ELSE CONCAT('- ',  A.SourceName)
+                                        END as SourceName
+                                      , P.Name as PurposeName
+                                      , A.BorrowerMonthlyIncome
+                                      , A.SpouseMonthlyIncome
+                                      , A.RiskLevel
+                                      , A.RiskAssessment
 
+                                      , A.PrincipalAmount/(A.TermNo * A.RepaymentNo) as PrincipalPerCollection
+                                      , CASE
+                                          WHEN AHI.InterestType = 'Percentage'
+                                          THEN AHI.Amount/100 * PrincipalAmount
+                                          ELSE PrincipalAmount + AHI.Amount
+                                        END / (A.TermNo * A.RepaymentNo) as totalInterestPerCollection
                                       , DATE_FORMAT(B.DateCreated, '%b %d, %Y') as DateCreated
                                       , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as CreatedBy
 
@@ -191,6 +208,58 @@ class loanapplication_model extends CI_Model
     return $data;
   }
 
+  function getInterestPaid($Id)
+  {
+    $query = $this->db->query("SELECT DISTINCT  COALESCE(SUM(InterestAmount), 0) as Total
+                                                FROM T_PAYMENTSMADE 
+                                                  WHERE APPLICATIONID = $Id 
+                                                  AND ISINTEREST = 1 
+                                                  AND STATUSID = 1
+    ");
+
+    $data = $query->row_array();
+    return $data;
+  }
+
+  function getPrincipalPaid($Id)
+  {
+    $query = $this->db->query("SELECT DISTINCT  COALESCE(SUM(PrincipalAmount), 0) as Total
+                                                FROM T_PAYMENTSMADE 
+                                                  WHERE APPLICATIONID = $Id 
+                                                  AND IsPrincipalCollection = 1 
+                                                  AND STATUSID = 1
+    ");
+
+    $data = $query->row_array();
+    return $data;
+  }
+
+  function getBalance($Id)
+  {
+    $query = $this->db->query("SELECT DISTINCT  COALESCE(SUM(AMOUNT), 0) as Total
+                                                FROM T_PAYMENTSMADE 
+                                                  WHERE APPLICATIONID = $Id 
+                                                  AND IsPrincipalCollection = 1 
+                                                  AND STATUSID = 1
+    ");
+
+    $data = $query->row_array();
+    return $data;
+  }
+
+  function getOtherPaid($Id)
+  {
+    $query = $this->db->query("SELECT DISTINCT  COALESCE(SUM(AMOUNT), 0) as Total
+                                                FROM T_PAYMENTSMADE 
+                                                  WHERE APPLICATIONID = $Id 
+                                                  AND IsOthers = 1 
+                                                  AND STATUSID = 1
+    ");
+
+    $data = $query->row_array();
+    return $data;
+  }
+
   function getCharges($Id)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
@@ -276,6 +345,19 @@ class loanapplication_model extends CI_Model
     return $data;
   }
 
+  function getRequirementSelected($ID)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $query = $this->db->query("SELECT   DISTINCT RequirementId
+                                        FROM application_has_requirements
+                                          WHERE StatusId = 1
+                                          AND ApplicationId = $ID
+    ");
+
+    $data = $query->result_array();
+    return $data;
+  }
+
   function getChargeDetails($Id, $Type)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
@@ -303,7 +385,7 @@ class loanapplication_model extends CI_Model
                                           END as Description
                                         , C.ChargeType
                                         , CASE
-                                            WHEN C.ChargeType = 'Flat Rate'
+                                            WHEN C.ChargeType = 1
                                             THEN CONCAT(C.Amount)
                                             ELSE CONCAT(C.Amount / 100 * A.PrincipalAmount)
                                           END as TotalCharge
@@ -343,6 +425,12 @@ class loanapplication_model extends CI_Model
     $query = $this->db->query("SELECT   SUM(Amount) as Total
                                         FROM t_paymentsmade AHP
                                           WHERE ApplicationId = $Id
+                                          AND 
+                                          (
+                                            IsPrincipalCollection = 1
+                                            OR IsInterest = 1
+                                            OR isOthers = 1
+                                          )
                                           AND AHP.StatusId = 1
     ");
 
@@ -751,7 +839,7 @@ class loanapplication_model extends CI_Model
                                               , C.IsMandatory
                                               , S.Description
                                               , CASE
-                                                  WHEN C.ChargeType = 'Flat Rate'
+                                                  WHEN C.ChargeType = 1
                                                   THEN CONCAT(C.Amount)
                                                   ELSE CONCAT(C.Amount / 100 * A.PrincipalAmount)
                                                 END as TotalCharge

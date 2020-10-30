@@ -25,12 +25,22 @@
         <form action="<?php echo base_url(); ?>admin_controller/AddRequirement/" id="frmInsert2" method="post">
           <div class="modal-body">
               <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-12">
                   <div class="form-group">
                     <label for="Requirement">Requirement Name</label><br>
                     <input type="text" class="form-control" id="txtRequirement" name="Requirement">
                     <input type="hidden" class="form-control"  id="txtFormType" name="FormType" value="1">
                     <input type="hidden" class="form-control" id="txtRequirementId" name="RequirementId">
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label>Mandatory?</label><br>
+                    <select class="form-control" id="selectMandatory" name="isMandatory">
+                      <option selected="" disabled="">Select Option</option>
+                      <option value="1">Yes</option>
+                      <option value="0">No</option>
+                    </select>
                   </div>
                 </div>
                 <div class="col-md-12">
@@ -66,6 +76,7 @@
             <tr>
               <th>Name</th>
               <th>Description</th>
+              <th>Is Mandatory?</th>
               <th>Status</th>
               <th>Date Created</th>
               <th>Date Updated</th>
@@ -173,6 +184,7 @@
       {
         $('#txtRequirement').val(data['Name']);
         $('#txtDescription').val(data['Description']);
+        $('#selectMandatory').val(data['IsMandatory']).change();
         $('#txtRequirementId').val(RequirementId);
         $('#txtFormType').val(2);
       },
@@ -204,6 +216,16 @@
       "ajax": { url: '<?php echo base_url()."/datatables_controller/Requirements/"; ?>', type: 'POST', "dataSrc": "" },
       "columns": [  { data: "RequirementName" }
                     , { data: "Description" }
+                    , {
+                      data: "IsMandatory", "render": function (data, type, row) {
+                        if(row.IsMandatory == 1){
+                          return "Mandatory";
+                        }
+                        else if(row.IsMandatory == 0){
+                          return "Optional";
+                        }
+                      }
+                    }
                     , {
                       data: "StatusId", "render": function (data, type, row) {
                         if(row.StatusId == 1){

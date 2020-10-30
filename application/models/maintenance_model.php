@@ -250,6 +250,7 @@ class maintenance_model extends CI_Model
     {
       $query_string = $this->db->query("SELECT RQ.Name as RequirementName
                                                 , RequirementId
+                                                , RQ.IsMandatory
                                                 , RQ.Description
                                                 , RQ.CreatedBy
                                                 , RQ.StatusId

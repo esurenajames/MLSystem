@@ -921,6 +921,7 @@ class admin_controller extends CI_Controller {
           $insertRequirement = array(
              'Name'                    => htmlentities($_POST['Requirement'], ENT_QUOTES)
             , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
+            , 'IsMandatory'            => htmlentities($_POST['isMandatory'], ENT_QUOTES)
             , 'CreatedBy'              => $EmployeeNumber
             , 'UpdatedBy'              => $EmployeeNumber
           );
@@ -930,7 +931,7 @@ class admin_controller extends CI_Controller {
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Requirement successfully recorded!'); 
           $this->session->set_flashdata('alertType','success'); 
-          redirect('home/AddRequirement/'. $EmployeeId['EmployeeId']);
+          redirect('home/AddRequirement/');
       }
       else
       {
@@ -3104,6 +3105,12 @@ class admin_controller extends CI_Controller {
       );
       $insertData3 = array(
         'Name' => 'For Approval',
+        'IsApprovable' => 1,
+        'IsEditable' => 0,
+        'StatusId' => 1,
+      );
+      $insertData4 = array(
+        'Name' => 'Matured',
         'IsApprovable' => 0,
         'IsEditable' => 0,
         'StatusId' => 1,
@@ -3112,6 +3119,7 @@ class admin_controller extends CI_Controller {
       $this->maintenance_model->insertFunction($insertData1, $auditTable);
       $this->maintenance_model->insertFunction($insertData2, $auditTable);
       $this->maintenance_model->insertFunction($insertData3, $auditTable);
+      $this->maintenance_model->insertFunction($insertData4, $auditTable);
     // borrower status
       $insertDataBS1 = array(
         'Name' => 'Active',

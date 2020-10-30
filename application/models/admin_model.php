@@ -250,6 +250,8 @@ class admin_model extends CI_Model
     function getRequirementDetails($Id)
     {
       $query_string = $this->db->query("SELECT  Name
+                                                , Description
+                                                , IsMandatory
                                                 FROM R_Requirements 
                                                   WHERE RequirementId = '$Id'
       ");
