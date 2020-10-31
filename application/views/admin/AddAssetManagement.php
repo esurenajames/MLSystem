@@ -117,6 +117,44 @@
     </div>
   </div>
 
+  <div class="modal fade" id="modalStocks">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="modalStockTitle"></h4>
+        </div>
+        <form action="<?php echo base_url(); ?>admin_controller/AddAssetManagement/" id="frmInsert2" method="post">
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="Asset">Current Stock</label>
+                  <h6 id="lblCurrentStock"></h6>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label> Stocks</label><br>
+                  <input type="number" name="stockNo" class="form-control" placeholder="No. of Stocks">
+                  <input type="hidden" name="stockType" id="txtStockType" class="form-control">
+                  <input type="hidden" name="FormType" class="form-control" value="3">
+                  <input type="hidden" name="assetId" id="txtAssetId" class="form-control" value="3">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+  </div>
+
     <!-- Main content -->
     <section class="content">
       <div class="box">
@@ -132,11 +170,10 @@
               <table id="example1" class="table table-bordered table-hover">
                 <thead>
                 <tr>
-                  <th>Type</th>
+                  <th>Reference No</th>
                   <th>Category</th>
                   <th>Asset</th>
                   <th>Purchase Price</th>
-                  <th>Replacement Value</th>
                   <th>Serial Number</th>
                   <th>Vendor</th>
                   <th>Company Branch</th>
@@ -280,15 +317,32 @@
     UserTable.ajax.url(url).load();
   }
 
+  function stockType(currentStock, stockType, assetId)
+  {
+    if(stockType == 1)
+    {
+      $('#modalStockTitle').html('Add Stocks');
+      $('#lblCurrentStock').html(currentStock);
+      $('#txtStockType').val(stockType);
+      $('#txtAssetId').val(assetId);
+    }
+    else if(stockType == 2)
+    {
+      $('#modalStockTitle').html('Remove Stocks');
+      $('#lblCurrentStock').html(currentStock);
+      $('#txtStockType').val(stockType);
+      $('#txtAssetId').val(assetId);
+    }
+  }
+
   $(function () {
     UserTable = $('#example1').DataTable({
       "pageLength": 10,
       "ajax": { url: '<?php echo base_url()."/datatables_controller/Assets/"; ?>', type: 'POST', "dataSrc": "" },
-      "columns": [  { data: "Type" }
+      "columns": [  { data: "ReferenceNo" }
                     , { data: "CategoryName" }
                     , { data: "AssetName" }
                     , { data: "PurchaseValue" }
-                    , { data: "ReplacementValue" }
                     , { data: "SerialNumber" }
                     , { data: "BoughtFrom" }
                     , { data: "BranchName" }
@@ -310,9 +364,9 @@
                     {
                       data: "StatusId", "render": function (data, type, row) {
                       if(row.StatusId == 2){
-                          return '<a onclick="confirm(\'Are you sure you want to deactivate this Asset?\', \''+row.AssetManagementId+'\', 6)" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a> <a onclick="Edit('+row.AssetManagementId+')" data-toggle="modal" data-target="#modalNewTangible" class="btn btn-info" title="Edit"><span class="fa fa-edit"></span></a>';
+                          return '<a class="btn btn-sm btn-success" title="Add Stock" onclick="stockType('+row.currentStock+', 1, '+row.AssetManagementId+')" data-toggle="modal" data-target="#modalStocks"><span class="fa fa-plus-circle"></span></a> <a class="btn btn-sm btn-warning" title="Remove Stock" onclick="stockType('+row.currentStock+', 2, '+row.AssetManagementId+')" data-toggle="modal" data-target="#modalStocks"><span class="fa fa-minus-circle"></span></a> <a onclick="Edit('+row.AssetManagementId+')" data-toggle="modal" data-target="#modalNewTangible" class="btn btn-sm btn-info" title="Edit"><span class="fa fa-edit"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this Asset?\', \''+row.AssetManagementId+'\', 6)" class="btn btn-sm btn-danger" title="Deactivate"><span class="fa fa-close"></span></a> ';
                         }
-                        else if(row.StatusId == 6){
+                        else if(row.StatusId == 6) {
                           return '<a onclick="confirm(\'Are you sure you want to re-activate this Asset?\', \''+row.AssetManagementId+'\', 2)" class="btn btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
                         }
                         else{

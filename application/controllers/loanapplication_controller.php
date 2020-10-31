@@ -299,7 +299,7 @@ class loanapplication_controller extends CI_Controller {
       $this->session->set_flashdata('alertText','Successfully submitted loan application!'); 
       $this->session->set_flashdata('alertType','success'); 
     
-    // redirect('home/loandetail/' . $generatedId['ApplicationId']);
+    redirect('home/loandetail/' . $generatedId['ApplicationId']);
   }
 
   function restructureLoan()

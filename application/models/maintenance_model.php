@@ -323,17 +323,19 @@ class maintenance_model extends CI_Model
 
     function getAllAssets()
     {
-      $query_string = $this->db->query("SELECT PurchaseValue 
+      $query_string = $this->db->query("SELECT FORMAT(PurchaseValue, 2) PurchaseValue 
                                                 , AssetManagementId
                                                 , ReplacementValue
                                                 , AM.Type
+                                                , CONCAT('AM-', LPAD(AssetManagementId, 6, 0)) as ReferenceNo 
                                                 , CASE 
                                                     WHEN AM.Type = 1
                                                     THEN 'Tangible'
                                                     ELSE 'Intangible'
                                                   END as Type
                                                 , AM.Description
-                                                , CONCAT (AM.Stock, '/' , AM.CriticalLevel) as Stock
+                                                , CONCAT (FORMAT(AM.Stock, 0), '/' , FORMAT(AM.CriticalLevel, 0)) as Stock
+                                                , AM.Stock as currentStock
                                                 , AM.Name as AssetName
                                                 , AM.BoughtFrom
                                                 , AM.CategoryId

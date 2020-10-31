@@ -385,7 +385,7 @@
         </div>
         <div class="box-body">
           <div class="pull-right">
-            <button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#modalReport">Generate Report</button>
+            <!-- <button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#modalReport">Generate Report</button> -->
             <button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#modalNewRecord">Add Borrower</button>
             <button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#modalImport2">Import Borrower</button>
           </div>

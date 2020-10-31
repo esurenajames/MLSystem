@@ -1548,9 +1548,9 @@ class admin_controller extends CI_Controller {
   function AddAssetManagement()
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $AssetManagementDetail = $this->admin_model->getAssetManagementDetails($_POST['AssetManagementId']);
     if ($_POST['FormType'] == 1) // add Asset
     {
+      $AssetManagementDetail = $this->admin_model->getAssetManagementDetails($_POST['AssetManagementId']);
       $data = array(
         'PurchaseValue'               => htmlentities($_POST['PurchasePrice'], ENT_QUOTES)
         , 'Type'                      => htmlentities($_POST['AssetType'], ENT_QUOTES)
@@ -1602,6 +1602,7 @@ class admin_controller extends CI_Controller {
     }
     else if($_POST['FormType'] == 2) // Edit Asset Details 
     {
+      $AssetManagementDetail = $this->admin_model->getAssetManagementDetails($_POST['AssetManagementId']);
       $data = array(
          'PurchaseValue'               => htmlentities($_POST['PurchasePrice'], ENT_QUOTES)
         , 'Type'                      => htmlentities($_POST['AssetType'], ENT_QUOTES)
@@ -1749,6 +1750,44 @@ class admin_controller extends CI_Controller {
         $this->session->set_flashdata('alertType','warning'); 
         redirect('home/AddAssetManagement/');
       }
+    }
+    else if($_POST['FormType'] == 3) // stocks 
+    {
+      $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
+      $currentStock = $this->maintenance_model->selectSpecific('r_assetmanagement', 'AssetManagementId', $_POST['assetId']);
+      $TransactionNumber = sprintf('%05d', $currentStock['AssetManagementId']);
+      $newStock = 0;
+      if($_POST['stockType'] == 1) // add
+      {
+        $newStock = htmlentities($_POST['stockNo'], ENT_QUOTES) + $currentStock['Stock'];
+        // admin audits
+          $auditLogsManager = $employeeDetail['Name'] . ' added '.$_POST['stockNo'].' to stock #'.$TransactionNumber.' in asset management.';
+          $auditAffectedEmployee = 'Added '.$_POST['stockNo'].' from '.$TransactionNumber.'.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
+      }
+      else
+      {
+        $newStock = $currentStock['Stock'] - htmlentities($_POST['stockNo'], ENT_QUOTES);
+        // admin audits
+          $auditLogsManager = $employeeDetail['Name'] . ' removed '.$_POST['stockNo'].' from stock #'.$TransactionNumber.' in asset management.';
+          $auditAffectedEmployee = 'Removed '.$_POST['stockNo'].' from '.$TransactionNumber.'.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
+      }
+
+      $set = array( 
+        'Stock'                     => $newStock
+      );
+      $condition = array( 
+        'AssetManagementId' => $_POST['assetId']
+      );
+      $table = 'r_assetmanagement';
+      $this->maintenance_model->updateFunction1($set, $condition, $table);
+
+      // notif
+        $this->session->set_flashdata('alertTitle','Success!'); 
+        $this->session->set_flashdata('alertText','Asset details successfully updated!'); 
+        $this->session->set_flashdata('alertType','success'); 
+        redirect('home/AddAssetManagement/');
     }
   }
 
