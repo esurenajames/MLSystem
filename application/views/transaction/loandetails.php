@@ -913,6 +913,42 @@
     <!-- /.modal-dialog -->
   </div>
 
+  <div class="modal fade" id="modalDisbursement">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="modalIncome">Add Disbursement</h4>
+        </div>
+        <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddDisbursement/<?php print_r($detail['ApplicationId']) ?>" method="post">
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-12">
+                <label>Amount</label>
+                <input type="Number" class="form-control" name="DisbursementAmount" id="txtDisbursementAmount">
+                <input type="hidden" name="FormType" id="txtFormType" value="1">
+                <input type="hidden" name="DisbursementId" id="txtDisbursementId">
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <label>Description</label>
+                <textarea class="form-control" name="Description" id="txtDescription"></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+
   <section class="content">
   	<!-- BORROWER DETAILS -->
 	    <div class="box">
@@ -1123,6 +1159,7 @@
             <ul class="nav nav-tabs">
               <li class="active"><a href="#tabHistory" data-toggle="tab" title="History"><span class="fa fa-clipboard"></span></a></li>
               <li><a href="#tabRepayments" data-toggle="tab" title="Repayments"><span class="fa fa-money"></span></a></li>
+              <li><a href="#tabDisbursements" data-toggle="tab" title="Disbursements"><span class="fa fa-balance-scale"></span></a></li>
               <li><a href="#tabPenalty" data-toggle="tab" title="Penalties"><span class="fa fa-institution"></span></a></li>
               <li><a href="#tabCollateral" data-toggle="tab" title="Loan Collateral"><span class="fa fa-navicon "></span></a></li>
               <li><a href="#tabRequirements" data-toggle="tab" title="Loan Requirements"><span class="fa fa-clipboard "></span></a></li>
@@ -1215,6 +1252,58 @@
                           echo '<td>'.$action.'</td> ';
                           echo "</tr>";
                         }
+                      }
+                    ?>
+                  </tbody>
+                </table>
+              </div>
+              <div class="tab-pane" id="tabDisbursements">
+                <h4>Disbursements</h4>
+                <?php 
+                  if($detail['StatusId'] == 1)
+                  {
+                    echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalDisbursement">Add Disbursement</a>';
+                  }
+                ?>
+                <br>
+                <br>
+                <table id="dtblDisbursement" class="table table-bordered table-hover" style="width: 100%">
+                  <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Amount</th>
+                    <th>Description</th>
+                    <th>Created By</th>
+                    <th>Date Creation</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                    <?php 
+                      $rowNumber = 0;
+                      foreach ($disbursement as $value) 
+                      {
+                        $rowNumber = $rowNumber + 1;
+                        echo "<tr>";
+                        echo "<td>".$rowNumber."</td>";
+                        echo "<td>".number_format($value['Amount'], 2)."</td>";
+                        echo "<td>".$value['Description']."</td>";
+                        echo "<td>".$value['Name']."</td>";
+                        echo "<td>".$value['DateCreated']."</td>";
+                        if($value['StatusId'] == 1)
+                        {
+                          $status = "<span class='badge bg-green'>Active</span>";
+                          $action = '<a onclick="EditDisbursement(\''.$value['DisbursementId'].'\')" data-toggle="modal" data-target="#modalDisbursement" class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this Disbursement record?\', \''.$value['DisbursementId'].'\', 0, \'Disbursements\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                        }
+                        else
+                        {
+                          $status = "<span class='badge bg-red'>Deactivated</span>";
+                          $action = '<a onclick="confirm(\'Are you sure you want to re-activate this Disbursement record?\', \''.$value['DisbursementId'].'\', 1, \'Disbursements\')" class="btn btn-warning" title="Re-Activate"><span class="fa fa-refresh"></span></a>';
+                        }
+                        echo "<td>".$status."</td>";
+                        echo "<td>".$action."</td>";
+                        echo "</tr>";
                       }
                     ?>
                   </tbody>
@@ -1705,6 +1794,10 @@
   $('#dtblRepayment').DataTable({
     "order": [[6, "desc"]]
   });
+
+  $('#dtblDisbursement').DataTable({
+    "order": [[6, "desc"]]
+  });
   
   $('#dtblPenalty').DataTable({
     "order": [[3, "asc"]]
@@ -1813,6 +1906,8 @@
     var varChange2 = 0; 
     var varTotalAmountDue2 = 0;
     var varProcessPayment = 0;
+
+
     function computePayment()
     {
       if(varProcessPayment != 1)
@@ -2446,6 +2541,7 @@
   var displayPayablePerCollection = 0;
   var displayTotalCollections = 0;
   var displayNetLoan = 0;
+  
   function getTotalInterest()
   {
     var interestAmount = $('#txtInterest').val();
