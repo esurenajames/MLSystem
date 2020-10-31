@@ -1365,6 +1365,75 @@ class loanapplication_controller extends CI_Controller {
     }
   }
 
+  function AddDisbursement()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $ApplicationDetail = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $this->uri->segment(3));
+    $DisbursementDetail = $this->loanapplication_model->getDisbursementDetails($_POST['DisbursementId']);
+    $DateNow = date("Y-m-d H:i:s");
+    if ($_POST['FormType'] == 1) // add Disbursement
+    {
+      $data = array(
+         'Amount'               => htmlentities($_POST['DisbursementAmount'], ENT_QUOTES)
+        , 'Description'          => htmlentities($_POST['Description'], ENT_QUOTES)
+        , 'ApplicationId'        => $this->uri->segment(3)
+      );
+      $query = $this->loanapplication_model->countDisbursement($data);
+      print_r($query);
+      if($query == 0) // not existing
+      {
+        // insert Disbursement details
+          $insertDisbursement = array(
+            'Amount'                      => htmlentities($_POST['DisbursementAmount'], ENT_QUOTES)
+            , 'Description'               => htmlentities($_POST['Description'], ENT_QUOTES)
+            , 'StatusId'                  => 1
+            , 'CreatedBy'                 => $EmployeeNumber
+            , 'UpdatedBy'                 => $EmployeeNumber
+            , 'ApplicationId'             => $this->uri->segment(3)
+          );
+          $insertDisbursementTable = 'application_has_Disbursement';
+          $this->maintenance_model->insertFunction($insertDisbursement, $insertDisbursementTable);
+        // get generated application id
+          $getData = array(
+            'table'                 => 'application_has_Disbursement'
+            , 'column'              => 'DisbursementId'
+            , 'CreatedBy'           => $EmployeeNumber
+          );
+          $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+          $DisbursementDetail = $this->maintenance_model->selectSpecific('application_has_Disbursement', 'DisbursementId', $generatedId['DisbursementId']);
+        // insert Application_has_notification
+          $insertNotification = array(
+            'Description'                   => 'Added a Disbursement to the Disbursement tab '
+            , 'ApplicationId'               => $this->uri->segment(3)
+            , 'CreatedBy'                   => $EmployeeNumber
+          );
+          $insertNotificationTable = 'Application_has_Notifications';
+          $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
+        // Insert Main Logs
+          $auditDetail = ' Added a Disbursement to Reference #' .$ApplicationDetail['TransactionNumber'];
+          $insertData = array(
+            'Description' => $auditDetail
+            , 'CreatedBy' => $EmployeeNumber
+          );
+          $auditTable = 'R_Logs';
+          $this->maintenance_model->insertFunction($insertData, $auditTable);
+        // notification
+          $this->session->set_flashdata('alertTitle','Success!'); 
+          $this->session->set_flashdata('alertText','Disbursement details successfully recorded!'); 
+          $this->session->set_flashdata('alertType','success'); 
+          redirect('home/loandetail/'. $this->uri->segment(3));
+      }
+      else
+      {
+        // notification
+          $this->session->set_flashdata('alertTitle','Warning!'); 
+          $this->session->set_flashdata('alertText','Disbursement details already existing!'); 
+          $this->session->set_flashdata('alertType','warning'); 
+          redirect('home/loandetail'. $this->uri->segment(3));
+      }
+    }
+  }
+
   function AddRequirement()
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');

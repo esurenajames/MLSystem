@@ -1103,6 +1103,28 @@ class loanapplication_model extends CI_Model
     return $data;
   }
 
+  function getDisbursementDisplay($ID)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $query_string = $this->db->query("SELECT  CONCAT('DIS-', LPAD(AHD.DisbursementId, 6, 0)) as ReferenceNo
+                                              , DATE_FORMAT(AHD.DateCreated, '%b %d, %Y') as DateCreated
+                                              , AHD.Amount
+                                              , AHD.Description
+                                              , AHD.ApplicationId
+                                              , AHD.DisbursementId
+                                              , AHD.StatusId
+                                              , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as Name
+                                              FROM Application_has_Disbursement AHD
+                                                LEFT JOIN R_Employee EMP
+                                                  ON EMP.EmployeeNumber = AHD.CreatedBy
+                                                LEFT JOIN r_status S
+                                                  ON S.StatusId = AHD.StatusId
+                                                    WHERE AHD.ApplicationId = $ID
+    ");
+    $data = $query_string->result_array();
+    return $data;
+  }
+
   function getIncome($ID)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
@@ -1122,6 +1144,29 @@ class loanapplication_model extends CI_Model
                                                 LEFT JOIN R_Employee EMP
                                                   ON EMP.EmployeeNumber = AI.CreatedBy
                                                     WHERE AI.ApplicationId = $ID
+    ");
+    $data = $query_string->result_array();
+    return $data;
+  }
+
+  function getDisbursements($ID)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $query_string = $this->db->query("SELECT  CONCAT('CLR-', LPAD(C.CollateralId, 4, 0)) as ReferenceNo
+                                              , C.ProductName
+                                              , C.Value
+                                              , DATE_FORMAT(C.DateRegistered, '%b %d, %Y') as DateRegistered
+                                              , CT.Name as CollateralType
+                                              , CS.Name as CurrentStatus
+                                              , C.CollateralId
+                                              FROM R_Collaterals C
+                                                INNER JOIN application_has_collaterals AHC
+                                                  ON AHC.CollateralId = C.CollateralId
+                                                INNER JOIN r_collateralStatus CS
+                                                  ON CS.CollateralStatusId = C.StatusId
+                                                INNER JOIN R_CollateralType CT
+                                                  ON CT.CollateralTypeId = C.CollateralTypeId
+                                                    WHERE AHC.ApplicationId = $ID
     ");
     $data = $query_string->result_array();
     return $data;
@@ -1262,6 +1307,18 @@ class loanapplication_model extends CI_Model
     return $data;
   }
 
+  function countDisbursement($data)
+  {
+    $query_string = $this->db->query("SELECT  * 
+                                              FROM Application_has_Disbursement
+                                                WHERE Description = '".$data['Description']."'
+                                                AND Amount = '".$data['Amount']."'
+                                                AND ApplicationId = '".$data['ApplicationId']."'
+    ");
+    $data = $query_string->num_rows();
+    return $data;
+  }
+
   function countRequirement($data)
   {
     $query_string = $this->db->query("SELECT  * 
@@ -1337,6 +1394,19 @@ class loanapplication_model extends CI_Model
     ");
     $IncomeDetail = $query_string->row_array();
     return $IncomeDetail;
+  }
+
+  function getDisbursementDetails($Id)
+  {
+    $query_string = $this->db->query("SELECT  ApplicationId
+                                              , DisbursementId
+                                              , Amount
+                                              , Description
+                                              FROM Application_has_Disbursement 
+                                                WHERE DisbursementId = '$Id'
+    ");
+    $DisbursementDetail = $query_string->row_array();
+    return $DisbursementDetail;
   }
 
   function getRequirementDetails($Id)
@@ -1586,6 +1656,57 @@ class loanapplication_model extends CI_Model
         );
         $this->db->insert('R_Logs', $data2);
     }
+    else if($input['Type'] == 'Disbursements')
+    {
+      $DisbursementDetail = $this->db->query("SELECT  AHD.Description
+                                                , ApplicationId
+                                                  FROM Application_has_Disbursement AHD
+                                                    WHERE DisbursementId = ".$input['Id']."
+      ")->row_array();
+
+      // update status
+        $set = array(
+          'StatusId' => $input['updateType'],
+          'UpdatedBy' => $EmployeeNumber,
+          'DateUpdated' => $DateNow,
+        );
+        $condition = array(
+          'DisbursementId' => $input['Id']
+        );
+        $table = 'Application_has_Disbursement';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+        // insert into Application_has_Notifications
+        if($input['updateType'] == 0)
+        {
+          $DisbursementDescription = 'Re-activated ' .$DisbursementDetail['Description']. ' of ' .$DisbursementDetail['ApplicationId']. ' at the Disbursement tab '; // Application Notification
+        }
+        else if($input['updateType'] == 1)
+        {
+          $DisbursementDescription = 'Deactivated ' .$DisbursementDetail['Description']. '  of ' .$DisbursementDetail['ApplicationId']. ' at the Disbursement tab '; // Application Notification
+        }
+        $data3 = array(
+          'Description'   => $DisbursementDescription,
+          'ApplicationId' => $DisbursementDetail['ApplicationId'],
+          'CreatedBy'     => $EmployeeNumber,
+          'DateCreated'   => $DateNow
+        );
+        $this->db->insert('Application_has_Notifications', $data3);
+      // insert into logs
+        if($input['updateType'] == 2)
+        {
+          $DisbursementDescription = 'Re-activated ' .$DisbursementDetail['Source']. ' at the Disbursement tab'; // main log
+        }
+        else if($input['updateType'] == 6)
+        {
+          $DisbursementDescription = 'Deactivated ' .$DisbursementDetail['Source']. '  at the Disbursement tab'; // main log
+        }
+        $data2 = array(
+          'Description'   => $DisbursementDescription,
+          'CreatedBy'     => $EmployeeNumber,
+          'DateCreated'   => $DateNow
+        );
+        $this->db->insert('R_Logs', $data2);
+    }
     else if($input['Type'] == 'Requirements')
     {
       $RequirementDetail = $this->db->query("SELECT  ApplicationRequirementId
@@ -1788,16 +1909,16 @@ class loanapplication_model extends CI_Model
       return $data;
     }
 
-    function getDisbursements()
-    {
-      $query = $this->db->query("SELECT   Name
-                                          , DisbursementId
-                                          FROM r_disbursement 
-                                          WHERE StatusId = 1
-      ");
-      $data = $query->result_array();
-      return $data;
-    }
+    // function getDisbursements()
+    // {
+    //   $query = $this->db->query("SELECT   DIS.Name
+    //                                       , DIS.DisbursementId
+    //                                       FROM r_disbursement DIS
+    //                                       WHERE DIS.StatusId = 1
+    //   ");
+    //   $data = $query->result_array();
+    //   return $data;
+    // }
 
     function getRepaymentCycle()
     {
