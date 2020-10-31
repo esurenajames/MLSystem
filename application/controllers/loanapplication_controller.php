@@ -27,6 +27,7 @@ class loanapplication_controller extends CI_Controller {
     $this->load->model('admin_model');
 		$this->load->model('borrower_model');
     $this->load->model('maintenance_model');
+    $this->load->library('Pdf');
 
    	if(empty($this->session->userdata("EmployeeNumber")) || $this->session->userdata("logged_in") == 0)
    	{
@@ -2277,6 +2278,711 @@ class loanapplication_controller extends CI_Controller {
     );
     $auditLoanApplicationTable = 'application_has_notifications';
     $this->maintenance_model->insertFunction($insertApplicationLog, $auditLoanApplicationTable);
+  }
+
+  function generateReport()
+  {
+    $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+    // set default monospaced font
+    $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+    // set default header data
+    $pdf->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, 'M.C Biliber Lending Corporation', "Report Generation");
+    // set margins
+    $pdf->SetMargins('10', '20', '10');
+    $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+    $pdf->SetFont('dejavusans', '', 10);
+
+    
+    if($this->uri->segment(3) == 1) // loan collections
+    {
+      $width = 300;  
+      $height = 500; 
+      $pageLayout = array($width, $height); //  or array($height, $width) 
+      $pdf->AddPage('L', $pageLayout);
+
+      $html = '
+        <style>
+        table {
+          border-collapse: collapse;
+        }
+
+        table, td, th {
+          border: 1px solid black;
+        }
+
+        p {
+          text-align: center;
+          font-size: 15px;
+        }
+        </style>
+
+        <p>'.htmlentities($_POST['reportName'], ENT_QUOTES).'</p>
+        <p>'.htmlentities($_POST['DateFrom'], ENT_QUOTES).' - '.htmlentities($_POST['DateTo'], ENT_QUOTES).'</p>
+
+        <br>
+        <br>
+
+        ';
+
+        $comma_separated = implode("','", $_POST['employeeReport']);
+        $employeeNumbers = "'".$comma_separated."'";
+        $employeeQuery = 'AND EmployeeNumber IN ('.$employeeNumbers.')';
+        $string = implode(", ", $_POST['columnNames']);
+        $stringArray = array();
+
+        foreach($_POST['columnNames'] as $column) 
+        {
+          if($column == 'Loan Date')
+          {
+            $stringArray[] = "DATE_FORMAT(A.DateCreated, '%b %d, %Y') as LoanDate";
+          }
+          else if($column == 'Application No.')
+          {
+            $stringArray[] = 'A.TransactionNumber';
+          }
+          else if($column == 'Borrower Name')
+          {
+            $stringArray[] = "CONCAT(B.FirstName, ' ', B.MiddleName, ' ', B.LastName, ', ', B.ExtName) as BorrowerName";
+          }
+          else if($column == 'Principal Per Collection')
+          {
+            $stringArray[] = "FORMAT(PM.PrincipalAmount, 2) as principalCollection";
+          }
+          else if($column == 'Interest Per Collection')
+          {
+            $stringArray[] = "FORMAT(PM.InterestAmount, 2) as interestPerCollection";
+          }
+          else if($column == 'Other Collections')
+          {
+            $stringArray[] = "FORMAT(PM.AmountPaid, 2) as otherCollection";
+          }
+          else if($column == 'Amount Paid')
+          {
+            $stringArray[] = "FORMAT(PM.AmountPaid, 2) as AmountPaid";
+          }
+          else if($column == 'Change')
+          {
+            $stringArray[] = "FORMAT(PM.ChangeAmount, 2) as ChangeAmount";
+          }
+          else if($column == 'Amount Paid')
+          {
+            $stringArray[] = "PM.Amount as AmountToPay";
+          }
+        }
+        $html .='
+        <table>
+          <thead>
+          <tr>
+        ';
+            foreach($_POST['columnNames'] as $column) 
+            {
+                if($column == 'Loan Date')
+                {
+                  $html .= '<th><strong>'.$column.'</strong></th>';
+                }
+                if($column == 'Application No.')
+                {
+                  $html .= '<th><strong>'.$column.'</strong></th>';
+                }
+                if($column == 'Borrower Name')
+                {
+                  $html .= '<th><strong>'.$column.'</strong></th>';
+                }
+                if($column == 'Principal Per Collection')
+                {
+                  $html .= '<th><strong>'.$column.'</strong></th>';
+                }
+                if($column == 'Interest Per Collection')
+                {
+                  $html .= '<th><strong>'.$column.'</strong></th>';
+                }
+                if($column == 'Other Collections')
+                {
+                  $html .= '<th><strong>'.$column.'</strong></th>';
+                }
+                if($column == 'Repayment Date')
+                {
+                  $html .= '<th><strong>'.$column.'</strong></th>';
+                }
+                if($column == 'Change')
+                {
+                  $html .= '<th><strong>'.$column.'</strong></th>';
+                }
+                if($column == 'Penalty')
+                {
+                  $html .= '<th><strong>'.$column.'</strong></th>';
+                }
+                if($column == 'Amount Paid')
+                {
+                  $html .= '<th><strong>'.$column.'</strong></th>';
+                }
+                if($column == 'Collected By')
+                {
+                  $html .= '<th><strong>'.$column.'</strong></th>';
+                }
+                if($column == 'Collection Date')
+                {
+                  $html .= '<th><strong>'.$column.'</strong></th>';
+                }
+                if($column == 'Creation Date')
+                {
+                  $html .= '<th><strong>'.$column.'</strong></th>';
+                }
+            }
+            $html .='
+          </tr>
+          </thead>
+          <tbody>';
+            $totalPrincipalCollection = 0;
+            $toalInterestCollection = 0;
+            $totalOtherCollection = 0;
+            $totalChangeAmount = 0;
+            $totalAmountPaid = 0;
+            $time = strtotime($_POST['DateFrom']);
+            $newformat = date('Y-m-d', $time);
+            $time2 = strtotime($_POST['DateTo']);
+            $newformat2 = date('Y-m-d', $time2);
+            $details = $this->loanapplication_model->getCollections($newformat, $newformat2, implode(", ", $stringArray), $employeeQuery);
+            foreach($details as $key => $current) {
+              $repayment = $this->loanapplication_model->getRepayments($current['ApplicationId']);
+              $penalty = $this->loanapplication_model->getPenalties($current['ApplicationId']);
+
+              $totalPrincipalCollection = $totalPrincipalCollection  + floatval($current['rawPrincipalCollection']);
+              $toalInterestCollection = $toalInterestCollection  + floatval($current['rawInterestCollection']);
+              $totalOtherCollection = $totalOtherCollection  + floatval($current['rawAmountPaid']);
+              $totalChangeAmount = $totalChangeAmount  + floatval($current['rawChangeAmount']);
+              $totalAmountPaid = $totalAmountPaid + floatval($current['AmountPaid']);
+
+              $html .= '<tr>';
+
+              foreach($_POST['columnNames'] as $column) 
+              {
+                if($column == 'Loan Date')
+                {
+                  $html .= '<td>' . $current['LoanDate'] . '</td>';
+                }
+                else if($column == 'Application No.')
+                {
+                  $html .= '<td>' . $current['TransactionNumber'] . '</td>';
+                }
+                else if($column == 'Borrower Name')
+                {
+                  $html .= '<td>' . $current['BorrowerName'] . '</td>';
+                }
+                else if($column == 'Principal Per Collection')
+                {
+                  $html .= '<td>' . $current['principalCollection'] . '</td>';
+                }
+                else if($column == 'Interest Per Collection')
+                {
+                  $html .= '<td>' . $current['interestPerCollection'] . '</td>';
+                }
+                else if($column == 'Other Collections')
+                {
+                  $html .= '<td>' . $current['otherCollection'] . '</td>';
+                }
+                else if($column == 'Repayment Date')
+                {
+                  $html .= '<td>' . $repayment['Name'] . '</td>';
+                }
+                else if($column == 'Change')
+                {
+                  $html .= '<td>' . $current['ChangeAmount'] . '</td>';
+                }
+                else if($column == 'Penalty')
+                {
+                  $html .= '<td>' . $penalty['Total'] . '</td>';
+                }
+                else if($column == 'Amount Paid')
+                {
+                  $html .= '<td>' . number_format($current['AmountPaid'], 2) . '</td>';
+                }
+                if($column == 'Collected By')
+                {
+                  $html .= '<td>' . $current['CollectedBy'] . '</td>';
+                }
+                if($column == 'Collection Date')
+                {
+                  $html .= '<td>' . $current['dateCollected'] . '</td>';
+                }
+                if($column == 'Creation Date')
+                {
+                  $html .= '<td>' . $current['dateCreated'] . '</td>';
+                }
+              }
+              $html .= '</tr>';
+            }
+          $html .= '
+          <tbody>
+          <tfoot>
+            <tr>
+            ';
+
+              foreach($_POST['columnNames'] as $column) 
+              {
+                if($column == 'Loan Date')
+                {
+                  $html .= '<td></td>';
+                }
+                else if($column == 'Application No.')
+                {
+                  $html .= '<td></td>';
+                }
+                else if($column == 'Borrower Name')
+                {
+                  $html .= '<td></td>';
+                }
+                else if($column == 'Principal Per Collection')
+                {
+                  $html .= '<td>Php '.number_format($totalPrincipalCollection, 2).'</td>';
+                }
+                else if($column == 'Interest Per Collection')
+                {
+                  $html .= '<td>Php '.number_format($toalInterestCollection, 2).'</td>';
+                }
+                else if($column == 'Other Collections')
+                {
+                  $html .= '<td>Php '.number_format($totalOtherCollection, 2).'</td>';
+                }
+                else if($column == 'Repayment Date')
+                {
+                  $html .= '<td></td>';
+                }
+                else if($column == 'Change')
+                {
+                  $html .= '<td>Php '.number_format($totalChangeAmount, 2).'</td>';
+                }
+                else if($column == 'Amount Paid')
+                {
+                  $html .= '<td>Php '.number_format($totalAmountPaid, 2).'</td>';
+                }
+              }
+
+            $html .= '
+            </tr>
+          </tfoot>
+        </table>
+        <br><br>
+        <br><br>
+
+        <table>
+          <thead>
+          <tr>
+            <th><strong>Prepared By</strong></th>
+            <th>'.$this->session->userdata('Name').'</th>
+            <th><strong>Verified By</strong></th>
+            <th>'.$_POST['verifiedBy'].'</th>
+            <th><strong>Approved By</strong></th>
+            <th>'.$_POST['approvedBy'].'</th>
+          </tr>
+          </thead>
+          <tbody>
+
+          </tbody>
+        </table>
+      ';
+      $pdf->writeHTML($html, true, false, true, false, '');
+
+      // Close and output PDF document
+      // $pdf->Output('Form3.pdf', 'I');
+      $pdf->Output(htmlentities($_POST['reportName'], ENT_QUOTES) .'.pdf', 'D');
+    }
+    if($this->uri->segment(3) == 2) // expenses
+    {
+      $width = 300;  
+      $height = 500; 
+      $pageLayout = array($width, $height); //  or array($height, $width) 
+      $pdf->AddPage('L', $pageLayout);
+
+
+      $html = '
+        <style>
+        table {
+          border-collapse: collapse;
+        }
+
+        table, td, th {
+          border: 1px solid black;
+        }
+
+        p {
+          text-align: center;
+          font-size: 15px;
+        }
+        </style>
+
+        <p>'.htmlentities($_POST['reportName'], ENT_QUOTES).'</p>
+        <p>'.htmlentities($_POST['DateFrom'], ENT_QUOTES).' - '.htmlentities($_POST['DateTo'], ENT_QUOTES).'</p>
+
+        <br>
+        <br>
+
+        ';
+        $html .='
+        <table>
+          <thead>
+          <tr>
+        ';
+            foreach($_POST['columnNames'] as $column) 
+            {
+                if($column == 'Expense No.')
+                {
+                  $html .= '<th><strong>'.$column.'</strong></th>';
+                }
+                if($column == 'Expense Type')
+                {
+                  $comma_separated = implode("','", $_POST['expenseType']);
+                  $expenseTypes = "'".$comma_separated."'";
+                  $query = 'AND EXT.ExpenseTypeId IN ('.$expenseTypes.')';
+                  $html .= '<th><strong>'.$column.'</strong></th>';
+                }
+                if($column == 'Amount')
+                {
+                  $html .= '<th><strong>'.$column.'</strong></th>';
+                }
+                if($column == 'Date of Expense')
+                {
+                  $html .= '<th><strong>'.$column.'</strong></th>';
+                }
+                if($column == 'Date of Creation')
+                {
+                  $html .= '<th><strong>'.$column.'</strong></th>';
+                }
+                if($column == 'Created By')
+                {
+                  $html .= '<th><strong>'.$column.'</strong></th>';
+                }
+            }
+            $html .='
+          </tr>
+          </thead>
+          <tbody>';
+            $totalExpense = 0;
+            $time = strtotime($_POST['DateFrom']);
+            $newformat = date('Y-m-d', $time);
+            $time2 = strtotime($_POST['DateTo']);
+            $newformat2 = date('Y-m-d', $time2);
+            $details = $this->loanapplication_model->getExpensesReport($newformat, $newformat2, $query);
+            foreach($details as $key => $current) {
+              $totalExpense = $totalExpense  + floatval($current['Amount']);
+
+              $html .= '<tr>';
+
+              foreach($_POST['columnNames'] as $column) 
+              {
+                if($column == 'Expense No.')
+                {
+                  $html .= '<td>' . $current['ReferenceNo'] . '</td>';
+                }
+                if($column == 'Expense Type')
+                {
+                  $html .= '<td>' . $current['Name'] . '</td>';
+                }
+                if($column == 'Amount')
+                {
+                  $html .= '<td>Php ' . number_format($current['Amount'], 2) . '</td>';
+                }
+                if($column == 'Date of Expense')
+                {
+                  $html .= '<td>' . $current['DateExpense'] . '</td>';
+                }
+                if($column == 'Date of Creation')
+                {
+                  $html .= '<td>' . $current['DateCreated'] . '</td>';
+                }
+                if($column == 'Created By')
+                {
+                  $html .= '<td>' . $current['CreatedBy'] . '</td>';
+                }
+              }
+              $html .= '</tr>';
+            }
+          $html .= '
+          <tbody>
+          <tfoot>
+            <tr>
+            ';
+
+              foreach($_POST['columnNames'] as $column) 
+              {
+                if($column == 'Expense No.')
+                {
+                  $html .= '<td></td>';
+                }
+                if($column == 'Expense Type')
+                {
+                  $html .= '<td></td>';
+                }
+                if($column == 'Amount')
+                {
+                  $html .= '<td>Php ' . number_format($totalExpense, 2) . '</td>';
+                }
+                if($column == 'Date of Expense')
+                {
+                  $html .= '<td></td>';
+                }
+                if($column == 'Date of Creation')
+                {
+                  $html .= '<td></td>';
+                }
+                if($column == 'Created By')
+                {
+                  $html .= '<td></td>';
+                }
+              }
+
+            $html .= '
+            </tr>
+          </tfoot>
+        </table>
+        <br><br>
+        <br><br>
+
+        <table>
+          <thead>
+          <tr>
+            <th><strong>Prepared By</strong></th>
+            <th>'.$this->session->userdata('Name').'</th>
+            <th><strong>Verified By</strong></th>
+            <th>'.$_POST['verifiedBy'].'</th>
+            <th><strong>Approved By</strong></th>
+            <th>'.$_POST['approvedBy'].'</th>
+          </tr>
+          </thead>
+          <tbody>
+
+          </tbody>
+        </table>
+      ';
+      $pdf->writeHTML($html, true, false, true, false, '');
+
+      // Close and output PDF document
+      $pdf->Output('Form3.pdf', 'I');
+      // $pdf->Output(htmlentities($_POST['reportName'], ENT_QUOTES) .'.pdf', 'D');
+    }
+    if($this->uri->segment(3) == 3) // loan pplication
+    {
+      $this->load->library('excel');
+      require_once(APPPATH . 'third_party\PHPExcel\Classes\PHPExcel\IOFactory.php');
+
+      //set the desired name of the excel file
+
+      $inputFileName = APPPATH . 'excelforms\Loan Application.xls';
+      $proceed = 0;
+
+      /*check point*/
+
+      $Day = date('d');
+      $Month = date('m');
+      $Year = date('Y');
+      $DayNo = date('w');
+      $Time = date('G');
+      $Minute = date('i');
+
+      $CurrentDate = $Day. $Month . $Year . $DayNo . $Time . $Minute ;
+
+      $inputFileType = PHPExcel_IOFactory::identify($inputFileName);
+      $objReader = PHPExcel_IOFactory::createReader($inputFileType);
+      $objPHPExcel = $objReader->load($inputFileName);
+
+      // Set active sheet index to the first sheet, so Excel opens this as the first sheet
+      $objPHPExcel->setActiveSheetIndex(0);
+
+
+      $objPHPExcel->getActiveSheet()->getProtection()->setSheet(true);
+      $objPHPExcel->getActiveSheet()->getProtection()->setSort(true);
+      $objPHPExcel->getActiveSheet()->getProtection()->setInsertRows(true);
+      $objPHPExcel->getActiveSheet()->getProtection()->setFormatCells(true);
+
+      // $objPHPExcel->getActiveSheet()->getProtection()->setPassword('101419961213');
+
+      unset($sheet1);
+
+      foreach($objPHPExcel->getWorksheetIterator() as $sheet) 
+      {
+        $index =  $objPHPExcel->getIndex($sheet);
+
+        // Details
+          $details = $this->loanapplication_model->getLoanApplicationDetails($this->uri->segment(4));
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('B12', $details['DateCreated']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('D12', $details['Source'] . ' ' . $details['SourceName']);
+          
+          $gdImage = imagecreatefromjpeg('borrowerpicture/' . $details['FileName']);
+          $objDrawing = new PHPExcel_Worksheet_MemoryDrawing();
+          $objDrawing->setImageResource($gdImage);
+          $objDrawing->setRenderingFunction(PHPExcel_Worksheet_MemoryDrawing::RENDERING_JPEG);
+          $objDrawing->setMimeType(PHPExcel_Worksheet_MemoryDrawing::MIMETYPE_DEFAULT);
+          $objDrawing->setCoordinates('F11');
+
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('A22', number_format($details['RawPrincipalAmount'], 2));
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('C22', $details['TermNo'] . ' ' . $details['TermType']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('E22', $details['PurposeName']);
+
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('A25', $details['LastName']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('C25', $details['FirstName']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('E25', $details['MiddleName']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('G25', $details['ExtName']);
+
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('A27', $details['ReportDOB']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('C27', $details['CivilStatus']);
+
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('E27', $details['Dependents']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('F27', $details['EmailAddress']);
+
+          $cityAddress = $this->loanapplication_model->getCityAddress($details['BorrowerId']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('A31', $cityAddress['HouseNo'] . ' ' . $cityAddress['BrgyDesc']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('E32', $cityAddress['YearsStayed']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('F32', $cityAddress['MonthsStayed']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('E34', $cityAddress['Telephone']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('C34', $cityAddress['ContactNumber']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('C34', $cityAddress['AddressType'] . ' ' . $cityAddress['NameOfLandlord']);
+
+          $provAddress = $this->loanapplication_model->getProvinceAddress($details['BorrowerId']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('C31', $provAddress['HouseNo'] . ' ' . $provAddress['BrgyDesc']);
+
+          $presentEmployer = $this->loanapplication_model->getEmployer($details['BorrowerId'], 1);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('A38', $presentEmployer['EmployerName']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('D38', $presentEmployer['BusinessAddress']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('A41', $presentEmployer['Position']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('C41', $presentEmployer['DateHired']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('E41', $presentEmployer['TelephoneNumber']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('G41', $presentEmployer['TenureYear'] . 'yr ' . $presentEmployer['TenureMonth'] . ' mts');
+
+          $prevEmployer = $this->loanapplication_model->getEmployer($details['BorrowerId'], 2);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('A43', $prevEmployer['EmployerName']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('D43', $prevEmployer['BusinessAddress']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('A46', $prevEmployer['Position']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('C46', $prevEmployer['DateHired']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('E46', $prevEmployer['TelephoneNumber']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('G46', $prevEmployer['TenureYear'] . 'yr ' . $prevEmployer['TenureMonth'] . ' mts');
+
+        // Personal References
+          $personalRef = $this->loanapplication_model->getReferences($details['BorrowerId']);
+          $rowss = 3;
+          foreach ($personalRef as $row)
+          {
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue("H$rowss", $row['Name']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue("K$rowss", $row['Address']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue("P$rowss", $row['ContactNumber']);
+            $rowss++;
+          }
+
+        // spouse
+          $spouseId = $this->maintenance_model->selectSpecific2('borrower_has_spouse', 'BorrowerId', $details['BorrowerId']);
+          if(isset($spouseId['SpouseId']))
+          {
+            $spouseDetails = $this->loanapplication_model->getSpouseDetails($spouseId['SpouseId'], 2);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('H9', $spouseDetails['LastName']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('J9', $spouseDetails['FirstName']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('N9', $spouseDetails['MiddleName']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('Q9', $spouseDetails['ExtName']);
+
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('H11', $spouseDetails['ReportDOB']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('J11', $spouseDetails['CivilStatus']);
+
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('N11', $spouseDetails['Dependents']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('P11', $spouseDetails['EmailAddress']);
+          // spouse address
+            $cityAddressSpouse = $this->loanapplication_model->getCityAddressSpouse($spouseId['SpouseId']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('H15', $cityAddressSpouse['HouseNo'] . ' ' . $cityAddressSpouse['BrgyDesc']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('O16', $cityAddressSpouse['YearsStayed']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('P16', $cityAddressSpouse['MonthsStayed']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('O18', $cityAddressSpouse['Telephone']);
+
+            $provAddress = $this->loanapplication_model->getProvinceAddressSpouse($spouseId['SpouseId']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('C31', $provAddress['HouseNo'] . ' ' . $provAddress['BrgyDesc']);
+          }
+          else
+          {            
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('H9', 'N/A');
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('J9', 'N/A');
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('N9', 'N/A');
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('Q9', 'N/A');
+
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('H11', 'N/A');
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('J11', 'N/A');
+
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('N11', 'N/A');
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('P11', 'N/A');
+            // spouse address
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('H15', 'N/A');
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('O16', 'N/A');
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('P16', 'N/A');
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('O18', 'N/A');
+
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('C31', 'N/A');
+          }
+
+        // net income
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('H26', number_format($details['BorrowerMonthlyIncome'], 2));
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('L26', number_format($details['SpouseMonthlyIncome'], 2));
+          
+          $totalIncome = $this->loanapplication_model->getHouseholdMoney($this->uri->segment(4), 'application_has_monthlyincome');
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('O26', number_format($totalIncome['Total'], 2));
+
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('L27', floatval($details['BorrowerMonthlyIncome']) + floatval($details['SpouseMonthlyIncome']) + floatval($totalIncome['Total']));
+
+          $totalExpense = $this->loanapplication_model->getHouseholdMoney($this->uri->segment(4), 'application_has_expense');
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('L28', number_format($totalExpense['Total'], 2));
+
+          $totalObligation = $this->loanapplication_model->getHouseholdMoney($this->uri->segment(4), 'application_has_monthlyobligation');
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('L29', number_format($totalObligation['Total'], 2));
+
+        // co maker
+          $comaker = $this->loanapplication_model->getCoMaker($details['BorrowerId']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('H33', $comaker['Name']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('L33', $comaker['DateOfBirth']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('O33', $comaker['PositionName']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('H35', $comaker['Employer']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('L35', $comaker['TenureYear'] . 'yr ' . $comaker['TenureMonth'].' mts');
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('O35', $comaker['TelephoneNo']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('H37', $comaker['BusinessAddress']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('O37', number_format($comaker['MonthlyIncome']));
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('H40', $comaker['LoanUndertaking']);
+
+        // Requierements
+          $requirements = $this->loanapplication_model->getRequirementReport($this->uri->segment(4));
+          $rowsss = 3;
+          foreach ($requirements as $rows)
+          {
+            if($rowsss < 10)
+            {
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue("R$rowss", $rows['Name']);
+            }
+            else
+            {
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue("X$rowss", $rows['Name']);
+            }
+            $rowsss++;
+          }
+
+        // approvers
+          $approvers = $this->loanapplication_model->getApproversReport($this->uri->segment(4));
+          $rowsss = 13;
+          foreach ($approvers as $rows2)
+          {
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue("R$rowss", $rows2['Description']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue("W$rowss", $rows2['DateUpdated']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue("Y$rowss", $rows2['ProcessedBy']);
+            $rowsss++;
+          }
+
+
+      }
+
+      $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+      header('Content-Type: application/vnd.ms-excel');
+      header('Content-Disposition: attachment;filename="Loan Application'. $CurrentDate .'.xls"');
+      header('Cache-Control: max-age=0');
+      // $objWriter->save('php://output');
+
+      $objWriter->save(APPPATH . 'excelforms/Loan Application'. $CurrentDate .'.xls');
+    
+      //file path
+      $file = APPPATH . 'excelforms/Loan Application'. $CurrentDate .'.xls';
+
+      force_download($file, NULL);
+    }
   }
 
   

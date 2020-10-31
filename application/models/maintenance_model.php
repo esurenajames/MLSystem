@@ -759,6 +759,23 @@ class maintenance_model extends CI_Model
       return $output;
     }
 
+    function getExpenseTypeReport()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT ExpenseTypeId
+                                        , Name
+                                          FROM R_ExpenseType
+                                          WHERE StatusId = 1
+                                            ORDER BY Name ASC
+      ");
+      $output = '';
+      foreach ($query->result() as $row)
+      {
+        $output .= '<option data-city="'.$row->Name.'"  value="'.$row->ExpenseTypeId.'">'.$row->Name.'</option>';
+      }
+      return $output;
+    }
+
     function getWithdrawalType()
     {
       $EmployeeNumber = $this->session->userdata('EmployeeNumber');
@@ -1196,6 +1213,12 @@ class maintenance_model extends CI_Model
     function selectSpecific($tableName, $Condition, $Id)
     {
       $query = $this->db->query("select * from $tableName where $Condition = '$Id' LIMIT 1");
+      return $query->row_array();
+    }
+
+    function selectSpecific2($tableName, $Condition, $Id)
+    {
+      $query = $this->db->query("select * from $tableName where $Condition = '$Id' AND StatusId = 1 LIMIT 1");
       return $query->row_array();
     }
 

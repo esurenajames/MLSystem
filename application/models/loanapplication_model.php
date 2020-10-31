@@ -26,11 +26,13 @@ class loanapplication_model extends CI_Model
                                         END as SourceName
                                       , P.Name as PurposeName
                                       , A.BorrowerMonthlyIncome
-                                      , A.SpouseMonthlyIncome
+                                      , COALESCE(A.SpouseMonthlyIncome, 0) SpouseMonthlyIncome
                                       , A.RiskLevel
                                       , A.RiskAssessment
+                                      , B.Dependents
 
                                       , A.PrincipalAmount/(A.TermNo * A.RepaymentNo) as PrincipalPerCollection
+                                      , C.name as CivilStatus
                                       , CASE
                                           WHEN AHI.InterestType = 'Percentage'
                                           THEN AHI.Amount/100 * PrincipalAmount
@@ -115,6 +117,12 @@ class loanapplication_model extends CI_Model
                                                       WHERE AHR.ApplicationId = A.ApplicationId
                                                       LIMIT 1
                                       ) as RequirementTypeId
+                                      , B.FirstName
+                                      , B.LastName
+                                      , B.ExtName
+                                      , B.MiddleName
+                                      , DATE_FORMAT(B.DateOfBirth, '%m-%d-%Y') as ReportDOB
+                                      , LU.Description as LoanUndertaking
                                       FROM T_Application A
                                         INNER JOIN Application_Has_Status LS
                                           ON A.StatusId = LS.LoanStatusId
@@ -122,8 +130,12 @@ class loanapplication_model extends CI_Model
                                           ON L.LoanId = A.LoanId
                                         INNER JOIN R_Disbursement D
                                           ON D.DisbursementId = A.DisbursementId
+                                        INNER JOIN R_LoanUndertaking LU
+                                          ON LU.UndertakingId = A.UndertakingId
                                         LEFT JOIN R_Borrowers B
                                           ON B.BorrowerId = A.BorrowerId
+                                        INNER JOIN r_civilstatus C
+                                          ON C.CivilStatusId = B.CivilStatus
                                         LEFT JOIN Borrower_Has_Picture BHP
                                           ON BHP.BorrowerId = B.BorrowerId
                                         LEFT JOIN R_Salutation BS
@@ -156,6 +168,243 @@ class loanapplication_model extends CI_Model
     $data = $query->row_array();
     return $data;
   }
+
+  function getProvinceAddress($Id)
+  {
+    $query_string = $this->db->query("SELECT  MAX(A.AddressId) as AddressId
+                                              , BAH.AddressType
+                                              , BAH.YearsStayed
+                                              , BAH.MonthsStayed
+                                              , BAH.NameOfLandlord
+                                              , A.HouseNo
+                                              , BA.BrgyDesc
+                                              FROM R_Borrowers B
+                                                INNER JOIN borrowerAddressHistory BAH
+                                                  ON B.BorrowerId = BAH.BorrowerId
+                                                INNER JOIN R_Address A
+                                                  ON A.AddressId = BAH.AddressId
+                                                INNER JOIN add_barangay BA
+                                                  ON BA.BrgyCode = A.BarangayId
+                                                WHERE B.BorrowerId = $Id
+                                                AND A.AddressType = 'Province Address'
+                                                AND BAH.StatusId = 1
+
+    ");
+    $data = $query_string->row_array();
+    return $data;
+  }
+
+  function getCityAddress($Id)
+  {
+    $query_string = $this->db->query("SELECT  A.AddressId
+                                              , BAH.AddressType
+                                              , BAH.YearsStayed
+                                              , BAH.MonthsStayed
+                                              , BAH.NameOfLandlord
+                                              , BAH.IsPrimary
+                                              , A.HouseNo
+                                              , BA.BrgyDesc
+                                              , A.Telephone
+                                              , A.ContactNumber
+                                              FROM R_Borrowers B
+                                                INNER JOIN borrowerAddressHistory BAH
+                                                  ON B.BorrowerId = BAH.BorrowerId
+                                                INNER JOIN R_Address A
+                                                  ON A.AddressId = BAH.AddressId
+                                                INNER JOIN add_barangay BA
+                                                  ON BA.BrgyCode = A.BarangayId
+                                                WHERE B.BorrowerId = $Id
+                                                AND BAH.IsPrimary = 1
+                                                AND A.AddressType = 'City Address'
+                                                AND BAH.StatusId = 1
+                                                AND BAH.IsPrimary = 1
+
+    ");
+    $data = $query_string->row_array();
+    return $data;
+  }
+
+  function getProvinceAddressSpouse($Id)
+  {
+    $query_string = $this->db->query("SELECT  MAX(A.AddressId) as AddressId
+                                              , BAH.AddressType
+                                              , BAH.YearsStayed
+                                              , BAH.MonthsStayed
+                                              , BAH.NameOfLandlord
+                                              , A.HouseNo
+                                              , BA.BrgyDesc
+                                              FROM R_Spouse B
+                                                INNER JOIN borrowerAddressHistory BAH
+                                                  ON B.BorrowerId = BAH.BorrowerId
+                                                INNER JOIN R_Address A
+                                                  ON A.AddressId = BAH.AddressId
+                                                INNER JOIN add_barangay BA
+                                                  ON BA.BrgyCode = A.BarangayId
+                                                WHERE B.SpouseId = $Id
+                                                AND A.AddressType = 'Province Address'
+                                                AND BAH.StatusId = 1
+
+    ");
+    $data = $query_string->row_array();
+    return $data;
+  }
+
+  function getCityAddressSpouse($Id)
+  {
+    $query_string = $this->db->query("SELECT  A.AddressId
+                                              , BAH.AddressType
+                                              , BAH.YearsStayed
+                                              , BAH.MonthsStayed
+                                              , BAH.NameOfLandlord
+                                              , BAH.IsPrimary
+                                              , A.HouseNo
+                                              , BA.BrgyDesc
+                                              , A.Telephone
+                                              , A.ContactNumber
+                                              FROM R_Spouse B
+                                                INNER JOIN borrowerAddressHistory BAH
+                                                  ON B.BorrowerId = BAH.BorrowerId
+                                                INNER JOIN R_Address A
+                                                  ON A.AddressId = BAH.AddressId
+                                                INNER JOIN add_barangay BA
+                                                  ON BA.BrgyCode = A.BarangayId
+                                                WHERE B.SpouseId = $Id
+                                                AND BAH.IsPrimary = 1
+                                                AND A.AddressType = 'City Address'
+                                                AND BAH.StatusId = 1
+                                                AND BAH.IsPrimary = 1
+
+    ");
+    $data = $query_string->row_array();
+    return $data;
+  }
+
+  function getEmployer($Id, $status)
+  {
+    $query_string = $this->db->query("SELECT  EmployerName
+                                              , BHP.Name as Position
+                                              , I.Name as Industry
+                                              , CASE
+                                                  WHEN EmployerStatus = 1
+                                                  THEN 'Present Employer'
+                                                  ELSE 'Previous Employer'
+                                                END as EmployerStatus
+                                              , DATE_FORMAT(BHE.DateHired, '%d %b %Y') as DateHired
+                                              , TenureYear
+                                              , TenureMonth
+                                              , BusinessAddress
+                                              , TelephoneNumber
+                                              , EmployerId
+                                              , BHE.StatusId
+                                              FROM borrower_has_employer BHE
+                                                INNER JOIN R_Borrowers B
+                                                  ON B.BorrowerId = BHE.BorrowerId
+                                                LEFT JOIN Borrower_Has_Position BHP
+                                                  ON BHP.BorrowerPositionId = BHE.PositionId
+                                                LEFT JOIN R_Industry I
+                                                  ON I.IndustryId = BHE.IndustryId
+                                                    WHERE B.BorrowerId = $Id
+                                                    AND EmployerStatus = $status
+                                                    AND BHE.StatusId = 1
+    ");
+    $data = $query_string->row_array();
+    return $data;
+  }
+
+  function getReferences($BorrowerId)
+  {
+    $query_string = $this->db->query("SELECT  Name
+                                              , Address
+                                              , ContactNumber
+                                              FROM Borrower_has_reference BN
+                                                INNER JOIN r_employee EMP
+                                                  ON EMP.EmployeeNumber = BN.CreatedBy
+                                                    WHERE BorrowerId = $BorrowerId
+                                                    AND BN.StatusId = 1
+    ");
+    $data = $query_string->result_array();
+    return $data;
+  }
+
+  function getHouseholdMoney($AppId, $tableName)
+  {
+    $query_string = $this->db->query("SELECT  COALESCE(SUM(Amount) ,0) as Total
+                                              FROM $tableName
+                                                    WHERE StatusId = 1
+                                                      AND ApplicationId = $AppId
+    ");
+    $data = $query_string->row_array();
+    return $data;
+  }
+
+  function getCoMaker($borrowerId)
+  {
+    $query_string = $this->db->query("SELECT  BHC.Name
+                                              , DATE_FORMAT(BHC.Birthdate, '%m/%b/%Y') as DateOfBirth
+                                              , Employer
+                                              , BusinessAddress
+                                              , P.Name as PositionName
+                                              , TenureYear
+                                              , TenureMonth
+                                              , TelephoneNo
+                                              , BusinessNo
+                                              , MobileNo
+                                              , MonthlyIncome
+                                              FROM borrower_has_comaker BHC
+                                                INNER JOIN R_Position P
+                                                  ON P.PositionId = BHC.PositionId
+                                                WHERE BorrowerId = $borrowerId
+
+    ");
+    $data = $query_string->row_array();
+    return $data;
+  }
+
+  function getSpouseDetails($Id)
+  {
+    $query_string = $this->db->query("SELECT DISTINCT B.SpouseId
+                                              , S.name as Salutation
+                                              , B.FirstName
+                                              , CONCAT(LastName, ', ', FirstName, ' ', MiddleName, ', ', ExtName) as Name
+                                              , acronym (B.MiddleName) as MiddleInitial
+                                              , B.LastName
+                                              , B.ExtName
+                                              , B.Dependents
+                                              , SX.Name as Sex
+                                              , N.Description as Nationality
+                                              , C.name as CivilStatus
+                                              , DATE_FORMAT(B.DateOfBirth, '%d %b %Y') as DateOfBirth
+                                              , DATE_FORMAT(B.DateCreated, '%d %b %Y') as DateAdded
+                                              , DATE_FORMAT(B.DateOfBirth, '%Y-%b-%d') as RawDateOfBirth
+                                              , SS.Name as StatusDescription
+                                              , B.StatusId
+
+                                              , B.MiddleName
+                                              , S.SalutationId
+                                              , SX.SexId
+                                              , N.NationalityId
+                                              , N.Description as NationalityName
+                                              , C.CivilStatusId
+                                              FROM R_Spouse B
+                                                INNER JOIN R_Salutation S
+                                                  ON S.SalutationId = B.Salutation
+                                                INNER JOIN R_Sex SX
+                                                  ON SX.SexId = B.Sex
+                                                INNER JOIN r_nationality N
+                                                  ON N.NationalityId = B.Nationality
+                                                INNER JOIN r_civilstatus C
+                                                  ON C.CivilStatusId = B.CivilStatus
+                                                INNER JOIN R_BorrowerStatus SS
+                                                  ON SS.BorrowerStatusId = B.StatusId
+                                                WHERE B.SpouseId = $Id
+                                                AND B.StatusId = 1
+
+    ");
+
+    $data = $query_string->row_array();
+    return $data;
+  }
+
 
   function getRepayments($Id)
   {
@@ -316,7 +565,7 @@ class loanapplication_model extends CI_Model
   function getRequirementsList($Id)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $query = $this->db->query("SELECT R.RequirementId 
+    $query = $this->db->query("SELECT R.RequirementId
                                       FROM Application_has_Requirements AHR
                                         INNER JOIN R_Requirements R
                                           ON R.RequirementId = AHR.RequirementId
@@ -324,6 +573,51 @@ class loanapplication_model extends CI_Model
                                           ON R.RequirementTypeId = RHT.RequirementTypeId
                                             WHERE AHR.ApplicationId = $Id
                                             AND AHR.StatusId = 5
+    ");
+
+    $data = $query->result_array();
+    return $data;
+  }
+
+  function getRequirementReport($Id)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $query = $this->db->query("SELECT R.RequirementId
+                                      , R.Name
+                                      FROM Application_has_Requirements AHR
+                                        INNER JOIN R_Requirements R
+                                          ON R.RequirementId = AHR.RequirementId
+                                            WHERE AHR.ApplicationId = $Id
+                                            AND AHR.StatusId = 5
+    ");
+
+    $data = $query->result_array();
+    return $data;
+  }
+
+  function getApproversReport($Id)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $query = $this->db->query("SELECT CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName) as Name
+                                      , S.Description
+                                      , DATE_FORMAT(AHA.DateUpdated, '%b %d, %Y') as DateUpdated
+                                      , CONCAT(EMP2.FirstName, ' ', EMP2.MiddleName, ' ', EMP2.LastName) as ProcessedBy
+                                      FROM application_has_approver AHA
+                                        INNER JOIN r_status S
+                                          ON S.StatusId = AHA.StatusId
+                                        INNER JOIN r_employee EMP
+                                          ON EMP.EmployeeNumber = AHA.ApproverNumber
+                                        LEFT JOIN r_employee EMP2
+                                          ON EMP2.EmployeeNumber = AHA.ApprovedBy
+                                        WHERE ApplicationId = $Id
+                                        AND 
+                                        (
+                                            AHA.StatusId = 3
+                                            OR
+                                            AHA.StatusId = 4
+                                            OR
+                                            AHA.StatusId = 5
+                                        )
     ");
 
     $data = $query->result_array();
@@ -409,7 +703,7 @@ class loanapplication_model extends CI_Model
   function getPenalties($Id)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $query = $this->db->query("SELECT   SUM(AHP.TotalPenalty) as Total
+    $query = $this->db->query("SELECT   COALESCE(SUM(AHP.TotalPenalty), 0) as Total
                                         FROM Application_Has_Penalty AHP
                                           WHERE ApplicationId = $Id
                                           AND AHP.StatusId = 1
@@ -623,55 +917,62 @@ class loanapplication_model extends CI_Model
     return $data;
   }
 
-  function getCollections($dateFrom, $dateTo)
+  function getCollections($dateFrom, $dateTo, $columns, $query)
   {
-    if(isset($dateFrom) && isset($dateTo))
-    {
-      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-      $query_string = $this->db->query("SELECT  A.TransactionNumber
-                                                , CONCAT(B.FirstName, ' ', B.MiddleName, ' ', B.LastName, ', ', B.ExtName) as BorrowerName
-                                                , FORMAT(A.PrincipalAmount, 2) as LoanAmount
-                                                , FORMAT(PM.Amount, 2) as PaymentAmount
-                                                , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as CollectedBy
-                                                , DATE_FORMAT(PM.DateCollected, '%b %d, %Y') as PaymentDate
-                                                , PM.DateCollected
-                                                , PM.DateCreated
-                                                , A.ApplicationId
-                                                FROM t_paymentsmade PM
-                                                      INNER JOIN t_application A
-                                                          ON A.ApplicationId = PM.ApplicationId
-                                                        INNER JOIN R_Borrowers B
-                                                          ON B.BorrowerId = A.BorrowerId
-                                                        INNER JOIN r_employee EMP
-                                                          ON EMP.EmployeeNumber = PM.CreatedBy
-                                                          WHERE A.StatusId = 1
-                                                          AND PM.StatusId = 1
-                                                          AND PM.DateCollected BETWEEN DATE_FORMAT(".$dateFrom.", '%Y-%d-%m') AND DATE_FORMAT(".$dateTo.", '%Y-%d-%m')
-      ");
-    }
-    else 
-    {
-      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-      $query_string = $this->db->query("SELECT  A.TransactionNumber
-                                                , CONCAT(B.FirstName, ' ', B.MiddleName, ' ', B.LastName, ', ', B.ExtName) as BorrowerName
-                                                , FORMAT(A.PrincipalAmount, 2) as LoanAmount
-                                                , FORMAT(PM.Amount, 2) as PaymentAmount
-                                                , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as CollectedBy
-                                                , DATE_FORMAT(PM.DateCollected, '%b %d, %Y') as PaymentDate
-                                                , PM.DateCollected
-                                                , PM.DateCreated
-                                                , A.ApplicationId
-                                                FROM t_paymentsmade PM
-                                                      INNER JOIN t_application A
-                                                          ON A.ApplicationId = PM.ApplicationId
-                                                        INNER JOIN R_Borrowers B
-                                                          ON B.BorrowerId = A.BorrowerId
-                                                        INNER JOIN r_employee EMP
-                                                          ON EMP.EmployeeNumber = PM.CreatedBy
-                                                          WHERE A.StatusId = 1
-                                                          AND PM.StatusId = 1
-      ");
-    }
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $query_string = $this->db->query("SELECT  $columns
+                                              , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as CollectedBy
+                                              , DATE_FORMAT(PM.DateCollected, '%b %d, %Y') as PaymentDate
+                                              , PM.DateCollected
+                                              , A.ApplicationId
+                                              , PM.Description
+                                              , PM.AmountPaid as AmountPaid
+                                              , BNK.BankName
+                                              , DATE_FORMAT(PM.DateCollected, '%b %d, %Y') as dateCollected
+                                              , DATE_FORMAT(PM.dateCreated, '%b %d, %Y %r') as dateCreated
+
+                                              , PM.ChangeAmount as rawChangeAmount
+                                              , PM.AmountPaid as rawAmountPaid
+                                              , PM.InterestAmount as rawInterestCollection
+                                              , PM.PrincipalAmount as rawPrincipalCollection
+
+                                              FROM t_paymentsmade PM
+                                                INNER JOIN t_application A
+                                                    ON A.ApplicationId = PM.ApplicationId
+                                                  INNER JOIN R_Borrowers B
+                                                    ON B.BorrowerId = A.BorrowerId
+                                                  INNER JOIN r_employee EMP
+                                                    ON EMP.EmployeeNumber = PM.CreatedBy
+                                                  INNER JOIN R_Bank BNK
+                                                    ON BNK.BankId = PM.ChangeId
+                                                    WHERE A.StatusId = 1
+                                                    AND PM.StatusId = 1
+                                                    AND DATE_FORMAT(PM.DateCollected, '%Y-%m-%d') BETWEEN  DATE_FORMAT('$dateFrom', '%Y-%m-%d') AND DATE_FORMAT('$dateTo', '%Y-%m-%d')
+                                                    $query
+                                                    ORDER BY PM.DateCollected DESC
+    ");
+    $data = $query_string->result_array();
+    return $data;
+  }
+
+  function getExpensesReport($dateFrom, $dateTo, $query)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $query_string = $this->db->query("SELECT  CONCAT('EX-', LPAD(EX.ExpenseId, 6, 0)) as ReferenceNo
+                                              , EXT.Name
+                                              , EX.Amount
+                                              , DATE_FORMAT(EX.DateExpense, '%b %d, %Y') as DateExpense
+                                              , DATE_FORMAT(EX.DateCreated, '%b %d, %Y') as DateCreated
+                                              , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName) as CreatedBy
+                                              FROM R_Expense EX
+                                                    INNER JOIN r_expensetype EXT
+                                                        ON EXT.ExpenseTypeId = EX.ExpenseTypeId
+                                                      INNER JOIN r_employee EMP
+                                                        ON EMP.EmployeeNumber = EX.CreatedBy
+                                                          WHERE EX.StatusId = 1
+                                                          AND DATE_FORMAT(EX.DateExpense, '%Y-%m-%d') BETWEEN  DATE_FORMAT('$dateFrom', '%Y-%m-%d') AND DATE_FORMAT('$dateTo', '%Y-%m-%d')
+                                                          $query
+    ");
     $data = $query_string->result_array();
     return $data;
   }

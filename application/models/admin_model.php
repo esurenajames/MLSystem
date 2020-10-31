@@ -52,6 +52,32 @@ class admin_model extends CI_Model
       return $query->result();
     }
 
+    function getReportEmployees($keyword)
+    {
+      $query_result = [];
+      $query = $this->db->query("SELECT   CONCAT(EmployeeNumber, ' - ', FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END , ' - ', P.Name ) 'id'
+                                          , CONCAT(EmployeeNumber, ' - ', FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END , ' - ', P.Name )  as 'text'
+                                          FROM R_Employee EMP
+                                            INNER JOIN R_Position P
+                                              ON P.PositionId = EMP.PositionId
+                                              WHERE (
+                                                EMP.StatusId = 1
+                                                OR 
+                                                EMP.StatusId = 2
+                                              )
+                                              AND 
+                                              (
+                                                EmployeeNumber LIKE '%$keyword%'
+                                                OR FirstName LIKE '%$keyword%'
+                                                OR LastName LIKE '%$keyword%'
+                                                OR ExtName LIKE '%$keyword%'
+                                                OR MiddleName LIKE '%$keyword%'
+                                              )
+                                              AND EmployeeNumber != '000000'
+      ");
+      return $query->result();
+    }
+
     function getBorrowers($keyword)
     {
       $query_result = [];

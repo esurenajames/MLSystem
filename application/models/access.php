@@ -15,7 +15,7 @@ class access extends CI_Model
                                                       WHERE U.EmployeeNumber = '".$input['username']."'
                                                       AND CAST(Password AS CHAR(10000) CHARACTER SET utf8) = '".$input['password']."'
                                                       AND U.StatusId = 1
-                                                      AND EMP.StatusId = 1
+                                                      AND EMP.StatusId = 2
       ");
       $data = $query_string->num_rows();
       return $data;
