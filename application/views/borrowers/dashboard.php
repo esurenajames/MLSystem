@@ -330,47 +330,49 @@
             <span aria-hidden="true">&times;</span></button>
           <h4 class="modal-title">Generate Reports</h4>
         </div>
-          <div class="modal-body">
-            <div class="row">
-              <div class="col-md-12">
-                <select class="form-control" id="selectReportType" onchange="ReportType(this.value)">
-                  <option selected="" disabled="">Select Report Type</option>
-                  <option value="1">Demographics</option>
-                  <option value="2">Custom</option>
-                </select>
-              </div>
-              <div id="divDemographics">
-                <div class="col-md-6">
-                  <label>Select Year From</label>
-                  <select class="form-control" id="yearFrom">
-                    <?php 
-                      foreach ($ageYear as $value) 
-                      {
-                        $selected = (date("Y") == $value['Year']) ? 'selected' : '';
-                        echo '<option '.$selected.'>'.$value['Year'].'</option>';
-                      }
-                    ?>
+          <form autocomplete="off" action="<?php echo base_url(); ?>borrower_controller/generateReport/" method="post" enctype="multipart/form-data">
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-md-12">
+                  <select class="form-control" id="selectReportType" onchange="ReportType(this.value)">
+                    <option selected="" disabled="">Select Report Type</option>
+                    <option value="1">Demographics</option>
+                    <option value="2">Custom</option>
                   </select>
                 </div>
-                <div class="col-md-6">
-                  <label>Select Year To</label>
-                  <select class="form-control" id="yearTo">
-                    <?php 
-                      foreach ($ageYear as $value) 
-                      {
-                        $selected = (date("Y") == $value['Year']) ? 'selected' : '';
-                        echo '<option '.$selected.'>'.$value['Year'].'</option>';
-                      }
-                    ?>
-                  </select>
+                <div id="divDemographics">
+                  <div class="col-md-6">
+                    <label>Select Year From</label>
+                    <select class="form-control" id="yearFrom" name="yearFrom">
+                      <?php 
+                        foreach ($ageYear as $value) 
+                        {
+                          $selected = (date("Y") == $value['Year']) ? 'selected' : '';
+                          echo '<option '.$selected.'>'.$value['Year'].'</option>';
+                        }
+                      ?>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label>Select Year To</label>
+                    <select class="form-control" id="yearTo" name="yearTo">
+                      <?php 
+                        foreach ($ageYear as $value) 
+                        {
+                          $selected = (date("Y") == $value['Year']) ? 'selected' : '';
+                          echo '<option '.$selected.'>'.$value['Year'].'</option>';
+                        }
+                      ?>
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <a class="btn btn-primary" onclick="generateReport()">Submit</a>
-          </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button class="btn btn-primary" type="submit">Submit</button>
+            </div>
+          </form>
       </div>
     </div>
   </div>
@@ -448,37 +450,6 @@
 
     }
   }
-
-  function generateReport()
-  {
-    $.ajax({                
-        url: "<?php echo base_url();?>" + "/borrower_controller/generateReport",
-        method: "POST",
-        data:   {
-                  yearFrom : $('#yearFrom').val()
-                  , yearTo : $('#yearTo').val()
-                },
-        beforeSend: function(){
-            $('.loading').show();
-        },
-        success: function(data)
-        {
-          console.log(data)
-        },
-        error: function (response) 
-        {
-          refreshPage();
-          swal({
-            title: 'Warning!',
-            text: 'Something went wrong, please contact the administrator or refresh page!',
-            type: 'warning',
-            buttonsStyling: false,
-            confirmButtonClass: 'btn btn-primary'
-          });
-        }
-    });
-  }
-
 
   function confirm(Text, Id, updateType, tableType)
   { 

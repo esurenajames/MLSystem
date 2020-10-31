@@ -61,6 +61,17 @@ class admin_controller extends CI_Controller {
     echo json_encode($json);
   }
 
+  public function getReportEmployees()
+  {
+    $json = [];
+    if(!empty($this->input->get("q")))
+    {
+      $keyword = $this->input->get("q");
+      $json = $this->admin_model->getReportEmployees($keyword);
+    }
+    echo json_encode($json);
+  }
+
   public function getBorrowers()
   {
     $json = [];

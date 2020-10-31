@@ -26,6 +26,7 @@ class borrower_controller extends CI_Controller {
 		$this->load->model('employee_model');
 		$this->load->model('admin_model');
     $this->load->model('borrower_model');
+    $this->load->library('Pdf');
 
    	if(empty($this->session->userdata("EmployeeNumber")) || $this->session->userdata("logged_in") == 0)
    	{
@@ -1664,7 +1665,65 @@ class borrower_controller extends CI_Controller {
 
   function generateReport()
   {
-    return 'hellsssaaa';
+    $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+    // set default monospaced font
+    $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+    // set default header data
+    $pdf->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, 'M.C Biliber Lending Corporation', "Income Statement");
+    // set margins
+    $pdf->SetMargins('10', '20', '10');
+    $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+    $pdf->SetFont('dejavusans', '', 10);
+
+    // Affected Asset
+      $pdf->AddPage('L');
+
+      $html = '
+        <style>
+        table {
+          border-collapse: collapse;
+        }
+
+        table, td, th {
+          border: 1px solid black;
+        }
+        div.a{
+          text-align: right;
+        }
+        div.b{
+          text-align: left;
+        }
+        </style>
+        <br>
+
+
+
+
+        <table>
+          <thead>
+          <tr>
+            <th><strong>Affected Asset</strong></th>
+            <th><strong>Activity Undertake</strong></th>
+            <th><strong>Status of Activity</strong></th>
+          </tr>
+          </thead>
+          <tbody>';
+            // foreach($details as $key => $current) {
+            //   $html .= '<tr>
+            //       <td>' . $current['AffectedStructure'] . '</td>
+            //       <td>' . $current['ActivityUndertaken'] . '</td>
+            //       <td>' . $current['ActivityStatus'] . '</td>
+            //   </tr>';
+            // }
+          $html .= '
+          </tbody>
+        </table>
+      ';
+      $pdf->writeHTML($html, true, false, true, false, '');
+
+    // Close and output PDF document
+      $pdf->Output('Form3.pdf', 'I');
+      // $pdf->Output('Form6.pdf', 'D');
   }
 
 }

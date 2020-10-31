@@ -118,31 +118,33 @@
           <h3 class="box-title">List of Assets</h3>
         </div>
         <div class="box-body">
-          <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewTangible">Add Asset</button>
-          <br>
-          <br>
-          <form name="ApproverDocForm" method="post" id="ApproverDocForm">
-            <table id="example1" class="table table-bordered table-hover">
-              <thead>
-              <tr>
-                <th>Type</th>
-                <th>Category</th>
-                <th>Asset</th>
-                <th>Purchase Price</th>
-                <th>Replacement Value</th>
-                <th>Serial Number</th>
-                <th>Vendor</th>
-                <th>Company Branch</th>
-                <th>Stocks</th>
-                <th>Status</th>
-                <th>Date Created</th>
-                <th>Action</th>
-              </tr>
-              </thead>
-              <tbody>
-              </tbody>
-            </table>
-          </form>
+          <div class="col-md-12">
+            <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewTangible">Add Asset</button>
+            <br>
+            <br>
+            <form name="ApproverDocForm" method="post" id="ApproverDocForm">
+              <table id="example1" class="table table-bordered table-hover">
+                <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Category</th>
+                  <th>Asset</th>
+                  <th>Purchase Price</th>
+                  <th>Replacement Value</th>
+                  <th>Serial Number</th>
+                  <th>Vendor</th>
+                  <th>Company Branch</th>
+                  <th>Stocks</th>
+                  <th>Status</th>
+                  <th>Date Created</th>
+                  <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+              </table>
+            </form>
+          </div>
         </div>
       </div>
     </section>

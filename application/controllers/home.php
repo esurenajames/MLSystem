@@ -952,4 +952,40 @@ class home extends CI_Controller {
 		$this->load->view('admin/branchDatabase', $data);
 	}
 
+	function generateLoanCollection()
+	{
+		$Id = $this->uri->segment(3);
+		$sidebar['sidebar'] = 'Reports';
+		$sidebar['sidebarMenu'] = 'Loan Collections';
+		$header['header'] = 'Generate Loan Collections';
+		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
+		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['employee'] = $this->employee_model->getEmployeeList();
+
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('reports/income/loanCollections', $data);
+	}
+
+	function generateExpenses()
+	{
+		$Id = $this->uri->segment(3);
+		$sidebar['sidebar'] = 'Reports';
+		$sidebar['sidebarMenu'] = 'Expenses';
+		$header['header'] = 'Generate Expense Report';
+		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
+		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['ExpenseType'] = $this->maintenance_model->getExpenseTypeReport();
+
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('reports/income/expenses', $data);
+	}
+
 }
