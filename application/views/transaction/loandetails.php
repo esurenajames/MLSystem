@@ -65,6 +65,35 @@
     </div>
   </div>
 
+  <div class="modal fade" id="modalApproval">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="modalApprovalUpdateTitles"></h4>
+        </div>
+        <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/loanapproval/<?php print_r($detail['ApplicationId']) ?>" method="post">
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-12">
+                <label>Remarks</label>
+                <textarea class="form-control" name="Description"></textarea>
+                <input type="hidden" name="ApprovalType" id="txtApprovalTypes">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+
   <div class="modal fade" id="modalPaymentDetails">
     <div class="modal-dialog modal-md">
       <div class="modal-content">
@@ -192,7 +221,7 @@
                 <label>Total Amount Due:</label><br>
                 <h6 id="lblTotalAmountDue"></h6>
                 <input type="hidden" id="txtAmountDue" value="<?php print_r(round($paymentDues['InterestPerCollection'], 2) + round($paymentDues['PrincipalPerCollection'], 2)) ?>" name="AmountDue"> 
-                <input type="" id="txtTotalDue" value="" name="totalDue">
+                <input type="hidden" id="txtTotalDue" value="" name="totalDue">
                 <input type="hidden" id="txtInterestAmountCollected" name="InterestAmountCollected" value="<?php print_r(round($paymentDues['InterestPerCollection'], 2)) ?>">
                 <input type="hidden" id="txtPrincipalAmountCollected" name="PrincipalAmountCollected" value="<?php print_r(round($paymentDues['PrincipalPerCollection'], 2)) ?>">
               </div>
@@ -991,19 +1020,31 @@
                     print_r($detail['StatusDescription'] . '/' . $detail['ApprovalType']);
                   }
                 ?>  <br>
-			    			<?php 
-				    			foreach ($approvers as $value) 
-				    			{
-				    				if($value['StatusId'] == 1)
-				    				{
-				    					echo "<span class='badge bg-green'>".$value['ApproverName']."</span> ";
-				    				}
-				    				else
-				    				{
-				    					echo "<span class='badge bg-blue'>".$value['ApproverName']."</span> ";
-				    				}
-				    			}
-			    			?> 
+                <?php 
+                  foreach ($approvers as $value) 
+                  {
+                    if($value['StatusId'] == 1)
+                    {
+                      echo "<span class='badge bg-green'>".$value['ApproverName']."</span> ";
+                    }
+                    else if($value['StatusId'] == 4)
+                    {
+                      echo "<span class='badge bg-red'>".$value['ApproverName']."</span> ";
+                    }
+                    else
+                    {
+                      echo "<span class='badge bg-blue'>".$value['ApproverName']."</span> ";
+                    }
+                  }
+
+                  if($detail['CurrentApprover'] == $this->session->userdata('EmployeeNumber'))
+                  {
+                    echo '<div class="pull-right">
+                      <a class="btn btn-success btn-sm" data-toggle="modal" data-target="#modalApproval" onclick="approvalTypes(1)">Approve</a>
+                      <a class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modalApproval" onclick="approvalTypes(2)">Disapprove</a>
+                    </div>';
+                  }
+                ?>
 			    		<br>
 		      	</div>
 		      </div>
@@ -1013,7 +1054,7 @@
       <div class="box">
         <div class="box-header with-border">
           <h3 class="box-title"><label>Loan Application Details:</label></h3>
-          <a class="btn btn-sm btn-primary pull-right" href="<?php echo base_url(); ?>loanapplication_controller/generateReport/3/<?php print_r($detail['ApplicationId']) ?>">Generate PDF</a>
+          <a class="btn btn-sm btn-primary pull-right" href="<?php echo base_url(); ?>loanapplication_controller/generateReport/3/<?php print_r($detail['ApplicationId']) ?>">Generate Report</a>
         </div>
         <div class="box-body">
           <div class="row">
@@ -1042,7 +1083,7 @@
 		    <div class="box-header with-border">
 		      <h3 class="box-title"><label>Loan Application No:</label> <?php print_r($detail['TransactionNumber']) ?></h3>
           <?php 
-            if($detail['StatusId'] == 1)
+            if($detail['StatusId'] == 1 || $detail['StatusId'] == 3)
             {
               echo '<button class="btn btn-sm btn-primary pull-right" data-toggle="modal" data-target="#modalRestructure">Re-Structure</button>';
             }
@@ -1106,7 +1147,7 @@
                 $totalDue = $TotalInterest + $detail['RawPrincipalAmount'];
                 print_r('Php '. number_format($TotalInterest, 2));
               ?><br>
-              <label>Amount Disbursed: </label> <?php print_r('Php '. number_format($totalDue, 2)); ?><br>
+              <label>Amount Disbursed: </label> <?php print_r('Php '. number_format($disbursedReleased['Total'], 2)); ?><br>
             </div>
 			    	<div class="col-md-3">
               <label>Principal Collection:</label> Php <?php print_r(number_format($principalpaid['Total'], 2));?><br>
@@ -2521,6 +2562,19 @@
       $('#txtChargeId').val(ID);
     }
     $('#txtApprovalType').val(Type);
+  }
+
+  function approvalTypes(Type)
+  {
+    if(Type == 1)
+    {
+      $('#modalApprovalUpdateTitles').html('Approve Loan');
+    }
+    else
+    {
+      $('#modalApprovalUpdateTitles').html('Disapprove Loan');
+    }
+    $('#txtApprovalTypes').val(Type);
   }
 
   function uploadRequirementsChange(value)

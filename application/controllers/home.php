@@ -547,7 +547,7 @@ class home extends CI_Controller {
 		$data['detail'] = $this->loanapplication_model->getLoanApplicationDetails($Id);
 		$data['LoanType'] = $this->loanapplication_model->getLoanTypes();
 		$data['Purpose'] = $this->loanapplication_model->getPurpose();
-		$data['disbursements'] = $this->loanapplication_model->getDisbursements();
+		$data['disbursements'] = $this->maintenance_model->getDisbursements2();
 		$data['repaymentCycle'] = $this->loanapplication_model->getRepaymentCycle();
 		$data['charges'] = $this->loanapplication_model->getCharges($Id);
 		$data['borrowerList'] = $this->loanapplication_model->getBorrowerList();
@@ -674,6 +674,7 @@ class home extends CI_Controller {
 		$data['interestPaid'] = $this->loanapplication_model->getInterestPaid($Id);
 		$data['principalpaid'] = $this->loanapplication_model->getPrincipalPaid($Id);
 		$data['otherPaid'] = $this->loanapplication_model->getOtherPaid($Id);
+		$data['disbursedReleased'] = $this->loanapplication_model->getTotalDisbursed($Id);
 
 
 		$data['Payments'] = $this->loanapplication_model->getPaymentsMade($Id);

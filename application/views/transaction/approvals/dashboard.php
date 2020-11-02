@@ -65,7 +65,7 @@
       , { data: "StatusId", "render": function (data, type, b) {
           if(b.IsApprovable == 1)
           {
-            return b.ProcessedApprovers+ '/' + b.PendingApprovers + ' in progress';
+            return b.ProcessedApprovers+ '/' + b.TotalApprovers + ' in progress';
           }
           else
           {

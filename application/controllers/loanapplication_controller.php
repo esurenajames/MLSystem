@@ -611,6 +611,11 @@ class loanapplication_controller extends CI_Controller {
         $this->maintenance_model->updateFunction1($set, $condition, $table);
       }
 
+      // // admin audits
+      //   $auditLogsManager = $EmployeeNumber . ' changed temporary password.';
+      //   $auditAffectedEmployee = 'Changed temporary password.';
+      //   $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
+        
       $insertData = array(
         'ApplicationId'             => $this->uri->segment(3),
         'Description'               => 'Approved.',

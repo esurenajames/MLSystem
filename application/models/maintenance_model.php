@@ -1022,7 +1022,7 @@ class maintenance_model extends CI_Model
                                           , LastName
                                           , FirstName
                                           FROM r_employee
-                                            WHERE StatusId = 1
+                                            WHERE StatusId = 2
                                               AND EmployeeNumber != 000000
       ");
       $output = '<option disabled>Select Approver</option>';
@@ -1149,6 +1149,17 @@ class maintenance_model extends CI_Model
         $output .= '<option data-city="'.$row->Name.'" value="'.$row->DisbursementId.'">'.$row->Name.'</option>';
       }
       return $output;
+    }
+
+    function getDisbursements2()
+    {
+      $query = $this->db->query("SELECT   Name
+                                          , DisbursementId
+                                          FROM r_disbursement 
+                                          WHERE StatusId = 1
+      ");
+      $data = $query->result_array();
+      return $data;
     }
 
     function getPaymentMethod()

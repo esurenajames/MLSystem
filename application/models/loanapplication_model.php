@@ -123,6 +123,7 @@ class loanapplication_model extends CI_Model
                                       , B.MiddleName
                                       , DATE_FORMAT(B.DateOfBirth, '%m-%d-%Y') as ReportDOB
                                       , LU.Description as LoanUndertaking
+                                      , (SELECT DISTINCT ApproverNumber FROM application_has_approver WHERE ApplicationId = A.ApplicationId AND StatusId = 5 ORDER BY ApplicationApprovalId LIMIT 1) as CurrentApprover
                                       FROM T_Application A
                                         INNER JOIN Application_Has_Status LS
                                           ON A.StatusId = LS.LoanStatusId
@@ -502,6 +503,18 @@ class loanapplication_model extends CI_Model
                                                 FROM T_PAYMENTSMADE 
                                                   WHERE APPLICATIONID = $Id 
                                                   AND IsOthers = 1 
+                                                  AND STATUSID = 1
+    ");
+
+    $data = $query->row_array();
+    return $data;
+  }
+
+  function getTotalDisbursed($Id)
+  {
+    $query = $this->db->query("SELECT DISTINCT  COALESCE(SUM(AMOUNT), 0) as Total
+                                                FROM Application_has_Disbursement 
+                                                  WHERE APPLICATIONID = $Id
                                                   AND STATUSID = 1
     ");
 
@@ -890,12 +903,11 @@ class loanapplication_model extends CI_Model
                                               , (SELECT COUNT(*) 
                                                     FROM application_has_approver
                                                       WHERE ApplicationId = A.ApplicationId
-                                                      AND StatusId = 5
-                                              ) as PendingApprovers
+                                              ) as TotalApprovers
                                               , (SELECT COUNT(*) 
                                                     FROM application_has_approver
                                                       WHERE ApplicationId = A.ApplicationId
-                                                      AND StatusId = 3
+                                                      AND StatusId = 1
                                               ) as ProcessedApprovers
                                               , (SELECT MAX(DATE_FORMAT(DateCreated, '%b %d, %Y'))
                                                         FROM t_paymentsmade
@@ -912,6 +924,10 @@ class loanapplication_model extends CI_Model
                                                 LEFT JOIN R_RepaymentCycle RC
                                                   ON RC.RepaymentId = A.RepaymentId
                                                   WHERE A.StatusId = 3
+                                                  AND (SELECT COUNT(*) 
+                                                    FROM application_has_approver
+                                                      WHERE ApplicationId = A.ApplicationId
+                                              ) > 0
     ");
     $data = $query_string->result_array();
     return $data;

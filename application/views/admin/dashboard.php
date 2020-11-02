@@ -1452,8 +1452,8 @@
   }
 
   $(function () {
-    selectPieChartAge();
-    // changeAgeReport('Bar Graph');
+    // selectPieChartAge();
+    changeAgeReport('Bar Graph');
     UserTable = $('#example1').DataTable({
       "pageLength": 10,
       "ajax": { url: '<?php echo base_url()."/datatables_controller/Users/"; ?>', type: 'POST', "dataSrc": "" },

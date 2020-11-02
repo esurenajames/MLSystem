@@ -3208,7 +3208,7 @@ class admin_controller extends CI_Controller {
         'FirstName' => 'GIA TECH',
         'LastName' => 'INFORMATION SOLUTIONS',
         'EmployeeNumber' => '000000',
-        'StatusId' => 1,
+        'StatusId' => 2,
       );
       $auditTablee = 'r_employee';
       $this->maintenance_model->insertFunction($insertDataE, $auditTablee);
