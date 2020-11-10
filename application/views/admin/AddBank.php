@@ -69,6 +69,7 @@
             <table id="example1" class="table table-bordered table-hover">
               <thead>
               <tr>
+                <th>#</th>
                 <th>Bank</th>
                 <th>Description</th>
                 <th>Account No.</th>
@@ -211,7 +212,8 @@
     UserTable = $('#example1').DataTable({
       "pageLength": 10,
       "ajax": { url: '<?php echo base_url()."/datatables_controller/Banks/"; ?>', type: 'POST', "dataSrc": "" },
-      "columns": [  { data: "BankName" }
+      "columns": [  { data: "ReferenceNo" }
+                    , { data: "BankName" }
                     , { data: "Description" }
                     , { data: "AccountNumber" }
                     , {

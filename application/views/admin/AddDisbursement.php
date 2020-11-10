@@ -25,7 +25,7 @@
         <form action="<?php echo base_url(); ?>admin_controller/AddDisbursement/" id="frmInsert2" method="post">
           <div class="modal-body">
               <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-12">
                   <div class="form-group">
                     <label for="Disbursement">Name of Disbursement</label><br>
                     <input type="text" class="form-control" id="txtDisbursement" name="Disbursement">
@@ -59,6 +59,7 @@
               <table id="example1" class="table table-bordered table-hover">
                 <thead>
                 <tr>
+                  <th>#</th>
                   <th>Name</th>
                   <th>Status</th>
                   <th>Date Created</th>
@@ -103,7 +104,7 @@
     });
   }
   
-  function confirm(Text, RepaymentId, updateType)
+  function confirm(Text, DisbursementId, updateType)
   { 
     swal({
       title: 'Confirm',
@@ -119,9 +120,9 @@
           url: "<?php echo base_url();?>" + "/admin_controller/updateStatus",
           method: "POST",
           data:   {
-                    Id : RepaymentId
+                    Id : DisbursementId
                     , updateType : updateType
-                    , tableType : 'Repayment'
+                    , tableType : 'Disbursement'
                   },
           beforeSend: function(){
               $('.loading').show();
@@ -131,7 +132,7 @@
             refreshPage();
             swal({
               title: 'Success!',
-              text: 'Repayment Cycle successfully updated!',
+              text: 'Disbursement successfully updated!',
               type: 'success',
               buttonsStyling: false,
               confirmButtonClass: 'btn btn-primary'
@@ -152,14 +153,14 @@
     });
   }
 
-  function Edit(RepaymentId)
+  function Edit(DisbursementId)
   {
     $.ajax({
-      url: '<?php echo base_url()?>' + "/admin_controller/getRepaymentDetails",
+      url: '<?php echo base_url()?>' + "/admin_controller/getDisbursementDetails",
       type: "POST",
       async: false,
       data: {
-        Id : RepaymentId
+        Id : DisbursementId
       },
       dataType: "JSON",
       beforeSend: function(){
@@ -167,8 +168,8 @@
       },
       success: function(data)
       {
-        $('#txtRepayment').val(data['Type']);
-        $('#txtRepaymentId').val(RepaymentId);
+        $('#txtDisbursement').val(data['Name']);
+        $('#txtDisbursementId').val(DisbursementId);
         $('#txtFormType').val(2);
       },
 
@@ -197,7 +198,8 @@
     UserTable = $('#example1').DataTable({
       "pageLength": 10,
       "ajax": { url: '<?php echo base_url()."/datatables_controller/Disbursements/"; ?>', type: 'POST', "dataSrc": "" },
-      "columns": [  { data: "DisbursementName" }
+      "columns": [  { data: "ReferenceNo" }
+                    , { data: "DisbursementName" }
                     , {
                       data: "StatusId", "render": function (data, type, row) {
                         if(row.StatusId == 1){
@@ -215,10 +217,10 @@
                     {
                       data: "StatusId", "render": function (data, type, row) {
                       if(row.StatusId == 1){
-                          return '<a onclick="confirm(\'Are you sure you want to deactivate this Repayment Cycle?\', \''+row.DisbursementId+'\', 0)" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a> <a onclick="Edit('+row.DisbursementId+')" data-toggle="modal" data-target="#modalNewRepaymentCycle" class="btn btn-info" title="Edit"><span class="fa fa-edit"></span></a>';
+                          return '<a onclick="confirm(\'Are you sure you want to deactivate this Disbursement?\', \''+row.DisbursementId+'\', 0)" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a> <a onclick="Edit('+row.DisbursementId+')" data-toggle="modal" data-target="#modalNewDisbursement" class="btn btn-info" title="Edit"><span class="fa fa-edit"></span></a>';
                         }
                         else if(row.StatusId == 0){
-                          return '<a onclick="confirm(\'Are you sure you want to re-activate this Repayment Cycle?\', \''+row.DisbursementId+'\', 1)" class="btn btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
+                          return '<a onclick="confirm(\'Are you sure you want to re-activate this Disbursement?\', \''+row.DisbursementId+'\', 1)" class="btn btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
                         }
                         else{
                           return "N/A";

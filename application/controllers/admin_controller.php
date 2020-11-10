@@ -919,6 +919,88 @@ class admin_controller extends CI_Controller {
     }
   }
 
+  function AddDisbursement()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $DisbursementDetail = $this->admin_model->getDisbursementDetails($_POST['DisbursementId']);
+    if ($_POST['FormType'] == 1) // add Disbursement
+    {
+      $data = array(
+        'Name'                     => htmlentities($_POST['Disbursement'], ENT_QUOTES)
+      );
+      $query = $this->admin_model->countDisbursement($data);
+      print_r($query);
+      if($query == 0) // not existing
+      {
+        // insert Bank details
+          $insertDisbursement = array(
+            'Name'                     => htmlentities($_POST['Disbursement'], ENT_QUOTES)
+            , 'CreatedBy'           => $EmployeeNumber
+            , 'UpdatedBy'           => $EmployeeNumber
+          );
+          $insertDisbursementTable = 'R_DIsbursement';
+          $this->maintenance_model->insertFunction($insertDisbursement, $insertDisbursementTable);
+        // notification
+          $this->session->set_flashdata('alertTitle','Success!'); 
+          $this->session->set_flashdata('alertText','Disbursement successfully recorded!'); 
+          $this->session->set_flashdata('alertType','success'); 
+          redirect('home/AddDisbursement/'. $EmployeeId['EmployeeId']);
+      }
+      else
+      {
+        // notification
+          $this->session->set_flashdata('alertTitle','Warning!'); 
+          $this->session->set_flashdata('alertText','Disbursement already existing!'); 
+          $this->session->set_flashdata('alertType','warning'); 
+          redirect('home/AddDisbursement');
+      }
+    }
+    else if($_POST['FormType'] == 2) // Edit Disbursement 
+    {
+      $data = array(
+          'Name'                     => htmlentities($_POST['Disbursement'], ENT_QUOTES)
+      );
+      $query = $this->admin_model->countDisbursement($data);
+      print_r($query);
+      if($query == 0)
+      {
+        if($DisbursementDetail['Name'] != htmlentities($_POST['Disbursement'], ENT_QUOTES))
+        {
+          // add into audit table
+            $auditDetail = 'Updated details of  '.$DisbursementDetail['Name'].' to '.htmlentities($_POST['Disbursement'], ENT_QUOTES);
+            $insertAudit = array(
+              'Description' => $auditDetail,
+              'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'R_Logs';
+            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+          // update function
+            $set = array( 
+            'Name'                     => htmlentities($_POST['Disbursement'], ENT_QUOTES)
+            );
+            $condition = array( 
+              'DisbursementId' => $_POST['DisbursementId']
+            );
+            $table = 'R_Disbursement';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+        }
+      // notif
+        $this->session->set_flashdata('alertTitle','Success!'); 
+        $this->session->set_flashdata('alertText','Disbursement details successfully updated!'); 
+        $this->session->set_flashdata('alertType','success'); 
+        redirect('home/AddDisbursement/');
+      }
+      else // if existing
+      {
+        // notif
+        $this->session->set_flashdata('alertTitle','Warning!'); 
+        $this->session->set_flashdata('alertText','Disbursement details already existing!'); 
+        $this->session->set_flashdata('alertType','warning'); 
+        redirect('home/AddDisbursement/');
+      }
+    }
+  }
+
   function AddRequirement()
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
@@ -3043,6 +3125,13 @@ class admin_controller extends CI_Controller {
     exit();
   }
 
+  function getEducationDetails()
+  {
+    $output = $this->admin_model->getEducationDetails($this->input->post('Id'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
   function getLoanStatusDetails()
   {
     $output = $this->admin_model->getLoanStatusDetails($this->input->post('Id'));
@@ -3060,6 +3149,13 @@ class admin_controller extends CI_Controller {
   function getIndustryDetails()
   {
     $output = $this->admin_model->getIndustryDetails($this->input->post('Id'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getDisbursementDetails()
+  {
+    $output = $this->admin_model->getDisbursementDetails($this->input->post('Id'));
     $this->output->set_output(print(json_encode($output)));
     exit();
   }

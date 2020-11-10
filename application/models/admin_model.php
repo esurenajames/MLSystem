@@ -285,7 +285,6 @@ class admin_model extends CI_Model
       return $RequirementDetail;
     }
 
-
     function countPositions($data)
     {
       $query_string = $this->db->query("SELECT  * 
@@ -536,6 +535,26 @@ class admin_model extends CI_Model
       $query_string = $this->db->query("SELECT  * 
                                                 FROM R_RepaymentCycle RC
                                                   WHERE RC.Type = '".$data['Name']."'
+      ");
+      $data = $query_string->num_rows();
+      return $data;
+    }
+
+    function getDisbursementDetails($Id)
+    {
+      $query_string = $this->db->query("SELECT  Name
+                                                FROM R_Disbursement D 
+                                                  WHERE DisbursementId = '$Id'
+      ");
+      $DisbursementDetail = $query_string->row_array();
+      return $DisbursementDetail;
+    }
+
+    function countDisbursement($data)
+    {
+      $query_string = $this->db->query("SELECT  * 
+                                                FROM R_Disbursement D
+                                                  WHERE D.Name = '".$data['Name']."'
       ");
       $data = $query_string->num_rows();
       return $data;
@@ -800,6 +819,40 @@ class admin_model extends CI_Model
           else if($input['updateType'] == 0)
           {
             $Description = 'Deactivated ' .$ChargeDetail['Name']. '  at the system setup'; // main log
+          }
+          $data2 = array(
+            'Description'   => $Description,
+            'CreatedBy'     => $EmployeeNumber,
+            'DateCreated'   => $DateNow
+          );
+          $this->db->insert('R_Logs', $data2);
+      }
+      else if($input['tableType'] == 'Education')
+      {
+        $EducationDetail = $this->db->query("SELECT  Name
+                                                    FROM R_Education EDU
+                                                      WHERE EducationId= ".$input['Id']."
+        ")->row_array();
+
+        // update status
+          $set = array(
+            'StatusId' => $input['updateType'],
+            'UpdatedBy' => $EmployeeNumber,
+            'DateUpdated' => $DateNow,
+          );
+          $condition = array(
+            'EducationId' => $input['Id']
+          );
+          $table = 'R_Education';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+        // insert into logs
+          if($input['updateType'] == 1)
+          {
+            $Description = 'Re-activated ' .$EducationDetail['Name']. ' at the system setup'; // main log
+          }
+          else if($input['updateType'] == 0)
+          {
+            $Description = 'Deactivated ' .$EducationDetail['Name']. '  at the system setup'; // main log
           }
           $data2 = array(
             'Description'   => $Description,
@@ -1208,6 +1261,40 @@ class admin_model extends CI_Model
           else if($input['updateType'] == 0)
           {
             $Description = 'Deactivated ' .$RepaymentDetail['Type']. '  at the Repayment Cycles in System Setup'; // main log
+          }
+          $data2 = array(
+            'Description'   => $Description,
+            'CreatedBy'     => $EmployeeNumber,
+            'DateCreated'   => $DateNow
+          );
+          $this->db->insert('R_Logs', $data2);
+      }
+      else if($input['tableType'] == 'Disbursement')
+      {
+        $DisbursementDetail = $this->db->query("SELECT  Name
+                                                    FROM R_Disbursement RC
+                                                      WHERE DisbursementId = ".$input['Id']."
+        ")->row_array();
+
+        // update status
+          $set = array(
+            'StatusId' => $input['updateType'],
+            'UpdatedBy' => $EmployeeNumber,
+            'DateUpdated' => $DateNow,
+          );
+          $condition = array(
+            'DisbursementId' => $input['Id']
+          );
+          $table = 'R_Disbursement';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+        // insert into logs
+          if($input['updateType'] == 1)
+          {
+            $Description = 'Re-activated ' .$DisbursementDetail['Name']. ' at the Disbursement in System Setup'; // main log
+          }
+          else if($input['updateType'] == 0)
+          {
+            $Description = 'Deactivated ' .$DisbursementDetail['Name']. '  at the Disbursement in System Setup'; // main log
           }
           $data2 = array(
             'Description'   => $Description,

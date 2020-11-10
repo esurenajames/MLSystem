@@ -105,6 +105,7 @@
             <table id="example1" class="table table-bordered table-hover">
               <thead>
               <tr>
+                <th>#</th>
                 <th>Branch</th>
                 <th>Code</th>
                 <th>Description</th>
@@ -253,7 +254,8 @@
     UserTable = $('#example1').DataTable({
       "pageLength": 10,
       "ajax": { url: '<?php echo base_url()."/datatables_controller/Branches/"; ?>', type: 'POST', "dataSrc": "" },
-      "columns": [  { data: "BranchName" }
+      "columns": [  { data: "ReferenceNo" }
+                    , { data: "BranchName" }
                     , { data: "Code" }
                     , { data: "Description" }
                     , { data: "DateFrom" }

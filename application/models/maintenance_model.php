@@ -65,6 +65,7 @@ class maintenance_model extends CI_Model
     function getAllBanks()
     {
       $query_string = $this->db->query("SELECT BNK.BankName as BankName
+                                                , CONCAT('BNK-', LPAD(BNK.BankId, 6, 0)) as ReferenceNo 
                                                 , BankId
                                                 , BNK.Description
                                                 , BNK.AccountNumber
@@ -137,6 +138,7 @@ class maintenance_model extends CI_Model
     function getAllBranches()
     {
       $query_string = $this->db->query("SELECT BRNCH.Name as BranchName
+                                                , CONCAT('BRNCH-', LPAD(BRNCH.BranchId, 6, 0)) as ReferenceNo 
                                                 , BranchId
                                                 , BRNCH.Description
                                                 , BRNCH.Code
@@ -193,6 +195,7 @@ class maintenance_model extends CI_Model
     function getAllOccupation()
     {
       $query_string = $this->db->query("SELECT OCCU.Name as OccupationName
+                                                , CONCAT('OC-', LPAD(OCCU.OccupationId, 6, 0)) as ReferenceNo 
                                                 , OCCU.Description
                                                 , OCCU.CreatedBy
                                                 , OCCU.StatusId
@@ -209,6 +212,7 @@ class maintenance_model extends CI_Model
     {
       $query_string = $this->db->query("SELECT RC.Type as RepaymentName
                                                 , RepaymentId
+                                                , CONCAT('RC-', LPAD(RC.RepaymentId, 6, 0)) as ReferenceNo 
                                                 , RC.CreatedBy
                                                 , RC.StatusId
                                                 , DATE_FORMAT(RC.DateCreated, '%d %b %Y %r') as DateCreated
@@ -221,7 +225,8 @@ class maintenance_model extends CI_Model
     function getAllDisbursements()
     {
       $query_string = $this->db->query("SELECT DB.Name as DisbursementName
-                                                , DisbursementId
+                                                , CONCAT('DB-', LPAD(DB.DisbursementId, 6, 0)) as ReferenceNo 
+                                                , DB.DisbursementId
                                                 , DB.CreatedBy
                                                 , DB.StatusId
                                                 , DATE_FORMAT(DB.DateCreated, '%d %b %Y %r') as DateCreated
@@ -391,6 +396,7 @@ class maintenance_model extends CI_Model
     function getAllIndustry()
     {
       $query_string = $this->db->query("SELECT I.Name as Industry
+                                                , CONCAT('IND-', LPAD(I.IndustryId, 6, 0)) as ReferenceNo
                                                 , IndustryId
                                                 , I.Description
                                                 , I.CreatedBy
@@ -407,6 +413,7 @@ class maintenance_model extends CI_Model
     {
       $query_string = $this->db->query("SELECT EDU.Name as EducationName
                                                 , EducationId
+                                                , CONCAT('EDU-', LPAD(EDU.EducationId, 6, 0)) as ReferenceNo
                                                 , EDU.Description
                                                 , EDU.CreatedBy
                                                 , EDU.StatusId
@@ -1164,9 +1171,11 @@ class maintenance_model extends CI_Model
 
     function getDisbursements()
     {
-      $query = $this->db->query("SELECT   Name
-                                          , DisbursementId
-                                          FROM r_disbursement 
+      $query = $this->db->query("SELECT   D.Name
+                                          , D.DisbursementId
+                                          , CONCAT('DIS-', LPAD(D.DisbursementId, 6, 0)) as ReferenceNo
+
+                                          FROM r_disbursement D
                                           WHERE StatusId = 1
       ");
       $output = '<option selected disabled value="">Select Disbursement Type</option>';
