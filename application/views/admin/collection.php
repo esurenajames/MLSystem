@@ -132,7 +132,7 @@
       "columns": [  { data: "TransactionNumber" },
                     { data: "BorrowerName" },
                     { data: "LoanAmount" },
-                    { data: "PaymentAmount" }, 
+                    { data: "AmountPaid" }, 
                     { data: "PaymentDate" }, 
                     { data: "CollectedBy" }, 
                     {

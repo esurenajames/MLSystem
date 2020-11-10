@@ -649,6 +649,7 @@ class home extends CI_Controller {
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 
+		$data['checkApprover'] = $this->loanapplication_model->checkEmployeeApprover($Id);
 		$data['requirements'] = $this->loanapplication_model->getRequirements($Id);
 		$data['detail'] = $this->loanapplication_model->getLoanApplicationDetails($Id);
 		$data['repayment'] = $this->loanapplication_model->getRepayments($Id);
@@ -686,6 +687,7 @@ class home extends CI_Controller {
 
 		$data['DisplayPenalty'] = $this->loanapplication_model->DisplayPenalty($Id);
 		$data['repaymentCycle'] = $this->loanapplication_model->getRepaymentCycle();
+		$data['loanStatus'] = $this->maintenance_model->getLoanStatus();
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);

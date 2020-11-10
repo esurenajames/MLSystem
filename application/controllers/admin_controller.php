@@ -167,6 +167,11 @@ class admin_controller extends CI_Controller {
     echo $this->maintenance_model->getManagers($this->input->post('BranchId'));
   }
 
+  function getDropDownEmployees()
+  {
+    echo $this->maintenance_model->getDropDownEmployees($this->input->post('BranchId'));
+  }
+
   function getBarangays()
   {
     echo $this->maintenance_model->getBarangays($this->input->post('Id'));
@@ -1560,6 +1565,7 @@ class admin_controller extends CI_Controller {
         , 'CategoryId'                => htmlentities($_POST['CategoryId'], ENT_QUOTES)
         , 'ReplacementValue'          => htmlentities($_POST['ReplacementValue'], ENT_QUOTES)
         , 'SerialNumber'              => htmlentities($_POST['SerialNumber'], ENT_QUOTES)
+        , 'AssignedTo'                => htmlentities($_POST['AssignedTo'], ENT_QUOTES)
         , 'BoughtFrom'                => htmlentities($_POST['BoughtFrom'], ENT_QUOTES)
         , 'BranchId'                  => htmlentities($_POST['BranchId'], ENT_QUOTES)
       );
@@ -1576,6 +1582,7 @@ class admin_controller extends CI_Controller {
             , 'CriticalLevel'          => htmlentities($_POST['CriticalLevel'], ENT_QUOTES)
             , 'CategoryId'             => htmlentities($_POST['CategoryId'], ENT_QUOTES)
             , 'ReplacementValue'       => htmlentities($_POST['ReplacementValue'], ENT_QUOTES)
+            , 'AssignedTo'             => htmlentities($_POST['AssignedTo'], ENT_QUOTES)
             , 'SerialNumber'           => htmlentities($_POST['SerialNumber'], ENT_QUOTES)
             , 'BoughtFrom'             => htmlentities($_POST['BoughtFrom'], ENT_QUOTES)
             , 'BranchId'               => htmlentities($_POST['BranchId'], ENT_QUOTES)
@@ -1603,153 +1610,222 @@ class admin_controller extends CI_Controller {
     else if($_POST['FormType'] == 2) // Edit Asset Details 
     {
       $AssetManagementDetail = $this->admin_model->getAssetManagementDetails($_POST['AssetManagementId']);
-      $data = array(
-         'PurchaseValue'               => htmlentities($_POST['PurchasePrice'], ENT_QUOTES)
-        , 'Type'                      => htmlentities($_POST['AssetType'], ENT_QUOTES)
-        , 'CategoryId'                => htmlentities($_POST['CategoryId'], ENT_QUOTES)
-        , 'ReplacementValue'          => htmlentities($_POST['ReplacementValue'], ENT_QUOTES)
-        , 'SerialNumber'              => htmlentities($_POST['SerialNumber'], ENT_QUOTES)
-        , 'BoughtFrom'                => htmlentities($_POST['BoughtFrom'], ENT_QUOTES)
-        , 'Description'               => htmlentities($_POST['Description'], ENT_QUOTES)
-      );
-      $query = $this->admin_model->countTangibles($data);
-      print_r($query);
-      if($query == 0)
+      if($AssetManagementDetail['Name'] != htmlentities($_POST['AssetName'], ENT_QUOTES))
       {
-        if($AssetManagementDetail['PurchaseValue'] != htmlentities($_POST['PurchasePrice'], ENT_QUOTES))
-        {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$AssetManagementDetail['PurchaseValue'].' to '.htmlentities($_POST['PurchasePrice'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
-          // update function
-            $set = array( 
-            'PurchaseValue'                     => htmlentities($_POST['PurchasePrice'], ENT_QUOTES)
-            );
-            $condition = array( 
-              'AssetManagementId' => $_POST['AssetManagementId']
-            );
-            $table = 'R_AssetManagement';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-        }
-        if($AssetManagementDetail['Type'] != htmlentities($_POST['AssetType'], ENT_QUOTES))
-        {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$AssetManagementDetail['Type'].' to '.htmlentities($_POST['AssetType'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
-          // update function
-            $set = array( 
-            'Type'                     => htmlentities($_POST['AssetType'], ENT_QUOTES)
-            );
-            $condition = array( 
-              'AssetManagementId' => $_POST['AssetManagementId']
-            );
-            $table = 'R_AssetManagement';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-        }
-        if($AssetManagementDetail['CategoryId'] != htmlentities($_POST['CategoryId'], ENT_QUOTES))
-        {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$AssetManagementDetail['CategoryId'].' to '.htmlentities($_POST['CategoryId'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
-          // update function
-            $set = array( 
-            'CategoryId'                     => htmlentities($_POST['CategoryId'], ENT_QUOTES)
-            );
-            $condition = array( 
-              'AssetManagementId' => $_POST['AssetManagementId']
-            );
-            $table = 'R_AssetManagement';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-        }
-        if($AssetManagementDetail['ReplacementValue'] != htmlentities($_POST['ReplacementValue'], ENT_QUOTES))
-        {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$AssetManagementDetail['ReplacementValue'].' to '.htmlentities($_POST['ReplacementValue'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
-          // update function
-            $set = array( 
-            'ReplacementValue'                     => htmlentities($_POST['ReplacementValue'], ENT_QUOTES)
-            );
-            $condition = array( 
-              'AssetManagementId' => $_POST['AssetManagementId']
-            );
-            $table = 'R_AssetManagement';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-        }
-        if($AssetManagementDetail['SerialNumber'] != htmlentities($_POST['SerialNumber'], ENT_QUOTES))
-        {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$AssetManagementDetail['SerialNumber'].' to '.htmlentities($_POST['SerialNumber'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
-          // update function
-            $set = array( 
-            'SerialNumber'                     => htmlentities($_POST['SerialNumber'], ENT_QUOTES)
-            );
-            $condition = array( 
-              'AssetManagementId' => $_POST['AssetManagementId']
-            );
-            $table = 'R_AssetManagement';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-        }
-        if($AssetManagementDetail['BoughtFrom'] != htmlentities($_POST['BoughtFrom'], ENT_QUOTES))
-        {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$AssetManagementDetail['BoughtFrom'].' to '.htmlentities($_POST['BoughtFrom'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
-          // update function
-            $set = array( 
-            'BoughtFrom'                     => htmlentities($_POST['BoughtFrom'], ENT_QUOTES)
-            );
-            $condition = array( 
-              'AssetManagementId' => $_POST['AssetManagementId']
-            );
-            $table = 'R_AssetManagement';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-        }
+        // admin audits
+          $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
+          $itemDetail = $this->maintenance_model->selectSpecific('r_assetmanagement', 'AssetManagementId', $_POST['AssetManagementId']);
+          $TransactionNumber = 'AM-'.sprintf('%05d', $itemDetail['AssetManagementId']);
+          $auditLogsManager = $employeeDetail['Name'] . ' updated asset name of '.$TransactionNumber.' from '.$AssetManagementDetail['PurchaseValue'].' to '.htmlentities($_POST['AssetName'], ENT_QUOTES).' in asset management.';
+          $auditAffectedEmployee = 'Updated asset name of '.$TransactionNumber.' from '.$AssetManagementDetail['PurchaseValue'].' to '.htmlentities($_POST['AssetName'], ENT_QUOTES).'.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
+        // update function
+          $set = array( 
+          'Name'                     => htmlentities($_POST['AssetName'], ENT_QUOTES)
+          );
+          $condition = array( 
+            'AssetManagementId' => $_POST['AssetManagementId']
+          );
+          $table = 'R_AssetManagement';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+      if($AssetManagementDetail['PurchaseValue'] != htmlentities($_POST['PurchasePrice'], ENT_QUOTES))
+      {
+        // admin audits
+          $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
+          $itemDetail = $this->maintenance_model->selectSpecific('r_assetmanagement', 'AssetManagementId', $_POST['AssetManagementId']);
+          $TransactionNumber = 'AM-'.sprintf('%05d', $itemDetail['AssetManagementId']);
+          $auditLogsManager = $employeeDetail['Name'] . ' updated purchase value of '.$TransactionNumber.' from '.$AssetManagementDetail['PurchaseValue'].' to '.htmlentities($_POST['PurchasePrice'], ENT_QUOTES).' in asset management.';
+          $auditAffectedEmployee = 'Updated purchase value of '.$TransactionNumber.' from '.$AssetManagementDetail['PurchaseValue'].' to '.htmlentities($_POST['PurchasePrice'], ENT_QUOTES).'.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
+        // update function
+          $set = array( 
+          'PurchaseValue'                     => htmlentities($_POST['PurchasePrice'], ENT_QUOTES)
+          );
+          $condition = array( 
+            'AssetManagementId' => $_POST['AssetManagementId']
+          );
+          $table = 'R_AssetManagement';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+      if($AssetManagementDetail['Type'] != htmlentities($_POST['AssetType'], ENT_QUOTES))
+      {
+        // admin audits
+          $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
+          $itemDetail = $this->maintenance_model->selectSpecific('r_assetmanagement', 'AssetManagementId', $_POST['AssetManagementId']);
+          $TransactionNumber = 'AM-'.sprintf('%05d', $itemDetail['AssetManagementId']);
+          $auditLogsManager = $employeeDetail['Name'] . ' updated type of asset of '.$TransactionNumber.' from '.$AssetManagementDetail['Type'].' to '.htmlentities($_POST['AssetType'], ENT_QUOTES).' in asset management.';
+          $auditAffectedEmployee = 'Updated type of asset of '.$TransactionNumber.' from '.$AssetManagementDetail['Type'].' to '.htmlentities($_POST['AssetType'], ENT_QUOTES).'.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
+        // update function
+          $set = array( 
+          'Type'                     => htmlentities($_POST['AssetType'], ENT_QUOTES)
+          );
+          $condition = array( 
+            'AssetManagementId' => $_POST['AssetManagementId']
+          );
+          $table = 'R_AssetManagement';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+      if($AssetManagementDetail['CategoryId'] != htmlentities($_POST['CategoryId'], ENT_QUOTES))
+      {
+        // admin audits
+          $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
+          $itemDetail = $this->maintenance_model->selectSpecific('r_assetmanagement', 'AssetManagementId', $_POST['AssetManagementId']);
+          $TransactionNumber = 'AM-'.sprintf('%05d', $itemDetail['AssetManagementId']);
+          $auditLogsManager = $employeeDetail['Name'] . ' updated asset category of '.$TransactionNumber.' from '.$AssetManagementDetail['CategoryId'].' to '.htmlentities($_POST['CategoryId'], ENT_QUOTES).' in asset management.';
+          $auditAffectedEmployee = 'Updated asset category of '.$TransactionNumber.' from '.$AssetManagementDetail['CategoryId'].' to '.htmlentities($_POST['CategoryId'], ENT_QUOTES).'.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
+        // update function
+          $set = array( 
+          'CategoryId'                     => htmlentities($_POST['CategoryId'], ENT_QUOTES)
+          );
+          $condition = array( 
+            'AssetManagementId' => $_POST['AssetManagementId']
+          );
+          $table = 'R_AssetManagement';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+      if($AssetManagementDetail['ReplacementValue'] != htmlentities($_POST['ReplacementValue'], ENT_QUOTES))
+      {
+        // admin audits
+          $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
+          $itemDetail = $this->maintenance_model->selectSpecific('r_assetmanagement', 'AssetManagementId', $_POST['AssetManagementId']);
+          $TransactionNumber = 'AM-'.sprintf('%05d', $itemDetail['AssetManagementId']);
+          $auditLogsManager = $employeeDetail['Name'] . ' updated replacement value of '.$TransactionNumber.' from '.$AssetManagementDetail['ReplacementValue'].' to '.htmlentities($_POST['ReplacementValue'], ENT_QUOTES).' in asset management.';
+          $auditAffectedEmployee = 'Updated replacement value of '.$TransactionNumber.' from '.$AssetManagementDetail['ReplacementValue'].' to '.htmlentities($_POST['ReplacementValue'], ENT_QUOTES).'.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
+        // update function
+          $set = array( 
+          'ReplacementValue'                     => htmlentities($_POST['ReplacementValue'], ENT_QUOTES)
+          );
+          $condition = array( 
+            'AssetManagementId' => $_POST['AssetManagementId']
+          );
+          $table = 'R_AssetManagement';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+      if($AssetManagementDetail['SerialNumber'] != htmlentities($_POST['SerialNumber'], ENT_QUOTES))
+      {
+        // admin audits
+          $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
+          $itemDetail = $this->maintenance_model->selectSpecific('r_assetmanagement', 'AssetManagementId', $_POST['AssetManagementId']);
+          $TransactionNumber = 'AM-'.sprintf('%05d', $itemDetail['AssetManagementId']);
+          $auditLogsManager = $employeeDetail['Name'] . ' updated serial number of '.$TransactionNumber.' from '.$AssetManagementDetail['SerialNumber'].' to '.htmlentities($_POST['SerialNumber'], ENT_QUOTES).' in asset management.';
+          $auditAffectedEmployee = 'Updated serial number of '.$TransactionNumber.' from '.$AssetManagementDetail['SerialNumber'].' to '.htmlentities($_POST['SerialNumber'], ENT_QUOTES).'.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
+        // update function
+          $set = array( 
+          'SerialNumber'                     => htmlentities($_POST['SerialNumber'], ENT_QUOTES)
+          );
+          $condition = array( 
+            'AssetManagementId' => $_POST['AssetManagementId']
+          );
+          $table = 'R_AssetManagement';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+      if($AssetManagementDetail['BoughtFrom'] != htmlentities($_POST['BoughtFrom'], ENT_QUOTES))
+      {
+        // admin audits
+          $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
+          $itemDetail = $this->maintenance_model->selectSpecific('r_assetmanagement', 'AssetManagementId', $_POST['AssetManagementId']);
+          $TransactionNumber = 'AM-'.sprintf('%05d', $itemDetail['AssetManagementId']);
+          $auditLogsManager = $employeeDetail['Name'] . ' updated vendor of '.$TransactionNumber.' from '.$AssetManagementDetail['BoughtFrom'].' to '.htmlentities($_POST['BoughtFrom'], ENT_QUOTES).' in asset management.';
+          $auditAffectedEmployee = 'Updated vendor of '.$TransactionNumber.' from '.$AssetManagementDetail['BoughtFrom'].' to '.htmlentities($_POST['BoughtFrom'], ENT_QUOTES).'.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
+        // update function
+          $set = array( 
+          'BoughtFrom'                     => htmlentities($_POST['BoughtFrom'], ENT_QUOTES)
+          );
+          $condition = array( 
+            'AssetManagementId' => $_POST['AssetManagementId']
+          );
+          $table = 'R_AssetManagement';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+      if($AssetManagementDetail['CriticalLevel'] != htmlentities($_POST['CriticalLevel'], ENT_QUOTES))
+      {
+        // admin audits
+          $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
+          $itemDetail = $this->maintenance_model->selectSpecific('r_assetmanagement', 'AssetManagementId', $_POST['AssetManagementId']);
+          $TransactionNumber = 'AM-'.sprintf('%05d', $itemDetail['AssetManagementId']);
+          $auditLogsManager = $employeeDetail['Name'] . ' updated critical level of '.$TransactionNumber.' from '.$AssetManagementDetail['CriticalLevel'].' to '.htmlentities($_POST['CriticalLevel'], ENT_QUOTES).' in asset management.';
+          $auditAffectedEmployee = 'Updated critical level of '.$TransactionNumber.' from '.$AssetManagementDetail['CriticalLevel'].' to '.htmlentities($_POST['CriticalLevel'], ENT_QUOTES).'.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
+        // update function
+          $set = array( 
+          'CriticalLevel'                     => htmlentities($_POST['CriticalLevel'], ENT_QUOTES)
+          );
+          $condition = array( 
+            'AssetManagementId' => $_POST['AssetManagementId']
+          );
+          $table = 'R_AssetManagement';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+      if($AssetManagementDetail['BranchId'] != htmlentities($_POST['BranchId'], ENT_QUOTES))
+      {
+        // admin audits
+          $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
+          $itemDetail = $this->maintenance_model->selectSpecific('r_assetmanagement', 'AssetManagementId', $_POST['AssetManagementId']);
+          $branchName = $this->maintenance_model->selectSpecific('R_Branch', 'BranchId', $_POST['BranchId']);
+          $TransactionNumber = 'AM-'.sprintf('%05d', $itemDetail['AssetManagementId']);
+          $auditLogsManager = $employeeDetail['Name'] . ' updated assigned branch of '.$TransactionNumber.' from '.$AssetManagementDetail['Name'].' to '.htmlentities($branchName['Name'], ENT_QUOTES).' in asset management.';
+          $auditAffectedEmployee = 'Updated assigned branch of '.$TransactionNumber.' from '.$AssetManagementDetail['Name'].' to '.htmlentities($branchName['Name'], ENT_QUOTES).'.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
+        // update function
+          $set = array( 
+          'BranchId'                     => htmlentities($_POST['BranchId'], ENT_QUOTES)
+          );
+          $condition = array( 
+            'AssetManagementId' => $_POST['AssetManagementId']
+          );
+          $table = 'R_AssetManagement';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+      if($AssetManagementDetail['AssignedTo'] != htmlentities($_POST['AssignedTo'], ENT_QUOTES))
+      {
+        // admin audits
+          $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
+          $fromEmployee = $this->employee_model->getEmployeeProfile($AssetManagementDetail['AssignedTo']);
+          $toEmployee = $this->employee_model->getEmployeeProfile($_POST['AssignedTo']);
+          $TransactionNumber = 'AM-'.sprintf('%05d', $itemDetail['AssetManagementId']);
+          $auditLogsManager = $employeeDetail['Name'] . ' updated assigned employee to '.$TransactionNumber.' from '.$fromEmployee['Name'].' to '.htmlentities($toEmployee['Name'], ENT_QUOTES).' in asset management.';
+          $auditAffectedEmployee = 'Updated assigned employee to '.$TransactionNumber.' from '.$fromEmployee['Name'].' to '.htmlentities($toEmployee['Name'], ENT_QUOTES).'.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
+        // update function
+          $set = array( 
+          'AssignedTo'                     => htmlentities($_POST['AssignedTo'], ENT_QUOTES)
+          );
+          $condition = array( 
+            'AssetManagementId' => $_POST['AssetManagementId']
+          );
+          $table = 'R_AssetManagement';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+      if($AssetManagementDetail['Description'] != htmlentities($_POST['Description'], ENT_QUOTES))
+      {
+        // admin audits
+          $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
+          $itemDetail = $this->maintenance_model->selectSpecific('r_assetmanagement', 'AssetManagementId', $_POST['AssetManagementId']);
+          $TransactionNumber = 'AM-'.sprintf('%05d', $itemDetail['AssetManagementId']);
+          $auditLogsManager = $employeeDetail['Name'] . ' updated description of '.$TransactionNumber.' from '.$AssetManagementDetail['Description'].' to '.htmlentities($_POST['Description'], ENT_QUOTES).' in asset management.';
+          $auditAffectedEmployee = 'Updated serial number of '.$TransactionNumber.' from '.$AssetManagementDetail['Description'].' to '.htmlentities($_POST['Description'], ENT_QUOTES).'.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
+        // update function
+          $set = array( 
+          'Description'                     => htmlentities($_POST['Description'], ENT_QUOTES)
+          );
+          $condition = array( 
+            'AssetManagementId' => $_POST['AssetManagementId']
+          );
+          $table = 'R_AssetManagement';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
       // notif
         $this->session->set_flashdata('alertTitle','Success!'); 
         $this->session->set_flashdata('alertText','Asset details successfully updated!'); 
         $this->session->set_flashdata('alertType','success'); 
         redirect('home/AddAssetManagement/');
-      }
-      else // if existing
-      {
-        // notif
-        $this->session->set_flashdata('alertTitle','Warning!'); 
-        $this->session->set_flashdata('alertText','Asset details already existing!'); 
-        $this->session->set_flashdata('alertType','warning'); 
-        redirect('home/AddAssetManagement/');
-      }
     }
     else if($_POST['FormType'] == 3) // stocks 
     {
@@ -3199,6 +3275,7 @@ class admin_controller extends CI_Controller {
     // branch
       $insertDataB = array(
         'Name' => 'Taytay',
+        'Code' => 'TAY',
         'BranchId' => 1,
       );
       $auditTableB = 'r_branch';
@@ -3212,13 +3289,26 @@ class admin_controller extends CI_Controller {
       );
       $auditTablee = 'r_employee';
       $this->maintenance_model->insertFunction($insertDataE, $auditTablee);
+      $insertDataE2 = array(
+        'FirstName' => 'Myrna',
+        'LastName' => 'Biliber',
+        'EmployeeNumber' => '000002',
+        'StatusId' => 2,
+      );
+      $auditTablee2 = 'r_employee';
+      $this->maintenance_model->insertFunction($insertDataE2, $auditTablee2);
     // branch has employee
       $insertDataBHE = array(
-        'EmployeeNumber' => '000000',
+        'EmployeeNumber' => '0000002',
         'BranchId' => 1,
       );
       $auditTableBHE = 'branch_has_employee';
+      $insertDataBHE2 = array(
+        'EmployeeNumber' => '0000002',
+        'BranchId' => 1,
+      );
       $this->maintenance_model->insertFunction($insertDataBHE, $auditTableBHE);
+      $this->maintenance_model->insertFunction($insertDataBHE2, $auditTableBHE);
     // r_loanundertaking
       $insertDataLU = array(
         'Description' => 'I hereby certify that all information herein, including all documents submitted along with this application, are genuine, true and correct. I authorize the Creditor and / or its representative to verify any and all information furnished by me, including any credit credit transactions with other institutions.',
@@ -3259,6 +3349,36 @@ class admin_controller extends CI_Controller {
       {
         $insertData = array(
           'EmployeeNumber'              => '000000'
+          , 'StatusId'                  => 1
+          , 'SubModuleId'               => $roles['SubModuleId']
+          , 'Code'                      => $roles['Code']
+          , 'ModuleId'                  => $roles['ModuleId']
+        );
+        $insertTable = 'R_UserAccess';
+        $this->maintenance_model->insertFunction($insertData, $insertTable);
+      }
+      // for owner
+      $insertDataUR2 = array(
+        'EmployeeNumber' => '000002',
+        'IsNew' => 1,
+        'StatusId' => 1,
+      );
+      $auditTableUR2 = 'r_userrole';
+      $this->maintenance_model->insertFunction($insertDataUR2, $auditTableUR2);
+      $set2 = array( 
+        'Password' => '000002',
+      );
+      $condition2 = array( 
+        'EmployeeNumber' => '000002'
+      );
+      $table2 = 'r_userrole';
+      $this->maintenance_model->updateFunction1($set2, $condition2, $table2);
+
+      $employeeRoles = $this->employee_model->getSubmodules();
+      foreach ($employeeRoles as $roles) 
+      {
+        $insertData = array(
+          'EmployeeNumber'              => '000002'
           , 'StatusId'                  => 1
           , 'SubModuleId'               => $roles['SubModuleId']
           , 'Code'                      => $roles['Code']

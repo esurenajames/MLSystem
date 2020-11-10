@@ -361,6 +361,7 @@ class employee_model extends CI_Model
 
     function getAllList()
     {
+      $AssignedBranchId = $this->session->userdata('BranchId');
       $EmployeeNumber = $this->session->userdata('EmployeeNumber');
       $Roles = $this->maintenance_model->getLoggedInRoles(); // to check if may access syang maview
       $query_string = $this->db->query("SELECT DISTINCT EMP.EmployeeId
@@ -380,7 +381,8 @@ class employee_model extends CI_Model
                                                 , DATE_FORMAT(EMP.DateCreated, '%d %b %Y %h:%i %p') as DateUpdated
                                                 , EMP.StatusId
                                                 , EMP.CreatedBy
-                                                , B.Name as Branch                   
+                                                , B.Name as Branch
+                                                , B.BranchId
                                                 FROM r_Employee EMP
                                                   INNER JOIN R_Salutation S
                                                     ON S.SalutationId = EMP.Salutation
@@ -395,6 +397,7 @@ class employee_model extends CI_Model
                                                   INNER JOIN R_Branch B
                                                     ON B.BranchId = BE.BranchId
                                                     WHERE EMP.EmployeeNumber != '000000'
+                                                    AND BE.BranchId = $AssignedBranchId
                                                       ORDER BY EMP.LastName ASC
       ");
       $data = $query_string->result_array();
