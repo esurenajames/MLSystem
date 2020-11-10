@@ -56,6 +56,7 @@ class loanapplication_controller extends CI_Controller {
   function submitApplication()
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $AssignedBranchId = $this->session->userdata('BranchId');
     $DateNow = date("Y-m-d H:i:s");
     // loan product details
       $UndertakingId = $this->maintenance_model->selectSpecific('r_loanundertaking', 'StatusId', 1);
@@ -235,7 +236,8 @@ class loanapplication_controller extends CI_Controller {
             $insertData = array(
               'ApplicationId'         => $generatedId['ApplicationId'],
               'RequirementId'         => $_POST['RequirementId'][$count],
-              'CreatedBy'             => $EmployeeNumber
+              'CreatedBy'             => $EmployeeNumber,
+              'StatusId'              => 5
             );
             $auditTable = 'application_has_requirements';
             $this->maintenance_model->insertFunction($insertData, $auditTable);
@@ -261,7 +263,6 @@ class loanapplication_controller extends CI_Controller {
                 );
                 $table = 'application_has_requirements';
                 $this->maintenance_model->updateFunction1($set, $condition, $table);
-                print_r($reqID['IdentificationId'] . ' : ' . $_POST['RequirementId'][$count] . ' : '. '7' .'<br>');
               }
             }
 
@@ -584,12 +585,13 @@ class loanapplication_controller extends CI_Controller {
     if($_POST['ApprovalType'] == 1) // approved
     {
       $set = array( 
-        'DateUpdated' => $DateNow, 
+        'DateUpdated' => $DateNow,
         'StatusId'    => 1
       );
       $condition = array( 
         'ApplicationId'   => $this->uri->segment(3),
-        'ApproverNumber'  => $EmployeeNumber
+        'ApproverNumber'  => $EmployeeNumber,
+        'StatusId'  => 5
       );
       $table = 'application_has_approver';
       $this->maintenance_model->updateFunction1($set, $condition, $table);
@@ -611,19 +613,11 @@ class loanapplication_controller extends CI_Controller {
         $this->maintenance_model->updateFunction1($set, $condition, $table);
       }
 
-      // // admin audits
-      //   $auditLogsManager = $EmployeeNumber . ' changed temporary password.';
-      //   $auditAffectedEmployee = 'Changed temporary password.';
-      //   $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
-        
-      $insertData = array(
-        'ApplicationId'             => $this->uri->segment(3),
-        'Description'               => 'Approved.',
-        'Remarks'                   => $_POST['Description'],
-        'CreatedBy'                 => $EmployeeNumber
-      );
-      $auditTable = 'application_has_notifications';
-      $this->maintenance_model->insertFunction($insertData, $auditTable);
+      // admin
+        $transNo = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $this->uri->segment(3));
+        $auditApplication = 'Approved. Remarks: ' . $_POST['Description'];
+        $auditLogsManager = 'Approved application #'.$transNo['TransactionNumber'].'.';
+        $this->auditLoanApplication($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditApplication, $this->uri->segment(3));
     }
     else if($_POST['ApprovalType'] == 2) // disapprove
     {
@@ -633,7 +627,8 @@ class loanapplication_controller extends CI_Controller {
       );
       $condition = array( 
         'ApplicationId'   => $this->uri->segment(3),
-        'ApproverNumber'  => $EmployeeNumber
+        'ApproverNumber'  => $EmployeeNumber,
+        'StatusId'  => 5
       );
       $table = 'application_has_approver';
       $this->maintenance_model->updateFunction1($set, $condition, $table);
@@ -651,14 +646,11 @@ class loanapplication_controller extends CI_Controller {
       $tableApplication = 't_application';
       $this->maintenance_model->updateFunction1($setApplication, $conditionApplication, $tableApplication);
 
-      $insertData = array(
-        'ApplicationId'             => $this->uri->segment(3),
-        'Description'               => 'Disapproved.',
-        'Remarks'                   => $_POST['Description'],
-        'CreatedBy'                 => $EmployeeNumber
-      );
-      $auditTable = 'application_has_notifications';
-      $this->maintenance_model->insertFunction($insertData, $auditTable);
+      // admin
+        $transNo = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $this->uri->segment(3));
+        $auditApplication = 'Disapproved. Remarks: ' . $_POST['Description'];
+        $auditLogsManager = 'Disapproved application #'.$transNo['TransactionNumber'].'.';
+        $this->auditLoanApplication($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditApplication, $this->uri->segment(3));
     }
     else if($_POST['ApprovalType'] == 3) // deactivated charge
     {
@@ -3057,6 +3049,115 @@ class loanapplication_controller extends CI_Controller {
 
       force_download($file, NULL);
     }
+  }
+
+  function getSelectedApprovers()
+  {
+    $output = $this->loanapplication_model->getSelectedApprovers($this->input->post('Id'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function editStatus()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $AssignedBranchId = $this->session->userdata('BranchId');
+    $DateNow = date("Y-m-d H:i:s");
+    $loanDetails = $this->maintenance_model->selectSpecific('t_application', 'ApplicationId', $_POST['ApplicationId']);
+
+    if($loanDetails['ApprovalType'] != $_POST['ApprovalType'])
+    {
+      // admin
+        $transNo = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $_POST['ApplicationId']);
+        $auditApplication = 'Changed approval status from '.$loanDetails['ApprovalType'].' to '.$_POST['ApprovalType'].'.';
+        $auditLogsManager = 'Changed approval status from '.$loanDetails['ApprovalType'].' to '.$_POST['ApprovalType'].' of application #'.$transNo['TransactionNumber'].'.';
+        $this->auditLoanApplication($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditApplication, $_POST['ApplicationId']);
+      // update loan status
+        $set1 = array( 
+          'ApprovalType' => $_POST['ApprovalType']
+        );
+        $condition1 = array( 
+          'ApplicationId' => $_POST['ApplicationId']
+        );
+        $table1 = 't_application';
+        $this->maintenance_model->updateFunction1($set1, $condition1, $table1);
+    }
+
+    if($_POST['LoanStatusId'] == 1 || $_POST['LoanStatusId'] == 2) // approved/declined
+    {
+      print_r($_POST['LoanStatusId']);
+      // admin
+        $oldStatusDesc = $this->maintenance_model->selectSpecific('application_has_status', 'loanStatusId', $loanDetails['StatusId']);
+        $newtatusDesc = $this->maintenance_model->selectSpecific('application_has_status', 'loanStatusId', $_POST['LoanStatusId']);
+        $transNo = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $_POST['ApplicationId']);
+        $auditApplication = 'Changed status from '.$oldStatusDesc['Name'].' to '.$newtatusDesc['Name'].'.';
+        $auditLogsManager = 'Changed status from '.$oldStatusDesc['Name'].' to '.$newtatusDesc['Name'].' of application #'.$transNo['TransactionNumber'].'.';
+        $this->auditLoanApplication($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditApplication, $_POST['ApplicationId']);
+      // update loan status
+        $set1 = array( 
+          'StatusId' => $_POST['LoanStatusId']
+        );
+        $condition1 = array( 
+          'ApplicationId' => $_POST['ApplicationId']
+        );
+        $table1 = 't_application';
+        $this->maintenance_model->updateFunction1($set1, $condition1, $table1);
+      // update approvers
+        $set2 = array( 
+          'StatusId' => 6 // deactivated
+        );
+        $condition2 = array( 
+          'ApplicationId' => $_POST['ApplicationId']
+        );
+        $table2 = 'application_has_approver';
+        $this->maintenance_model->updateFunction1($set2, $condition2, $table2);
+    }
+    if($_POST['LoanStatusId'] == 3) // for approval
+    {
+      // admin
+        $oldStatusDesc = $this->maintenance_model->selectSpecific('application_has_status', 'loanStatusId', $loanDetails['StatusId']);
+        $newtatusDesc = $this->maintenance_model->selectSpecific('application_has_status', 'loanStatusId', $_POST['LoanStatusId']);
+        $transNo = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $_POST['ApplicationId']);
+        $auditApplication = 'Updated list of approvers.';
+        $auditLogsManager = 'Changed list of approvers of application #'.$transNo['TransactionNumber'].'.';
+        $this->auditLoanApplication($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditApplication, $_POST['ApplicationId']);
+      // update loan status
+        $set1 = array( 
+          'StatusId' => $_POST['LoanStatusId']
+        );
+        $condition1 = array( 
+          'ApplicationId' => $_POST['ApplicationId']
+        );
+        $table1 = 't_application';
+        $this->maintenance_model->updateFunction1($set1, $condition1, $table1);
+      if(isset($_POST['Approvers']))
+      {
+        $set1 = array(
+          'StatusId' => 6
+        );
+        $condition1 = array(
+          'ApplicationId' => $_POST['ApplicationId'],
+        );
+        $table1 = 'application_has_approver';
+        $this->maintenance_model->updateFunction1($set1, $condition1, $table1);
+        foreach ($_POST['Approvers'] as $value) 
+        {          
+          $insertData = array(
+            'ApplicationId'         => $_POST['ApplicationId'],
+            'ApproverNumber'        => $value,
+            'StatusId'              => 5,
+            'CreatedBy'             => $EmployeeNumber
+          );
+          $auditTable = 'application_has_approver';
+          $this->maintenance_model->insertFunction($insertData, $auditTable);
+        }
+      }
+    }
+
+    $this->session->set_flashdata('alertTitle','Success!'); 
+    $this->session->set_flashdata('alertText','Successfully updated record!'); 
+    $this->session->set_flashdata('alertType','success'); 
+    redirect('home/loandetail/' . $_POST['ApplicationId']);
   }
 
   

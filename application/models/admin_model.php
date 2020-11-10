@@ -378,7 +378,7 @@ class admin_model extends CI_Model
     {
       $query_string = $this->db->query("SELECT  AM.AssetManagementId
                                                 , AM.Type
-                                                , AM.Name
+                                                , AM.Name as AssetName
                                                 , CONCAT(AM.Stock, '/', AM.CriticalLevel) as Stock
                                                 , AM.CategoryId
                                                 , AM.PurchaseValue
@@ -387,6 +387,9 @@ class admin_model extends CI_Model
                                                 , AM.BoughtFrom
                                                 , AM.Description
                                                 , AM.BranchId
+                                                , AM.Stock
+                                                , AM.CriticalLevel
+                                                , AssignedTo
                                                 , BRNCH.Name
                                                 FROM R_AssetManagement AM
                                                 INNER JOIN R_Branch BRNCH

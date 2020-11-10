@@ -23,16 +23,17 @@
 </style>
 
 <div class="content-wrapper">
-  <section class="content-header">
-    <h1>
-      Create Loan Application
-    </h1>
-    <ol class="breadcrumb">
-      <li><a href="#" class="active"><i class="fa fa-dashboard"></i>Loans</a></li>
-      <li><a href="#"></i>Loan Application</a></li>
-    </h1>
-    </ol>
-  </section>
+  <?php if(in_array('9', $subModule)) { ?>
+    <section class="content-header">
+      <h1>
+        Create Loan Application
+      </h1>
+      <ol class="breadcrumb">
+        <li><a href="#" class="active"><i class="fa fa-dashboard"></i>Loans</a></li>
+        <li><a href="#"></i>Loan Application</a></li>
+      </h1>
+      </ol>
+    </section>
 
     <section class="content">
       <div class="box">
@@ -699,6 +700,16 @@
         </form>
       </div>
     </section>
+  <?php } else { ?>
+    <br>
+    <br>
+    <div class="col-md-12">
+      <div class="callout callout-danger">
+        <h4>You have no access to this module!</h4>
+        <p>Please contact your admin to request for access!</p>
+      </div>
+    </div>
+  <?php } ?>
 </div>
 
 <footer class="main-footer">

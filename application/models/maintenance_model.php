@@ -345,6 +345,7 @@ class maintenance_model extends CI_Model
                                                 , BRNCH.Name as BranchName
                                                 , AM.BranchId
                                                 , AM.CreatedBy
+                                                , AM.CriticalLevel
                                                 , C.Name as CategoryName
                                                 , DATE_FORMAT(AM.DateCreated, '%d %b %Y %r') as DateCreated
                                                 FROM R_AssetManagement AM
@@ -927,6 +928,27 @@ class maintenance_model extends CI_Model
       }
       return $output;
     }
+
+    function getDropDownEmployees($BranchId)
+    {
+      $query = $this->db->query("SELECT ManagerBranchId
+                                        , CONCAT(EMP.LastName, ', ', EMP.FirstName) as Name
+                                        , EMP.EmployeeNumber
+                                        FROM branch_has_employee BR
+                                        INNER JOIN r_employee EMP
+                                          ON EMP.EmployeeNumber = BR.EmployeeNumber
+                                          WHERE BR.BranchId = '".$BranchId."'
+                                          AND BR.StatusId = 1
+                                          AND EMP.StatusId = 2
+                                          AND EMP.EmployeeNumber != '000000'
+                                          ORDER BY BR.EmployeeNumber ASC");
+      $output = '<option selected value="">Select Employee to Assign Asset</option>';
+      foreach ($query->result() as $row)
+      {
+        $output .= '<option value="'.$row->EmployeeNumber.'">'.$row->Name.'</option>';
+      }
+      return $output;
+    }
     
     function getNationality()
     {
@@ -1018,12 +1040,16 @@ class maintenance_model extends CI_Model
 
     function getApprovers()
     {
-      $query = $this->db->query("SELECT   EmployeeNumber
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query = $this->db->query("SELECT   EMP.EmployeeNumber
                                           , LastName
                                           , FirstName
-                                          FROM r_employee
-                                            WHERE StatusId = 2
-                                              AND EmployeeNumber != 000000
+                                          FROM r_employee EMP
+                                            INNER JOIN branch_has_employee BE
+                                              ON BE.EmployeeNumber = EMP.EmployeeNumber
+                                                WHERE EMP.StatusId = 2
+                                                  AND BE.BranchId = $AssignedBranchId
+                                                  AND EMP.EmployeeNumber != 000000
       ");
       $output = '<option disabled>Select Approver</option>';
       foreach ($query->result() as $row)
@@ -1210,10 +1236,12 @@ class maintenance_model extends CI_Model
 
     function getBorrowerList()
     {
+      $AssignedBranchId = $this->session->userdata('BranchId');
       $query = $this->db->query("SELECT   CONCAT(FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as Name
                                           , BorrowerId
                                           FROM R_Borrowers
                                             WHERE StatusId = 1
+                                            AND BranchId = $AssignedBranchId
       ");
       $output = '<option selected disabled value="">Select Borrower Name</option>';
       foreach ($query->result() as $row)

@@ -167,6 +167,7 @@ class borrower_model extends CI_Model
                                                 , acronym (B.MiddleName) as MiddleInitial
                                                 , B.LastName
                                                 , B.ExtName
+                                                , B.BranchId
                                                 , B.Dependents
                                                 , SX.Name as Sex
                                                 , N.Description as Nationality
@@ -1093,6 +1094,7 @@ class borrower_model extends CI_Model
 
     function getAllList()
     {
+      $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT DISTINCT B.FirstName
                                                 , acronym (B.MiddleName) as MI
                                                 , B.LastName
@@ -1111,7 +1113,10 @@ class borrower_model extends CI_Model
                                                           ON EMP.EmployeeNumber = B.CreatedBy
                                                         LEFT JOIN R_UserRole R
                                                           ON R.EmployeeNumber = EMP.EmployeeNumber
-                                                              WHERE EMP.StatusId = 1
+                                                        LEFT JOIN Branch_Has_Employee BHE
+                                                          ON BHE.EmployeeNumber = EMP.EmployeeNumber
+                                                              WHERE EMP.StatusId = 2
+                                                              AND BHE.BranchId = $AssignedBranchId
       ");
       $data = $query_string->result_array();
       return $data;
@@ -1121,7 +1126,12 @@ class borrower_model extends CI_Model
     {      
       $query = $this->db->query("SELECT   COUNT(A.ApplicationId) as Record
                                           FROM t_application A
-                                                WHERE A.StatusId = 2
+                                                WHERE 
+                                                (
+                                                  A.StatusId = 1
+                                                  OR
+                                                  A.StatusId = 4
+                                                )
                                                 AND A.BorrowerId = $BorrowerId
       ");
       $data = $query->row_array();

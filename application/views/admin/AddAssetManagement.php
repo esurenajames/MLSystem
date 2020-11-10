@@ -13,7 +13,7 @@
   </section>
 
   <div class="modal fade" id="modalNewTangible">
-    <div class="modal-dialog modal-md">
+    <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -42,16 +42,22 @@
                     </select>
                   </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-12">
                   <div class="form-group">
-                    <label for="AssetName">Asset Name</label>
+                    <label>Asset Name</label>
                     <input type="text" class="form-control" id="txtAssetName" name="AssetName" placeholder="Asset Name">
                   </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-6">
                   <div class="form-group">
                     <label for="Stock">Stock</label>
-                    <input type="number" class="form-control" id="txtStock" name="Stock" placeholder="00">
+                    <input type="number" class="form-control" id="txtStock" name="Stock" placeholder="Stocks">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Critical Level</label>
+                    <input type="number" class="form-control" id="txtCriticalLevel" name="CriticalLevel" placeholder="Critical Level">
                   </div>
                 </div>
                 <div class="col-md-6">
@@ -80,16 +86,23 @@
                 <div class="col-md-6">
                   <div class="form-group">
                     <label for="Description">Vendor</label>
-                    <input type="text" class="form-control" id="txtBoughtFrom" name="BoughtFrom">
+                    <input type="text" class="form-control" id="txtBoughtFrom" name="BoughtFrom" placeholder="Vendor Name">
                   </div>
                 </div>
                 <div class="col-md-12">
                   <div class="form-group">
                     <label for="Branch">Company Branch</label><br>
-                    <select class="form-control" style="width: 100%" name="BranchId" id="SelectBranch">
+                    <select class="form-control" style="width: 100%" name="BranchId" id="SelectBranch" onchange="selectEmployees(this.value)">
                     <?php
                       echo $Branch;
                     ?>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label>Assigned To</label><br>
+                    <select class="form-control" style="width: 100%" name="AssignedTo" id="selectAssignedTo">
                     </select>
                   </div>
                 </div>
@@ -160,27 +173,25 @@
             <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewTangible">Add Asset</button>
             <br>
             <br>
-            <form name="ApproverDocForm" method="post" id="ApproverDocForm">
-              <table id="example1" class="table table-bordered table-hover">
-                <thead>
-                <tr>
-                  <th>Reference No</th>
-                  <th>Category</th>
-                  <th>Asset</th>
-                  <th>Purchase Price</th>
-                  <th>Serial Number</th>
-                  <th>Vendor</th>
-                  <th>Company Branch</th>
-                  <th>Stocks</th>
-                  <th>Status</th>
-                  <th>Date Created</th>
-                  <th>Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                </tbody>
-              </table>
-            </form>
+            <table id="example1" class="table table-bordered table-hover" width="100%">
+              <thead>
+              <tr>
+                <th>Reference No</th>
+                <th>Category</th>
+                <th>Asset</th>
+                <th>Purchase Price</th>
+                <th>Serial Number</th>
+                <th>Vendor</th>
+                <th>Company Branch</th>
+                <th>Stocks</th>
+                <th>Status</th>
+                <th>Date Created</th>
+                <th>Action</th>
+              </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -279,15 +290,20 @@
       },
       success: function(data)
       {
-        $('#selectType').change(data['AssetType']);
-        $('#SelectCategory').change(data['CategoryId']);
-        $('#txtPurchasePrice').val(data['PurchasePrice']);
+        $('#selectType').val(data['Type']).change();
+        $('#SelectCategory').val(data['CategoryId']).change();
+        $('#txtPurchasePrice').val(data['PurchaseValue']);
         $('#txtReplacementValue').val(data['ReplacementValue']);
         $('#txtSerialNumber').val(data['SerialNumber']);
         $('#txtBoughtFrom').val(data['BoughtFrom']);
         $('#txtDescription').val(data['Description']);
+        $('#txtAssetName').val(data['AssetName']);
+        $('#txtStock').val(data['Stock']);
+        $('#txtCriticalLevel').val(data['CriticalLevel']);
+        $('#SelectBranch').val(data['BranchId']).change();
         $('#txtAssetManagementId').val(AssetManagementId);
         $('#txtFormType').val(2);
+        selectEmployees(data['BranchId'], data['AssignedTo']);
       },
 
       error: function()
@@ -329,7 +345,43 @@
     }
   }
 
+  function selectEmployees(value, selectedEmployee)
+  {
+    if(selectedEmployee == undefined)
+    {
+      $.ajax({
+        url: "<?php echo base_url();?>" + "/admin_controller/getDropDownEmployees",
+        method: "POST",
+        data: { BranchId : value },
+        beforeSend: function(){
+          $('.loading').show();
+        },
+        success: function(data)
+        {
+          $('#selectAssignedTo').html(data);
+        }
+      })
+    }
+    else
+    {      
+      $.ajax({
+        url: "<?php echo base_url();?>" + "/admin_controller/getDropDownEmployees",
+        method: "POST",
+        data: { BranchId : value },
+        beforeSend: function(){
+          $('.loading').show();
+        },
+        success: function(data)
+        {
+          $('#selectAssignedTo').html(data);
+          $('#selectAssignedTo').val(selectedEmployee).change();
+        }
+      })
+    }
+  }
+
   $(function () {
+
     UserTable = $('#example1').DataTable({
       "pageLength": 10,
       "ajax": { url: '<?php echo base_url()."/datatables_controller/Assets/"; ?>', type: 'POST', "dataSrc": "" },
@@ -343,14 +395,18 @@
                     , { data: "Stock" }
                     , {
                       data: "StatusId", "render": function (data, type, row) {
-                        if(row.StatusId == 2){
-                          return "<span class='badge bg-green'>Active</span>";
+                        if(row.CriticalLevel >= row.currentStock)
+                        {
+                          return "<span class='badge bg-orange'>Critical</span>";
                         }
-                        else if(row.StatusId == 6){
-                          return "<span class='badge bg-red'>Deactivated</span>";
-                        }
-                        else{
-                          return "N/A";
+                        else
+                        {
+                          if(row.StatusId == 2){
+                            return "<span class='badge bg-green'>Active</span>";
+                          }
+                          else if(row.StatusId == 6){
+                            return "<span class='badge bg-red'>Deactivated</span>";
+                          }
                         }
                       }
                     },
@@ -358,7 +414,7 @@
                     {
                       data: "StatusId", "render": function (data, type, row) {
                       if(row.StatusId == 2){
-                          return '<a class="btn btn-sm btn-success" title="Add Stock" onclick="stockType('+row.currentStock+', 1, '+row.AssetManagementId+')" data-toggle="modal" data-target="#modalStocks"><span class="fa fa-plus-circle"></span></a> <a class="btn btn-sm btn-warning" title="Remove Stock" onclick="stockType('+row.currentStock+', 2, '+row.AssetManagementId+')" data-toggle="modal" data-target="#modalStocks"><span class="fa fa-minus-circle"></span></a> <a onclick="Edit('+row.AssetManagementId+')" data-toggle="modal" data-target="#modalNewTangible" class="btn btn-sm btn-info" title="Edit"><span class="fa fa-edit"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this Asset?\', \''+row.AssetManagementId+'\', 6)" class="btn btn-sm btn-danger" title="Deactivate"><span class="fa fa-close"></span></a> ';
+                          return '<a class="btn btn-sm btn-success" title="Add Stock" onclick="stockType('+row.currentStock+', 1, '+row.AssetManagementId+')" data-toggle="modal" data-target="#modalStocks"><span class="fa fa-plus-circle"></span></a> <a class="btn btn-sm btn-warning" title="Remove Stock" onclick="stockType('+row.currentStock+', 2, '+row.AssetManagementId+')" data-toggle="modal" data-target="#modalStocks"><span class="fa fa-minus-circle"></span></a> <a onclick="Edit('+row.AssetManagementId+')" data-toggle="modal" data-target="#modalNewTangible" class="btn btn-sm btn-info" title="View/Edit"><span class="fa fa-edit"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this Asset?\', \''+row.AssetManagementId+'\', 6)" class="btn btn-sm btn-danger" title="Deactivate"><span class="fa fa-close"></span></a> ';
                         }
                         else if(row.StatusId == 6) {
                           return '<a onclick="confirm(\'Are you sure you want to re-activate this Asset?\', \''+row.AssetManagementId+'\', 2)" class="btn btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
@@ -397,8 +453,8 @@
       }
     });
 
-    $('#modalNewCategory').on('hide.bs.modal', function () {
-      $('#txtFormType').val(1)
+    $('#modalNewTangible').on('hide.bs.modal', function () {
+      document.getElementById('frmInsert2').reset()
     })
 
   })
