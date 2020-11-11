@@ -158,6 +158,7 @@ class maintenance_model extends CI_Model
     function getAllLoans()
     {
       $query_string = $this->db->query("SELECT L.Name as LoanName
+                                                , CONCAT('LT-', LPAD(L.LoanId, 6, 0)) as ReferenceNo 
                                                 , LoanId
                                                 , L.Description
                                                 , L.CreatedBy
@@ -173,6 +174,7 @@ class maintenance_model extends CI_Model
     function getAllCharges()
     {
       $query_string = $this->db->query("SELECT CH.Name as ChargeName
+                                                , CONCAT('CH-', LPAD(CH.ChargeId, 6, 0)) as ReferenceNo 
                                                 , ChargeType
                                                 , CASE 
                                                     WHEN ChargeType = 0
@@ -270,6 +272,7 @@ class maintenance_model extends CI_Model
     function getAllPositions()
     {
       $query_string = $this->db->query("SELECT PS.Name as PositionName
+                                                , CONCAT('POS-', LPAD(PS.PositionId, 6, 0)) as ReferenceNo 
                                                 , PositionId
                                                 , PS.Description
                                                 , PS.CreatedBy
@@ -284,6 +287,7 @@ class maintenance_model extends CI_Model
     function getAllPurposes()
     {
       $query_string = $this->db->query("SELECT PP.Name as Purpose
+                                                , CONCAT('PP-', LPAD(PP.PurposeId, 6, 0)) as ReferenceNo 
                                                 , PurposeId
                                                 , PP.Description
                                                 , PP.CreatedBy
@@ -299,6 +303,7 @@ class maintenance_model extends CI_Model
     function getAllMethods()
     {
       $query_string = $this->db->query("SELECT M.Name as Method
+                                                , CONCAT('M-', LPAD(M.MethodId, 6, 0)) as ReferenceNo 
                                                 , MethodId
                                                 , M.Description
                                                 , M.CreatedBy
@@ -314,6 +319,7 @@ class maintenance_model extends CI_Model
     function getAllCategories()
     {
       $query_string = $this->db->query("SELECT A.Name as Category
+                                                , CONCAT('CAT-', LPAD(A.CategoryId, 6, 0)) as ReferenceNo 
                                                 , CategoryId
                                                 , A.Description
                                                 , A.CreatedBy
@@ -366,6 +372,7 @@ class maintenance_model extends CI_Model
     function getAllLoanStatus()
     {
       $query_string = $this->db->query("SELECT LS.Name as LoanStatus
+                                                , CONCAT('LS-', LPAD(LS.LoanStatusId, 6, 0)) as ReferenceNo 
                                                 , LoanStatusId
                                                 , LS.Description
                                                 , LS.CreatedBy
@@ -381,6 +388,7 @@ class maintenance_model extends CI_Model
     function getAllBorrowerStatus()
     {
       $query_string = $this->db->query("SELECT BS.Name as BorrowerStatus
+                                                , CONCAT('BS-', LPAD(BS.BorrowerStatusId, 6, 0)) as ReferenceNo 
                                                 , BorrowerStatusId
                                                 , BS.Description
                                                 , BS.CreatedBy

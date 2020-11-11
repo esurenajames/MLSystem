@@ -80,6 +80,7 @@
             <table id="example1" class="table table-bordered table-hover">
               <thead>
               <tr>
+                <th>#</th>
                 <th>Type of Charge</th>
                 <th>Name</th>
                 <th>Description</th>
@@ -224,7 +225,8 @@
     UserTable = $('#example1').DataTable({
       "pageLength": 10,
       "ajax": { url: '<?php echo base_url()."/datatables_controller/Charges/"; ?>', type: 'POST', "dataSrc": "" },
-      "columns": [  { data: "ChargeType" }
+      "columns": [  { data: "ReferenceNo" }
+                    , { data: "ChargeType" }
                     , { data: "ChargeName" }
                     , { data: "Description" }
                     , { data: "Amount" }
