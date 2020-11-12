@@ -58,6 +58,13 @@ class home extends CI_Controller {
 		$data['TotalExpense'] = $this->maintenance_model->getTotalExpense();
 		$data['TotalTransaction'] = $this->maintenance_model->getTransactions();
 		$data['dailyIncome'] = $this->maintenance_model->getDailyIncome();
+		$data['dailyApprovedLoans'] = $this->maintenance_model->getApprovedDaily();
+		$data['totalFund'] = $this->maintenance_model->getCurrentFund();
+		$data['totalExpenses'] = $this->maintenance_model->getTotalExpenses();
+		$data['totalActiveLoans'] = $this->maintenance_model->getActiveLoans();
+		$data['totalEmployees'] = $this->maintenance_model->getTotalEmployees();
+		$data['totalUsers'] = $this->maintenance_model->getTotalUsers();
+
 		// FOR BAR CHARTS
 		$data['ageYear'] = $this->maintenance_model->getYearFilter('r_borrowers');
 		$data['educationYear'] = $this->maintenance_model->getYearFilter('borrower_has_education');
@@ -989,6 +996,25 @@ class home extends CI_Controller {
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
 		$this->load->view('reports/income/expenses', $data);
+	}
+
+	function generateIncomeStatement()
+	{
+		$Id = $this->uri->segment(3);
+		$sidebar['sidebar'] = 'Reports';
+		$sidebar['sidebarMenu'] = 'Income Statement';
+		$header['header'] = 'Generate Income Statement';
+		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
+		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['ExpenseType'] = $this->maintenance_model->getExpenseTypeReport();
+		$data['ageYear'] = $this->maintenance_model->getYearFilter('r_borrowers');
+
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('reports/IncomeStatement', $data);
 	}
 
 }

@@ -788,13 +788,18 @@ class loanapplication_model extends CI_Model
                                               , (SELECT COUNT(*) 
                                                     FROM application_has_approver
                                                       WHERE ApplicationId = A.ApplicationId
-                                                      AND StatusId = 5
-                                              ) as PendingApprovers
+                                                      AND 
+                                                    (
+                                                          StatusId = 1
+                                                          OR
+                                                          StatusId = 2
+                                                      )
+                                              ) as ProcessedApprovers
                                               , (SELECT COUNT(*) 
                                                     FROM application_has_approver
                                                       WHERE ApplicationId = A.ApplicationId
-                                                      AND StatusId = 3
-                                              ) as ProcessedApprovers
+                                                      AND StatusId != 6
+                                              ) as TotalApprovers
                                               , (SELECT MAX(DATE_FORMAT(DateCreated, '%b %d, %Y'))
                                                         FROM t_paymentsmade
                                                           WHERE ApplicationId = A.ApplicationId
@@ -2160,6 +2165,519 @@ class loanapplication_model extends CI_Model
                                                     AND AHA.StatusId != 6
       ");
       $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getYearFilter($table)
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  DISTINCT DATE_FORMAT(DateCreated, '%Y') as Year
+                                                FROM R_Borrowers
+                                                  WHERE BranchId = $AssignedBranchId
+                                                  GROUP BY DATE_FORMAT(DateCreated, '%Y')
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getLoansYear()
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  DISTINCT DATE_FORMAT(BE.DateCreated, '%Y') as Year
+                                                FROM R_Employee EMP
+                                                  INNER JOIN Branch_has_Employee BE
+                                                    ON BE.EmployeeNumber = EMP.EmployeeNumber
+                                                  WHERE BE.BranchId = $AssignedBranchId
+                                                  GROUP BY DATE_FORMAT(BE.DateCreated, '%Y')
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getAge($Year, $query)
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  DISTINCT COUNT(BorrowerId) as TotalBorrowers
+                                                    FROM r_borrowers
+                                                      WHERE DATE_FORMAT(DateCreated, '%Y') = DATE_FORMAT(STR_TO_DATE('$Year','%Y'), '%Y')
+                                                      AND $query
+                                                      AND BranchId = $AssignedBranchId
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getEducation()
+    {
+      $query_string = $this->db->query("SELECT  EducationId
+                                                , Name
+                                                  FROM r_education
+                                                    WHERE StatusId = 1
+                                                    ORDER BY EducationId ASC
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getEducationYearly($Year, $ID)
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  DISTINCT COUNT(B.BorrowerId) as TotalBorrowers
+                                                , ED.Name as Level
+                                                FROM r_education ED
+                                                  LEFT JOIN borrower_has_education BHE
+                                                    ON BHE.EducationId = ED.EducationId
+                                                  LEFT JOIN R_Borrowers B
+                                                    ON B.BorrowerId =  BHE.BorrowerId
+                                                      AND BHE.StatusId = 1
+                                                      AND DATE_FORMAT(B.DateCreated, '%Y') = '$Year'
+                                                      AND ED.EducationId = $ID
+                                                      AND B.BranchId = $AssignedBranchId
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getSex()
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  SexId
+                                                , Name
+                                                FROM R_Sex
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getSexYearly($Year, $ID)
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  COUNT(BorrowerId) as TotalBorrowers
+                                                FROM R_Borrowers B
+                                                  WHERE DATE_FORMAT(B.DateCreated, '%Y') = '$Year'
+                                                  AND Sex = $ID
+                                                  AND B.StatusId = 1
+                                                  AND B.BranchId = $AssignedBranchId
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getOccupation()
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  OccupationId as Id
+                                                , Name
+                                                FROM r_occupation
+                                                  WHERE StatusId = 1
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getOccupationYearly($Year, $ID)
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  COUNT(B.BorrowerId) as TotalBorrowers
+                                                FROM R_Borrowers B
+                                                  INNER JOIN borrower_has_employer BE
+                                                    ON BE.BorrowerId = B.BorrowerId
+                                                  WHERE DATE_FORMAT(B.DateCreated, '%Y') = '$Year'
+                                                  AND BE.PositionId = $ID
+                                                  AND B.StatusId = 1
+                                                  AND B.BranchId = $AssignedBranchId
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getIncomeLevelPopulation()
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  DISTINCT CASE
+                                                WHEN SUM(BorrowerMonthlyIncome) < 9250
+                                                      THEN 'Less than PHP 9,250'
+                                                WHEN SUM(BorrowerMonthlyIncome) BETWEEN 9520 AND 19040
+                                                      THEN 'PHP 9,520 - PHP 19,040'
+                                                WHEN SUM(BorrowerMonthlyIncome) BETWEEN 19041 AND 38080
+                                                      THEN 'PHP 19,041 - PHP 38,080'
+                                                WHEN SUM(BorrowerMonthlyIncome) BETWEEN 38081 AND 66640
+                                                      THEN 'PHP 38,081 - PHP 66,640'
+                                                WHEN SUM(BorrowerMonthlyIncome) BETWEEN 66644 AND 114240
+                                                      THEN 'PHP 66,644 - PHP 114,240'
+                                                WHEN SUM(BorrowerMonthlyIncome) BETWEEN 114241 AND 190400
+                                                      THEN 'PHP 114,241 - PHP 190,400'
+                                                WHEN SUM(BorrowerMonthlyIncome) > 190400
+                                                      THEN 'More than PHP 190,400'
+                                                END as IncomeLevel
+                                                FROM T_Application A
+                                                  INNER JOIN R_Borrowers B
+                                                    ON A.BorrowerId = B.BorrowerId
+                                                  WHERE B.StatusId = 1
+                                                  AND B.BranchId = $AssignedBranchId
+                                                  GROUP BY B.BorrowerId
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getIncomeReport($Year, $query)
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  DISTINCT COUNT(B.BorrowerId) as TotalBorrowers
+                                                FROM T_Application A
+                                                  INNER JOIN R_Borrowers B
+                                                    ON A.BorrowerId = B.BorrowerId
+                                                  WHERE B.StatusId = 1
+                                                  AND B.BranchId = $AssignedBranchId
+                                                  GROUP BY B.BorrowerId
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getMaitalStatus()
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  CivilStatusId as Id
+                                                , Name
+                                                FROM r_civilstatus
+                                                  WHERE StatusId = 1
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getMaitalStatusYearly($Year, $ID)
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  COUNT(BorrowerId) as TotalBorrowers
+                                                FROM R_Borrowers B
+                                                  WHERE DATE_FORMAT(B.DateCreated, '%Y') = '$Year'
+                                                  AND CivilStatus = $ID
+                                                  AND B.StatusId = 1
+                                                  AND B.BranchId = $AssignedBranchId
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getRiskStatus($Year, $Type)
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  COUNT(B.BorrowerId) as TotalBorrowers
+                                                FROM T_Application A
+                                                  INNER JOIN R_Borrowers B
+                                                    ON B.BorrowerId = A.BorrowerId
+                                                  WHERE DATE_FORMAT(B.DateCreated, '%Y') = '$Year'
+                                                  AND RiskLevel = '$Type'
+                                                  AND B.StatusId = 1
+                                                  AND B.BranchId = $AssignedBranchId
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getTotalBorrowers($Year)
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  DISTINCT COUNT(DISTINCT B.BorrowerId) as TotalBorrowers
+                                                FROM r_borrowers B
+                                                  INNER JOIN T_Application A
+                                                    ON A.BorrowerId = B.BorrowerId
+                                                    WHERE DATE_FORMAT(A.DateCreated, '%Y') = '$Year'
+                                                    AND B.BranchId = $AssignedBranchId
+                                                    AND 
+                                                    (
+                                                      A.StatusId = 1
+                                                      OR 
+                                                      A.StatusId = 4
+                                                    )
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getTotalBorrowerGeo($Year, $Island)
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  DISTINCT COUNT(DISTINCT B.BorrowerId) as TotalBorrowers
+                                                FROM r_borrowers B
+                                                  INNER JOIN T_Application A
+                                                    ON A.BorrowerId = B.BorrowerId
+                                                  INNER JOIN borrowerAddressHistory BAH
+                                                    ON BAH.BorrowerId = B.BorrowerId
+                                                  INNER JOIN R_Address ADDD
+                                                    ON ADDD.AddressId = BAH.AddressId
+                                                  INNER JOIN add_barangay AB
+                                                    ON ADDD.BarangayId = AB.BrgyCode
+                                                  INNER JOIN Add_Region AR
+                                                    ON AR.RegCode = AB.RegCode
+                                                    WHERE DATE_FORMAT(A.DateCreated, '%Y') = '$Year'
+                                                    AND AR.Island = '$Island'
+                                                    AND B.BranchId = $AssignedBranchId
+                                                    AND 
+                                                    (
+                                                      A.StatusId = 1
+                                                      OR 
+                                                      A.StatusId = 4
+                                                    )
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getTotalLoans($Year)
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  DISTINCT COUNT(DISTINCT ApplicationId) as Total
+                                                FROM t_application A
+                                                  INNER JOIN R_Borrowers B
+                                                    ON B.BorrowerId = A.BorrowerId
+                                                    WHERE DATE_FORMAT(A.DateCreated, '%Y') = '$Year'
+                                                      AND 
+                                                      (
+                                                        A.StatusId = 1
+                                                        OR 
+                                                        A.StatusId = 4
+                                                      )
+                                                      AND B.BranchId = $AssignedBranchId
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getTotalTypeofLoans($Year)
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  DISTINCT COUNT(DISTINCT L.LoanId) as Total
+                                                FROM t_application A
+                                                  INNER JOIN R_Borrowers B
+                                                    ON B.BorrowerId = A.BorrowerId
+                                                  INNER JOIN R_Loans L
+                                                    ON L.LoanId = A.LoanId
+                                                    WHERE DATE_FORMAT(A.DateCreated, '%Y') = '$Year'
+                                                      AND B.BranchId = $AssignedBranchId
+                                                      AND 
+                                                      (
+                                                        A.StatusId = 1
+                                                        OR 
+                                                        A.StatusId = 4
+                                                      )
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getTotalLoanAmount($Year)
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  DISTINCT SUM(DISTINCT PrincipalAmount) as Total
+                                                FROM t_application A
+                                                  INNER JOIN R_Borrowers B
+                                                    ON B.BorrowerId = A.BorrowerId
+                                                    WHERE DATE_FORMAT(A.DateCreated, '%Y') = '$Year'
+                                                      AND 
+                                                      (
+                                                        A.StatusId = 1
+                                                        OR 
+                                                        A.StatusId = 4
+                                                      )
+                                                      AND B.BranchId = $AssignedBranchId
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getTotalInterest($Year)
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  DISTINCT DATE_FORMAT(PM.DateCreated, '%Y') as Year
+                                                , SUM(Amount) as Total
+                                                FROM t_paymentsmade PM
+                                                      INNER JOIN t_application A
+                                                        ON A.ApplicationId = PM.ApplicationId
+                                                      INNER JOIN R_Borrowers B
+                                                        ON B.BorrowerId = A.BorrowerId
+                                                        WHERE IsInterest = 1
+                                                        AND DATE_FORMAT(A.DateCreated, '%Y') = '$Year'
+                                                        AND PM.StatusId = 1
+                                                        AND 
+                                                        (
+                                                          A.StatusId = 1
+                                                          OR 
+                                                          A.StatusId = 4
+                                                        )
+                                                        AND B.BranchId = $AssignedBranchId
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getTotalCharges($Year)
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT SUM(Amount) as Total
+                                                FROM Application_Has_Charges AC
+                                                  INNER JOIN t_application A
+                                                    ON A.ApplicationId = AC.ApplicationId
+                                                  INNER JOIN R_Borrowers B
+                                                    ON B.BorrowerId = A.BorrowerId
+                                                  WHERE AC.StatusId = 2
+                                                  AND DATE_FORMAT(AC.DateCreated, '%Y') = '$Year'
+                                                  AND 
+                                                  (
+                                                    A.StatusId = 1
+                                                    OR 
+                                                    A.StatusId = 4
+                                                  ) 
+                                                  AND B.BranchId = $AssignedBranchId
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getCurrentFund($Year)
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  COALESCE(SUM(Amount), 0) as Total
+                                                FROM r_capital
+                                                  WHERE BranchId = $AssignedBranchId
+                                                  AND DATE_FORMAT(DateCreated, '%Y') = '$Year'
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getTotalGross($Year)
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  DISTINCT DATE_FORMAT(PM.DateCreated, '%Y') as Year
+                                                , SUM(Amount) as Total
+                                                FROM t_paymentsmade PM
+                                                      INNER JOIN t_application A
+                                                        ON A.ApplicationId = PM.ApplicationId
+                                                      INNER JOIN R_Borrowers B
+                                                        ON B.BorrowerId = A.BorrowerId
+                                                        WHERE DATE_FORMAT(A.DateCreated, '%Y') = '$Year'
+                                                        AND PM.StatusId = 1
+                                                        AND 
+                                                        (
+                                                          A.StatusId = 1
+                                                          OR 
+                                                          A.StatusId = 4
+                                                        )
+                                                        AND B.BranchId = $AssignedBranchId
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getTotalExpenses($Year)
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  COALESCE(SUM(Amount), 0) as Total
+                                                FROM r_expense
+                                                    WHERE DATE_FORMAT(DateExpense, '%Y')  = '$Year'
+                                                    AND StatusId = 1
+                                                    AND BranchId = $AssignedBranchId
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getTotalCollections($DateFrom, $DateTo)
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $d1 = new DateTime($DateFrom);
+      $d2 = new DateTime($DateTo);
+      // $timestamp = $d->getTimestamp(); // Unix timestamp
+      $formatted_date1 = $d1->format('Y-m-d'); // 2003-10-16
+      $formatted_date2 = $d2->format('Y-m-d'); // 2003-10-16
+
+      $query_string = $this->db->query("SELECT  COALESCE(SUM(PM.Amount), 0) as Total
+                                                FROM t_paymentsmade PM
+                                                  INNER JOIN T_Application A
+                                                    ON A.ApplicationId = PM.ApplicationId
+                                                  INNER JOIN R_Borrowers B
+                                                    ON B.BorrowerId = A.BorrowerId
+                                                    WHERE DATE_FORMAT(PM.DateCollected, '%Y-%m-%d') BETWEEN '$formatted_date1' AND '$formatted_date2'
+                                                    AND PM.StatusId = 1
+                                                    AND B.BranchId = $AssignedBranchId
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getTotalChargesStatement($DateFrom, $DateTo)
+    {
+      $d1 = new DateTime($DateFrom);
+      $d2 = new DateTime($DateTo);
+      // $timestamp = $d->getTimestamp(); // Unix timestamp
+      $formatted_date1 = $d1->format('Y-m-d'); // 2003-10-16
+      $formatted_date2 = $d2->format('Y-m-d'); // 2003-10-16
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT SUM(Amount) as Total
+                                                FROM Application_Has_Charges AC
+                                                  INNER JOIN t_application A
+                                                    ON A.ApplicationId = AC.ApplicationId
+                                                  INNER JOIN R_Borrowers B
+                                                    ON B.BorrowerId = A.BorrowerId
+                                                  WHERE AC.StatusId = 2
+                                                  AND DATE_FORMAT(AC.DateCreated, '%Y-%m-%d') BETWEEN '$formatted_date1' AND '$formatted_date2'
+                                                  AND 
+                                                  (
+                                                    A.StatusId = 1
+                                                    OR 
+                                                    A.StatusId = 4
+                                                  ) 
+                                                  AND B.BranchId = $AssignedBranchId
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getExpensesStatement($dateFrom, $dateTo)
+    {
+      $d1 = new DateTime($dateFrom);
+      $d2 = new DateTime($dateTo);
+      // $timestamp = $d->getTimestamp(); // Unix timestamp
+      $formatted_date1 = $d1->format('Y-m-d'); // 2003-10-16
+      $formatted_date2 = $d2->format('Y-m-d'); // 2003-10-16
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query_string = $this->db->query("SELECT  CONCAT('EX-', LPAD(EX.ExpenseId, 6, 0)) as ReferenceNo
+                                                , EXT.Name
+                                                , SUM(EX.Amount) as Amount
+                                                , DATE_FORMAT(EX.DateExpense, '%b %d, %Y') as DateExpense
+                                                , DATE_FORMAT(EX.DateCreated, '%b %d, %Y') as DateCreated
+                                                , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName) as CreatedBy
+                                                FROM R_Expense EX
+                                                      INNER JOIN r_expensetype EXT
+                                                          ON EXT.ExpenseTypeId = EX.ExpenseTypeId
+                                                        INNER JOIN r_employee EMP
+                                                          ON EMP.EmployeeNumber = EX.CreatedBy
+                                                            WHERE EX.StatusId = 1
+                                                            AND DATE_FORMAT(EX.DateExpense, '%Y-%m-%d') BETWEEN '$formatted_date1' AND '$formatted_date2'
+                                                            GROUP BY Name
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getCurrentFundStatement($dateFrom, $dateTo)
+    {
+      $d1 = new DateTime($dateFrom);
+      $d2 = new DateTime($dateTo);
+      // $timestamp = $d->getTimestamp(); // Unix timestamp
+      $formatted_date1 = $d1->format('Y-m-d'); // 2003-10-16
+      $formatted_date2 = $d2->format('Y-m-d'); // 2003-10-16
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  COALESCE(SUM(Amount), 0) as Total
+                                                FROM r_capital
+                                                  WHERE BranchId = $AssignedBranchId
+                                                  AND DATE_FORMAT(DateCreated, '%Y-%m-%d') BETWEEN '$formatted_date1' AND '$formatted_date2'
+      ");
+      $data = $query_string->row_array();
       return $data;
     }
 }

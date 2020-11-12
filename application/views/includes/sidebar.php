@@ -188,6 +188,18 @@
                 <li <?php if($sidebar == 'Reports' && $sidebarMenu == 'Expenses'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/generateExpenses"><i class="fa fa-circle-o"></i>Expenses</a></li>
               <?php } ?>
               <?php if(in_array('53', $subModule)) { ?>
+                <li <?php if($sidebar == 'Reports' && $sidebarMenu == 'Expenses'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/generateIncomeStatement"><i class="fa fa-circle-o"></i>Income Statement</a></li>
+              <?php } ?>
+              <?php if(in_array('53', $subModule)) { ?>
+                <li <?php if($sidebar == 'Reports' && $sidebarMenu == 'Demographics'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>loanapplication_controller/generateReport/4"><i class="fa fa-circle-o"></i>Download Demographics</a></li>
+              <?php } ?>
+              <?php if(in_array('53', $subModule)) { ?>
+                <li <?php if($sidebar == 'Reports' && $sidebarMenu == 'Loans'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>loanapplication_controller/generateReport/5"><i class="fa fa-circle-o"></i>Download Loans Extended</a></li>
+              <?php } ?>
+              <?php if(in_array('53', $subModule)) { ?>
+                <li <?php if($sidebar == 'Reports' && $sidebarMenu == 'Loans'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>loanapplication_controller/generateReport/6"><i class="fa fa-circle-o"></i>Download Financial Health</a></li>
+              <?php } ?>
+              <?php if(in_array('53', $subModule)) { ?>
                 <!-- <li <?php if($sidebar == 'Reports' && $sidebarMenu == 'Transactions'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/generateExpenses"><i class="fa fa-circle-o"></i>Employee Transactions</a></li> -->
               <?php } ?>
             </ul>

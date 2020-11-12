@@ -123,6 +123,44 @@ class maintenance_model extends CI_Model
       return $data;
     }
 
+    function getApprovedDaily()
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  COUNT(A.ApplicationId) as Total
+                                                FROM t_application A
+                                                  INNER JOIN R_Borrowers B
+                                                    ON B.BorrowerId = A.BorrowerId
+                                                    WHERE DATE_FORMAT(DateApproved, '%Y-%m-%d') = DATE_FORMAT(NOW(), '%Y-%m-%d')
+                                                    AND A.StatusId = 1
+                                                    AND B.BranchId = $AssignedBranchId
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getCurrentFund()
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  COALESCE(SUM(Amount), 0) as Total
+                                                FROM r_capital
+                                                  WHERE BranchId = $AssignedBranchId
+                                                  AND StatusId = 1
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getTotalExpenses()
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  COALESCE(SUM(Amount), 0) as Total
+                                                FROM r_expense
+                                                    WHERE StatusId = 1
+                                                    AND BranchId = $AssignedBranchId
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
 
     function getTransactions()
     {
@@ -1292,7 +1330,6 @@ class maintenance_model extends CI_Model
                                                     THEN '56-65 years old'
                                                   WHEN YEAR(CURDATE()) - YEAR(DateOfBirth) > 65
                                                     THEN 'Above 65 years old'
-                                                  ELSE ''
                                                 END as AgeBracket
                                                 , COUNT(YEAR(CURDATE()) - YEAR(DateOfBirth)) as TotalAge
                                                     FROM r_borrowers
@@ -1431,14 +1468,68 @@ class maintenance_model extends CI_Model
     /*TOTAL LOAN AMOUNT*/
     function getTotalLoanAmount()
     {
-      $query_string = $this->db->query("SELECT  SUM(PrincipalAmount) Total
-                                                , DATE_FORMAT(DateCreated, '%Y') as DateCreated
-                                                , FORMAT(SUM(PrincipalAmount), 2) TotalLabel
-                                                FROM t_application
-                                                    WHERE StatusId = 1
-                                                    GROUP BY DATE_FORMAT(DateCreated, '%Y')
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  SUM(A.PrincipalAmount) Total
+                                                , DATE_FORMAT(A.DateCreated, '%Y') as DateCreated
+                                                , FORMAT(SUM(A.PrincipalAmount), 2) TotalLabel
+                                                FROM t_application  A
+                                                  INNER JOIN R_Borrowers B
+                                                    ON B.BorrowerId = A.BorrowerId
+                                                    WHERE B.BranchId = $AssignedBranchId
+                                                    AND 
+                                                    (
+                                                      A.StatusId = 1
+                                                      OR
+                                                      A.StatusId = 4
+                                                    )
+                                                    GROUP BY DATE_FORMAT(A.DateCreated, '%Y')
       ");
       $data = $query_string->result_array();
+      return $data;
+    }
+    /*Active Loans*/
+    function getActiveLoans()
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  COALESCE(COUNT(*), 0) as Total
+                                                FROM t_application A
+                                                  INNER JOIN r_borrowers B
+                                                    ON B.BorrowerId = A.BorrowerId
+                                                    WHERE B.BranchId = $AssignedBranchId
+                                                    AND A.StatusId = 1
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+    /*Total Employees*/
+    function getTotalEmployees()
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  COALESCE(COUNT(*)) as Total
+                                                FROM r_employee EMP
+                                                      INNER JOIN branch_has_employee BE
+                                                          ON BE.EmployeeNumber = EMP.EmployeeNumber
+                                                              WHERE BE.BranchId = $AssignedBranchId
+                                                                AND BE.StatusId = 1
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+    /*Total Users*/
+    function getTotalUsers()
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  COALESCE(COUNT(*)) as Total
+                                                FROM r_employee EMP
+                                                      INNER JOIN r_userrole UR
+                                                          ON UR.EmployeeNumber = EMP.EmployeeNumber
+                                                        INNER JOIN branch_has_employee BE
+                                                          ON BE.EmployeeNumber = EMP.EmployeeNumber
+                                                              WHERE UR.StatusId = 1
+                                                                AND EMP.StatusId = 2
+                                                                AND BE.BranchId = $AssignedBranchId
+      ");
+      $data = $query_string->row_array();
       return $data;
     }
     /*Total Charges*/
