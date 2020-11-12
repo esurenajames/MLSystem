@@ -4,12 +4,12 @@
   <!-- Content Header (Page header) -->
   <section class="content-header">
     <h1>
-      Withdrawals
+      Deposits
     </h1>
     <ol class="breadcrumb">
       <li><a href="http://localhost/ELendingTool/home/Dashboard" class="active"><i class="fa fa-dashboard"></i>Dashboard</a></li>
       <li><a href="#">System Setup</a></li>
-      <li><a href="#">Add Withdrawal</a></li>
+      <li><a href="#">Add Deposit</a></li>
     </ol>
   </section>
 
@@ -20,14 +20,14 @@
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">Add Expenses</h4>
+          <h4 class="modal-title">Add Deposit</h4>
         </div>
         <form action="<?php echo base_url(); ?>admin_controller/AddWithdrawal/" id="frmInsert2" method="post">
           <div class="modal-body">
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label for="Withdrawal">Type of Withdrawal</label><br>
+                    <label for="Withdrawal">Type of Deposit</label><br>
                     <select class="form-control" style="width: 100%" name="Withdrawal" id="SelectWithdrawal">
                     <?php
                       echo $WithdrawalType;
@@ -47,7 +47,7 @@
               <div class="col-md-6">
                   <div class="form-group">
                       <div class="form-group">
-                        <label>Date of Expense</label>
+                        <label>Date of Deposit</label>
                         <div class="input-group date">
                           <div class="input-group-addon">
                             <i class="fa fa-calendar"></i>
@@ -73,10 +73,10 @@
   <section class="content">
     <div class="box">
       <div class="box-header with-border">
-        <h3 class="box-title">List of Withdrawals</h3>
+        <h3 class="box-title">List of Deposits</h3>
       </div>
       <div class="box-body">
-        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewWithdrawal">Add Withdrawal</button>
+        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewWithdrawal">Add Deposit</button>
         <br>
         <br>
         <form name="ApproverDocForm" method="post" id="ApproverDocForm">
@@ -84,9 +84,9 @@
             <thead>
             <tr>
               <th>#</th>
-              <th>Withdrawal Type</th>
+              <th>Deposit Type</th>
               <th>Amount</th>
-              <th>Date of Withdrawal</th>
+              <th>Date of Deposit</th>
               <th>Date Created</th>
               <th>Created By</th>
               <th>Status</th>

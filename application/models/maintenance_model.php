@@ -503,7 +503,7 @@ class maintenance_model extends CI_Model
     function getAllWithdrawals()
     {
       $query_string = $this->db->query("SELECT WT.Name as Withdrawal
-                                                , CONCAT('W-', LPAD(W.WithdrawalId, 6, 0)) as ReferenceNo
+                                                , CONCAT('DEP-', LPAD(W.WithdrawalId, 6, 0)) as ReferenceNo
                                                 , W.WithdrawalTypeId
                                                 , W.WithdrawalId
                                                 , W.Amount
@@ -803,7 +803,7 @@ class maintenance_model extends CI_Model
                                           WHERE StatusId = 1
                                             ORDER BY Name ASC
       ");
-      $output = '<option selected value="">Select Withdrawal Type</option>';
+      $output = '<option selected value="">Select Deposit Type</option>';
       foreach ($query->result() as $row)
       {
         $output .= '<option data-city="'.$row->Name.'"  value="'.$row->WithdrawalTypeId.'">'.$row->Name.'</option>';

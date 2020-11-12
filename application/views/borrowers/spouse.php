@@ -31,7 +31,7 @@
         if($value['StatusId'] == 1)
         {
           $status = "<span class='badge bg-green'>Active</span>";
-          $action = '<a class="btn btn-sm btn-default" onclick="viewSpouse('.$value['SpouseId'].')" title="View" data-toggle="modal" data-target="#modalBorrowerDetails"><span class="fa fa-info-circle"></span></a> ' . $addBorrower . ' <a onclick="confirm(\'Are you sure you want to deactivate this spouse?\', \''.$value['SpouseId'].'\', 0, \'BorrowerSpouse\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+          $action = '<a class="btn btn-sm btn-default" onclick="viewSpouse('.$value['SpouseId'].')" title="View" data-toggle="modal" data-target="#modalBorrowerDetails"><span class="fa fa-info-circle"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this spouse?\', \''.$value['SpouseId'].'\', 0, \'BorrowerSpouse\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
         }
         else if($value['StatusId'] == 0)
         {

@@ -1080,7 +1080,7 @@
                     </div>
                     <div class="tab-pane" id="tabAddress">
                       <h4>ADDRESS INFORMATION</h4>
-                      <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewAddress">Add Address</button>
+                      <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalBorrowerDetails">Add Address</button>
                       <br>
                       <br>
                       <br>

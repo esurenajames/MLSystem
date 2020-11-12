@@ -1856,6 +1856,10 @@ class loanapplication_controller extends CI_Controller {
         $this->maintenance_model->updateFunction1($set, $condition, $table);
       }
       // application has notifications -- to do
+        $transNo = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $this->uri->segment(3));
+        $auditApplication = 'Updated collateral details of #CLR-' .sprintf('%05d', $generatedId['CollateralId']). ' in collateral list.';
+        $auditLogsManager = 'Updated collateral details of #CLR-' .sprintf('%05d', $generatedId['CollateralId']). ' to application #'.$transNo['TransactionNumber'].'.';
+        $this->auditLoanApplication($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditApplication, $this->uri->segment(3));
       // employee has notifications -- to do
       // system has notifications -- to do
       // upload documents
