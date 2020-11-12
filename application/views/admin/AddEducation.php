@@ -62,6 +62,7 @@
           <table id="example1" class="table table-bordered table-hover">
             <thead>
             <tr>
+              <th>#</th>
               <th>Education Level</th>
               <th>Description</th>
               <th>Status</th>
@@ -105,7 +106,7 @@
     });
   }
   
-  function confirm(Text, BranchId, updateType)
+  function confirm(Text, EducationId, updateType)
   { 
     swal({
       title: 'Confirm',
@@ -121,9 +122,9 @@
           url: "<?php echo base_url();?>" + "/admin_controller/updateStatus",
           method: "POST",
           data:   {
-                    Id : BranchId
+                    Id : EducationId
                     , updateType : updateType
-                    , tableType : 'Branch'
+                    , tableType : 'Education'
                   },
           beforeSend: function(){
               $('.loading').show();
@@ -133,7 +134,7 @@
             refreshPage();
             swal({
               title: 'Success!',
-              text: 'Branch successfully updated!',
+              text: 'Education Level successfully updated!',
               type: 'success',
               buttonsStyling: false,
               confirmButtonClass: 'btn btn-primary'
@@ -154,14 +155,14 @@
     });
   }
 
-  function Edit(BranchId)
+  function Edit(EducationId)
   {
     $.ajax({
-      url: '<?php echo base_url()?>' + "/admin_controller/getBranchDetails",
+      url: '<?php echo base_url()?>' + "/admin_controller/getEducationDetails",
       type: "POST",
       async: false,
       data: {
-        Id : BranchId
+        Id : EducationId
       },
       dataType: "JSON",
       beforeSend: function(){
@@ -169,13 +170,9 @@
       },
       success: function(data)
       {
-        $('#txtBranch').val(data['Name']);
-        $('#txtCode').val(data['Code']);
+        $('#txtEducation').val(data['Name']);
         $('#txtDescription').val(data['Description']);
-        $('#DateFrom').val(data['DateFrom']);
-        $('#DateTo').val(data['DateTo']);
-        $('#txtMonthly').val(data['LeaseMonthly']);
-        $('#txtBranchId').val(BranchId);
+        $('#txtEducationId').val(EducationId);
         $('#txtFormType').val(2);
       },
 
@@ -204,7 +201,8 @@
     UserTable = $('#example1').DataTable({
       "pageLength": 10,
       "ajax": { url: '<?php echo base_url()."/datatables_controller/Education/"; ?>', type: 'POST', "dataSrc": "" },
-      "columns": [  { data: "EducationName" }
+      "columns": [  { data: "ReferenceNo" }
+                    , { data: "EducationName" }
                     , { data: "Description" }
                     , {
                       data: "StatusId", "render": function (data, type, row) {
@@ -224,10 +222,10 @@
                     {
                       data: "StatusId", "render": function (data, type, row) {
                       if(row.StatusId == 1){
-                          return '<a onclick="confirm(\'Are you sure you want to deactivate this branch?\', \''+row.BranchId+'\', 0)" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a> <a onclick="Edit('+row.BranchId+')" data-toggle="modal" data-target="#modalNewBranch" class="btn btn-info" title="Edit"><span class="fa fa-edit"></span></a>';
+                          return '<a onclick="confirm(\'Are you sure you want to deactivate this Education Level?\', \''+row.EducationId+'\', 0)" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a> <a onclick="Edit('+row.EducationId+')" data-toggle="modal" data-target="#modalNewEducation" class="btn btn-info" title="Edit"><span class="fa fa-edit"></span></a>';
                         }
                         else if(row.StatusId == 0){
-                          return '<a onclick="confirm(\'Are you sure you want to re-activate this branch?\', \''+row.BranchId+'\', 1)" class="btn btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
+                          return '<a onclick="confirm(\'Are you sure you want to re-activate this Education Level?\', \''+row.EducationId+'\', 1)" class="btn btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
                         }
                         else{
                           return "N/A";

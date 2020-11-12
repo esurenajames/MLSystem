@@ -60,6 +60,12 @@
                     <input type="number" class="form-control" id="txtCriticalLevel" name="CriticalLevel" placeholder="Critical Level">
                   </div>
                 </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label for="CriticalLevel">Critical Level</label>
+                    <input type="number" class="form-control" id="txtCriticalLevel" name="CriticalLevel" placeholder="00">
+                  </div>
+                </div>
                 <div class="col-md-6">
                   <div class="form-group">
                     <label for="Asset">Purchase Price</label><br>

@@ -25,7 +25,7 @@
       <form action="<?php echo base_url(); ?>admin_controller/AddIndustry/" id="frmInsert2" method="post">
         <div class="modal-body">
             <div class="row">
-              <div class="col-md-6">
+              <div class="col-md-12">
                 <div class="form-group">
                   <label for="Industry">Industry Name</label><br>
                   <input type="text" class="form-control" id="txtIndustry" name="Industry">
@@ -65,6 +65,7 @@
           <table id="example1" class="table table-bordered table-hover">
             <thead>
             <tr>
+              <th>#</th>
               <th>Industry Name</th>
               <th>Description</th>
               <th>Status</th>
@@ -203,7 +204,8 @@
     UserTable = $('#example1').DataTable({
       "pageLength": 10,
       "ajax": { url: '<?php echo base_url()."/datatables_controller/Industry/"; ?>', type: 'POST', "dataSrc": "" },
-      "columns": [  { data: "Industry" }
+      "columns": [  { data: "ReferenceNo" }
+                    , { data: "Industry" }
                     , { data: "Description" }
                     , {
                       data: "StatusId", "render": function (data, type, row) {
