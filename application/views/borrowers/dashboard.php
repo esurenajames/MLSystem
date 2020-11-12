@@ -332,49 +332,75 @@
               <span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title">Generate Reports</h4>
           </div>
-            <form autocomplete="off" action="<?php echo base_url(); ?>borrower_controller/generateReport/" method="post" enctype="multipart/form-data">
-              <div class="modal-body">
-                <div class="row">
-                  <div class="col-md-12">
-                    <select class="form-control" id="selectReportType" onchange="ReportType(this.value)">
-                      <option selected="" disabled="">Select Report Type</option>
-                      <option value="1">Demographics</option>
-                      <option value="2">Custom</option>
-                    </select>
-                  </div>
-                  <div id="divDemographics">
-                    <div class="col-md-6">
-                      <label>Select Year From</label>
-                      <select class="form-control" id="yearFrom" name="yearFrom">
-                        <?php 
-                          foreach ($ageYear as $value) 
-                          {
-                            $selected = (date("Y") == $value['Year']) ? 'selected' : '';
-                            echo '<option '.$selected.'>'.$value['Year'].'</option>';
-                          }
-                        ?>
+          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/generateReport/4" method="post" enctype="multipart/form-data">
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label>Report Columns</label>
+                      <select class="form-control select2" required="" name="columnNames[]" style="width: 100%;" multiple="">
+                        <option value="1">Age</option>
+                        <option value="2">Education</option>
+                        <option value="3">Gender/Sex</option>
+                        <option value="4">Occupation</option>
+                        <option value="5">Income Level</option>
+                        <option value="6">Marital Status</option>
+                        <option value="7">Risk Profile</option>
+                        <option value="9">Number of Rollovers/Refinance borrowers and one-time borrowers</option>
                       </select>
-                    </div>
-                    <div class="col-md-6">
-                      <label>Select Year To</label>
-                      <select class="form-control" id="yearTo" name="yearTo">
-                        <?php 
-                          foreach ($ageYear as $value) 
-                          {
-                            $selected = (date("Y") == $value['Year']) ? 'selected' : '';
-                            echo '<option '.$selected.'>'.$value['Year'].'</option>';
-                          }
-                        ?>
-                      </select>
-                    </div>
                   </div>
                 </div>
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label>Report Name</label>
+                    <input type="text" class="form-control" value="Demographics" name="reportName">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Date From</label>
+                    <select class="form-control" id="selectYearFrom" name="yearFrom">
+                      <?php 
+                        foreach ($ageYear as $value) 
+                        {
+                          $selected = (date("Y") == $value['Year']) ? 'selected' : '';
+                          echo '<option '.$selected.'>'.$value['Year'].'</option>';
+                        }
+                      ?>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Date To</label>
+                    <select class="form-control" id="selectYearFrom" name="yearFrom">
+                      <?php 
+                        foreach ($ageYear as $value) 
+                        {
+                          $selected = (date("Y") == $value['Year']) ? 'selected' : '';
+                          echo '<option '.$selected.'>'.$value['Year'].'</option>';
+                        }
+                      ?>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label>Verified By</label>
+                  <select name="verifiedBy" required="" class="form-control"style="width: 100%"  id="selectEmployee">
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label>Approved By</label>
+                  <select name="approvedBy" required="" class="form-control"style="width: 100%"  id="selectEmployee2">
+                  </select>
+                </div>
               </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button class="btn btn-primary" type="submit">Submit</button>
-              </div>
-            </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button class="btn btn-primary" type="submit">Submit</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -386,7 +412,7 @@
         </div>
         <div class="box-body">
           <div class="pull-right">
-            <!-- <button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#modalReport">Generate Report</button> -->
+            <a href="<?php echo base_url(); ?>loanapplication_controller/generateReport/4" class="btn btn-primary btn-md" >Generate Report</a>
             <button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#modalNewRecord">Add Borrower</button>
             <button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#modalImport2">Import Borrower</button>
           </div>

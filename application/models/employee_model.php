@@ -298,7 +298,7 @@ class employee_model extends CI_Model
                                                 , DATE_FORMAT(EMP.DateHired, '%d %b %Y') as DateHired
                                                 , SS.Description as StatusDescription
                                                 , EMP.StatusId
-                                                , P.Description as Position
+                                                , P.Name as Position
                                                 , acronym(MNG.MiddleName) as MngMiddleInitial
                                                 , MNG.FirstName as MngFirstName
                                                 , MNG.LastName as MngLastName

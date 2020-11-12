@@ -136,7 +136,7 @@
             <div class="small-box bg-yellow">
               <div class="inner">
                 <h3><?php print_r($totalBorrower['Total']) ?></h3>
-                <p>TOTAL BORROWERS</p>
+                <p>Total Borrowers</p>
               </div>
               <div class="icon">
                 <i class="ion ion-person-add"></i>
@@ -150,7 +150,7 @@
             <div class="small-box bg-green">
               <div class="inner">
                 <h3><?php print_r($dailyIncome['Total']) ?></h3>
-                <p>DAILY INCOME</p>
+                <p>Daily Income</p>
               </div>
               <div class="icon">
                 <i class="fa fa-money"></i>
@@ -164,7 +164,7 @@
             <div class="small-box bg-green">
               <div class="inner">
                 <h3><?php print_r(number_format($TotalInterest['Total'], 2)) ?></h3>
-                <p>DAILY INTEREST COLLECTED</p>
+                <p>Daily Interest Collected</p>
               </div>
               <div class="icon">
                 <i class="ion ion-stats-bars"></i>
@@ -178,7 +178,7 @@
             <div class="small-box bg-red">
               <div class="inner">
                 <h3><?php print_r($TotalExpense['Total']) ?></h3>
-                <p>DAILY EXPENSE</p>
+                <p>Daily Expense</p>
               </div>
               <div class="icon">
                 <i class="fa fa-dollar"></i>
@@ -191,13 +191,73 @@
           <div class="col-lg-3 col-xs-6">
             <div class="small-box bg-aqua">
               <div class="inner">
-                <h3><?php print_r($TotalTransaction['Total']) ?></h3>
-                <p>DAILY TRANSACTIONS</p>
+                <h3><?php print_r($dailyApprovedLoans['Total']) ?></h3>
+                <p>Daily Approved Loans</p>
               </div>
               <div class="icon">
-                <i class="fa fa-clipboard"></i>
+                <i class="fa fa-calendar-check-o"></i>
               </div>
               <a href="<?php echo base_url(); ?>/home/AddExpense" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+        <?php } ?>
+        <!-- 56 -->
+        <?php if(in_array('48', $subModule)) { ?>
+          <div class="col-lg-3 col-xs-6">
+            <div class="small-box bg-aqua">
+              <div class="inner">
+                <h3><?php print_r(number_format($totalFund['Total'] - $totalExpenses['Total'], 2)) ?></h3>
+                <p>Current Fund</p>
+              </div>
+              <div class="icon">
+                <i class="fa fa-tachometer"></i>
+              </div>
+              <a href="<?php echo base_url(); ?>/home/AddInitialCapital" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+        <?php } ?>
+        <!--  57 -->
+        <?php if(in_array('48', $subModule)) { ?>
+          <div class="col-lg-3 col-xs-6">
+            <div class="small-box bg-aqua">
+              <div class="inner">
+                <h3><?php print_r($totalActiveLoans['Total']) ?></h3>
+                <p>Active Loans</p>
+              </div>
+              <div class="icon">
+                <i class="fa fa-list-alt"></i>
+              </div>
+              <a href="<?php echo base_url(); ?>/home/ViewLoans" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+        <?php } ?>
+        <!-- 58 -->
+        <?php if(in_array('48', $subModule)) { ?>
+          <div class="col-lg-3 col-xs-6">
+            <div class="small-box bg-aqua">
+              <div class="inner">
+                <h3><?php print_r($totalEmployees['Total']) ?></h3>
+                <p>Total Employees</p>
+              </div>
+              <div class="icon">
+                <i class="fa fa-list-alt"></i>
+              </div>
+              <a href="<?php echo base_url(); ?>/home/addEmployees" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+        <?php } ?>
+        <!-- 59 -->
+        <?php if(in_array('48', $subModule)) { ?>
+          <div class="col-lg-3 col-xs-6">
+            <div class="small-box bg-aqua">
+              <div class="inner">
+                <h3><?php print_r($totalUsers['Total']) ?></h3>
+                <p>Total Users</p>
+              </div>
+              <div class="icon">
+                <i class="fa fa-list-alt"></i>
+              </div>
+              <a href="<?php echo base_url(); ?>/home/addUser" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
             </div>
           </div>
         <?php } ?>
@@ -1381,78 +1441,80 @@
     });
   }
 
-  function selectOtherCharges(value)
-  {
-    $.ajax({
-      url: "<?php echo base_url(); ?>admin_controller/getChargesTotal",
-      type: "POST",
-      async: false,
-      dataType: "JSON",
-      data : {
-        yearFilter : value
-      },
-      success: function(data) {
-        var bracket = [];
-        var age = [];
+  // function seslectOtherCharges(value)
+  // {
+  //   $.ajax({
+  //     url: "<?php echo base_url(); ?>admin_controller/getChargesTotal",
+  //     type: "POST",
+  //     async: false,
+  //     dataType: "JSON",
+  //     data : {
+  //       yearFilter : value
+  //     },
+  //     success: function(data) {
+  //       var bracket = [];
+  //       var age = [];
 
-        for(var i in data) {
-          bracket.push(data[i].Name);
-          age.push(data[i].Total);
-        }
+  //       for(var i in data) {
+  //         bracket.push(data[i].Name);
+  //         age.push(data[i].Total);
+  //       }
 
-        var chartdata = {
-          labels: bracket,
-          datasets : [
-            {
-              label: 'Marital Status',
-              fillColor           : 'rgb(54, 145, 236)',
-              strokeColor         : 'rgb(26, 114, 203)',
-              pointColor          : 'rgba(210, 214, 222, 1)',
-              data: age
-            }
-          ]
-        };
+  //       var chartdata = {
+  //         labels: bracket,
+  //         datasets : [
+  //           {
+  //             label: 'Marital Status',
+  //             fillColor           : 'rgb(54, 145, 236)',
+  //             strokeColor         : 'rgb(26, 114, 203)',
+  //             pointColor          : 'rgba(210, 214, 222, 1)',
+  //             data: age
+  //           }
+  //         ]
+  //       };
 
-        var barChartCanvas                   = $('#chartLoans').get(0).getContext('2d')
-        var barChart                         = new Chart(barChartCanvas)
-        var barChartData                     = chartdata
-        var barChartOptions                  = {
-          //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
-          scaleBeginAtZero        : true,
-          //Boolean - Whether grid lines are shown across the chart
-          scaleShowGridLines      : true,
-          //String - Colour of the grid lines
-          scaleGridLineColor      : 'rgba(0,0,0,.05)',
-          //Number - Width of the grid lines
-          scaleGridLineWidth      : 1,
-          //Boolean - Whether to show horizontal lines (except X axis)
-          scaleShowHorizontalLines: true,
-          //Boolean - Whether to show vertical lines (except Y axis)
-          scaleShowVerticalLines  : true,
-          //Boolean - If there is a stroke on each bar
-          barShowStroke           : true,
-          //Number - Pixel width of the bar stroke
-          barStrokeWidth          : 2,
-          //Number - Spacing between each of the X value sets
-          barValueSpacing         : 5,
-          //Number - Spacing between data sets within X values
-          barDatasetSpacing       : 1,
-          //Boolean - whether to make the chart responsive
-          responsive              : true,
-          maintainAspectRatio     : true
-        }
+  //       var barChartCanvas                   = $('#chartLoans').get(0).getContext('2d')
+  //       var barChart                         = new Chart(barChartCanvas)
+  //       var barChartData                     = chartdata
+  //       var barChartOptions                  = {
+  //         //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
+  //         scaleBeginAtZero        : true,
+  //         //Boolean - Whether grid lines are shown across the chart
+  //         scaleShowGridLines      : true,
+  //         //String - Colour of the grid lines
+  //         scaleGridLineColor      : 'rgba(0,0,0,.05)',
+  //         //Number - Width of the grid lines
+  //         scaleGridLineWidth      : 1,
+  //         //Boolean - Whether to show horizontal lines (except X axis)
+  //         scaleShowHorizontalLines: true,
+  //         //Boolean - Whether to show vertical lines (except Y axis)
+  //         scaleShowVerticalLines  : true,
+  //         //Boolean - If there is a stroke on each bar
+  //         barShowStroke           : true,
+  //         //Number - Pixel width of the bar stroke
+  //         barStrokeWidth          : 2,
+  //         //Number - Spacing between each of the X value sets
+  //         barValueSpacing         : 5,
+  //         //Number - Spacing between data sets within X values
+  //         barDatasetSpacing       : 1,
+  //         //Boolean - whether to make the chart responsive
+  //         responsive              : true,
+  //         maintainAspectRatio     : true
+  //       }
 
-        barChartOptions.datasetFill = false
-        barChart.Bar(barChartData, barChartOptions)
-      },
-      error: function(data) {
-        console.log(data);
-      }
-    });
-  }
+  //       barChartOptions.datasetFill = false
+  //       barChart.Bar(barChartData, barChartOptions)
+  //     },
+  //     error: function(data) {
+  //       console.log(data);
+  //     }
+  //   });
+  // }
 
   $(function () {
     // selectPieChartAge();
+    var d = new Date();
+    selectLoanTypes(d.getFullYear());
     changeAgeReport('Bar Graph');
     UserTable = $('#example1').DataTable({
       "pageLength": 10,

@@ -1059,7 +1059,7 @@
   		      		<label>Contact Number: </label> <?php print_r($detail['ContactNumber']) ?><br>
   		      		<label>Email: </label> <?php print_r($detail['EmailAddress']) ?><br>
   			    		<label>Date Approved:</label> <?php print_r($detail['DateApproved']) ?><br>
-  			    		<label>Status:</label> <a data-toggle="modal" data-target="#modalStatus">Edit Status</a></h3> <?php 
+  			    		<label>Status:</label></h3> <?php 
                   if(($detail['StatusId'] == 1 && count($approvers) == 0) || ($detail['StatusId'] == 2 && count($approvers) == 0) || ($detail['StatusId'] == 4 && count($approvers) == 0)) // approved
                   {
                     print_r($detail['StatusDescription']);
@@ -1068,7 +1068,7 @@
                   {
                     print_r($detail['StatusDescription'] . '/' . $detail['ApprovalType']);
                   }
-                  ?> <br>
+                  ?> <a data-toggle="modal" data-target="#modalStatus">Edit Status</a> <br>
                   <?php 
                     foreach ($approvers as $value) 
                     {

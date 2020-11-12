@@ -83,7 +83,7 @@
             }
             else
             {
-              return "<span class='badge bg-"+b.StatusColor+"'>"+b.ProcessedApprovers+ '/' + b.PendingApprovers + ' in progress</span>';
+              return "<span class='badge bg-"+b.StatusColor+"'>"+b.ProcessedApprovers+ '/' + b.TotalApprovers + ' in progress</span>';
             }
           }
           else

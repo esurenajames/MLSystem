@@ -2352,6 +2352,7 @@ class loanapplication_controller extends CI_Controller {
 
   function generateReport()
   {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
     // set default monospaced font
     $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
@@ -2362,6 +2363,8 @@ class loanapplication_controller extends CI_Controller {
     $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
     $pdf->SetFont('dejavusans', '', 10);
 
+    $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
+    $DateNow = date("m-d-Y");
     
     if($this->uri->segment(3) == 1) // loan collections
     {
@@ -3052,6 +3055,732 @@ class loanapplication_controller extends CI_Controller {
       $file = APPPATH . 'excelforms/Loan Application'. $CurrentDate .'.xls';
 
       force_download($file, NULL);
+    }
+    if($this->uri->segment(3) == 4) // demographics
+    {
+      $pdf->AddPage('L', 'A4');
+      $branchName = $this->maintenance_model->selectSpecific('R_Branch', 'BranchId', $this->session->userdata('BranchId'));
+
+      $html = '
+        <style>
+        table {
+          border-collapse: collapse;
+        }
+
+        table, td, th {
+          border: 1px solid black;
+        }
+
+        p {
+          text-align: center;
+          font-size: 15px;
+        }
+        </style>
+
+        <p>Historical Data on Borrowers of the Company<br><small>'.$branchName['Name'].' Branch</small></p>
+
+        <br>
+        <br>
+        ';
+          $years = $this->loanapplication_model->getYearFilter('r_borrowers');
+          $totalColumns = count($years) + 1;
+          $blankColumns = count($years) + 2;
+          // for ($i=0; $i < count($years); $i++) { 
+          //   $html .='<td>'.$years[$i]['Year'].'</td>';
+          // }
+        $html .='
+        <table>
+          <tbody>';
+          $html .= '
+          <tr>
+            <td>Year</td>';
+            foreach ($years as $value) 
+            {
+              $html .='<td>'.$value['Year'].'</td>';
+            }
+        $html .='
+          </tr>
+
+          <tr>
+          <td colspan="'.$totalColumns.'">a. Demographics</td>
+          </tr>
+          <tr>
+            <td colspan="'.$totalColumns.'">i. Age</td>';
+          $html .= '
+          </tr>
+          <tr>
+            <td>* 18 - 24 years old</td>';
+            foreach ($years as $value) 
+            {
+              $result = $this->loanapplication_model->getAge($value['Year'], 'YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 18 AND 24');
+              $html .='<td>'.$result['TotalBorrowers'].'</td>';
+            }
+          $html .= '
+          </tr>
+          <tr>
+            <td>* 25 - 31 years old</td>';
+            foreach ($years as $value) 
+            {
+              $result = $this->loanapplication_model->getAge($value['Year'], 'YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 25 AND 31');
+              $html .='<td>'.$result['TotalBorrowers'].'</td>';
+            }
+          $html .= '
+          </tr>
+          <tr>
+            <td>* 32 - 39 years old</td>';
+            foreach ($years as $value) 
+            {
+              $result = $this->loanapplication_model->getAge($value['Year'], 'YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 32 AND 39');
+              $html .='<td>'.$result['TotalBorrowers'].'</td>';
+            }
+          $html .= '
+          </tr>
+          <tr>
+            <td>* 40 - 47 years old</td>';
+            foreach ($years as $value) 
+            {
+              $result = $this->loanapplication_model->getAge($value['Year'], 'YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 40 AND 47');
+              $html .='<td>'.$result['TotalBorrowers'].'</td>';
+            }
+          $html .= '
+          </tr>
+          <tr>
+            <td>* 48 - 55 years old</td>';
+            foreach ($years as $value) 
+            {
+              $result = $this->loanapplication_model->getAge($value['Year'], 'YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 48 AND 55');
+              $html .='<td>'.$result['TotalBorrowers'].'</td>';
+            }
+          $html .= '
+          </tr>
+          <tr>
+            <td>* 56 - 65 years old</td>';
+            foreach ($years as $value) 
+            {
+              $result = $this->loanapplication_model->getAge($value['Year'], 'YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 56 AND 65');
+              $html .='<td>'.$result['TotalBorrowers'].'</td>';
+            }
+          $html .= '
+          </tr>
+          <tr>
+            <td>* Above 65 years old</td>';
+            foreach ($years as $value) 
+            {
+              $result = $this->loanapplication_model->getAge($value['Year'], 'YEAR(CURDATE()) - YEAR(DateOfBirth) > 65');
+              $html .='<td>'.$result['TotalBorrowers'].'</td>';
+            }
+          $html .= '
+          </tr>
+          <tr>
+          <td colspan="'.$blankColumns.'"> </td>
+          </tr>
+          <tr>
+            <td colspan="'.$totalColumns.'">ii. Education</td>';
+          $html .= '
+          </tr>';
+            $education = $this->loanapplication_model->getEducation();
+            foreach ($education as $educationValues) 
+            {
+              $html .='<tr>';
+              $html .='<td>* '.$educationValues['Name'].'</td>';
+                foreach ($years as $yearlyValue) 
+                {
+                  $results = $this->loanapplication_model->getEducationYearly($yearlyValue['Year'], $educationValues['EducationId']);
+                  $html .='<td>'.$results['TotalBorrowers'].'</td>';
+                }
+              $html .='</tr>';
+            }
+          $html .= '
+          <tr>
+          <td colspan="'.$blankColumns.'"> </td>
+          </tr>
+          <tr>
+            <td colspan="'.$totalColumns.'">iii. Gender/Sex</td>';
+          $html .= '
+          </tr>';
+            $sex = $this->loanapplication_model->getSex();
+            foreach ($sex as $sexValues) 
+            {
+              $html .='<tr>';
+              $html .='<td>* '.$sexValues['Name'].'</td>';
+                foreach ($years as $yearlyValue)
+                {
+                  $sexResult = $this->loanapplication_model->getSexYearly($yearlyValue['Year'], $sexValues['SexId']);
+                  $html .='<td>'.$sexResult['TotalBorrowers'].'</td>';
+                }
+              $html .='</tr>';
+            }
+          $html .= '
+          <tr>
+          <td colspan="'.$blankColumns.'"> </td>
+          </tr>
+          <tr>
+            <td colspan="'.$totalColumns.'">iv. Occupation</td>';
+          $html .= '
+          </tr>';
+            $occupation = $this->loanapplication_model->getOccupation();
+            foreach ($occupation as $occupationValues) 
+            {
+              $html .='<tr>';
+              $html .='<td>* '.$occupationValues['Name'].'</td>';
+                foreach ($years as $yearlyValue)
+                {
+                  $occupationResult = $this->loanapplication_model->getOccupationYearly($yearlyValue['Year'], $occupationValues['Id']);
+                  $html .='<td>'.$occupationResult['TotalBorrowers'].'</td>';
+                }
+              $html .='</tr>';
+            }
+          $html .= '
+          <tr>
+          <td colspan="'.$blankColumns.'"> </td>
+          </tr>
+          <tr>
+            <td colspan="'.$totalColumns.'">v. Income Level</td>';
+          $html .= '
+          </tr>';
+            $income = $this->loanapplication_model->getIncomeLevelPopulation();
+            foreach ($income as $incomeValues) 
+            {
+              $html .='<tr>';
+              $html .='<td>* '.$incomeValues['IncomeLevel'].'</td>';
+                foreach ($years as $yearlyValue)
+                {
+                  $incomeResult = $this->loanapplication_model->getIncomeReport($yearlyValue['Year'], ' < 9250');
+                  $html .='<td>'.$incomeResult['TotalBorrowers'].'</td>';
+                }
+              $html .='</tr>';
+            }
+          $html .= '
+          <tr>
+          <td colspan="'.$blankColumns.'"> </td>
+          </tr>
+          <tr>
+            <td colspan="'.$totalColumns.'">vi. Marital Status</td>';
+          $html .= '
+          </tr>';
+            $sex = $this->loanapplication_model->getMaitalStatus();
+            foreach ($sex as $sexValues) 
+            {
+              $html .='<tr>';
+              $html .='<td>* '.$sexValues['Name'].'</td>';
+                foreach ($years as $yearlyValue)
+                {
+                  $sexResult = $this->loanapplication_model->getMaitalStatusYearly($yearlyValue['Year'], $sexValues['Id']);
+                  $html .='<td>'.$sexResult['TotalBorrowers'].'</td>';
+                }
+              $html .='</tr>';
+            }
+          $html .= '
+          <tr>
+          <td colspan="'.$blankColumns.'"> </td>
+          </tr>
+          <tr>
+            <td colspan="'.$totalColumns.'">b. Risk Profile of Borrowers</td>';
+          $html .= '
+          </tr>';
+          $html .='<tr>';
+          $html .='<td>* Low Risk</td>';
+            foreach ($years as $yearlyValue)
+            {
+              $sexResult = $this->loanapplication_model->getRiskStatus($yearlyValue['Year'], 'Low Risk');
+              $html .='<td>'.$sexResult['TotalBorrowers'].'</td>';
+            }
+          $html .='</tr>';
+          $html .='<tr>';
+          $html .='<td>* Medium Risk</td>';
+            foreach ($years as $yearlyValue)
+            {
+              $sexResult = $this->loanapplication_model->getRiskStatus($yearlyValue['Year'], 'Medium Risk');
+              $html .='<td>'.$sexResult['TotalBorrowers'].'</td>';
+            }
+          $html .='</tr>';
+          $html .='<tr>';
+          $html .='<td>* High Risk</td>';
+            foreach ($years as $yearlyValue)
+            {
+              $sexResult = $this->loanapplication_model->getRiskStatus($yearlyValue['Year'], 'High Risk');
+              $html .='<td>'.$sexResult['TotalBorrowers'].'</td>';
+            }
+          $html .='</tr>';
+          $html .= '
+          <tbody>
+        </table>
+        <br><br>
+        <br><br>
+      ';
+      $pdf->writeHTML($html, true, false, true, false, '');
+
+      // Close and output PDF document
+      // $pdf->Output('Borrower Data.pdf', 'I');
+      $pdf->Output('Borrower Data.pdf', 'D');
+    }
+    if($this->uri->segment(3) == 5) // loans
+    {
+      $pdf->AddPage('L', 'A4');
+      $branchName = $this->maintenance_model->selectSpecific('R_Branch', 'BranchId', $this->session->userdata('BranchId'));
+
+      $html = '
+        <style>
+        table {
+          border-collapse: collapse;
+        }
+
+        table, td, th {
+          border: 1px solid black;
+        }
+
+        p {
+          text-align: center;
+          font-size: 15px;
+        }
+        </style>
+
+        <p>Historical Data on Loans Extended by the Company<br><small>'.$branchName['Name'].' Branch</small></p>
+
+        <br>
+        <br>
+        ';
+          $years = $this->loanapplication_model->getLoansYear();
+          $totalColumns = count($years) + 1;
+          $blankColumns = count($years) + 2;
+          // for ($i=0; $i < count($years); $i++) { 
+          //   $html .='<td>'.$years[$i]['Year'].'</td>';
+          // }
+        $html .='
+        <table>
+          <tbody>';
+          $html .= '
+          <tr>
+            <td>Year</td>';
+            foreach ($years as $value) 
+            {
+              $html .='<td>'.$value['Year'].'</td>';
+            }
+        $html .='</tr>';
+        $html .='<tr>';
+        $html .='<td>a. Total Number of Borrowers</td>';
+          foreach ($years as $yearlyValue)
+          {
+            $result = $this->loanapplication_model->getTotalBorrowers($yearlyValue['Year']);
+            $html .='<td>'.$result['TotalBorrowers'].'</td>';
+          }
+        $html .='</tr>';
+        // $html .='
+        //   <tr>
+        //   <td colspan="'.$blankColumns.'"> </td>
+        //   </tr>';
+          $html .='<tr>';
+          $html .='<td>b. Total Number of Loans</td>';
+            foreach ($years as $yearlyValue)
+            {
+              $result = $this->loanapplication_model->getTotalLoans($yearlyValue['Year']);
+              $html .='<td>'.$result['Total'].'</td>';
+            }
+          $html .='</tr>';
+          $html .='<tr>';
+          $html .='<td colspan="'.$totalColumns.'">c. Geographical Concentration</td>';
+          $html .='</tr>';
+          $html .='<tr>';
+          $html .='<td>i. National Capital Region (NCR)</td>';
+            foreach ($years as $yearlyValue)
+            {
+              $result = $this->loanapplication_model->getTotalBorrowerGeo($yearlyValue['Year'], 'NCR');
+              $html .='<td>'.$result['TotalBorrowers'].'</td>';
+            }
+          $html .='</tr>';
+          $html .='<tr>';
+          $html .='<td>ii. Luzon</td>';
+            foreach ($years as $yearlyValue)
+            {
+              $result = $this->loanapplication_model->getTotalBorrowerGeo($yearlyValue['Year'], 'Luzon');
+              $html .='<td>'.$result['TotalBorrowers'].'</td>';
+            }
+          $html .='</tr>';
+          $html .='<tr>';
+          $html .='<td>iii. Visayas</td>';
+            foreach ($years as $yearlyValue)
+            {
+              $result = $this->loanapplication_model->getTotalBorrowerGeo($yearlyValue['Year'], 'Visayas');
+              $html .='<td>'.$result['TotalBorrowers'].'</td>';
+            }
+          $html .='</tr>';
+          $html .='<tr>';
+          $html .='<td>iv. Mindanao</td>';
+            foreach ($years as $yearlyValue)
+            {
+              $result = $this->loanapplication_model->getTotalBorrowerGeo($yearlyValue['Year'], 'Mindanao');
+              $html .='<td>'.$result['TotalBorrowers'].'</td>';
+            }
+          $html .='</tr>';
+          $html .='<tr>';
+          $html .='<td>d. Type of Loans</td>';
+            foreach ($years as $yearlyValue)
+            {
+              $result = $this->loanapplication_model->getTotalTypeofLoans($yearlyValue['Year']);
+              $html .='<td>'.$result['Total'].'</td>';
+            }
+          $html .='</tr>';
+          $html .='<tr>';
+          $html .='<td>e. Total Loan Amount</td>';
+            foreach ($years as $yearlyValue)
+            {
+              $result = $this->loanapplication_model->getTotalLoanAmount($yearlyValue['Year']);
+              $html .='<td>Php '.number_format($result['Total'], 2).'</td>';
+            }
+          $html .='</tr>';
+          $html .='<tr>';
+          $html .='<td>f. Tenors</td>';
+            foreach ($years as $yearlyValue)
+            {
+              $result = $this->loanapplication_model->getTotalLoanAmount($yearlyValue['Year']);
+              $html .='<td>Php '.$result['Total'].'</td>';
+            }
+          $html .='</tr>';
+          $html .='<tr>';
+          $html .='<td>g. Interest Rates</td>';
+            foreach ($years as $yearlyValue)
+            {
+              $result = $this->loanapplication_model->getTotalInterest($yearlyValue['Year']);
+              $html .='<td>Php '.number_format($result['Total'], 2).'</td>';
+            }
+          $html .='</tr>';
+          $html .='<tr>';
+          $html .='<td>h. Fees and Other Charges</td>';
+            foreach ($years as $yearlyValue)
+            {
+              $result = $this->loanapplication_model->getTotalCharges($yearlyValue['Year']);
+              $html .='<td>Php '.number_format($result['Total'], 2).'</td>';
+            }
+          $html .='</tr>';
+          $html .= '
+          <tbody>
+        </table>
+
+        <small>Generated By: '.$employeeDetail['Name'].'</small>
+        <small>('.$DateNow.')</small>
+        <br><br>
+        <br><br>
+      ';
+      $pdf->writeHTML($html, true, false, true, false, '');
+
+      // Close and output PDF document
+      $pdf->Output('Borrower Data.pdf', 'I');
+      // $pdf->Output('Borrower Data.pdf', 'D');
+    }
+    if($this->uri->segment(3) == 6) // financial health
+    {
+      $pdf->AddPage('L', 'A4');
+      $branchName = $this->maintenance_model->selectSpecific('R_Branch', 'BranchId', $this->session->userdata('BranchId'));
+
+      $html = '
+        <style>
+        table {
+          border-collapse: collapse;
+        }
+
+        table, td, th {
+          border: 1px solid black;
+        }
+
+        p {
+          text-align: center;
+          font-size: 15px;
+        }
+
+        a {
+          text-align: center;
+          font-size: 15px;
+        }
+        </style>
+
+        <p>Historical Data on Loans Extended by the Company<br><small>'.$branchName['Name'].' Branch</small></p>
+
+        <br>
+        <br>
+        ';
+          $years = $this->loanapplication_model->getLoansYear();
+          $totalColumns = count($years) + 1;
+          $blankColumns = count($years) + 2;
+          // for ($i=0; $i < count($years); $i++) { 
+          //   $html .='<td>'.$years[$i]['Year'].'</td>';
+          // }
+        $html .='
+        <table>
+          <tbody>';
+          $html .= '
+          <tr>
+            <td>Year</td>';
+            foreach ($years as $value) 
+            {
+              $html .='<td>'.$value['Year'].'</td>';
+            }
+          $html .='</tr>';
+          $html .='<tr>';
+          $html .='<td>a. Total Loan Portfolio</td>';
+            foreach ($years as $yearlyValue)
+            {
+              $result = $this->loanapplication_model->getTotalLoanAmount($yearlyValue['Year']);
+              $result2 = $this->loanapplication_model->getTotalInterest($yearlyValue['Year']);
+              $html .='<td>Php '.number_format($result['Total'] + $result2['Total'], 2).'</td>';
+            }
+          $html .='</tr>';
+          $html .='<tr>';
+          $html .='<td>b. Ratio of Non-Performing Loans to Total Loan Portfolio</td>';
+            foreach ($years as $yearlyValue)
+            {
+              $result = $this->loanapplication_model->getTotalLoanAmount($yearlyValue['Year']);
+              $html .='<td>Php '.number_format($result['Total'], 2).'</td>';
+            }
+          $html .='</tr>';
+          $html .='<tr>';
+          $html .='<td>c. Past Due Ratio and Write-Off Ratio to Total Loan Portfolio</td>';
+            foreach ($years as $yearlyValue)
+            {
+              $result = $this->loanapplication_model->getTotalLoanAmount($yearlyValue['Year']);
+              $html .='<td>Php '.number_format($result['Total'], 2).'</td>';
+            }
+          $html .='</tr>';
+          $html .='<tr>';
+          $html .='<td>d. Total Assets</td>';
+            foreach ($years as $yearlyValue)
+            {
+              $result = $this->loanapplication_model->getCurrentFund($yearlyValue['Year']);
+              $html .='<td>Php '.number_format($result['Total'], 2).'</td>';
+            }
+          $html .='</tr>';
+          $html .='<tr>';
+          $html .='<td>e. Gross Revenue</td>';
+            foreach ($years as $yearlyValue)
+            {
+              $result = $this->loanapplication_model->getTotalGross($yearlyValue['Year']);
+              $html .='<td>Php '.number_format($result['Total'], 2).'</td>';
+            }
+          $html .='</tr>';
+          $html .='<tr>';
+          $html .='<td>f. Net Income</td>';
+            foreach ($years as $yearlyValue)
+            {
+              $result = $this->loanapplication_model->getTotalGross($yearlyValue['Year']);
+              $result2 = $this->loanapplication_model->getTotalExpenses($yearlyValue['Year']);
+              $html .='<td>Php '.number_format($result['Total'] - $result2['Total'], 2).'</td>';
+            }
+          $html .='</tr>';
+          $html .= '
+          <tbody>
+        </table>
+
+        <small>Generated By: '.$employeeDetail['Name'].'</small>
+        <small>('.$DateNow.')</small>
+
+        <br><br>
+        <br><br>
+      ';
+      $pdf->writeHTML($html, true, false, true, false, '');
+
+      // Close and output PDF document
+      $pdf->Output('Borrower Data.pdf', 'I');
+      // $pdf->Output('Loan Extended by Company.pdf', 'D');
+    }
+    if($this->uri->segment(3) == 7) // income statement
+    {
+      $pdf->AddPage('L', 'A4');
+      $branchName = $this->maintenance_model->selectSpecific('R_Branch', 'BranchId', $this->session->userdata('BranchId'));
+
+      $html = '
+        <style>
+        table, td, th {
+          border: 1px solid black;
+          border-collapse: collapse;
+        }
+
+        p {
+          text-align: center;
+          font-size: 15px;
+        }
+
+        a {
+          text-align: center;
+          font-size: 15px;
+        }
+        </style>
+
+        <p>'.htmlentities($_POST['reportName'], ENT_QUOTES).'<br><small>'.$branchName['Name'].' Branch</small><br><small>'.htmlentities($_POST['DateFrom'], ENT_QUOTES).' - '.htmlentities($_POST['DateTo'], ENT_QUOTES).'</small><br><small>(Date From - Date To)</small></p>
+
+        <br>
+        <br>
+        ';
+          $years = $this->loanapplication_model->getLoansYear();
+          $totalColumns = count($years) + 1;
+          $blankColumns = count($years) + 2;
+        $html .='
+        <table>
+          <tbody>';
+          // // capital
+          //   $html .= '<tr>';
+          //   $html .= '<td colspan="3">';
+          //   $html .= 'Capital';
+          //   $html .= '</td>';
+          //   $html .='</tr>';
+          //   // capital amount
+          //     $totalCapital = $this->loanapplication_model->getCurrentFundStatement($_POST['DateFrom'], $_POST['DateTo']);
+
+          //     $html .= '<tr>';
+          //     $html .= '<td style="width: 5%">';
+          //     $html .= '</td>';
+          //     $html .= '<td>';
+          //     $html .= 'Current Fund';
+          //     $html .= '</td>';
+          //     $html .= '<td style="width: 5%">';
+          //     $html .= '<small>PHP</small> ';
+          //     $html .= '</td>';
+          //     $html .= '<td style="text-align: right">';
+          //     $html .= number_format($totalCapital['Total'], 2);
+          //     $html .= '</td>';
+          //     $html .= '</tr>';
+          // income
+            $html .= '<tr>';
+            $html .= '<td colspan="3">';
+            $html .= 'Income';
+            $html .= '</td>';
+            $html .='</tr>';
+            // income amount
+              $totalIncome = $this->loanapplication_model->getTotalCollections($_POST['DateFrom'], $_POST['DateTo']);
+              $totalCharges = $this->loanapplication_model->getTotalChargesStatement($_POST['DateFrom'], $_POST['DateTo']);
+
+              $html .= '<tr>';
+              $html .= '<td style="width: 5%">';
+              $html .= '</td>';
+              $html .= '<td>';
+              $html .= 'Collections';
+              $html .= '</td>';
+              $html .= '<td style="width: 5%">';
+              $html .= '<small>PHP</small> ';
+              $html .= '</td>';
+              $html .= '<td style="text-align: right">';
+              $html .= number_format($totalIncome['Total'], 2);
+              $html .= '</td>';
+              $html .='</tr>';
+
+              $html .= '<tr>';
+              $html .= '<td>';
+              $html .= '</td>';
+              $html .= '<td>';
+              $html .= 'Charges and Other Fees';
+              $html .= '</td>';
+              $html .= '<td style="width: 5%">';
+              $html .= '<small>PHP</small> ';
+              $html .= '</td>';
+              $html .= '<td style="text-align: right">';
+              $html .= number_format($totalCharges['Total'], 2);
+              $html .= '</td>';
+              $html .='</tr>';
+
+              $html .= '<tr>';
+              $html .= '<td>';
+              $html .= '</td>';
+              $html .= '<td style="background-color:#ccd5dc">';
+              $html .= 'Total';
+              $html .= '</td>';
+              $html .= '<td style="width: 5%; background-color:#ccd5dc">';
+              $html .= '<small>PHP</small>';
+              $html .= '</td>';
+              $html .= '<td style="text-align: right;background-color:#ccd5dc">';
+              $html .= number_format($totalIncome['Total'] + $totalCharges['Total'], 2);
+              $html .= '</td>';
+              $html .='</tr>';
+
+          // Expenses
+            $html .= '<tr>';
+            $html .= '<td colspan="3">';
+            $html .= 'Expenses';
+            $html .= '</td>';
+            $html .= '</tr>';
+            // expense amount
+              $totalExpenses = 0;
+              $expensesDesc = $this->loanapplication_model->getExpensesStatement($_POST['DateFrom'], $_POST['DateTo']);
+              foreach ($expensesDesc as $key => $value) 
+              {
+                $totalExpenses = $totalExpenses + $value['Amount'];
+                $html .= '<tr>';
+                $html .= '<td style="width: 5%">';
+                $html .= '</td>';
+                $html .= '<td>';
+                $html .= $value['Name'];
+                $html .= '</td>';
+                $html .= '<td style="width: 5%">';
+                $html .= '<small>PHP</small> ';
+                $html .= '</td>';
+                $html .= '<td style="text-align: right">';
+                $html .= number_format($value['Amount'], 2);
+                $html .= '</td>';
+                $html .='</tr>';
+              }
+
+              $html .= '<tr>';
+              $html .= '<td>';
+              $html .= '</td>';
+              $html .= '<td style="background-color:#ccd5dc">';
+              $html .= 'Total';
+              $html .= '</td>';
+              $html .= '<td style="width: 5%;background-color:#ccd5dc">';
+              $html .= '<small>PHP</small> ';
+              $html .= '</td>';
+              $html .= '<td style="text-align: right;background-color:#ccd5dc">';
+              $html .= number_format($totalExpenses, 2);
+              $html .= '</td>';
+              $html .='</tr>';
+
+          // Gross Income
+            $html .= '<tr>';
+            $html .= '<td colspan="3" style="background-color:#ccd5dc">';
+            $html .= 'Gross Income';
+            $html .= '</td>';
+            $html .= '<td style="text-align: right; background-color:#ccd5dc" colspan="2">';
+            $html .= number_format(($totalIncome['Total'] + $totalCharges['Total']), 2);
+            $html .= '</td>';
+            $html .='</tr>';
+
+          // Net Income
+            $html .= '<tr>';
+            $html .= '<td colspan="3" style="background-color:#ccd5dc">';
+            $html .= 'Net Income';
+            $html .= '</td>';
+            $html .= '<td style="text-align: right; background-color:#ccd5dc" colspan="2">';
+            $html .= number_format(($totalIncome['Total'] + $totalCharges['Total']) - $totalExpenses, 2);
+            $html .= '</td>';
+            $html .='</tr>';
+
+          $html .= '
+          </tbody>
+        </table>
+
+        <br><br>
+        <table>
+          <thead>
+          <tr>
+            <th><strong>Prepared By</strong></th>
+            <th>'.$this->session->userdata('Name').' - '.$employeeDetail['Position'].'</th>
+            <th><strong>Verified By</strong></th>
+            <th>'.$_POST['verifiedBy'].'</th>
+            <th><strong>Approved By</strong></th>
+            <th>'.$_POST['approvedBy'].'</th>
+          </tr>
+          </thead>
+          <tbody>
+
+          </tbody>
+        </table>
+        <br>
+        <small>Date Generated: '.$DateNow.'</small>
+
+        <br><br>
+        <br><br>
+      ';
+      $pdf->writeHTML($html, true, false, true, false, '');
+
+      // Close and output PDF document
+      $pdf->Output('Income Statement.pdf', 'I');
+      // $pdf->Output('Income Statement.pdf', 'D');
     }
   }
 
