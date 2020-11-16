@@ -2825,7 +2825,7 @@ class admin_controller extends CI_Controller {
     }
   }
 
-  function AddWithdrawalType()
+  function AddDepositType()
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $WithdrawalTypeDetail = $this->admin_model->getWithdrawalTypeDetails($_POST['WithdrawalTypeId']);
@@ -2851,7 +2851,7 @@ class admin_controller extends CI_Controller {
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Withdrawal Type successfully recorded!'); 
           $this->session->set_flashdata('alertType','success'); 
-          redirect('home/AddWithdrawalType/'. $EmployeeId['EmployeeId']);
+          redirect('home/AddDepositType/'. $EmployeeId['EmployeeId']);
       }
       else
       {
@@ -2859,7 +2859,7 @@ class admin_controller extends CI_Controller {
           $this->session->set_flashdata('alertTitle','Warning!'); 
           $this->session->set_flashdata('alertText','Withdrawal Type already existing!'); 
           $this->session->set_flashdata('alertType','warning'); 
-          redirect('home/AddWithdrawalType');
+          redirect('home/AddDepositType');
       }
     }
     else if($_POST['FormType'] == 2) // Edit Withdrawal Type 
@@ -2915,7 +2915,7 @@ class admin_controller extends CI_Controller {
         $this->session->set_flashdata('alertTitle','Success!'); 
         $this->session->set_flashdata('alertText','Type of Withdrawal details successfully updated!'); 
         $this->session->set_flashdata('alertType','success'); 
-        redirect('home/AddWithdrawalType/');
+        redirect('home/AddDepositType/');
       }
       else // if existing
       {
@@ -2923,14 +2923,15 @@ class admin_controller extends CI_Controller {
         $this->session->set_flashdata('alertTitle','Warning!'); 
         $this->session->set_flashdata('alertText','Type of Withdrawal details already existing!'); 
         $this->session->set_flashdata('alertType','warning'); 
-        redirect('home/AddWithdrawalType/');
+        redirect('home/AddDepositType/');
       }
     }
   }
 
-  function AddWithdrawal()
+  function AddDeposit()
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $AssignedBranch = $this->session->userdata('BranchId');
     $WithdrawalDetail = $this->admin_model->getWithdrawalDetails($_POST['WithdrawalId']);
     if ($_POST['FormType'] == 1) // add Withdrawal
     {
@@ -2938,6 +2939,7 @@ class admin_controller extends CI_Controller {
         'WithdrawalTypeId'                     => htmlentities($_POST['Withdrawal'], ENT_QUOTES)
         , 'Amount'                             => htmlentities($_POST['Amount'], ENT_QUOTES)
         , 'DateWithdrawal'                     => htmlentities($_POST['DateWithdrawal'], ENT_QUOTES)
+        , 'AssignedBranch'                     => $AssignedBranch
       );
       $query = $this->admin_model->countWithdrawal($data);
       print_r($query);
@@ -2949,6 +2951,7 @@ class admin_controller extends CI_Controller {
             , 'Amount'                        => htmlentities($_POST['Amount'], ENT_QUOTES)
             , 'DateWithdrawal'                => htmlentities($_POST['DateWithdrawal'], ENT_QUOTES)
             , 'CreatedBy'                     => $EmployeeNumber
+            , 'AssignedBranch'                => $AssignedBranch
           );
           $insertWithdrawalTable = 'R_Withdrawal';
           $this->maintenance_model->insertFunction($instertWithdrawal, $insertWithdrawalTable);
@@ -2956,7 +2959,7 @@ class admin_controller extends CI_Controller {
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Withdrawal details successfully recorded!'); 
           $this->session->set_flashdata('alertType','success'); 
-          redirect('home/AddWithdrawal/'. $EmployeeId['EmployeeId']);
+          redirect('home/AddDeposit/'. $EmployeeId['EmployeeId']);
       }
       else
       {
@@ -2964,92 +2967,76 @@ class admin_controller extends CI_Controller {
           $this->session->set_flashdata('alertTitle','Warning!'); 
           $this->session->set_flashdata('alertText','Withdrawal details already existing!'); 
           $this->session->set_flashdata('alertType','warning'); 
-          redirect('home/AddWithdrawal');
+          redirect('home/AddDeposit');
       }
     }
     else if($_POST['FormType'] == 2) // Edit Withdrawals 
     {
-      $data = array(
-        'WithdrawalTypeId'                     => htmlentities($_POST['Withdrawal'], ENT_QUOTES)
-      );
-      $query = $this->admin_model->countWithdrawal($data);
-      print_r($query);
-      if($query == 0)
+      if($WithdrawalDetail['WithdrawalTypeId'] != htmlentities($_POST['Withdrawal'], ENT_QUOTES))
       {
-        if($WithdrawalDetail['WithdrawalTypeId'] != htmlentities($_POST['Withdrawal'], ENT_QUOTES))
-        {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$WithdrawalDetail['WithdrawalTypeId'].' to '.htmlentities($_POST['Withdrawal'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
-          // update function
-            $set = array( 
-            'WithdrawalTypeId'                     => htmlentities($_POST['Withdrawal'], ENT_QUOTES)
-            );
-            $condition = array( 
-              'WithdrawalId' => $_POST['WithdrawalId']
-            );
-            $table = 'R_Withdrawal';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-        }
-        else if($WithdrawalDetail['Amount'] != htmlentities($_POST['Amount'], ENT_QUOTES))
-        {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$WithdrawalDetail['Amount'].' to '.htmlentities($_POST['Amount'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
-          // update function
-            $set = array( 
-            'Amount'                     => htmlentities($_POST['Amount'], ENT_QUOTES)
-            );
-            $condition = array( 
-              'WithdrawalId' => $_POST['WithdrawalId']
-            );
-            $table = 'R_Withdrawal';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-        }
-        else if($WithdrawalDetail['DateWithdrawal'] != htmlentities($_POST['DateWithdrawal'], ENT_QUOTES))
-        {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$WithdrawalDetail['DateWithdrawal'].' to '.htmlentities($_POST['DateWithdrawal'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
-          // update function
-            $set = array( 
-            'DateWithdrawal'                     => htmlentities($_POST['DateWithdrawal'], ENT_QUOTES)
-            );
-            $condition = array( 
-              'WithdrawalId' => $_POST['WithdrawalId']
-            );
-            $table = 'R_Withdrawal';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-        }
+        // add into audit table
+          $auditDetail = 'Updated details of  '.$WithdrawalDetail['WithdrawalTypeId'].' to '.htmlentities($_POST['Withdrawal'], ENT_QUOTES);
+          $insertAudit = array(
+            'Description' => $auditDetail,
+            'CreatedBy' => $EmployeeNumber
+          );
+          $auditTable = 'R_Logs';
+          $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+        // update function
+          $set = array( 
+          'WithdrawalTypeId'                     => htmlentities($_POST['Withdrawal'], ENT_QUOTES)
+          );
+          $condition = array( 
+            'WithdrawalId' => $_POST['WithdrawalId']
+          );
+          $table = 'R_Withdrawal';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+      else if($WithdrawalDetail['Amount'] != htmlentities($_POST['Amount'], ENT_QUOTES))
+      {
+        // add into audit table
+          $auditDetail = 'Updated details of  '.$WithdrawalDetail['Amount'].' to '.htmlentities($_POST['Amount'], ENT_QUOTES);
+          $insertAudit = array(
+            'Description' => $auditDetail,
+            'CreatedBy' => $EmployeeNumber
+          );
+          $auditTable = 'R_Logs';
+          $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+        // update function
+          $set = array( 
+          'Amount'                     => htmlentities($_POST['Amount'], ENT_QUOTES)
+          );
+          $condition = array( 
+            'WithdrawalId' => $_POST['WithdrawalId']
+          );
+          $table = 'R_Withdrawal';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+      else if($WithdrawalDetail['DateWithdrawal'] != htmlentities($_POST['DateWithdrawal'], ENT_QUOTES))
+      {
+        // add into audit table
+          $auditDetail = 'Updated details of  '.$WithdrawalDetail['DateWithdrawal'].' to '.htmlentities($_POST['DateWithdrawal'], ENT_QUOTES);
+          $insertAudit = array(
+            'Description' => $auditDetail,
+            'CreatedBy' => $EmployeeNumber
+          );
+          $auditTable = 'R_Logs';
+          $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+        // update function
+          $set = array( 
+          'DateWithdrawal'                     => htmlentities($_POST['DateWithdrawal'], ENT_QUOTES)
+          );
+          $condition = array( 
+            'WithdrawalId' => $_POST['WithdrawalId']
+          );
+          $table = 'R_Withdrawal';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
       // notif
         $this->session->set_flashdata('alertTitle','Success!'); 
         $this->session->set_flashdata('alertText','Withdrawal details successfully updated!'); 
         $this->session->set_flashdata('alertType','success'); 
-        redirect('home/AddWithdrawal/');
-      }
-      else // if existing
-      {
-        // notif
-        $this->session->set_flashdata('alertTitle','Warning!'); 
-        $this->session->set_flashdata('alertText','Withdrawal details already existing!'); 
-        $this->session->set_flashdata('alertType','warning'); 
-        redirect('home/AddWithdrawal/');
-      }
+        redirect('home/AddDeposit/');
     }
   }
 
@@ -3316,17 +3303,20 @@ class admin_controller extends CI_Controller {
       $insertData1 = array(
         'Name' => 'Approved',
         'IsApprovable' => 0,
+        'statusColor' => 'green',
         'IsEditable' => 0,
         'StatusId' => 1,
       );
       $insertData2 = array(
         'Name' => 'Declined',
         'IsApprovable' => 0,
+        'statusColor' => 'red',
         'IsEditable' => 0,
         'StatusId' => 1,
       );
       $insertData3 = array(
         'Name' => 'For Approval',
+        'statusColor' => 'blue',
         'IsApprovable' => 1,
         'IsEditable' => 0,
         'StatusId' => 1,
@@ -3334,6 +3324,7 @@ class admin_controller extends CI_Controller {
       $insertData4 = array(
         'Name' => 'Matured',
         'IsApprovable' => 0,
+        'statusColor' => 'green',
         'IsEditable' => 0,
         'StatusId' => 1,
       );

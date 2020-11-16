@@ -114,11 +114,31 @@ class maintenance_model extends CI_Model
 
     function getDailyIncome()
     {
-      $query_string = $this->db->query("SELECT  FORMAT(COALESCE(SUM(Amount), 0), 2) as Total
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  COALESCE(SUM(Amount), 0) as Total
                                                 FROM t_paymentsmade
                                                     WHERE DATE_FORMAT(DateCreated, '%Y-%m-%d')  = DATE_FORMAT(NOW(), '%Y-%m-%d')
                                                     AND StatusId = 1
                                                     AND Amount > 0
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getDailyPenalties()
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  COALESCE(SUM(PM.TotalPenalty), 0) as Total
+                                                FROM application_has_penalty PM
+                                                  INNER JOIN t_application A
+                                                    ON A.ApplicationId = PM.ApplicationId
+                                                  INNER JOIN R_Borrowers B
+                                                    ON B.BorrowerId = A.BorrowerId
+                                                    WHERE DATE_FORMAT(PM.DateCreated, '%Y-%m-%d')  = DATE_FORMAT(NOW(), '%Y-%m-%d')
+                                                    AND PM.StatusId = 1
+                                                    AND PM.Amount > 0
+                                                    AND A.StatusId = 1
+                                                    AND B.BranchId = $AssignedBranchId
       ");
       $data = $query_string->row_array();
       return $data;
@@ -146,6 +166,24 @@ class maintenance_model extends CI_Model
                                                 FROM r_capital
                                                   WHERE BranchId = $AssignedBranchId
                                                   AND StatusId = 1
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getDailyDisbursement()
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  COALESCE(SUM(Amount), 0) as Total
+                                                FROM Application_has_Disbursement AHD
+                                                  INNER JOIN t_application A
+                                                      ON A.ApplicationId = AHD.ApplicationId
+                                                    INNER JOIN R_Borrowers B
+                                                      ON B.BorrowerId = A.BorrowerId
+                                                      WHERE B.BranchId = $AssignedBranchId
+                                                      AND DATE_FORMAT(AHD.DateCreated, '%Y-%m-%d') = DATE_FORMAT(NOW(), '%Y-%m-%d')
+                                                      AND AHD.StatusId = 1
+                                                      AND A.StatusId = 1
       ");
       $data = $query_string->row_array();
       return $data;

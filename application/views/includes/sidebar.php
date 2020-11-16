@@ -77,10 +77,10 @@
             </a>
             <ul class="treeview-menu">
               <?php if(in_array('13', $subModule)) { ?>
-                <li <?php if($sidebar == 'Finance' && $sidebarMenu == 'Expense'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddExpense"><i class="fa fa-circle-o"></i>Add Expense</a></li>
+                <li <?php if($sidebar == 'Finance' && $sidebarMenu == 'Expenses'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddExpense"><i class="fa fa-circle-o"></i>Add Expense</a></li>
               <?php } ?>
               <?php if(in_array('14', $subModule)) { ?>
-                <li <?php if($sidebar == 'Finance' && $sidebarMenu == 'Withdrawal'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddWithdrawal"><i class="fa fa-circle-o"></i>Add Withdrawal</a></li>
+                <li <?php if($sidebar == 'Finance' && $sidebarMenu == 'Deposit'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/addDeposit"><i class="fa fa-circle-o"></i>Add Deposit</a></li>
               <?php } ?>
             </ul>
           </li>
@@ -130,7 +130,7 @@
                 <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'ExpenseType'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddExpenseType"><i class="fa fa-circle-o"></i>Types of Expense</a></li>
               <?php } ?>
               <?php if(in_array('33', $subModule)) { ?>
-                <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'WithdrawalType'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddWithdrawalType"><i class="fa fa-circle-o"></i>Types of Withdrawal</a></li>
+                <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'DepositType'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/addDepositType"><i class="fa fa-circle-o"></i>Types of Deposit</a></li>
               <?php } ?>
               <?php if(in_array('34', $subModule)) { ?>
                 <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Education'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddEducation"><i class="fa fa-circle-o"></i>Education Levels</a></li>

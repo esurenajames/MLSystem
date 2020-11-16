@@ -58,7 +58,9 @@ class home extends CI_Controller {
 		$data['TotalExpense'] = $this->maintenance_model->getTotalExpense();
 		$data['TotalTransaction'] = $this->maintenance_model->getTransactions();
 		$data['dailyIncome'] = $this->maintenance_model->getDailyIncome();
+		$data['dailyPenalties'] = $this->maintenance_model->getDailyPenalties();
 		$data['dailyApprovedLoans'] = $this->maintenance_model->getApprovedDaily();
+		$data['dailyDisbursement'] = $this->maintenance_model->getDailyDisbursement();
 		$data['totalFund'] = $this->maintenance_model->getCurrentFund();
 		$data['totalExpenses'] = $this->maintenance_model->getTotalExpenses();
 		$data['totalActiveLoans'] = $this->maintenance_model->getActiveLoans();
@@ -438,7 +440,7 @@ class home extends CI_Controller {
 
 	function AddExpense()
 	{
-		$sidebar['sidebar'] = 'Financial';
+		$sidebar['sidebar'] = 'Finance';
 		$sidebar['sidebarMenu'] = 'Expenses';
 		$header['header'] = 'Expenses';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
@@ -453,11 +455,11 @@ class home extends CI_Controller {
 		$this->load->view('admin/AddExpense', $data);
 	}
 
-	function AddWithdrawalType()
+	function addDepositType()
 	{
 		$sidebar['sidebar'] = 'SystemSetup';
-		$sidebar['sidebarMenu'] = 'WithdrawalType';
-		$header['header'] = 'Types of Withdrawals';
+		$sidebar['sidebarMenu'] = 'DepositType';
+		$header['header'] = 'Types of Deposit';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -469,11 +471,11 @@ class home extends CI_Controller {
 		$this->load->view('admin/AddWithdrawalType', $data);
 	}
 
-	function AddWithdrawal()
+	function addDeposit()
 	{
-		$sidebar['sidebar'] = 'Financial';
-		$sidebar['sidebarMenu'] = 'Withdrawals';
-		$header['header'] = 'Withdrawals';
+		$sidebar['sidebar'] = 'Finance';
+		$sidebar['sidebarMenu'] = 'Deposit';
+		$header['header'] = 'Deposit';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();

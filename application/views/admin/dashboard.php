@@ -131,17 +131,18 @@
     <!-- Main content -->
     <section class="content"> 
       <div class="row">
-        <?php if(in_array('44', $subModule)) { ?>
+        <!-- 56 -->
+        <?php if(in_array('48', $subModule)) { ?>
           <div class="col-lg-3 col-xs-6">
-            <div class="small-box bg-yellow">
+            <div class="small-box bg-aqua">
               <div class="inner">
-                <h3><?php print_r($totalBorrower['Total']) ?></h3>
-                <p>Total Borrowers</p>
+                <h3><?php print_r(number_format($totalFund['Total'] - $totalExpenses['Total'], 2)) ?></h3>
+                <p>Current Fund</p>
               </div>
               <div class="icon">
-                <i class="ion ion-person-add"></i>
+                <i class="fa fa-tachometer"></i>
               </div>
-              <a href="<?php echo base_url(); ?>/home/borrowers" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+              <a href="<?php echo base_url(); ?>/home/AddInitialCapital" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
             </div>
           </div>
         <?php } ?>
@@ -149,7 +150,7 @@
           <div class="col-lg-3 col-xs-6">
             <div class="small-box bg-green">
               <div class="inner">
-                <h3><?php print_r($dailyIncome['Total']) ?></h3>
+                <h3><?php print_r(number_format($dailyIncome['Total'] + $dailyPenalties['Total'], 2)) ?></h3>
                 <p>Daily Income</p>
               </div>
               <div class="icon">
@@ -187,6 +188,21 @@
             </div>
           </div>
         <?php } ?>
+        <!-- 60 -->
+        <?php if(in_array('48', $subModule)) { ?>
+          <div class="col-lg-3 col-xs-6">
+            <div class="small-box bg-aqua">
+              <div class="inner">
+                <h3><?php print_r(number_format($dailyDisbursement['Total'], 2)) ?></h3>
+                <p>Daily Disbursement</p>
+              </div>
+              <div class="icon">
+                <i class="fa fa-tachometer"></i>
+              </div>
+              <a href="<?php echo base_url(); ?>/home/AddInitialCapital" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+        <?php } ?>
         <?php if(in_array('48', $subModule)) { ?>
           <div class="col-lg-3 col-xs-6">
             <div class="small-box bg-aqua">
@@ -198,21 +214,6 @@
                 <i class="fa fa-calendar-check-o"></i>
               </div>
               <a href="<?php echo base_url(); ?>/home/AddExpense" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
-            </div>
-          </div>
-        <?php } ?>
-        <!-- 56 -->
-        <?php if(in_array('48', $subModule)) { ?>
-          <div class="col-lg-3 col-xs-6">
-            <div class="small-box bg-aqua">
-              <div class="inner">
-                <h3><?php print_r(number_format($totalFund['Total'] - $totalExpenses['Total'], 2)) ?></h3>
-                <p>Current Fund</p>
-              </div>
-              <div class="icon">
-                <i class="fa fa-tachometer"></i>
-              </div>
-              <a href="<?php echo base_url(); ?>/home/AddInitialCapital" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
             </div>
           </div>
         <?php } ?>
@@ -228,6 +229,20 @@
                 <i class="fa fa-list-alt"></i>
               </div>
               <a href="<?php echo base_url(); ?>/home/ViewLoans" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+        <?php } ?>
+        <?php if(in_array('44', $subModule)) { ?>
+          <div class="col-lg-3 col-xs-6">
+            <div class="small-box bg-yellow">
+              <div class="inner">
+                <h3><?php print_r($totalBorrower['Total']) ?></h3>
+                <p>Total Borrowers</p>
+              </div>
+              <div class="icon">
+                <i class="ion ion-person-add"></i>
+              </div>
+              <a href="<?php echo base_url(); ?>/home/borrowers" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
             </div>
           </div>
         <?php } ?>

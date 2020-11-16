@@ -9,7 +9,7 @@
     <ol class="breadcrumb">
       <li><a href="http://localhost/ELendingTool/home/Dashboard" class="active"><i class="fa fa-dashboard"></i>Dashboard</a></li>
       <li><a href="#">System Setup</a></li>
-      <li><a href="#">Types of Withdrawal</a></li>
+      <li><a href="#">Types of Deposit</a></li>
     </ol>
   </section>
 
@@ -22,10 +22,10 @@
             <span aria-hidden="true">&times;</span></button>
           <h4 class="modal-title">Add Withdrawal Type</h4>
         </div>
-        <form action="<?php echo base_url(); ?>admin_controller/AddWithdrawalType/" id="frmInsert2" method="post">
+        <form action="<?php echo base_url(); ?>admin_controller/AddDepositType/" id="frmInsert2" method="post">
           <div class="modal-body">
               <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-12">
                   <div class="form-group">
                     <label for="Asset">Name</label><br>
                     <input type="Text" class="form-control" id="txtWithdrawalType" name="WithdrawalType">
@@ -57,26 +57,24 @@
       <div class="box-header with-border">
       </div>
       <div class="box-body">
-        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewWithdrawalType">Add New Type of Withdrawal</button>
+        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewWithdrawalType">Add Record</button>
         <br>
         <br>
-        <form name="ApproverDocForm" method="post" id="ApproverDocForm">
-          <table id="example1" class="table table-bordered table-hover">
-            <thead>
-            <tr>
-              <th>#</th>
-              <th>Withdrawal Type</th>
-              <th>Description</th>
-              <th>Created By</th>
-              <th>Date Created</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            </tbody>
-          </table>
-        </form>
+        <table id="example1" class="table table-bordered table-hover">
+          <thead>
+          <tr>
+            <th>#</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Created By</th>
+            <th>Date Created</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
       </div>
     </div>
   </section>
@@ -206,7 +204,7 @@
       "columns": [  { data: "ReferenceNo" }
                     , { data: "WithdrawalType" }
                     , { data: "Description" }
-                    , { data: "CreatedBy" }
+                    , { data: "Name" }
                     , { data: "DateCreated" } 
                     , {
                       data: "StatusId", "render": function (data, type, row) {

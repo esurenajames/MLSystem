@@ -18,6 +18,8 @@ class loanapplication_model extends CI_Model
                                       , DATE_FORMAT(B.DateOfBirth, '%b %d, %Y') as DOB
                                       , TIMESTAMPDIFF(YEAR, B.DateOfBirth, CURDATE()) as Age
                                       , CN.Number as ContactNumber
+                                      , A.ForRestructuring
+                                      , A.RestructureFee
                                       , E.EmailAddress
                                       , A.Source
                                       , CASE
@@ -449,6 +451,7 @@ class loanapplication_model extends CI_Model
                                       , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName) as CreatedBy
                                       , P.StatusId
                                       , B.BankName
+                                      , P.Description 
                                       , PaymentMadeId
                                       FROM t_paymentsmade P
                                         INNER JOIN R_Employee EMP
@@ -1077,6 +1080,7 @@ class loanapplication_model extends CI_Model
                                     , PenaltyType
                                     , Amount
                                     , GracePeriod
+                                    , ApplicationPenaltyId
                                     , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as CreatedBy
                                     , AHP.StatusId
                                     , DATE_FORMAT(AHP.DateCreated, '%b %d, %Y %r') as DateCreated
@@ -1095,7 +1099,9 @@ class loanapplication_model extends CI_Model
   function getLoanComments($ID)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $query_string = $this->db->query("SELECT  AC.ApplicationId
+    $query_string = $this->db->query("SELECT  CONCAT('COM-', LPAD(CommentId, 6, 0)) as ReferenceNo
+                                              , AC.ApplicationId
+                                              , AC.CommentId
                                               , AC.Comment
                                               , AC.CreatedBy
                                               , DATE_FORMAT(AC.DateCreated, '%b %d, %Y %r') as DateCreated
@@ -1112,7 +1118,8 @@ class loanapplication_model extends CI_Model
   function displayRequirements($ID)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $query_string = $this->db->query("SELECT  AR.ApplicationId
+    $query_string = $this->db->query("SELECT  CONCAT('REQ-', LPAD(AR.RequirementId, 4, 0)) as ReferenceNo
+                                              , AR.ApplicationId
                                               , AR.RequirementId
                                               , R.Name
                                               , S.Description
@@ -1188,9 +1195,12 @@ class loanapplication_model extends CI_Model
                                               , AHD.DisbursementId
                                               , AHD.StatusId
                                               , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as Name
+                                              , D.Name as DisbursedThrough
                                               FROM Application_has_Disbursement AHD
                                                 LEFT JOIN R_Employee EMP
                                                   ON EMP.EmployeeNumber = AHD.CreatedBy
+                                                LEFT JOIN R_Disbursement D
+                                                  ON D.DisbursementId = AHD.DisbursedBy
                                                 LEFT JOIN r_status S
                                                   ON S.StatusId = AHD.StatusId
                                                     WHERE AHD.ApplicationId = $ID
@@ -1202,7 +1212,8 @@ class loanapplication_model extends CI_Model
   function getIncome($ID)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $query_string = $this->db->query("SELECT  AI.ApplicationId
+    $query_string = $this->db->query("SELECT  CONCAT('INC-', LPAD(AI.IncomeId, 4, 0)) as ReferenceNo
+                                              , AI.ApplicationId
                                               , AI.Source
                                               , AI.IncomeId
                                               , AI.Details
@@ -1226,7 +1237,7 @@ class loanapplication_model extends CI_Model
   function getDisbursements($ID)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $query_string = $this->db->query("SELECT  CONCAT('CLR-', LPAD(C.CollateralId, 4, 0)) as ReferenceNo
+    $query_string = $this->db->query("SELECT  CONCAT('DIS-', LPAD(C.CollateralId, 4, 0)) as ReferenceNo
                                               , C.ProductName
                                               , C.Value
                                               , DATE_FORMAT(C.DateRegistered, '%b %d, %Y') as DateRegistered
@@ -1249,7 +1260,8 @@ class loanapplication_model extends CI_Model
   function displayCharges($ID)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $query_string = $this->db->query("SELECT  C.ChargeId
+    $query_string = $this->db->query("SELECT  CONCAT('CHR-', LPAD(AHC.ApplicationChargeId, 4, 0)) as ReferenceNo
+                                              , C.ChargeId
                                               , AHC.ApplicationChargeId
                                               , C.Name
                                               , C.Amount
@@ -1299,7 +1311,8 @@ class loanapplication_model extends CI_Model
   function getExpenses($ID)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $query_string = $this->db->query("SELECT  AE.ApplicationId
+    $query_string = $this->db->query("SELECT  CONCAT('EXP-', LPAD(AE.ExpenseId, 4, 0)) as ReferenceNo
+                                              , AE.ApplicationId
                                               , AE.Source
                                               , AE.ExpenseId
                                               , AE.Details
@@ -1322,7 +1335,8 @@ class loanapplication_model extends CI_Model
   function getLoanObligations($ID)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $query_string = $this->db->query("SELECT  AO.ApplicationId
+    $query_string = $this->db->query("SELECT  CONCAT('OBL-', LPAD(AO.MonthlyObligationId, 4, 0)) as ReferenceNo
+                                              , AO.ApplicationId
                                               , AO.Source
                                               , AO.MonthlyObligationId
                                               , AO.Details
@@ -1442,6 +1456,20 @@ class loanapplication_model extends CI_Model
     return $detail;
   }
 
+  function getPenaltyPaymentDetails($Id)
+  {
+    $query_string = $this->db->query("SELECT  ApplicationId
+                                              , ExpenseId
+                                              , Source
+                                              , Amount
+                                              , Details
+                                              FROM Application_has_Expense 
+                                                WHERE ExpenseId = '$Id'
+    ");
+    $ExpenseDetail = $query_string->row_array();
+    return $ExpenseDetail;
+  }
+
   function getExpenseDetails($Id)
   {
     $query_string = $this->db->query("SELECT  ApplicationId
@@ -1540,6 +1568,7 @@ class loanapplication_model extends CI_Model
                                                       ON S.StatusId = AHA.StatusId
                                                       WHERE A.ApplicationId = $ID
                                                       AND AHA.StatusId != 6 
+                                                      AND AHA.StatusId != 8 
     ");
     $data = $query_string->result_array();
     return $data;
@@ -2076,6 +2105,32 @@ class loanapplication_model extends CI_Model
                                             LEFT JOIN R_RepaymentCycle RC
                                               ON RC.RepaymentId = A.RepaymentId
                                                 WHERE A.ApplicationId = $Id
+      ");
+
+      $data = $query->row_array();
+      return $data;
+    }
+
+    function getProcessedApprovers($Id)
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT DISTINCT COUNT(DISTINCT ApproverNumber) as Total
+                                        FROM application_has_approver
+                                          WHERE ApplicationId = $Id
+                                          AND StatusId = 3
+      ");
+
+      $data = $query->row_array();
+      return $data;
+    }
+
+    function getPendingApprovers($Id)
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT DISTINCT COUNT(DISTINCT ApproverNumber)  as Total
+                                        FROM application_has_approver
+                                          WHERE ApplicationId = $Id
+                                          AND StatusId = 5
       ");
 
       $data = $query->row_array();
@@ -2678,6 +2733,22 @@ class loanapplication_model extends CI_Model
                                                   AND DATE_FORMAT(DateCreated, '%Y-%m-%d') BETWEEN '$formatted_date1' AND '$formatted_date2'
       ");
       $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getPendingCharges($Id)
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  AHC.Amount
+                                                , AHC.ChargeId
+                                                , AHC.ApplicationChargeId
+                                                , C.Name
+                                                FROM Application_Has_Charges AHC
+                                                  INNER JOIN R_Charges C
+                                                  WHERE AHC.StatusId = 1
+                                                  AND AHC.ApplicationId = $Id
+      ");
+      $data = $query_string->result_array();
       return $data;
     }
 }

@@ -22,10 +22,10 @@
             <span aria-hidden="true">&times;</span></button>
           <h4 class="modal-title">Add Deposit</h4>
         </div>
-        <form action="<?php echo base_url(); ?>admin_controller/AddWithdrawal/" id="frmInsert2" method="post">
+        <form action="<?php echo base_url(); ?>admin_controller/AddDeposit/" id="frmInsert2" method="post">
           <div class="modal-body">
               <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-12">
                   <div class="form-group">
                     <label for="Withdrawal">Type of Deposit</label><br>
                     <select class="form-control" style="width: 100%" name="Withdrawal" id="SelectWithdrawal">
@@ -35,7 +35,7 @@
                     </select>
                   </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-12">
                   <div class="form-group">
                     <label for="Amount">Amount</label><br>
                     <input type="number" class="form-control" id="txtAmount" name="Amount">
