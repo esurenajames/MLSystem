@@ -187,7 +187,7 @@ class employee_controller extends CI_Controller {
             , 'DateOfBirth'                 => htmlentities($newformat, ENT_QUOTES)
             , 'DateHired'                   => htmlentities($dateHired, ENT_QUOTES)
             , 'PositionId'                  => htmlentities($_POST['PositionId'], ENT_QUOTES)
-            , 'StatusId'                    => 2
+            , 'StatusId'                    => 1
             , 'CreatedBy'                   => $CreatedBy
             , 'UpdatedBy'                   => $CreatedBy
           );

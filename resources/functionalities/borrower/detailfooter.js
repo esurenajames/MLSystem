@@ -106,8 +106,6 @@
         $('#ComakerForm').show();
   }
 
-
-
   function getDetail(borrowerId, formType)
   {
     if(formType == 1) // fpr editing of borrower

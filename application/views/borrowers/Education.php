@@ -6,6 +6,7 @@
     <th>Education Level</th>
     <th>School Name</th>
     <th>Year Graduated</th>
+    <th>Date Creation</th>
     <th>Status</th>
     <th>Action</th>
   </tr>
@@ -30,7 +31,7 @@
           $status = "<span class='badge bg-red'>Deactivated</span>";
           $action = '<a onclick="confirm(\'Are you sure you want to re-activate this Education record?\', \''.$value['BorrowerEducationId'].'\', 1, \'BorrowerEducation\')" class="btn btn-warning btn-sm" title="Re-activate"><span class="fa fa-refresh"></span></a>';
         }
-
+        echo "<td>".$value['DateCreated']."</td>";
         echo "<td>".$status."</td>";
         echo "<td>".$action."</td>";
         echo "</tr>";

@@ -75,6 +75,7 @@
                   <th>Borrower Name</th>
                   <th>Loan Amount</th>
                   <th>Amount Paid</th>
+                  <th>Date Creation</th>
                   <th>Collection Date</th>
                   <th>Collected By</th>
                   <th>Action</th>
@@ -134,6 +135,7 @@
                     { data: "LoanAmount" },
                     { data: "AmountPaid" }, 
                     { data: "PaymentDate" }, 
+                    { data: "dateCreated" }, 
                     { data: "CollectedBy" }, 
                     {
                       data: "ApplicationId", "render": function (data, type, row) {
@@ -142,8 +144,8 @@
                     },
                     { data: "DateCollected" }, 
       ],
-      "aoColumnDefs": [{ "bVisible": false, "aTargets": [7] }],
-      "order": [[7, "desc"]]
+      "aoColumnDefs": [{ "bVisible": false, "aTargets": [8] }],
+      "order": [[8, "desc"]]
     });
 
     $("#frmInsert").on('submit', function (e) {

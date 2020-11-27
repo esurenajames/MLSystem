@@ -6,7 +6,7 @@
     <th>Employer Type</th>
     <th>Employer/Business</th>
     <th>Date Hired</th>
-    <th>Tel. No.</th>
+    <th>Date Creation</th>
     <th>Status</th>
     <th>Action</th>
   </tr>
@@ -20,7 +20,7 @@
         echo "<td>".$value['EmployerStatus']."</td>";
         echo "<td>".$value['EmployerName']."</td>";
         echo "<td>".$value['DateHired']."</td>";
-        echo "<td>".$value['EmployerId']."</td>";
+        echo "<td>".$value['DateCreated']."</td>";
 
         if($value['StatusId'] == 1)
         {
@@ -30,7 +30,7 @@
         else if($value['StatusId'] == 0)
         {
           $status = "<span class='badge bg-red'>Deactivated</span>";
-          $action = '<a onclick="confirm(\'Are you sure you want to re-activate this employer?\', \''.$value['EmployerId'].'\', 1, \'BorrowerEmployer\')" class="btn btn-success btn-sm" title="Deactivate"><span class="fa fa-refresh"></span></a> <a class="btn btn-sm btn-info" href="' . base_url() .'/admin_controller/download/2/'.$value['EmployerId'].'" title="Download"><span class="fa fa-download"></span></a>';
+          $action = '<a onclick="confirm(\'Are you sure you want to re-activate this employer?\', \''.$value['EmployerId'].'\', 1, \'BorrowerEmployer\')" class="btn btn-success btn-sm" title="Deactivate"><span class="fa fa-refresh"></span></a>';
         }
 
         echo "<td>".$status."</td>";

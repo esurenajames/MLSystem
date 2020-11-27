@@ -1011,6 +1011,9 @@ class loanapplication_controller extends CI_Controller {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $DateNow = date("Y-m-d H:i:s");
     if ($_POST['FormType'] == 1) // add Comment
+    $query = $this->loanapplication_model->countExpense($data);
+    print_r($query);
+    if($query == 0) // not existing
     {
       // insert Comment
         $insertComment = array(
@@ -1683,22 +1686,11 @@ class loanapplication_controller extends CI_Controller {
           );
           $generatedId = $this->maintenance_model->getGeneratedId2($getData);
           $DisbursementDetail = $this->maintenance_model->selectSpecific('application_has_Disbursement', 'DisbursementId', $generatedId['DisbursementId']);
-        // insert Application_has_notification
-          $insertNotification = array(
-            'Description'                   => 'Added a Disbursement to the Disbursement tab '
-            , 'ApplicationId'               => $this->uri->segment(3)
-            , 'CreatedBy'                   => $EmployeeNumber
-          );
-          $insertNotificationTable = 'Application_has_Notifications';
-          $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
-        // Insert Main Logs
-          $auditDetail = ' Added a Disbursement to Reference #' .$ApplicationDetail['TransactionNumber'];
-          $insertData = array(
-            'Description' => $auditDetail
-            , 'CreatedBy' => $EmployeeNumber
-          );
-          $auditTable = 'R_Logs';
-          $this->maintenance_model->insertFunction($insertData, $auditTable);
+        // admin audits
+        $transNo = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $this->uri->segment(3));
+        $auditApplication = 'Added disbursement #DB-' .sprintf('%05d', $generatedId['DisbursementId']). ' in disbursement list.';
+        $auditLogsManager = 'Added disbursement #DB-' .sprintf('%05d', $generatedId['DisbursementId']). ' to application #'.$transNo['TransactionNumber'].'.';
+        $this->auditLoanApplication($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditApplication, $this->uri->segment(3));
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Disbursement details successfully recorded!'); 
@@ -2308,8 +2300,8 @@ class loanapplication_controller extends CI_Controller {
     exit();
   }
 
-  {
   function getPenaltyPaymentDetails()
+  {
     $output = $this->loanapplication_model->getPenaltyPaymentDetails($this->input->post('Id'));
     $this->output->set_output(print(json_encode($output)));
     exit();
@@ -2384,6 +2376,7 @@ class loanapplication_controller extends CI_Controller {
     $varDatePayment = date('Y-m-d', $string1);
     $string2 = strtotime($_POST['dateCollected']);
     $varDateCollected = date('Y-m-d', $string2);
+
     if($this->uri->segment(4) == 1) // penalty
     {
       // insert into penalty
@@ -2400,16 +2393,14 @@ class loanapplication_controller extends CI_Controller {
         );
         $table2 = 'application_has_penalty';
         $this->maintenance_model->insertFunction($insertData2, $table2);
-
-        // get generated id
+      // get generated id
           $getData2 = array(
             'table'                 => 'application_has_penalty'
             , 'column'              => 'ApplicationPenaltyId'
             , 'CreatedBy'           => $EmployeeNumber
           );
           $generatedId2 = $this->maintenance_model->getGeneratedId2($getData2);
-
-        // insert Application_has_notification
+      // insert Application_has_notification
           $insertNotification = array(
             'Description'                   => 'Added penalty #PLT-'.sprintf('%05d', $generatedId2['ApplicationPenaltyId']).'.'
             , 'ApplicationId'               => $this->uri->segment(3)
@@ -2417,7 +2408,7 @@ class loanapplication_controller extends CI_Controller {
           );
           $insertNotificationTable = 'Application_has_Notifications';
           $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
-        // main audits
+      // main audits
           $RefNo = $this->maintenance_model->selectSpecific('t_application', 'ApplicationId', $this->uri->segment(3));
           $auditDetail = 'Added penalty #PLT-'.sprintf('%05d', $generatedId2['ApplicationPenaltyId']).' to ' . $RefNo['TransactionNumber'];
           $insertData2 = array(
@@ -2428,7 +2419,7 @@ class loanapplication_controller extends CI_Controller {
           $auditTable2 = 'R_Logs';
           $this->maintenance_model->insertFunction($insertData2, $auditTable1);
           $this->maintenance_model->insertFunction($insertData2, $auditTable2);
-        // notification
+      // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Successfully added penalty!'); 
           $this->session->set_flashdata('alertType','success'); 

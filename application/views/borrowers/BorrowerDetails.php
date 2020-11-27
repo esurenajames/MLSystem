@@ -204,14 +204,14 @@
                 <span aria-hidden="true">&times;</span></button>
               <h4 class="modal-title">ADD EMAIL ADDRESS</h4>
             </div>
-              <form action="<?php echo base_url(); ?>borrower_controller/AddEmail/1" id="frmInsert" method="post">
+              <form action="<?php echo base_url(); ?>borrower_controller/BorrowerProcessing/9/<?php print_r($detail['BorrowerId']) ?>" method="post">
                 <div class="modal-body">
                   <div class="row">
                     <div class="col-md-6">
                       <div class="form-group">
-                        <label for="colorCurrent">Email Address</label>
-                        <div class="form-group" id="colorCurrent">
-                          <input type="text" class="form-control" name="Email" id="txtEmail" placeholder="@yahoo.com">
+                        <label for="Email">Email Address</label>
+                        <div class="form-group">
+                          <input type="text" class="form-control" name="Email" required="" id="txtEmail" placeholder="@yahoo.com">
                         </div>
                       </div>
                     </div>
@@ -284,6 +284,7 @@
                       <div class="form-group">
                         <label>Education Level<span class="text-red">*</span></label>
                         <input type="hidden" class="form-control" id="txtBorrowerEducationId" name="BorrowerEducationId">
+                        <input type="hidden" class="form-control" id="txtBorrowerId" name="BorrowerId" value="<?php print_r($detail['BorrowerId']) ?>">
                         <select class="form-control" style="width: 100%" name="EducationLevel" id="SelectEducationLevel">
                           <option>No Grade Completed</option>
                           <option>Pre School</option>
@@ -847,9 +848,85 @@
                       <label>Number<span class="text-red">*</span></label>
                       <div class="input-group">
                         <span class="input-group-addon">
-                          <input type="checkbox" name="isPrimary[]" value="1" required="" title="Primary Number?">
+                          <input type="checkbox" name="isPrimary[]" value="1" title="Primary Number?">
                         </span>
                         <input type="number" name="FieldNumber" required="" class="form-control">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+              </form>
+            </div>
+            <!-- /.modal-content -->
+          </div>
+          <!-- /.modal-dialog -->
+        </div>
+
+        <div class="modal fade" id="modalNewAddress">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Borrower Address</h4>
+              </div>
+              <form autocomplete="off" action="<?php echo base_url(); ?>borrower_controller/borrowerProcessing/9/<?php print_r($detail['BorrowerId'])?>" id="frmInsert" method="post">
+                <div class="modal-body">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="select">Address Type <span class="text-red">*</span></label>
+                        <select class="form-control select2"  required="" id="selectAddressType" name="AddressType" style="width: 100%">
+                          <option value="City Address">City Address</option>
+                          <option value="Province Address">Provincial Address</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Primary Address? <span class="text-red">*</span></label>
+                        <select class="form-control select2"  required="" name="isPrimary" style="width: 100%">
+                          <option value="1">Yes</option>
+                          <option value="0">No</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="txtHouseNo">House No/Street/Subdivision <span class="text-red">*</span></label>
+                        <input type="text" class="form-control" id="txtHouseNo" name="HouseNo" required="" placeholder="House No.">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="selectRegion">Region <span class="text-red">*</span></label>
+                        <select class="form-control select2"  required="" onchange="changeRegion(this.value)" id="selectRegion" name="RegionId" style="width: 100%">
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="selectRegion">Province <span class="text-red">*</span></label>
+                        <select class="form-control select2"  required="" id="selectProvince" onchange="changeProvince(this.value)" name="ProvinceId" style="width: 100%">
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="selectCity">City <span class="text-red">*</span></label>
+                        <select class="form-control select2" required="" id="selectCity" onchange="changeCity(this.value)" name="CityId" style="width: 100%">
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="selectBarangay">Barangay <span class="text-red">*</span></label>
+                        <select class="form-control select2" required="" id="selectBarangay" name="BarangayId" style="width: 100%">
+                        </select>
                       </div>
                     </div>
                   </div>
@@ -942,7 +1019,7 @@
                           <th>#</th>
                           <th>Description</th>
                           <th>Created By</th>
-                          <th>Date Created</th>
+                          <th>Date Creation</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -979,6 +1056,7 @@
                           <th>Principal</th>
                           <th>Status</th>
                           <th>Created By</th>
+                          <th>Date Creation</th>
                           <th>Action</th>
                         </tr>
                         </thead>
@@ -999,6 +1077,7 @@
                           <th>Collected By</th>
                           <th>Amount</th>
                           <th>Payment For</th>
+                          <th>Date Creation</th>
                           <th>Status</th>
                           <th>Action</th>
                         </tr>
@@ -1015,6 +1094,7 @@
                                 echo "<td>".$value['TransactionNumber']."</td>";
                                 echo "<td>".$value['ReferenceNo']."</td>";
                                 echo "<td>".$value['CreatedBy']."</td>";
+                                echo "<td>".$value['DateCreated']."</td>";
                                 echo "<td>".number_format($value['Amount'], 2)."</td>";
                                 echo "<td>".$value['PaymentDate']."</td>";
 
@@ -1080,7 +1160,7 @@
                     </div>
                     <div class="tab-pane" id="tabAddress">
                       <h4>ADDRESS INFORMATION</h4>
-                      <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalBorrowerDetails">Add Address</button>
+                      <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewAddress">Add Address</button>
                       <br>
                       <br>
                       <br>
@@ -1206,6 +1286,7 @@
         }
       }
       , { data: "CreatedBy" }
+      , { data: "DateApproved" }
       , { data: "StatusId", "render": function (data, type, b) {
           return '<a class="btn btn-sm btn-default" target="_blank" href="<?php echo base_url(); ?>home/loandetail/'+b.ApplicationId+'" title="View"><span class="fa fa-info-circle"></span></a> <a target="_blank" class="btn btn-sm btn-success" href="<?php echo base_url(); ?>home/Renew/'+b.ApplicationId+'" title="Re-New"><span class="fa fa-refresh"></span></a>';
         }

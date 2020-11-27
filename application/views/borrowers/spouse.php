@@ -6,6 +6,7 @@
     <th>Full Name</th>
     <th>Birthdate</th>
     <th>Gender</th>
+    <th>Date Creation</th>
     <th>Status</th>
     <th>Action</th>
   </tr>
@@ -19,6 +20,7 @@
         echo "<td>".$value['Name']."</td>";
         echo "<td>".$value['DateOfBirth']."</td>";
         echo "<td>".$value['Sex']."</td>";
+        echo "<td>".$value['DateCreated']."</td>";
 
         if($value['IsBorrower'] == 0)
         {
@@ -36,7 +38,7 @@
         else if($value['StatusId'] == 0)
         {
           $status = "<span class='badge bg-red'>Deactivated</span>";
-          $action = '<a onclick="confirm(\'Are you sure you want to re-activate this spouse?\', \''.$value['SpouseId'].'\', 1, \'BorrowerSpouse\')" class="btn btn-warning btn-sm" title="Re-activate"><span class="fa fa-refresh"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this id?\', \''.$value['SpouseId'].'\', 0, \'BorrowerSpouse\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+          $action = '<a onclick="confirm(\'Are you sure you want to re-activate this spouse?\', \''.$value['SpouseId'].'\', 1, \'BorrowerSpouse\')" class="btn btn-warning btn-sm" title="Re-activate"><span class="fa fa-refresh"></span></a>';
         }
 
         echo "<td>".$status."</td>";

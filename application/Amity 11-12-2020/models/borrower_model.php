@@ -625,6 +625,7 @@ class borrower_model extends CI_Model
       else if($input['tableType'] == 'BorrowerCoMaker')
       {
         $BorrowerDetail = $this->db->query("SELECT  BCM.BorrowerComakerId 
+                                                  , CONCAT('B-', LPAD(B.BorrowerId, 6, 0)) as ReferenceNo
                                                   , B.BorrowerId
                                                   FROM borrower_has_comaker BCM
                                                     INNER JOIN R_Borrowers B
@@ -648,12 +649,12 @@ class borrower_model extends CI_Model
           // insert into logs
             if($input['updateType'] == 1)
             {
-              $auditBorrower = 'Re-activated Co-maker record #CM-'.$ComakerNumber['Id'].' of '.$BorrowerDetail['BorrowerId'];
+              $auditBorrower = 'Re-activated Co-maker record #CM-'.$ComakerNumber['Id'].'.';
               $auditStaff = 'Re-activated Co-maker record #CM-'.$ComakerNumber['Id'].'.';
             }
             else if($input['updateType'] == 0)
             {
-              $auditBorrower = 'Deactivated Co-maker record #CM-'.$ComakerNumber['Id'].' of '.$BorrowerDetail['BorrowerId'];
+              $auditBorrower = 'Deactivated Co-maker record #CM-'.$ComakerNumber['Id'].'.';
               $auditStaff = 'Deactivated Co-maker record #CM-'.$ComakerNumber['Id'].'.';
             }
             $this->auditBorrower($auditBorrower, $auditStaff, $BorrowerDetail['BorrowerId']);
@@ -1123,7 +1124,7 @@ class borrower_model extends CI_Model
     }
 
     function getTotalLoans($BorrowerId)
-    {      
+    {
       $query = $this->db->query("SELECT   COUNT(A.ApplicationId) as Record
                                           FROM t_application A
                                                 WHERE 
@@ -1138,14 +1139,13 @@ class borrower_model extends CI_Model
       return $data['Record'];
     }
 
-
     function getReference($BorrowerId)
     {
       $query_string = $this->db->query("SELECT  Name
                                                 , CONCAT('RF-', LPAD(BN.ReferenceId, 6, 0)) as rowNumber
                                                 , Address
                                                 , ContactNumber
-                                                , DATE_FORMAT(BN.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                                , DATE_FORMAT(BN.DateCreated, '%d %b %Y') as DateCreated
                                                 , CONCAT(EMP.LastName, ', ', EMP.FirstName) as CreatedBy 
                                                 , BN.StatusId
                                                 , BorrowerId
@@ -1163,13 +1163,14 @@ class borrower_model extends CI_Model
     {
       $query_string = $this->db->query("SELECT  Name
                                                 , Employer
+                                                , CONCAT('CM-', LPAD(BC.BorrowerComakerId, 6, 0)) as rowNumber
                                                 , TelephoneNo
                                                 , MobileNo
                                                 , BC.StatusId
-                                                , DATE_FORMAT(BC.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                                , DATE_FORMAT(BC.DateCreated, '%d %b %Y') as DateCreated
                                                 , CONCAT(EMP.LastName, ', ', EMP.FirstName) as CreatedBy 
                                                 , BorrowerId
-                                                , BorrowerComakerId
+                                                , BC.BorrowerComakerId
                                                 FROM borrower_has_comaker BC
                                                   INNER JOIN r_employee EMP
                                                     ON EMP.EmployeeNumber = BC.CreatedBy

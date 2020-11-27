@@ -268,7 +268,7 @@
                   </select>
                 </div>
                 <div class="col-md-12">
-                  <label>Remarks</label>
+                  <label>Remarks<span class="text-red">*</span></label>
                   <textarea class="form-control" id="collectionRemarks" name="Remarks"></textarea>
                 </div>
               </div>
@@ -1192,7 +1192,7 @@
                     echo '<img class="profile-user-img img-responsive img-circle" src="'.base_url().'/borrowerpicture/'. $detail["FileName"].'" class="user-image" alt="User Image">';
                   }
                 ?>
-  		          <center><a href="">View</a> | <a href="">Edit</a></center>
+  		          <center><a href="">View</a></center>
   		      	</div>
   		      	<div class="col-md-4">
   		      		<label><?php print_r($detail['Name']) ?></label><br>
@@ -1621,12 +1621,12 @@
                                 if($value['StatusId'] == 1)
                                 {
                                   $status = '<span class="badge bg-green">Active</span>';
-                                  $action = '<a class="btn btn-default btn-sm" title="View" data-toggle="modal" data-target="#modalViewPenalty" onclick="viewPenalty('.$value['ApplicationPenaltyId'].')"><span class="fa fa-info-circle"></span></a> <a class="btn btn-danger btn-sm" title="Deactivated" data-toggle="modal" data-target="#modalUpdate" onclick="confirm" ><span class="fa fa-close"></span></a>';
+                                  $action = '<a class="btn btn-default btn-sm" title="View" data-toggle="modal" data-target="#modalViewPenalty" onclick="viewPenalty('.$value['ApplicationPenaltyId'].')"><span class="fa fa-info-circle"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this penalty record?\', \''.$value['ApplicationPenaltyId'].'\', 6, \'Penalty\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
                                 }
                                 else 
                                 {
                                   $status = '<span class="badge bg-red">Deactivated</span>';
-                                  $action = 'N/A';
+                                  $action = '<a onclick="confirm(\'Are you sure you want to re-activate this penalty record?\', \''.$value['ApplicationPenaltyId'].'\', 2, \'Penalty\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
                                 }
                                 echo "<tr>";
                                 echo "<td>".$value['ReferenceNo']."</td>";
@@ -2047,11 +2047,7 @@
                           echo "<td>".$value['DateCreated']."</td>";
                           if($detail['BranchId'] == $this->session->userdata('BranchId'))
                           {
-                            echo '<td><a class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a> <a class="btn btn-default btn-sm" title="Download"><span class="fa fa-download"></span></a> <a class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a></td> ';
-                          }
-                          else
-                          {
-                            echo "<td>N/A</td>";
+                            echo '<td><a class="btn btn-default btn-sm" title="Download"><span class="fa fa-download"></span></a> <a class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a></td> ';
                           }
                           echo "</tr>";
                         }

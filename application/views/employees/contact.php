@@ -7,7 +7,7 @@
     <th>Number</th>
     <th>Created By</th>
     <th>Is Primary?</th>
-    <th>Date Created</th>
+    <th>Date Creation</th>
     <th>Date Updated</th>
     <th>Status</th>
     <th>Action</th>

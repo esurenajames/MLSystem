@@ -6,6 +6,7 @@
     <th>Type</th>
     <th>Number</th>
     <th>Is Primary?</th>
+    <th>Date Creation</th>
     <th>Status</th>
     <th>Action</th>
   </tr>
@@ -49,6 +50,7 @@
         {
           $action = '<a onclick="confirm(\'Are you sure you want to re-activate this contact detail?\', \''.$value['BorrowerContactId'].'\', 1 , \'BorrowerContact\')" class="btn btn-warning btn-sm" title="Deactivate"><span class="fa fa-refresh"></span></a>';
         }
+        echo "<td>".$value['DateCreated']."</td>";
         echo "<td>".$status."</td>";
         echo "<td>".$action."</td>";
         echo "</tr>";

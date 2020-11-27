@@ -334,7 +334,7 @@
                   <th>Added By</th>
                   <th>Status</th>
                   <th>Date Hired</th>
-                  <th>Date Created</th>
+                  <th>Date Creation</th>
                   <th width="100px">Action</th>
                 </tr>
                 </thead>
@@ -372,6 +372,7 @@
 <script>
   var varStatus = 0;
   var varNewPassword = 0;
+  
   function changeBranch(BranchId)
   {
     $.ajax({

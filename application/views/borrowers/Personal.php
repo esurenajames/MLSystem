@@ -5,6 +5,7 @@
     <th>Name</th>
     <th>Address</th>
     <th>Contact Number</th>
+    <th>Date Creation</th>
     <th>Status</th>
     <th>Action</th>
   </tr>
@@ -30,6 +31,7 @@
           echo "<td>".$value['Name']."</td>";
           echo "<td>".$value['Address']."</td>";
           echo "<td>".$value['ContactNumber']."</td>";
+          echo "<td>".$value['DateCreated']."</td>";
           echo "<td>".$status."</td>";
           echo "<td>".$action."</td>";
           echo "</tr>";

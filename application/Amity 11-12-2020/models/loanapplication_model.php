@@ -347,6 +347,7 @@ class loanapplication_model extends CI_Model
     $query_string = $this->db->query("SELECT  BHC.Name
                                               , DATE_FORMAT(BHC.Birthdate, '%m/%b/%Y') as DateOfBirth
                                               , Employer
+                                              , BorrowerComakerId
                                               , BusinessAddress
                                               , P.Name as PositionName
                                               , TenureYear
@@ -852,7 +853,7 @@ class loanapplication_model extends CI_Model
                                               , AHI.Amount
                                               , AHI.InterestType
                                               , RC.Type
-                                              , DATE_FORMAT(A.DateApproved, '%b %d, %Y') as DateApproved
+                                              , DATE_FORMAT(A.DateCreated, '%b %d, %Y') as DateCreated
                                               , LS.Name as StatusDescription
                                               , A.StatusId
                                               , A.ApplicationId
@@ -1831,6 +1832,43 @@ class loanapplication_model extends CI_Model
           'DateCreated'   => $DateNow
         );
         $this->db->insert('Application_has_Notifications', $data2);
+    }
+    else if($input['Type'] == 'Penalty')
+    {
+      $PenaltyDetail = $this->db->query("SELECT  AP.ApplicationPenaltyId
+                                                , AP.ApplicationId
+                                                , CONCAT('PLT-', LPAD(AP.ApplicationPenaltyId, 4, 0)) as ReferenceNo
+                                                  FROM Application_has_Penalty AP
+                                                    WHERE ApplicationPenaltyId = ".$input['Id']."
+      ")->row_array();
+
+      // update status
+        $set = array(
+          'StatusId' => $input['updateType'],
+          'UpdatedBy' => $EmployeeNumber,
+          'DateUpdated' => $DateNow,
+        );
+        $condition = array(
+          'ApplicationPenaltyId' => $input['Id']
+        );
+        $table = 'Application_has_Penalty';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      // insert into Application_has_Notifications
+        if($input['updateType'] == 2)
+        {
+          $PenaltyDescription = 'Re-activated ' .$PenaltyDetail['ReferenceNo']. ' of ' .$PenaltyDetail['ApplicationId']. ' at the Penalty tab '; // Application Notification
+        }
+        else if($input['updateType'] == 6)
+        {
+          $PenaltyDescription = 'Deactivated ' .$PenaltyDetail['ReferenceNo']. '  of ' .$PenaltyDetail['ApplicationId']. ' at the Penalty tab '; // Application Notification
+        }
+        $data3 = array(
+          'Description'   => $PenaltyDescription,
+          'ApplicationId' => $PenaltyDetail['ApplicationId'],
+          'CreatedBy'     => $EmployeeNumber,
+          'DateCreated'   => $DateNow
+        );
+        $this->db->insert('Application_has_Notifications', $data3);
     }
     else if($input['Type'] == 'Charge')
     {

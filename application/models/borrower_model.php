@@ -40,6 +40,8 @@ class borrower_model extends CI_Model
       return $data;
     }
 
+    // COUNTS //
+
     function countBorrower($input)
     {
       $query_string = $this->db->query("SELECT  * 
@@ -158,6 +160,8 @@ class borrower_model extends CI_Model
       return $data;
     }
 
+    // GET BORROWER //
+
     function getBorrowerDetails($Id)
     {
       $query_string = $this->db->query("SELECT DISTINCT B.BorrowerId
@@ -234,6 +238,7 @@ class borrower_model extends CI_Model
                                                 , EE.BorrowerEmailId
                                                 , EE.IsPrimary
                                                 , EE.CreatedBy
+                                                , DATE_FORMAT(EE.DateCreated, '%Y-%b-%d') as DateCreated
                                                 , CONCAT('EA-', LPAD(EE.BorrowerEmailId, 6, 0)) as rowNumber
                                                 FROM R_Emails E
                                                   INNER JOIN borrower_has_emails EE
@@ -253,6 +258,7 @@ class borrower_model extends CI_Model
                                                 , EC.BorrowerContactId
                                                 , EC.IsPrimary
                                                 , CONCAT('CN-', LPAD(EC.BorrowerContactId, 6, 0)) as rowNumber
+                                                , DATE_FORMAT(EC.DateCreated, '%Y-%b-%d') as DateCreated
                                                 FROM R_ContactNumbers CN
                                                   INNER JOIN borrower_has_contactNumbers EC
                                                     ON EC.ContactNumberId = CN.ContactNumberId
@@ -274,6 +280,7 @@ class borrower_model extends CI_Model
                                                 , UPPER(R.regDesc) as regDesc
                                                 , EA.StatusId
                                                 , EA.BorrowerId
+                                                , DATE_FORMAT(EA.DateCreated, '%Y-%b-%d') as DateCreated
                                                 , CONCAT('ADD-', LPAD(EA.BorrowerAddressHistoryId, 6, 0)) as rowNumber
                                                 FROM borrowerAddressHistory EA
                                                   INNER JOIN r_address A
@@ -327,13 +334,13 @@ class borrower_model extends CI_Model
           // insert into logs
             if($input['updateType'] == 1)
             {
-              $auditBorrower = 'Re-activated address record #ADD-' .$AddressTransactionNumber['Id']; // main log
-              $auditStaff = 'Re-activated address record #ADD-' .$AddressTransactionNumber['Id']. '.'; // employee notification
+              $auditBorrower = 'Re-activated address #ADD-' .$AddressTransactionNumber['Id']. '.'; // main log
+              $auditStaff = 'Re-activated address #ADD-' .$AddressTransactionNumber['Id'].' of '.$BorrowerDetail['BorrowerId'].'.'; // employee notification
             }
             else if($input['updateType'] == 0)
             {
-              $auditBorrower = 'Deactivated address record #ADD-' .$AddressTransactionNumber['Id']; // main log
-              $auditStaff = 'Deactivated address record #ADD-' .$AddressTransactionNumber['Id']. '.'; // employee notification
+              $auditBorrower = 'Deactivated address #ADD-' .$AddressTransactionNumber['Id']. '.'; // main log
+              $auditStaff = 'Deactivated address #ADD-' .$AddressTransactionNumber['Id'].' of '.$BorrowerDetail['BorrowerId'].'.'; // employee notification
             }
             $this->auditBorrower($auditBorrower, $auditStaff, $BorrowerDetail['BorrowerId']);
         }
@@ -394,13 +401,13 @@ class borrower_model extends CI_Model
           // insert into logs
             if($input['updateType'] == 1)
             {
-              $auditBorrower = 'Re-activated email address record #EA-'.$EmailTransaction['Id'].' of '.$BorrowerDetail['BorrowerId'];
-              $auditStaff = 'Re-activated email address record #EA-'.$EmailTransaction['Id'].'.';
+              $auditBorrower = 'Re-activated email address #EA-'.$EmailTransaction['Id'].'.';
+              $auditStaff = 'Re-activated email address #EA-'.$EmailTransaction['Id'].' of '.$BorrowerDetail['BorrowerId'].'.';
             }
             else if($input['updateType'] == 0)
             {
-              $auditBorrower = 'Deactivated email address record #EA-'.$EmailTransaction['Id'].' of '.$BorrowerDetail['BorrowerId'].'.';
-              $auditStaff = 'Deactivated email address record #EA-'.$EmailTransaction['Id'].'.';
+              $auditBorrower = 'Deactivated email address #EA-'.$EmailTransaction['Id'].'.';
+              $auditStaff = 'Deactivated email address #EA-'.$EmailTransaction['Id'].' of '.$BorrowerDetail['BorrowerId'].'.';
             }
             $this->auditBorrower($auditBorrower, $auditStaff, $BorrowerDetail['BorrowerId']);
         }
@@ -464,13 +471,13 @@ class borrower_model extends CI_Model
           // insert into logs
             if($input['updateType'] == 1)
             {
-              $auditBorrower = 'Re-activated contact record #CN-'.$TransactionNumber['Id'].' of '.$BorrowerDetail['BorrowerId'];
-              $auditStaff = 'Re-activated contact record #CN-'.$TransactionNumber['Id'].'.';
+              $auditBorrower = 'Re-activated contact #CN-'.$TransactionNumber['Id'].'.';
+              $auditStaff = 'Re-activated contact #CN-'.$TransactionNumber['Id'].' of '.$BorrowerDetail['BorrowerId'].'.';
             }
             else if($input['updateType'] == 0)
             {
-              $auditBorrower = 'Deactivated contact record #CN-'.$TransactionNumber['Id'].' of '.$BorrowerDetail['BorrowerId'].'.';
-              $auditStaff = 'Deactivated contact record #CN-'.$TransactionNumber['Id'].'.';
+              $auditBorrower = 'Deactivated contact #CN-'.$TransactionNumber['Id'].'.';
+              $auditStaff = 'Deactivated contact #CN-'.$TransactionNumber['Id'].' of '.$BorrowerDetail['BorrowerId'].'.';
             }
             $this->auditBorrower($auditBorrower, $auditStaff, $BorrowerDetail['BorrowerId']);
         }
@@ -500,8 +507,8 @@ class borrower_model extends CI_Model
             $table2 = 'Borrower_has_contactnumbers';
             $this->maintenance_model->updateFunction1($set2, $condition2, $table2);
           // insert into logs
-            $auditBorrower = 'Set contact number record #CN-' .$TransactionNumber['Id']. ' of borrower #'.$BorrowerDetail['BorrowerId'] . ' as primary.';
-            $auditStaff = 'Set contact number record #CN-' .$TransactionNumber['Id']. ' as primary contact number.';
+            $auditBorrower = 'Set contact number #CN-' .$TransactionNumber['Id']. ' as primary.';
+            $auditStaff = 'Set contact number #CN-' .$TransactionNumber['Id']. ' of borrower #'.$BorrowerDetail['BorrowerId'] . ' as primary.';
             $this->auditBorrower($auditBorrower, $auditStaff, $BorrowerDetail['BorrowerId']);
         }
       } //DONE
@@ -534,13 +541,13 @@ class borrower_model extends CI_Model
           // insert into logs
             if($input['updateType'] == 1)
             {
-              $auditBorrower = 'Re-activated supporting document record #SD-'.$DocumentNumber['Id'].' of '.$BorrowerDetail['BorrowerId'];
-              $auditStaff = 'Re-activated supporting document record #SD-'.$DocumentNumber['Id'].'.';
+              $auditBorrower = 'Re-activated supporting document #SD-'.$DocumentNumber['Id'].'.';
+              $auditStaff = 'Re-activated supporting document #SD-'.$DocumentNumber['Id'].' of '.$BorrowerDetail['BorrowerId'].'.';
             }
             else if($input['updateType'] == 0)
             {
-              $auditBorrower = 'Deactivated supporting document record #SD-'.$DocumentNumber['Id'].' of '.$BorrowerDetail['BorrowerId'].'.';
-              $auditStaff = 'Deactivated supporting document record #SD-'.$DocumentNumber['Id'].'.';
+              $auditBorrower = 'Deactivated supporting document #SD-'.$DocumentNumber['Id'].'.';
+              $auditStaff = 'Deactivated supporting document #SD-'.$DocumentNumber['Id'].' of '.$BorrowerDetail['BorrowerId'].'.';
             }
             $this->auditBorrower($auditBorrower, $auditStaff, $BorrowerDetail['BorrowerId']);
         }
@@ -595,7 +602,7 @@ class borrower_model extends CI_Model
                                                     WHERE BEMP.EmployerId = ".$input['Id']."
         ")->row_array();
         $EmployerNumber = $this->db->query("SELECT LPAD(".$input['Id'].", 6, 0) as Id")->row_array();
-        if($input['updateType'] == 1 || $input['updateType'] == 0) // activate and deactivate Contact Number of Borrower
+        if($input['updateType'] == 1 || $input['updateType'] == 0) // activate and deactivate Employer of Borrower
         {
           // update status
             $set = array(
@@ -611,13 +618,13 @@ class borrower_model extends CI_Model
           // insert into logs
             if($input['updateType'] == 1)
             {
-              $auditBorrower = 'Re-activated employer record #EP-'.$EmployerNumber['Id'].' of '.$BorrowerDetail['BorrowerId'];
-              $auditStaff = 'Re-activated employer record #EP-'.$EmployerNumber['Id'].'.';
+              $auditBorrower = 'Re-activated employement #EP-'.$EmployerNumber['Id'].'.';
+              $auditStaff = 'Re-activated employement #EP-'.$EmployerNumber['Id'].' of borrower #' .$BorrowerDetail['BorrowerId'].'.';
             }
             else if($input['updateType'] == 0)
             {
-              $auditBorrower = 'Deactivated employer record #EP-'.$EmployerNumber['Id'].' of '.$BorrowerDetail['BorrowerId'];
-              $auditStaff = 'Deactivated employer record #EP-'.$EmployerNumber['Id'].'.';
+              $auditBorrower = 'Deactivated employement #EP-'.$EmployerNumber['Id'].'.';
+              $auditStaff = 'Deactivated employement #EP-'.$EmployerNumber['Id'].' of borrower #' .$BorrowerDetail['BorrowerId'].'.';
             }
             $this->auditBorrower($auditBorrower, $auditStaff, $BorrowerDetail['BorrowerId']);
         }
@@ -648,13 +655,13 @@ class borrower_model extends CI_Model
           // insert into logs
             if($input['updateType'] == 1)
             {
-              $auditBorrower = 'Re-activated Co-maker record #CM-'.$ComakerNumber['Id'].' of '.$BorrowerDetail['BorrowerId'];
-              $auditStaff = 'Re-activated Co-maker record #CM-'.$ComakerNumber['Id'].'.';
+              $auditBorrower = 'Re-activated co-maker #CM-'.$ComakerNumber['Id'].'.';
+              $auditStaff = 'Re-activated co-maker #CM-'.$ComakerNumber['Id'].' of '.$BorrowerDetail['BorrowerId'].'.';
             }
             else if($input['updateType'] == 0)
             {
-              $auditBorrower = 'Deactivated Co-maker record #CM-'.$ComakerNumber['Id'].' of '.$BorrowerDetail['BorrowerId'];
-              $auditStaff = 'Deactivated Co-maker record #CM-'.$ComakerNumber['Id'].'.';
+              $auditBorrower = 'Deactivated co-maker #CM-'.$ComakerNumber['Id'].'.';
+              $auditStaff = 'Deactivated co-maker #CM-'.$ComakerNumber['Id'].' of '.$BorrowerDetail['BorrowerId'].'.';
             }
             $this->auditBorrower($auditBorrower, $auditStaff, $BorrowerDetail['BorrowerId']);
         }
@@ -722,13 +729,13 @@ class borrower_model extends CI_Model
           // insert into logs
             if($input['updateType'] == 1)
             {
-              $auditBorrower = 'Re-activated Education Background record #ED-'.$EducationNumber['Id'];
-              $auditStaff = 'Re-activated Educational Background record #ED-'.$EducationNumber['Id'].' of '.$BorrowerDetail['BorrowerId'];
+              $auditBorrower = 'Re-activated Education Background #ED-'.$EducationNumber['Id'].'.';
+              $auditStaff = 'Re-activated Educational Background #ED-'.$EducationNumber['Id'].'.'.' of '.$BorrowerDetail['BorrowerId'];
             }
             else if($input['updateType'] == 0)
             {
-              $auditBorrower = 'Deactivated Educational Background record #ED-'.$EducationNumber['Id'].' of '.$BorrowerDetail['BorrowerId'];
-              $auditStaff = 'Deactivated Educational Background record #ED-'.$EducationNumber['Id'].'.';
+              $auditBorrower = 'Deactivated Educational Background #ED-'.$EducationNumber['Id'].'.';
+              $auditStaff = 'Deactivated Educational Background #ED-'.$EducationNumber['Id'].' of '.$BorrowerDetail['BorrowerId'];
             }
             $this->auditBorrower($auditBorrower, $auditStaff, $BorrowerDetail['BorrowerId']);
         }
@@ -1011,6 +1018,7 @@ class borrower_model extends CI_Model
       $query_string = $this->db->query("SELECT  CONCAT(S.LastName, ', ', S.FirstName, ' ', S.MiddleName, ', ', S.ExtName) as Name
                                                 , CONCAT('SR-', LPAD(S.SpouseId, 6, 0)) as rowNumber
                                                 , DATE_FORMAT(B.DateOfBirth, '%d %b %Y') as DateOfBirth
+                                                , DATE_FORMAT(B.DateCreated, '%d %b %Y') as DateCreated
                                                 , BHS.StatusId
                                                 , SX.Name as Sex
                                                 , N.Description as Nationality
@@ -1056,6 +1064,7 @@ class borrower_model extends CI_Model
                                                     ELSE 'Previous Employer'
                                                   END as EmployerStatus
                                                 , DATE_FORMAT(BHE.DateHired, '%d %b %Y') as DateHired
+                                                , DATE_FORMAT(BHE.DateCreated, '%d %b %Y') as DateCreated
                                                 , TenureYear
                                                 , TenureMonth
                                                 , BusinessAddress
@@ -1079,6 +1088,7 @@ class borrower_model extends CI_Model
     {
       $query_string = $this->db->query("SELECT  CONCAT('ED-', LPAD(BEDU.BorrowerEducationId, 6, 0)) as rowNumber
                                                 , BEDU.BorrowerEducationId
+                                                , DATE_FORMAT(BEDU.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
                                                 , BEDU.Level
                                                 , BEDU.SchoolName
                                                 , YearGraduated
@@ -1123,7 +1133,7 @@ class borrower_model extends CI_Model
     }
 
     function getTotalLoans($BorrowerId)
-    {      
+    {
       $query = $this->db->query("SELECT   COUNT(A.ApplicationId) as Record
                                           FROM t_application A
                                                 WHERE 
@@ -1137,7 +1147,6 @@ class borrower_model extends CI_Model
       $data = $query->row_array();
       return $data['Record'];
     }
-
 
     function getReference($BorrowerId)
     {
@@ -1163,6 +1172,7 @@ class borrower_model extends CI_Model
     {
       $query_string = $this->db->query("SELECT  Name
                                                 , Employer
+                                                , CONCAT('CM-', LPAD(BC.BorrowerComakerId, 6, 0)) as rowNumber
                                                 , TelephoneNo
                                                 , MobileNo
                                                 , BC.StatusId

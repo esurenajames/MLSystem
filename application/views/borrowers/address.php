@@ -5,6 +5,7 @@
     <th>Address</th>
     <th>Type</th>
     <th>Is Primary?</th>
+    <th>Date Creation</th>
     <th>Status</th>
     <th>Action</th>
   </tr>
@@ -45,6 +46,7 @@
         {
           $action = '<a onclick="confirm(\'Are you sure you want to re-activate this address?\', \''.$value['BorrowerAddressHistoryId'].'\', 1, \'BorrowerAddress\')" class="btn btn-warning btn-sm" title="Reactivate"><span class="fa fa-refresh"></span></a>';
         }
+        echo "<td>".$value['DateCreated']."</td>";
         echo "<td>".$status."</td>";
         echo "<td>".$action."</td>";
         echo "</tr>";

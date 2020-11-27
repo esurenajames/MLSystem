@@ -85,22 +85,6 @@ class home extends CI_Controller {
 		$this->load->view('admin/dashboard', $data);
 	}
 	
-	function AddBank()
-	{
-		$sidebar['sidebar'] = 'SystemSetup';
-		$sidebar['sidebarMenu'] = 'Banks';
-		$header['header'] = 'Banks';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$data['access'] = $this->sidebar_model->getAccess();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['securityQuestions'] = $this->employee_model->getSecurityQuestions();
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/AddBank', $data);
-	}
-	
 	function collectionManagement()
 	{
 		$sidebar['sidebar'] = 'Collection Management';
@@ -115,6 +99,22 @@ class home extends CI_Controller {
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
 		$this->load->view('admin/collection', $data);
+	}
+
+	function AddBank()
+	{
+		$sidebar['sidebar'] = 'SystemSetup';
+		$sidebar['sidebarMenu'] = 'Banks';
+		$header['header'] = 'Banks';
+		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
+		$data['access'] = $this->sidebar_model->getAccess();
+		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['securityQuestions'] = $this->employee_model->getSecurityQuestions();
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('admin/AddBank', $data);
 	}
 
 	function AddBranch()
@@ -146,7 +146,6 @@ class home extends CI_Controller {
 		$this->load->view('includes/sidebar', $sidebar);
 		$this->load->view('admin/AddLoanType', $data);
 	}
-
 
 	function AddConditional()
 	{
@@ -929,7 +928,7 @@ class home extends CI_Controller {
 		$data['Status'] = $this->maintenance_model->getBorrowerStatus();
 
 		$data['Reference'] = $this->borrower_model->getReference($Id);
-		$data['CoMaker'] = $this->borrower_model->getCoMaker($Id);
+		$data['CoMaker'] = $this->borrower_model->getComaker($Id);
 		$data['Audit'] = $this->borrower_model->getAudit($Id);
 		$data['Ids'] = $this->borrower_model->getSupportingDocuments($Id);
 		$data['Spouse'] = $this->borrower_model->getSpouseList($Id);

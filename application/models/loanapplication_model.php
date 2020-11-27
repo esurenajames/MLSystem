@@ -1187,7 +1187,7 @@ class loanapplication_model extends CI_Model
   function getDisbursementDisplay($ID)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $query_string = $this->db->query("SELECT  CONCAT('DIS-', LPAD(AHD.DisbursementId, 6, 0)) as ReferenceNo
+    $query_string = $this->db->query("SELECT  CONCAT('DB-', LPAD(AHD.DisbursementId, 6, 0)) as ReferenceNo
                                               , DATE_FORMAT(AHD.DateCreated, '%b %d, %Y') as DateCreated
                                               , AHD.Amount
                                               , AHD.Description
@@ -1412,6 +1412,17 @@ class loanapplication_model extends CI_Model
     $query_string = $this->db->query("SELECT  * 
                                               FROM Application_has_Requirements
                                                 WHERE RequirementId = '".$data['Requirement']."'
+                                                AND ApplicationId = '".$data['ApplicationId']."'
+    ");
+    $data = $query_string->num_rows();
+    return $data;
+  }
+
+  function countComment($data)
+  {
+    $query_string = $this->db->query("SELECT  * 
+                                              FROM Application_has_Comments
+                                                WHERE Comment = '".$data['Comment']."'
                                                 AND ApplicationId = '".$data['ApplicationId']."'
     ");
     $data = $query_string->num_rows();
@@ -1712,7 +1723,9 @@ class loanapplication_model extends CI_Model
     else if($input['Type'] == 'Incomes')
     {
       $IncomeDetail = $this->db->query("SELECT  Source
+                                                , CONCAT('INC-', LPAD(IncomeId, 4, 0)) as ReferenceNo
                                                 , ApplicationId
+
                                                   FROM Application_has_MonthlyIncome
                                                     WHERE IncomeId = ".$input['Id']."
       ")->row_array();
@@ -1731,11 +1744,11 @@ class loanapplication_model extends CI_Model
         // insert into Application_has_Notifications
         if($input['updateType'] == 2)
         {
-          $IncomeDescription = 'Re-activated ' .$IncomeDetail['Source']. ' of ' .$IncomeDetail['ApplicationId']. ' at the Other Source of Income tab '; // Application Notification
+          $IncomeDescription = 'Re-activated Income #' .$IncomeDetail['ReferenceNo'].'.'; // Application Notification
         }
         else if($input['updateType'] == 6)
         {
-          $IncomeDescription = 'Deactivated ' .$IncomeDetail['Source']. '  of ' .$IncomeDetail['ApplicationId']. ' at the Other Source of Income tab '; // Application Notification
+          $IncomeDescription = 'Deactivated Income #' .$IncomeDetail['ReferenceNo'].'.'; // Application Notification
         }
         $data3 = array(
           'Description'   => $IncomeDescription,
@@ -1747,11 +1760,11 @@ class loanapplication_model extends CI_Model
       // insert into logs
         if($input['updateType'] == 2)
         {
-          $Description = 'Re-activated ' .$IncomeDetail['Source']. ' at the system setup'; // main log
+          $Description = 'Re-activated Income #' .$IncomeDetail['Source']. '.'; // main log
         }
         else if($input['updateType'] == 6)
         {
-          $Description = 'Deactivated ' .$IncomeDetail['Source']. '  at the system setup'; // main log
+          $Description = 'Deactivated Income #' .$IncomeDetail['Source']. '.'; // main log
         }
         $data2 = array(
           'Description'   => $Description,
@@ -1853,6 +1866,58 @@ class loanapplication_model extends CI_Model
         else if($input['updateType'] == 6)
         {
           $Description = 'Deactivated ' .$RequirementDetail['ApplicationRequirementId']. '  of Requirement #'; // Application Notification
+        }
+        $data2 = array(
+          'Description'   => $Description,
+          'CreatedBy'     => $EmployeeNumber,
+          'DateCreated'   => $DateNow
+        );
+        $this->db->insert('Application_has_Notifications', $data2);
+    }
+    else if($input['Type'] == 'Penalty')
+    {
+      $PenaltyDetail = $this->db->query("SELECT  AP.ApplicationPenaltyId
+                                                , AP.ApplicationId
+                                                , CONCAT('PLT-', LPAD(AP.ApplicationPenaltyId, 4, 0)) as ReferenceNo
+                                                  FROM Application_has_Penalty AP
+                                                    WHERE ApplicationPenaltyId = ".$input['Id']."
+      ")->row_array();
+
+      // update status
+        $set = array(
+          'StatusId' => $input['updateType'],
+          'ApplicationId' => $PenaltyDetail['ApplicationId'],
+          'UpdatedBy' => $EmployeeNumber,
+          'DateUpdated' => $DateNow,
+        );
+        $condition = array(
+          'ApplicationPenaltyId' => $input['Id']
+        );
+        $table = 'Application_has_Penalty';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      // insert into logs
+        if($input['updateType'] == 2)
+        {
+          $Description = 'Re-activated ' .$PenaltyDetail['ReferenceNo']. ' of '; // main log
+        }
+        else if($input['updateType'] == 6)
+        {
+          $Description = 'Deactivated ' .$PenaltyDetail['ReferenceNo']. '  at Application #'; // main log
+        }
+        $data2 = array(
+          'Description'   => $Description,
+          'CreatedBy'     => $EmployeeNumber,
+          'DateCreated'   => $DateNow
+        );
+        $this->db->insert('R_Logs', $data2);
+        // insert into Application_has_Notifications
+        if($input['updateType'] == 2)
+        {
+          $Description = 'Re-activated ' .$PenaltyDetail['ReferenceNo']; // Application Notification
+        }
+        else if($input['updateType'] == 6)
+        {
+          $Description = 'Deactivated ' .$PenaltyDetail['ReferenceNo']; // Application Notification
         }
         $data2 = array(
           'Description'   => $Description,

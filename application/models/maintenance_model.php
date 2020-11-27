@@ -615,7 +615,7 @@ class maintenance_model extends CI_Model
       $query_string = $this->db->query("SELECT  LogId
                                                 , LG.Description
                                                 , LG.CreatedBy
-                                                , DATE_FORMAT(LG.DateCreated, '%d %b %Y %r') as DateCreated
+                                                , DATE_FORMAT(LG.DateCreated, '%d %b %Y') as DateCreated
                                                 FROM R_Logs LG
       ");
       $data = $query_string->result_array();

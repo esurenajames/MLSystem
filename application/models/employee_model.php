@@ -584,12 +584,12 @@ class employee_model extends CI_Model
             if($input['updateType'] == 1)
             {
               $Description = 'Re-activated email record #EA-' .$TransactionNumber['Id']. ' of employee #'.$EmployeeDetail['EmployeeNumber']; // main log
-              $EmployeeNotification = 'Re-activated email record #EA-' .$TransactionNumber['Id']. ' as email address.'; // employee notification
+              $EmployeeNotification = 'Re-activated email record #EA-' .$TransactionNumber['Id']; // employee notification
             }
             else if($input['updateType'] == 0)
             {
               $Description = 'Deactivated email record #EA-' .$TransactionNumber['Id']. ' of employee #'.$EmployeeDetail['EmployeeNumber']; // main log
-              $EmployeeNotification = 'Deactivated email record #EA-' .$TransactionNumber['Id']. ' as email address.'; // employee notification
+              $EmployeeNotification = 'Deactivated email record #EA-' .$TransactionNumber['Id']; // employee notification
             }
           // insert into logs
             $ManagerBranchId = $this->employee_model->getEmployeeDetails($EmployeeDetail['EmployeeId']);
@@ -808,7 +808,7 @@ class employee_model extends CI_Model
             $this->maintenance_model->updateFunction1($set, $condition, $table);
           // insert into logs
             $Description = 'Set contact record #CN-' .$TransactionNumber['Id']. ' of employee #'.$EmployeeDetail['EmployeeNumber'] . ' as primary.';
-            $EmployeeNotification = 'Set contact record #CN-' .$TransactionNumber['Id']. ' as primary email address.';
+            $EmployeeNotification = 'Set contact record #CN-' .$TransactionNumber['Id']. ' as primary.';
             $ManagerBranchId = $this->employee_model->getEmployeeDetails($EmployeeDetail['EmployeeId']);
             $insertEmpLog = array(
               'Description'       => $EmployeeNotification
@@ -1034,6 +1034,7 @@ class employee_model extends CI_Model
                                                 , I.IdNumber
                                                 , EI.StatusId
                                                 , EI.EmployeeIdentificationId
+                                                , EI.EmployeeNumber
                                                 , DATE_FORMAT(EI.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
                                                 , DATE_FORMAT(EI.DateUpdated, '%d %b %Y %h:%i %p') as DateUpdated
                                                 , CONCAT('ID-', LPAD(EI.EmployeeIdentificationId, 6, 0)) as rowNumber

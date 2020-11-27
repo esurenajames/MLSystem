@@ -1674,6 +1674,13 @@ class admin_controller extends CI_Controller {
           );
           $insertTangibleTable = 'R_AssetManagement';
           $this->maintenance_model->insertFunction($insertTangible, $insertTangibleTable);
+        // admin audits
+          $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
+          $itemDetail = $this->maintenance_model->selectSpecific('r_assetmanagement', 'AssetManagementId', $_POST['AssetManagementId']);
+          $TransactionNumber = 'AM-'.sprintf('%05d', $itemDetail['AssetManagementId']);
+          $auditLogsManager = $employeeDetail['Name'] . ' added asset '.htmlentities($_POST['AssetName'], ENT_QUOTES).' in asset management.';
+          $auditAffectedEmployee = 'added asset '.htmlentities($_POST['AssetName'], ENT_QUOTES).'.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Asset supply successfully recorded!'); 
@@ -2274,7 +2281,7 @@ class admin_controller extends CI_Controller {
          'Name'                    => htmlentities($_POST['Education'], ENT_QUOTES)
         , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
       );
-      $query = $this->admin_model->countPositions($data);
+      $query = $this->admin_model->countEducation($data);
       print_r($query);
       if($query == 0) // not existing
       {
@@ -2641,12 +2648,14 @@ class admin_controller extends CI_Controller {
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $ExpenseDetail = $this->admin_model->getExpenseDetails($_POST['ExpenseId']);
+    $DateExpense = date('Y-m-d');
     if ($_POST['FormType'] == 1) // add Expense
     {
       $data = array(
-        'ExpenseTypeId'                     => htmlentities($_POST['Expense'], ENT_QUOTES)
+        'ExpenseTypeId'                   => htmlentities($_POST['Expense'], ENT_QUOTES)
         , 'Amount'                        => htmlentities($_POST['Amount'], ENT_QUOTES)
-        , 'DateExpense'                   => htmlentities($_POST['DateExpense'], ENT_QUOTES)
+        , 'DateExpense'                   => htmlentities($DateExpense, ENT_QUOTES)
+
       );
       $query = $this->admin_model->countExpense($data);
       print_r($query);
@@ -2654,13 +2663,20 @@ class admin_controller extends CI_Controller {
       {
         // insert Expense detail
           $instertExpense = array(
-            'ExpenseTypeId'                => htmlentities($_POST['Expense'], ENT_QUOTES)
+            'ExpenseTypeId'              => htmlentities($_POST['Expense'], ENT_QUOTES)
             , 'Amount'                   => htmlentities($_POST['Amount'], ENT_QUOTES)
-            , 'DateExpense'              => htmlentities($_POST['DateExpense'], ENT_QUOTES)
+            , 'DateExpense'              => htmlentities($DateExpense, ENT_QUOTES)
             , 'CreatedBy'                => $EmployeeNumber
           );
           $insertExpenseTable = 'R_Expense';
           $this->maintenance_model->insertFunction($instertExpense, $insertExpenseTable);
+        // add into audit table
+            $auditDetail = 'Added expense #' .$ExpenseDetail['Expense']. '  at the Expenses in Finance Management';
+            $insertAudit = array(
+              'Description' => $auditDetail,
+              'CreatedBy' => $EmployeeNumber
+            );
+            $auditTable = 'R_Logs';
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Expense details successfully recorded!'); 
@@ -2933,25 +2949,24 @@ class admin_controller extends CI_Controller {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $AssignedBranch = $this->session->userdata('BranchId');
     $WithdrawalDetail = $this->admin_model->getWithdrawalDetails($_POST['WithdrawalId']);
+    $DateWithdrawal = date('Y-m-d');
     if ($_POST['FormType'] == 1) // add Withdrawal
     {
       $data = array(
         'WithdrawalTypeId'                     => htmlentities($_POST['Withdrawal'], ENT_QUOTES)
         , 'Amount'                             => htmlentities($_POST['Amount'], ENT_QUOTES)
-        , 'DateWithdrawal'                     => htmlentities($_POST['DateWithdrawal'], ENT_QUOTES)
-        , 'AssignedBranch'                     => $AssignedBranch
+        , 'DateWithdrawal'                     => htmlentities($DateWithdrawal, ENT_QUOTES)
       );
       $query = $this->admin_model->countWithdrawal($data);
       print_r($query);
       if($query == 0) // not existing
       {
-        // insert Expense detail
+        // insert Withdrawal detail
           $instertWithdrawal = array(
             'WithdrawalTypeId'                => htmlentities($_POST['Withdrawal'], ENT_QUOTES)
             , 'Amount'                        => htmlentities($_POST['Amount'], ENT_QUOTES)
-            , 'DateWithdrawal'                => htmlentities($_POST['DateWithdrawal'], ENT_QUOTES)
+            , 'DateWithdrawal'                => htmlentities($DateWithdrawal, ENT_QUOTES)
             , 'CreatedBy'                     => $EmployeeNumber
-            , 'AssignedBranch'                => $AssignedBranch
           );
           $insertWithdrawalTable = 'R_Withdrawal';
           $this->maintenance_model->insertFunction($instertWithdrawal, $insertWithdrawalTable);
@@ -3039,8 +3054,6 @@ class admin_controller extends CI_Controller {
         redirect('home/AddDeposit/');
     }
   }
-
-  
 
   function getBankDetails()
   {

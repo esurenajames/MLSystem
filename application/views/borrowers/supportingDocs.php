@@ -6,6 +6,7 @@
     <th>Type</th>
     <th>Description</th>
     <th>File Name</th>
+    <th>Date Created</th>
     <th>Status</th>
     <th>Action</th>
   </tr>
@@ -30,7 +31,7 @@
           $status = "<span class='badge bg-red'>Deactivated</span>";
           $action = '<a onclick="confirm(\'Are you sure you want to re-activate this document?\', \''.$value['BorrowerIdentificationId'].'\', 1, \'BorrowerDocuments\')" class="btn btn-warning btn-sm" title="Deactivate"><span class="fa fa-refresh"></span></a> <a class="btn btn-sm btn-success" href="' . base_url() .'/admin_controller/download/2/'.$value['BorrowerIdentificationId'].'" title="Download"><span class="fa fa-download"></span></a>';
         }
-
+        echo "<td>".$value['DateCreated']."</td>";
         echo "<td>".$status."</td>";
         echo "<td>".$action."</td>";
         echo "</tr>";

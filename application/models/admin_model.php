@@ -378,6 +378,7 @@ class admin_model extends CI_Model
       $query_string = $this->db->query("SELECT  AM.AssetManagementId
                                                 , AM.Type
                                                 , AM.Name as AssetName
+                                                , CONCAT('AM-', LPAD(AM.AssetManagementId, 6, 0)) as rowNumber
                                                 , CONCAT(AM.Stock, '/', AM.CriticalLevel) as Stock
                                                 , AM.CategoryId
                                                 , AM.PurchaseValue
@@ -615,6 +616,7 @@ class admin_model extends CI_Model
                                                 , EX.ExpenseTypeId
                                                 , EX.DateExpense
                                                 , CONCAT('EX-', LPAD(EX.ExpenseId, 6, 0)) as ReferenceNo
+                                                , DATE_FORMAT(EX.DateExpense, '%d %b %Y %r') as DateExpense
                                                 FROM R_Expense EX 
                                                   INNER JOIN R_ExpenseType ET
                                                    ON EX.ExpenseTypeId = ET.ExpenseTypeId
@@ -667,6 +669,7 @@ class admin_model extends CI_Model
                                                 , W.WithdrawalTypeId
                                                 , W.DateWithdrawal
                                                 , CONCAT('W-', LPAD(W.WithdrawalId, 6, 0)) as ReferenceNo
+                                                , DATE_FORMAT(W.DateWithdrawal, '%d %b %Y %r') as DateWithdrawal
                                                 FROM R_Withdrawal W 
                                                   INNER JOIN R_WithdrawalType WT
                                                    ON W.WithdrawalTypeId = WT.WithdrawalTypeId
@@ -1170,6 +1173,7 @@ class admin_model extends CI_Model
       else if($input['tableType'] == 'AssetManagement')
       {
         $AssetDetail = $this->db->query("SELECT  SerialNumber
+                                                  , CONCAT('AM-', LPAD(AM.AssetManagementId, 6, 0)) as rowNumber
                                                     FROM R_AssetManagement AM
                                                       WHERE AssetManagementId = ".$input['Id']."
         ")->row_array();
@@ -1188,11 +1192,11 @@ class admin_model extends CI_Model
         // insert into logs
           if($input['updateType'] == 2)
           {
-            $Description = 'Re-activated ' .$AssetDetail['SerialNumber']. ' at the Asset Management'; // main log
+            $Description = 'Re-activated ' .$AssetDetail['rowNumber']. ' at the Asset Management'; // main log
           }
           else if($input['updateType'] == 6)
           {
-            $Description = 'Deactivated ' .$AssetDetail['SerialNumber']. '  at the Asset Management'; // main log
+            $Description = 'Deactivated ' .$AssetDetail['rowNumber']. '  at the Asset Management'; // main log
           }
           $data2 = array(
             'Description'   => $Description,
@@ -1374,6 +1378,8 @@ class admin_model extends CI_Model
       else if($input['tableType'] == 'Expense')
       {
         $ExpenseDetail = $this->db->query("SELECT  EX.ExpenseTypeId as Name
+                                                , CONCAT('EX-', LPAD(EX.ExpenseId, 6, 0)) as ReferenceNo
+
                                                     FROM R_Expense EX
                                                       WHERE ExpenseId = ".$input['Id']."
         ")->row_array();
@@ -1392,11 +1398,11 @@ class admin_model extends CI_Model
         // insert into logs
           if($input['updateType'] == 1)
           {
-            $Description = 'Re-activated ' .$ExpenseDetail['Name']. ' at the Expenses in Finance'; // main log
+            $Description = 'Re-activated #' .$ExpenseDetail['ReferenceNo']. ' at the Expenses in Finance Management'; // main log
           }
           else if($input['updateType'] == 0)
           {
-            $Description = 'Deactivated ' .$ExpenseDetail['Name']. '  at the Expenses in Financ'; // main log
+            $Description = 'Deactivated #' .$ExpenseDetail['ReferenceNo']. '  at the Expenses in Finance Management'; // main log
           }
           $data2 = array(
             'Description'   => $Description,
@@ -1431,6 +1437,42 @@ class admin_model extends CI_Model
           else if($input['updateType'] == 0)
           {
             $Description = 'Deactivated ' .$WithdrawalTypeDetail['Name']. '  at the Types of Withdrawal in System Setup'; // main log
+          }
+          $data2 = array(
+            'Description'   => $Description,
+            'CreatedBy'     => $EmployeeNumber,
+            'DateCreated'   => $DateNow
+          );
+          $this->db->insert('R_Logs', $data2);
+      }
+      else if($input['tableType'] == 'Withdrawal')
+      {
+        $WithdrawalDetail = $this->db->query("SELECT  W.WithdrawalId as Name
+                                                , CONCAT('DEP-', LPAD(W.WithdrawalId, 6, 0)) as ReferenceNo
+          
+                                                    FROM R_Withdrawal W
+                                                      WHERE WithdrawalId = ".$input['Id']."
+        ")->row_array();
+
+        // update status
+          $set = array(
+            'StatusId' => $input['updateType'],
+            'UpdatedBy' => $EmployeeNumber,
+            'DateUpdated' => $DateNow,
+          );
+          $condition = array(
+            'WithdrawalId' => $input['Id']
+          );
+          $table = 'R_Withdrawal';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+        // insert into logs
+          if($input['updateType'] == 1)
+          {
+            $Description = 'Re-activated #' .$WithdrawalDetail['ReferenceNo']. ' at the Withdrawal in Finance Management'; // main log
+          }
+          else if($input['updateType'] == 0)
+          {
+            $Description = 'Deactivated #' .$WithdrawalDetail['ReferenceNo']. '  at the Withdrawal in Finance Management'; // main log
           }
           $data2 = array(
             'Description'   => $Description,

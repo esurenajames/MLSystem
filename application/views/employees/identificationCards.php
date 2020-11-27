@@ -7,7 +7,7 @@
     <th>Number</th>
     <th>File Name</th>
     <th>Created By</th>
-    <th>Date Created</th>
+    <th>Date Creation</th>
     <th>Date Updated</th>
     <th>Status</th>
     <th>Action</th>

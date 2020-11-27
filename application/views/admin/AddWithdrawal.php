@@ -87,7 +87,7 @@
               <th>Deposit Type</th>
               <th>Amount</th>
               <th>Date of Deposit</th>
-              <th>Date Created</th>
+              <th>Date Creation</th>
               <th>Created By</th>
               <th>Status</th>
               <th>Action</th>
@@ -128,7 +128,7 @@
     });
   }
   
-  function confirm(Text, ExpenseId, updateType)
+  function confirm(Text, WithdrawalId, updateType)
   { 
     swal({
       title: 'Confirm',
@@ -144,9 +144,9 @@
           url: "<?php echo base_url();?>" + "/admin_controller/updateStatus",
           method: "POST",
           data:   {
-                    Id : ExpenseId
+                    Id : WithdrawalId
                     , updateType : updateType
-                    , tableType : 'Expense'
+                    , tableType : 'Withdrawal'
                   },
           beforeSend: function(){
               $('.loading').show();
@@ -156,7 +156,7 @@
             refreshPage();
             swal({
               title: 'Success!',
-              text: 'Expense successfully updated!',
+              text: 'Deposit successfully updated!',
               type: 'success',
               buttonsStyling: false,
               confirmButtonClass: 'btn btn-primary'

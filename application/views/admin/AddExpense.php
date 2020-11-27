@@ -87,7 +87,7 @@
               <th>Expense Type</th>
               <th>Amount</th>
               <th>Date of Expense</th>
-              <th>Date Created</th>
+              <th>Date Creation</th>
               <th>Created By</th>
               <th>Status</th>
               <th>Action</th>
@@ -246,7 +246,7 @@
                     {
                       data: "StatusId", "render": function (data, type, row) {
                       if(row.StatusId == 1){
-                          return '<a onclick="confirm(\'Are you sure you want to deactivate this Expense?\', \''+row.ExpenseId+'\', 0)" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a> <a onclick="Edit('+row.ExpenseId+')" data-toggle="modal" data-target="#modalNewRepaymentCycle" class="btn btn-success" title="Set Primary"><span class="fa fa-check-circle"></span></a>';
+                          return '<a onclick="confirm(\'Are you sure you want to deactivate this Expense?\', \''+row.ExpenseId+'\', 0)" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a>';
                         }
                         else if(row.StatusId == 0){
                           return '<a onclick="confirm(\'Are you sure you want to re-activate this Expense?\', \''+row.ExpenseId+'\', 1)" class="btn btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
