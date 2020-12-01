@@ -1165,6 +1165,7 @@ class loanapplication_model extends CI_Model
                                               , CT.Name as CollateralType
                                               , CS.Name as CurrentStatus
                                               , C.CollateralId
+                                              , CS.StatusId
                                               FROM R_Collaterals C
                                                 INNER JOIN application_has_collaterals AHC
                                                   ON AHC.CollateralId = C.CollateralId

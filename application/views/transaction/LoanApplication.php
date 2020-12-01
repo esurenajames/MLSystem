@@ -62,7 +62,7 @@
                             echo $LoanType;
                           ?>
                         </select>
-                        <a href="<?php echo base_url();?>home/AddLoanType"> Add/Edit Loan Types</a>
+                        <a target="_blank" href="<?php echo base_url();?>/home/AddLoanType"> Add/Edit Loan Type</a>
                       </div>
                     </div>
                     <!-- <div class="col-md-12">
@@ -116,21 +116,6 @@
                         <a target="_blank" href="<?php echo base_url();?>/home/AddPurpose"> Add/Edit Purpose</a>
                       </div>
                     </div>
-                    <div class="col-md-4">
-                      <div class="form-group">
-                        <div class="form-group">
-                            <div class="form-group">
-                              <label>Loan Release Date <span class="text-red">*</span></label>
-                              <div class="input-group date">
-                                <div class="input-group-addon">
-                                  <i class="fa fa-calendar"></i>
-                                </div>
-                                <input type="text" placeholder="Date of Birth" class="form-control" onchange="loanSummary()" name="loanReleaseDate" required="" id="loanReleaseDate">
-                              </div>
-                            </div>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                   <div class="row">
                     <div class="col-md-6">
@@ -141,6 +126,7 @@
                             echo $disbursements;
                           ?>
                         </select>
+                        <a target="_blank" href="<?php echo base_url();?>/home/AddDisbursement"> Add/Edit Disbursement Type</a>
                       </div>
                     </div>
                     <div class="col-md-6">

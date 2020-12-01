@@ -1626,7 +1626,7 @@
                                 else 
                                 {
                                   $status = '<span class="badge bg-red">Deactivated</span>';
-                                  $action = '<a onclick="confirm(\'Are you sure you want to re-activate this penalty record?\', \''.$value['ApplicationPenaltyId'].'\', 2, \'Penalty\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                                  $action = '<a onclick="confirm(\'Are you sure you want to re-activate this penalty record?\', \''.$value['ApplicationPenaltyId'].'\', 1, \'Penalty\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
                                 }
                                 echo "<tr>";
                                 echo "<td>".$value['ReferenceNo']."</td>";
@@ -1668,6 +1668,7 @@
                       <th>Value</th>
                       <th>Type</th>
                       <th>Register Date</th>
+                      <th>Date Creation</th>
                       <th>Status</th>
                       <th>Action</th>
                     </tr>
@@ -1684,14 +1685,25 @@
                           echo "<td>".number_format($value['Value'], 2)."</td>";
                           echo "<td>".$value['CollateralType']."</td>";
                           echo "<td>".$value['DateRegistered']."</td>";
-                          echo "<td>".$value['DateRegistered']."</td>";
-                          if($detail['BranchId'] == $this->session->userdata('BranchId'))
+                          echo "<td>".$value['DateCreated']."</td>";
+                          if($value['StatusId'] == 2)
                           {
-                            echo '<td><a class="btn btn-default btn-sm" data-toggle="modal" data-target="#modalCollateral" title="View" onclick="viewCollateral('.$value['CollateralId'].', 1)"><span class="fa fa-info-circle"></span></a> <a class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalCollateral" title="Edit" onclick="viewCollateral('.$value['CollateralId'].', 2)"><span class="fa fa-edit"></span></a></td> ';
+                            $status = "<span class='badge bg-green'>Active</span>";
+                            $action = '<a onclick="confirm(\'Are you sure you want to deactivate this collateral record?\', \''.$value['CollateralId'].'\', 6, \'Collaterals\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
                           }
                           else
                           {
-                            echo "<td></td>";
+                            $status = "<span class='badge bg-red'>Deactivated</span>";
+                            $action = '<a onclick="confirm(\'Are you sure you want to re-activate this collateral record?\', \''.$value['CollateralId'].'\', 2, \'Collaterals\') "class="btn btn-warning btn-sm" title="Re-activate"><span class="fa fa-refresh"></span></a>';
+                          }
+                          echo "<td>".$status."</td>";
+                          if($detail['BranchId'] == $this->session->userdata('BranchId'))
+                          {
+                            echo '<td><a class="btn btn-default btn-sm" data-toggle="modal" data-target="#modalCollateral" title="View" onclick="viewCollateral('.$value['CollateralId'].', 1)"><span class="fa fa-info-circle"></span></a> <a class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalCollateral" title="Edit" onclick="viewCollateral('.$value['CollateralId'].', 2)"><span class="fa fa-edit"></span></a> </td> ';
+                          }
+                          else
+                          {
+                            echo '<td></td>';
                           }
                           echo "</tr>";
                         }
@@ -1732,7 +1744,7 @@
                           echo "<td>".$value['Description']."</td>";
                           if ($value['StatusId'] == 7) // Pending 
                           {
-                            $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationRequirementId'].')" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this requirement?\', \''.$value['ApplicationRequirementId'].'\', 6, \'Requirements\')" class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
+                            $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationRequirementId'].')" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a>';
                           }
                           else if($value['StatusId'] == 2) // submitted
                           {
@@ -1867,12 +1879,12 @@
                           if($value['StatusId'] == 2)
                           {
                             $status = "<span class='badge bg-green'>Active</span>";
-                            $action = '<a onclick="EditIncome(\''.$value['IncomeId'].'\')" data-toggle="modal" data-target="#modalIncome" class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this Income Source record?\', \''.$value['IncomeId'].'\', 6, \'Incomes\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                            $action = '<a onclick="EditIncome(\''.$value['IncomeId'].'\')" data-toggle="modal" data-target="#modalIncome" class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this Source of Income record?\', \''.$value['IncomeId'].'\', 6, \'Incomes\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
                           }
                           else
                           {
                             $status = "<span class='badge bg-red'>Deactivated</span>";
-                            $action = '<a onclick="confirm(\'Are you sure you want to re-activate this Income Source record?\', \''.$value['IncomeId'].'\', 2, \'Incomes\')" class="btn btn-warning" title="Re-Activate"><span class="fa fa-refresh"></span></a>';
+                            $action = '<a onclick="confirm(\'Are you sure you want to re-activate this Source of Income record?\', \''.$value['IncomeId'].'\', 2, \'Incomes\')" class="btn btn-warning" title="Re-Activate"><span class="fa fa-refresh"></span></a>';
                           }
                           echo "<td>".$status."</td>";
                           if($detail['BranchId'] == $this->session->userdata('BranchId'))
@@ -2837,6 +2849,44 @@
         $('#txtIncomeAmount').val(data['Amount']);
         $('#txtIncomeId').val(IncomeId);
         $('#txtFormTypeIncome').val(2);
+      },
+
+      error: function()
+      {
+        setTimeout(function() {
+          swal({
+            title: 'Warning!',
+            text: 'Something went wrong, please contact the administrator or refresh page!',
+            type: 'warning',
+            buttonsStyling: false,
+            confirmButtonClass: 'btn btn-primary'
+          });
+          // location.reload();
+        }, 2000);
+      }
+    });
+  }
+
+  function EditDisbursement(DisbursementId)
+  { 
+    $.ajax({
+      url: '<?php echo base_url()?>' + "/loanapplication_controller/getDisbursementDetails",
+      type: "POST",
+      async: false,
+      data: {
+        Id : DisbursementId
+      },
+      dataType: "JSON",
+      beforeSend: function(){
+          $('.loading').show();
+      },
+      success: function(data)
+      {
+        $('#txtDisbursementAmount').val(data['Amount']);
+        $('#txtDisbursementId').val(DisbursementId);
+        $('#selectDisbursedBy').val(data['DisbursedBy']).change();
+        $('#txtDescription').val(data['Description']);
+        $('#txtFormType').val(2);
       },
 
       error: function()

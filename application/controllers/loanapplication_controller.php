@@ -1509,18 +1509,18 @@ class loanapplication_controller extends CI_Controller {
             , 'CreatedBy'           => $EmployeeNumber
           );
           $generatedId = $this->maintenance_model->getGeneratedId2($getData);
-          $ObligationDetail = $this->maintenance_model->selectSpecific('application_has_monthlyIncome', 'IncomeId', $generatedId['IncomeId']);
+          $IncomeDetail = $this->maintenance_model->selectSpecific('application_has_monthlyIncome', 'IncomeId', $generatedId['IncomeId']);
         // insert Application_has_notification
           $IncomeName = htmlentities($_POST['Source'], ENT_QUOTES);
           $insertNotification = array(
-            'Description'                   => 'Added '.$IncomeName.' to the Source of Other Income tab '
+            'Description'                   => 'Added source of income '.$IncomeName.'.'
             , 'ApplicationId'               => $this->uri->segment(3)
             , 'CreatedBy'                   => $EmployeeNumber
           );
           $insertNotificationTable = 'Application_has_Notifications';
           $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
         // Insert Main Logs
-          $auditDetail = ' Added ' .$IncomeName. ' to Reference #' .$ApplicationDetail['TransactionNumber'];
+          $auditDetail = ' Added source of income ' .$IncomeName. ' to Reference #' .$ApplicationDetail['TransactionNumber'];
           $insertData = array(
             'Description' => $auditDetail
             , 'CreatedBy' => $EmployeeNumber
@@ -1529,7 +1529,7 @@ class loanapplication_controller extends CI_Controller {
           $this->maintenance_model->insertFunction($insertData, $auditTable);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
-          $this->session->set_flashdata('alertText','Source of Income details successfully recorded!'); 
+          $this->session->set_flashdata('alertText','Source of Income successfully recorded!'); 
           $this->session->set_flashdata('alertType','success'); 
           redirect('home/loandetail/'. $this->uri->segment(3));
       }
@@ -1537,7 +1537,7 @@ class loanapplication_controller extends CI_Controller {
       {
         // notification
           $this->session->set_flashdata('alertTitle','Warning!'); 
-          $this->session->set_flashdata('alertText','Source of Income details already existing!'); 
+          $this->session->set_flashdata('alertText','Source of Income already existing!'); 
           $this->session->set_flashdata('alertType','warning'); 
           redirect('home/loandetail'. $this->uri->segment(3));
       }
@@ -1674,6 +1674,7 @@ class loanapplication_controller extends CI_Controller {
             , 'StatusId'                  => 1
             , 'CreatedBy'                 => $EmployeeNumber
             , 'UpdatedBy'                 => $EmployeeNumber
+            , 'DateCreated'               => $DateNow
             , 'ApplicationId'             => $this->uri->segment(3)
           );
           $insertDisbursementTable = 'application_has_Disbursement';
@@ -2274,9 +2275,8 @@ class loanapplication_controller extends CI_Controller {
 
       $this->session->set_flashdata('alertTitle','Success!'); 
       $this->session->set_flashdata('alertText','Successfully added charge to loan!'); 
-      $this->session->set_flashdata('alertType','success'); 
-    
-    redirect('home/loandetail/' . $Id);
+      $this->session->set_flashdata('alertType','success');
+      redirect('home/loandetail/'. $this->uri->segment(3));
   }
 
   function getObligationDetails()
@@ -2296,6 +2296,13 @@ class loanapplication_controller extends CI_Controller {
   function getExpenseDetails()
   {
     $output = $this->loanapplication_model->getExpenseDetails($this->input->post('Id'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getDisbursementDetails()
+  {
+    $output = $this->loanapplication_model->getDisbursementDetails($this->input->post('Id'));
     $this->output->set_output(print(json_encode($output)));
     exit();
   }
