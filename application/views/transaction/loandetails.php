@@ -1752,7 +1752,7 @@
                           }
                           else 
                           {
-                            $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationRequirementId'].')" class="btn btn-success btn-sm" title="Upload"><span class="fa fa-upload"></span></a> <a class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
+                            $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationRequirementId'].')" class="btn btn-success btn-sm" title="Upload"><span class="fa fa-upload"></span></a> <a onclick="confirm(\'Are you sure you want to re-activate this requirement?\', '.$value['ApplicationRequirementId'].', 2, \'Requirements\')" class="btn btn-warning btn-sm" title="Re-activate"><span class="fa fa-refresh"></span></a>';
                           }
 
                           if($detail['BranchId'] == $this->session->userdata('BranchId'))

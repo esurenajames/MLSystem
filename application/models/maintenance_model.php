@@ -550,8 +550,9 @@ class maintenance_model extends CI_Model
                                                 , EX.CreatedBy
                                                 , EX.StatusId
                                                 , EX.DateExpense
-                                                , DATE_FORMAT(EX.DateCreated, '%d %b %Y %r') as DateCreated
-                                                , DATE_FORMAT(EX.DateUpdated, '%d %b %Y %r') as DateUpdated
+                                                , DATE_FORMAT(EX.DateCreated, '%d %b %Y') as DateCreated
+                                                , DATE_FORMAT(EX.DateUpdated, '%d %b %Y') as DateUpdated
+                                                , DATE_FORMAT(EX.DateExpense, '%d %b %Y') as DateExpense
                                                 FROM R_Expense EX
                                                   INNER JOIN R_ExpenseType ET
                                                     ON ET.ExpenseTypeId = EX.ExpenseTypeId
@@ -568,8 +569,8 @@ class maintenance_model extends CI_Model
                                                 , WT.CreatedBy
                                                 , WT.Description
                                                 , WT.StatusId
-                                                , DATE_FORMAT(WT.DateCreated, '%d %b %Y %r') as DateCreated
-                                                , DATE_FORMAT(WT.DateUpdated, '%d %b %Y %r') as DateUpdated
+                                                , DATE_FORMAT(WT.DateCreated, '%d %b %Y') as DateCreated
+                                                , DATE_FORMAT(WT.DateUpdated, '%d %b %Y') as DateUpdated
                                                 FROM R_WithdrawalType WT
       ");
       $data = $query_string->result_array();
@@ -586,8 +587,9 @@ class maintenance_model extends CI_Model
                                                 , W.CreatedBy
                                                 , W.StatusId
                                                 , W.DateWithdrawal
-                                                , DATE_FORMAT(W.DateCreated, '%d %b %Y %r') as DateCreated
-                                                , DATE_FORMAT(W.DateUpdated, '%d %b %Y %r') as DateUpdated
+                                                , DATE_FORMAT(W.DateCreated, '%d %b %Y') as DateCreated
+                                                , DATE_FORMAT(W.DateUpdated, '%d %b %Y') as DateUpdated
+                                                , DATE_FORMAT(W.DateWithdrawal, '%d %b %Y') as DateWithdrawal
                                                 FROM R_Withdrawal W
                                                   INNER JOIN R_WithdrawalType WT
                                                     ON W.WithdrawalTypeId = WT.WithdrawalTypeId

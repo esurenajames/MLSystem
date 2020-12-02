@@ -1817,11 +1817,11 @@ class loanapplication_model extends CI_Model
       // insert into logs
         if($input['updateType'] == 2)
         {
-          $DisbursementDescription = 'Re-activated ' .$DisbursementDetail['Source']. ' of ' .$DisbursementDetail['ApplicationId'].'.'; // main log
+          $DisbursementDescription = 'Re-activated ' .$DisbursementDetail['Source']. ' from ' .$DisbursementDetail['ApplicationId'].'.'; // main log
         }
         else if($input['updateType'] == 6)
         {
-          $DisbursementDescription = 'Deactivated ' .$DisbursementDetail['Source']. ' of ' .$DisbursementDetail['ApplicationId'].'.'; // main log
+          $DisbursementDescription = 'Deactivated ' .$DisbursementDetail['Source']. ' from ' .$DisbursementDetail['ApplicationId'].'.'; // main log
         }
         $data2 = array(
           'Description'   => $DisbursementDescription,
@@ -1833,6 +1833,7 @@ class loanapplication_model extends CI_Model
     else if($input['Type'] == 'Requirements')
     {
       $RequirementDetail = $this->db->query("SELECT  ApplicationRequirementId
+                                                , CONCAT('REQ-', LPAD(ApplicationRequirementId, 4, 0)) as ReferenceNo
                                                 , ApplicationId
                                                   FROM Application_has_Requirements
                                                     WHERE ApplicationRequirementId = ".$input['Id']."
@@ -1852,11 +1853,11 @@ class loanapplication_model extends CI_Model
       // insert into logs
         if($input['updateType'] == 2)
         {
-          $Description = 'Re-activated requirement record #' .$RequirementDetail['ApplicationRequirementId']. ' at the system setup'; // main log
+          $Description = 'Re-activated requirement record #' .$RequirementDetail['ApplicationRequirementId']. ' from' .$RequirementDetail['ApplicationId'].'.'; // main log
         }
         else if($input['updateType'] == 6)
         {
-          $Description = 'Deactivated requirement record #' .$RequirementDetail['ApplicationRequirementId']. '  at the system setup'; // main log
+          $Description = 'Deactivated requirement record #' .$RequirementDetail['ApplicationRequirementId']. ' from' .$RequirementDetail['ApplicationId'].'.'; // main log
         }
         $data2 = array(
           'Description'   => $Description,
@@ -1867,11 +1868,11 @@ class loanapplication_model extends CI_Model
         // insert into Application_has_Notifications
         if($input['updateType'] == 2)
         {
-          $Description = 'Re-activated ' .$RequirementDetail['ApplicationRequirementId']. ' of Requirement # '; // Application Notification
+          $Description = 'Re-activated requirement record #' .$RequirementDetail['ReferenceNo']. '.'; // Application Notification
         }
         else if($input['updateType'] == 6)
         {
-          $Description = 'Deactivated ' .$RequirementDetail['ApplicationRequirementId']. '  of Requirement #'; // Application Notification
+          $Description = 'Deactivated requirement record #' .$RequirementDetail['ReferenceNo']. '.'; // Application Notification
         }
         $data2 = array(
           'Description'   => $Description,

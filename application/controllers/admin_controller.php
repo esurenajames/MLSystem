@@ -2671,7 +2671,7 @@ class admin_controller extends CI_Controller {
           $insertExpenseTable = 'R_Expense';
           $this->maintenance_model->insertFunction($instertExpense, $insertExpenseTable);
         // add into audit table
-            $auditDetail = 'Added expense #' .$ExpenseDetail['Expense']. '  at the Expenses in Finance Management';
+            $auditDetail = 'Added expense #' .$ExpenseDetail['ReferenceNo']. '  at the Finance Management';
             $insertAudit = array(
               'Description' => $auditDetail,
               'CreatedBy' => $EmployeeNumber
@@ -2689,51 +2689,7 @@ class admin_controller extends CI_Controller {
           $this->session->set_flashdata('alertTitle','Warning!'); 
           $this->session->set_flashdata('alertText','Expense details already existing!'); 
           $this->session->set_flashdata('alertType','warning'); 
-          redirect('home/AddExpense');
-      }
-    }
-    else if($_POST['FormType'] == 2) // Edit Initial Capital 
-    {
-      $data = array(
-        'Type'                     => htmlentities($_POST['Repayment'], ENT_QUOTES)
-      );
-      $query = $this->admin_model->countOccupation($data);
-      print_r($query);
-      if($query == 0)
-      {
-        if($RepaymentDetail['Name'] != htmlentities($_POST['Repayment'], ENT_QUOTES))
-        {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$RepaymentDetail['Type'].' to '.htmlentities($_POST['Repayment'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
-          // update function
-            $set = array( 
-            'Type'                     => htmlentities($_POST['Repayment'], ENT_QUOTES)
-            );
-            $condition = array( 
-              'RepaymentId' => $_POST['RepaymentId']
-            );
-            $table = 'R_RepaymentCycle';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-        }
-      // notif
-        $this->session->set_flashdata('alertTitle','Success!'); 
-        $this->session->set_flashdata('alertText','Repayment Cycle details successfully updated!'); 
-        $this->session->set_flashdata('alertType','success'); 
-        redirect('home/AddRepaymentCycle/');
-      }
-      else // if existing
-      {
-        // notif
-        $this->session->set_flashdata('alertTitle','Warning!'); 
-        $this->session->set_flashdata('alertText','Repayment Cycle details already existing!'); 
-        $this->session->set_flashdata('alertType','warning'); 
-        redirect('home/AddRepaymentCycle/');
+          redirect('home/AddExpense/'. $EmployeeId['EmployeeId']);
       }
     }
   }

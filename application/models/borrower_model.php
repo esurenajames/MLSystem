@@ -1088,7 +1088,7 @@ class borrower_model extends CI_Model
     {
       $query_string = $this->db->query("SELECT  CONCAT('ED-', LPAD(BEDU.BorrowerEducationId, 6, 0)) as rowNumber
                                                 , BEDU.BorrowerEducationId
-                                                , DATE_FORMAT(BEDU.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                                , DATE_FORMAT(BEDU.DateCreated, '%d %b %Y') as DateCreated
                                                 , BEDU.Level
                                                 , BEDU.SchoolName
                                                 , YearGraduated

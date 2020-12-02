@@ -18,7 +18,7 @@
           Borrower Details
         </h1>
         <ol class="breadcrumb">
-          <li><a href="" class="active"><i class="fa fa-dashboard"></i> Borrower's Management</a></li>
+          <li><a href="http://localhost/ELendingTool/home/Dashboard" class="active"><i class="fa fa-dashboard"></i> Borrower's Management</a></li>
           <li><a href="http://localhost/ELendingTool/home/borrowers">Borrowers</a></li>
           <li><a href="">Borrower Details</a></li>
         </ol>

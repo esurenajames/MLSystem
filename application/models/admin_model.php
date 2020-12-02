@@ -669,7 +669,7 @@ class admin_model extends CI_Model
                                                 , W.WithdrawalTypeId
                                                 , W.DateWithdrawal
                                                 , CONCAT('W-', LPAD(W.WithdrawalId, 6, 0)) as ReferenceNo
-                                                , DATE_FORMAT(W.DateWithdrawal, '%d %b %Y %r') as DateWithdrawal
+                                                , DATE_FORMAT(W.DateWithdrawal, '%d %b %Y') as DateWithdrawal
                                                 FROM R_Withdrawal W 
                                                   INNER JOIN R_WithdrawalType WT
                                                    ON W.WithdrawalTypeId = WT.WithdrawalTypeId
@@ -1398,11 +1398,11 @@ class admin_model extends CI_Model
         // insert into logs
           if($input['updateType'] == 1)
           {
-            $Description = 'Re-activated #' .$ExpenseDetail['ReferenceNo']. ' at the Expenses in Finance Management'; // main log
+            $Description = 'Re-activated #' .$ExpenseDetail['ReferenceNo']. ' at the Finance Management'; // main log
           }
           else if($input['updateType'] == 0)
           {
-            $Description = 'Deactivated #' .$ExpenseDetail['ReferenceNo']. '  at the Expenses in Finance Management'; // main log
+            $Description = 'Deactivated #' .$ExpenseDetail['ReferenceNo']. '  at the Finance Management'; // main log
           }
           $data2 = array(
             'Description'   => $Description,
