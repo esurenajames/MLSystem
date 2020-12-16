@@ -633,15 +633,7 @@
                     }
                     , { data: "CreatedBy" }
                     , { data: "StatusId", "render": function (data, type, row) {
-                        if(row.StatusId == 1){
-                          return "<span class='badge bg-green'>Active</span>";
-                        }
-                        else if(row.StatusId == 0){
-                          return "<span class='badge bg-red'>Deactivated</span>";
-                        }
-                        else{
-                          return "N/A";
-                        }
+                        return row.StatusDescription;
                       }
                     },
                     { data: "DateHired" }, 
@@ -649,15 +641,8 @@
                     {
                       data: "StatusId", "render": function (data, type, row) 
                       {
-                        if(row.StatusId == 1)
-                        {
-                          // <a href="<?php echo base_url()."home/accessManagement/"; ?>'+row.EmployeeId+'" class="btn btn-sm btn-primary" title="Access Management"><span class="fa fa-calendar-check-o"></span></a> 
-                          return '<a href="<?php echo base_url()."home/employeeDetails/"; ?>'+row.EmployeeId+'" class="btn btn-sm btn-default" title="View"><span class="fa fa-info-circle"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this employee?\', \''+row.EmployeeId+'\', 0)" class="btn btn-sm btn-danger" title="Deactivate"><span class="fa fa-close"></span></a>';
-                        }
-                        else
-                        {
-                          return '<a href="<?php echo base_url()."home/employeeDetails/"; ?>'+row.EmployeeId+'" class="btn btn-sm btn-default" title="View"><span class="fa fa-info-circle"></span></a> <a onclick="confirm(\'Are you sure you want to re-activate this employee?\', \''+row.EmployeeId+'\', 1)" class="btn btn-sm btn-success" title="Re-activate"><span class="fa fa-refresh"></span></a>';
-                        }
+                        
+                        return '<a href="<?php echo base_url()."home/employeeDetails/"; ?>'+row.EmployeeId+'" class="btn btn-sm btn-default" title="View"><span class="fa fa-info-circle"></span></a>';
                       }
                     },
       ],

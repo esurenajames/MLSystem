@@ -336,7 +336,7 @@ class admin_controller extends CI_Controller {
     if ($_POST['FormType'] == 1) // add Bank
     {
       $data = array(
-        'BankName'                     => htmlentities($_POST['BankName'], ENT_QUOTES)
+        'BankName'                 => htmlentities($_POST['BankName'], ENT_QUOTES)
         , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
         , 'AccountNumber'          => htmlentities($_POST['AccountNumber'], ENT_QUOTES)
       );
@@ -354,11 +354,23 @@ class admin_controller extends CI_Controller {
           );
           $insertBankTable = 'R_Bank';
           $this->maintenance_model->insertFunction($insertBank, $insertBankTable);
+        // get generated application id
+          $getData = array(
+            'table'                 => 'R_Bank'
+            , 'column'              => 'BankId'
+            , 'CreatedBy'           => $EmployeeNumber
+          );
+          $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+        // admin audits finalss
+          $TransactionNumber = 'BNK-'.sprintf('%06d', $generatedId['BankId']);
+          $auditLogsManager = 'Added bank #'.$TransactionNumber.' in bank setup.';
+          $auditAffectedEmployee = 'Added bank #'.$TransactionNumber.' in bank setup.';
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Bank successfully recorded!'); 
           $this->session->set_flashdata('alertType','success'); 
-          redirect('home/AddBank/'. $EmployeeId['EmployeeId']);
+          redirect('home/AddBank');
       }
       else
       {
@@ -372,7 +384,7 @@ class admin_controller extends CI_Controller {
     else if($_POST['FormType'] == 2) // edit bank 
     {
       $data = array(
-        'BankName'                     => htmlentities($_POST['BankName'], ENT_QUOTES)
+        'BankName'                 => htmlentities($_POST['BankName'], ENT_QUOTES)
         , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
         , 'AccountNumber'          => htmlentities($_POST['AccountNumber'], ENT_QUOTES)
       );
@@ -381,14 +393,6 @@ class admin_controller extends CI_Controller {
       {
         if($BankDetail['BankName'] != htmlentities($_POST['BankName'], ENT_QUOTES))
         {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$BankDetail['BankName'].' to '.htmlentities($_POST['BankName'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
           // update function
             $set = array( 
               'BankName' => htmlentities($_POST['BankName'], ENT_QUOTES)
@@ -401,14 +405,6 @@ class admin_controller extends CI_Controller {
         }
         if($BankDetail['Description'] != htmlentities($_POST['Description'], ENT_QUOTES))
         {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$BankDetail['Description'].' to '.htmlentities($_POST['Description'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
           // update function
             $set = array(
               'Description' => htmlentities($_POST['Description'], ENT_QUOTES)
@@ -421,14 +417,6 @@ class admin_controller extends CI_Controller {
         }
         if($BankDetail['AccountNumber'] != htmlentities($_POST['AccountNumber'], ENT_QUOTES))
         {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$BankDetail['AccountNumber'].' to '.htmlentities($_POST['AccountNumber'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
           // update function
             $set = array( 
               'AccountNumber' => htmlentities($_POST['AccountNumber'], ENT_QUOTES)
@@ -439,6 +427,11 @@ class admin_controller extends CI_Controller {
             $table = 'R_Bank';
             $this->maintenance_model->updateFunction1($set, $condition, $table);
         }
+        // admin audits finalss
+          $TransactionNumber = 'BNK-'.sprintf('%06d', $_POST['BankId']);
+          $auditLogsManager = 'Updated bank details #'.$TransactionNumber.' in bank setup.';
+          $auditAffectedEmployee = 'Updated bank details #'.$TransactionNumber.' in bank setup.';
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
         // notif
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Bank details successfully updated!'); 
@@ -491,8 +484,20 @@ class admin_controller extends CI_Controller {
             , 'CreatedBy'              => $EmployeeNumber
             , 'UpdatedBy'              => $EmployeeNumber
           );
-          $insertBranchTable = 'R_Branch';
+          $insertBranchTable = 'R_Branches';
           $this->maintenance_model->insertFunction($insertBranch, $insertBranchTable);
+        // get generated application id
+          $getData = array(
+            'table'                 => 'R_Branches'
+            , 'column'              => 'BranchId'
+            , 'CreatedBy'           => $EmployeeNumber
+          );
+          $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+        // admin audits finalss
+          $TransactionNumber = 'BRNCH-'.sprintf('%06d', $generatedId['BranchId']);
+          $auditLogsManager = 'Added branch #'.$TransactionNumber.' in branches setup.';
+          $auditAffectedEmployee = 'Added branch #'.$TransactionNumber.' in branches setup.';
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Branch successfully recorded!'); 
@@ -510,156 +515,89 @@ class admin_controller extends CI_Controller {
     }
     else if($_POST['FormType'] == 2) // Edit Branch 
     {
-      $data = array(
-        'Name'                     => htmlentities($_POST['Branch'], ENT_QUOTES)
-        , 'Code'                   => htmlentities($_POST['Code'], ENT_QUOTES)
-        , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
-        , 'DateFromLease'          => htmlentities($DateFrom, ENT_QUOTES)
-        , 'DateToLease'          => htmlentities($DateTo, ENT_QUOTES)
-        , 'LeaseMonthly'          => htmlentities($_POST['Monthly'], ENT_QUOTES)
-        , 'CompanyId'              => 1
-        , 'CreatedBy'              => $EmployeeNumber
-        , 'UpdatedBy'              => $EmployeeNumber
-      );
-      $query = $this->admin_model->countBranch($data);
-      print_r($query);
-      if($query == 0)
+      if($BranchDetail['Name'] != htmlentities($_POST['Branch'], ENT_QUOTES))
       {
-        if($BranchDetail['Name'] != htmlentities($_POST['Branch'], ENT_QUOTES))
-        {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$BranchDetail['Name'].' to '.htmlentities($_POST['Branch'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
-          // update function
-            $set = array( 
-              'Name' => htmlentities($_POST['Branch'], ENT_QUOTES)
-            );
-            $condition = array( 
-              'BranchId' => $_POST['BranchId']
-            );
-            $table = 'R_Branch';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-        }
-        if($BranchDetail['Code'] != htmlentities($_POST['Code'], ENT_QUOTES))
-        {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$BranchDetail['Code'].' to '.htmlentities($_POST['Code'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
-          // update function
-            $set = array( 
-              'Code' => htmlentities($_POST['Code'], ENT_QUOTES)
-            );
-            $condition = array( 
-              'BranchId' => $_POST['BranchId']
-            );
-            $table = 'R_Branch';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-        }
-        if($BranchDetail['Description'] != htmlentities($_POST['Description'], ENT_QUOTES))
-        {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$BranchDetail['Description'].' to '.htmlentities($_POST['Description'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
-          // update function
-            $set = array( 
-              'Description' => htmlentities($_POST['Description'], ENT_QUOTES)
-            );
-            $condition = array( 
-              'BranchId' => $_POST['BranchId']
-            );
-            $table = 'R_Branch';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-        }
-        if($BranchDetail['DateFromLease'] != htmlentities($DateFrom, ENT_QUOTES))
-        {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$BranchDetail['DateFromLease'].' to '.htmlentities($DateFrom, ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
-          // update function
-            $set = array( 
-              'DateFromLease'          => htmlentities($DateFrom, ENT_QUOTES)
-            );
-            $condition = array( 
-              'BranchId' => $_POST['BranchId']
-            );
-            $table = 'R_Branch';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-        }
-        if($BranchDetail['DateToLease'] != htmlentities($DateTo, ENT_QUOTES))
-        {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$BranchDetail['DateToLease'].' to '.htmlentities($DateTo, ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
-          // update function
-            $set = array( 
-              'DateToLease'          => htmlentities($DateTo, ENT_QUOTES)
-            );
-            $condition = array( 
-              'BranchId' => $_POST['BranchId']
-            );
-            $table = 'R_Branch';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-        }
-        if($BranchDetail['LeaseMonthly'] != htmlentities($_POST['Monthly'], ENT_QUOTES))
-        {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$BranchDetail['LeaseMonthly'].' to '.htmlentities($_POST['Monthly'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
-          // update function
-            $set = array( 
-              'LeaseMonthly'          => htmlentities($_POST['Monthly'], ENT_QUOTES)
-            );
-            $condition = array( 
-              'BranchId' => $_POST['BranchId']
-            );
-            $table = 'R_Branch';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-        }
+        // update function
+          $set = array( 
+            'Name' => htmlentities($_POST['Branch'], ENT_QUOTES)
+          );
+          $condition = array( 
+            'BranchId' => $_POST['BranchId']
+          );
+          $table = 'R_Branches';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+      if($BranchDetail['Code'] != htmlentities($_POST['Code'], ENT_QUOTES))
+      {
+        // update function
+          $set = array( 
+            'Code' => htmlentities($_POST['Code'], ENT_QUOTES)
+          );
+          $condition = array( 
+            'BranchId' => $_POST['BranchId']
+          );
+          $table = 'R_Branches';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+      if($BranchDetail['Description'] != htmlentities($_POST['Description'], ENT_QUOTES))
+      {
+        // update function
+          $set = array( 
+            'Description' => htmlentities($_POST['Description'], ENT_QUOTES)
+          );
+          $condition = array( 
+            'BranchId' => $_POST['BranchId']
+          );
+          $table = 'R_Branches';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+      if($BranchDetail['DateFromLease'] != htmlentities($DateFrom, ENT_QUOTES))
+      {
+        // update function
+          $set = array( 
+            'DateFromLease'          => htmlentities($DateFrom, ENT_QUOTES)
+          );
+          $condition = array( 
+            'BranchId' => $_POST['BranchId']
+          );
+          $table = 'R_Branches';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+      if($BranchDetail['DateToLease'] != htmlentities($DateTo, ENT_QUOTES))
+      {
+        // update function
+          $set = array( 
+            'DateToLease'          => htmlentities($DateTo, ENT_QUOTES)
+          );
+          $condition = array( 
+            'BranchId' => $_POST['BranchId']
+          );
+          $table = 'R_Branches';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+      if($BranchDetail['LeaseMonthly'] != htmlentities($_POST['Monthly'], ENT_QUOTES))
+      {
+        // update function
+          $set = array( 
+            'LeaseMonthly'          => htmlentities($_POST['Monthly'], ENT_QUOTES)
+          );
+          $condition = array( 
+            'BranchId' => $_POST['BranchId']
+          );
+          $table = 'R_Branches';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+      // admin audits finalss
+        $TransactionNumber = 'BRNCH-'.sprintf('%06d', $_POST['BranchId']);
+        $auditLogsManager = 'Updated branch detail #'.$TransactionNumber.' in branches setup.';
+        $auditAffectedEmployee = 'Updated branch detail #'.$TransactionNumber.' in branches setup.';
+        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
 
       // notif
         $this->session->set_flashdata('alertTitle','Success!'); 
         $this->session->set_flashdata('alertText','Branch details successfully updated!'); 
         $this->session->set_flashdata('alertType','success'); 
         redirect('home/AddBranch/');
-      }
-      else // if existing
-      {
-        // notif
-        $this->session->set_flashdata('alertTitle','Warning!'); 
-        $this->session->set_flashdata('alertText','Branch details already existing!'); 
-        $this->session->set_flashdata('alertType','warning'); 
-        redirect('home/AddBranch/');
-      }
     }
   }
 
@@ -775,9 +713,9 @@ class admin_controller extends CI_Controller {
     if ($_POST['FormType'] == 1) // add Bank
     {
       $data = array(
-        'ChargeType'                     => htmlentities($_POST['ChargeType'], ENT_QUOTES)
-        , 'Name'                   => htmlentities($_POST['ConditionalName'], ENT_QUOTES)
-        , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
+        'ChargeType'            => htmlentities($_POST['ChargeType'], ENT_QUOTES)
+        , 'Name'                => htmlentities($_POST['ConditionalName'], ENT_QUOTES)
+        , 'Description'         => htmlentities($_POST['Description'], ENT_QUOTES)
         , 'Amount'              => htmlentities($_POST['Amount'], ENT_QUOTES)
       );
       $query = $this->admin_model->countCharges($data);
@@ -1118,7 +1056,6 @@ class admin_controller extends CI_Controller {
         , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
       );
       $query = $this->admin_model->countPositions($data);
-      print_r($query);
       if($query == 0) // not existing
       {
         // insert Bank details
@@ -1130,6 +1067,19 @@ class admin_controller extends CI_Controller {
           );
           $insertPositionTable = 'R_Position';
           $this->maintenance_model->insertFunction($insertPosition, $insertPositionTable);
+        // get generated application id
+          $getData = array(
+            'table'                 => 'R_Position'
+            , 'column'              => 'PositionId'
+            , 'CreatedBy'           => $EmployeeNumber
+          );
+          $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+        // admin audits finalss
+          $detail = $this->maintenance_model->selectSpecific('R_Position', 'PositionId', $generatedId['PositionId']);
+          $TransactionNumber = 'POS-'.sprintf('%06d', $generatedId['PositionId']);
+          $auditLogsManager = 'Added employee position #'.$TransactionNumber.' in position setup.';
+          $auditAffectedEmployee = 'Added employee position #'.$TransactionNumber.' in position setup.';
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Position successfully recorded!'); 
@@ -1147,66 +1097,78 @@ class admin_controller extends CI_Controller {
     }
     else if($_POST['FormType'] == 2) // Edit Position 
     {
-      $data = array(
-         'Name'                    => htmlentities($_POST['Position'], ENT_QUOTES)
-        , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
-      );
-      $query = $this->admin_model->countPositions($data);
-      print_r($query);
-      if($query == 0)
+      $count = $this->db->query("SELECT  COUNT(*) as ifUsed
+                                                  FROM R_Employee
+                                                        WHERE PositionId = ".$_POST['PositionId']."
+      ")->row_array();
+      if($count['ifUsed'] == 0)
       {
-        if($PositionDetail['Name'] != htmlentities($_POST['Position'], ENT_QUOTES))
+        $data = array(
+           'Name'                    => htmlentities($_POST['Position'], ENT_QUOTES)
+          , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
+        );
+        $query = $this->admin_model->countPositions($data);
+        if($query == 0)
         {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$PositionDetail['Name'].' to '.htmlentities($_POST['Position'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
-          // update function
-            $set = array( 
-            'Name'                     => htmlentities($_POST['Position'], ENT_QUOTES)
-            );
-            $condition = array( 
-              'PositionId' => $_POST['PositionId']
-            );
-            $table = 'R_Position';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
+          if($PositionDetail['Name'] != htmlentities($_POST['Position'], ENT_QUOTES))
+          {
+            // admin audits finalss
+              $detail = $this->maintenance_model->selectSpecific('R_Position', 'PositionId', $generatedId['PositionId']);
+              $TransactionNumber = 'POS-'.sprintf('%06d', $_POST['PositionId']);
+              $auditLogsManager = 'Updated employee positions #'.$TransactionNumber.' in position setup.';
+              $auditAffectedEmployee = 'Updated employee positions #'.$TransactionNumber.' in position setup.';
+              $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
+            // update function
+              $set = array( 
+              'Name'                     => htmlentities($_POST['Position'], ENT_QUOTES)
+              );
+              $condition = array( 
+                'PositionId' => $_POST['PositionId']
+              );
+              $table = 'R_Position';
+              $this->maintenance_model->updateFunction1($set, $condition, $table);
+          }
+          if($PositionDetail['Description'] != htmlentities($_POST['Description'], ENT_QUOTES))
+          {
+            // add into audit table
+              $auditDetail = 'Updated details of  '.$PositionDetail['Description'].' to '.htmlentities($_POST['Description'], ENT_QUOTES);
+              $insertAudit = array(
+                'Description' => $auditDetail,
+                'CreatedBy' => $EmployeeNumber
+              );
+              $auditTable = 'R_Logs';
+              $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+            // update function
+              $set = array( 
+              'Description'                     => htmlentities($_POST['Description'], ENT_QUOTES)
+              );
+              $condition = array( 
+                'PositionId' => $_POST['PositionId']
+              );
+              $table = 'R_Position';
+              $this->maintenance_model->updateFunction1($set, $condition, $table);
+          }
+          // notif
+            $this->session->set_flashdata('alertTitle','Success!'); 
+            $this->session->set_flashdata('alertText','Position details successfully updated!'); 
+            $this->session->set_flashdata('alertType','success'); 
+            redirect('home/AddPosition/');
         }
-        if($PositionDetail['Description'] != htmlentities($_POST['Description'], ENT_QUOTES))
+        else // if existing
         {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$PositionDetail['Description'].' to '.htmlentities($_POST['Description'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
-          // update function
-            $set = array( 
-            'Description'                     => htmlentities($_POST['Description'], ENT_QUOTES)
-            );
-            $condition = array( 
-              'PositionId' => $_POST['PositionId']
-            );
-            $table = 'R_Position';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
+          // notif
+          $this->session->set_flashdata('alertTitle','Warning!'); 
+          $this->session->set_flashdata('alertText','Position details already existing!'); 
+          $this->session->set_flashdata('alertType','warning'); 
+          redirect('home/AddPosition/');
         }
-      // notif
-        $this->session->set_flashdata('alertTitle','Success!'); 
-        $this->session->set_flashdata('alertText','Position details successfully updated!'); 
-        $this->session->set_flashdata('alertType','success'); 
-        redirect('home/AddPosition/');
       }
-      else // if existing
+      else
       {
         // notif
-        $this->session->set_flashdata('alertTitle','Warning!'); 
-        $this->session->set_flashdata('alertText','Position details already existing!'); 
-        $this->session->set_flashdata('alertType','warning'); 
+        $this->session->set_flashdata('alertTitle','Info!'); 
+        $this->session->set_flashdata('alertText','Record is in use, record cannot be updated!'); 
+        $this->session->set_flashdata('alertType','info'); 
         redirect('home/AddPosition/');
       }
     }
@@ -1856,7 +1818,7 @@ class admin_controller extends CI_Controller {
         // admin audits
           $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
           $itemDetail = $this->maintenance_model->selectSpecific('r_assetmanagement', 'AssetManagementId', $_POST['AssetManagementId']);
-          $branchName = $this->maintenance_model->selectSpecific('R_Branch', 'BranchId', $_POST['BranchId']);
+          $branchName = $this->maintenance_model->selectSpecific('R_Branches', 'BranchId', $_POST['BranchId']);
           $TransactionNumber = 'AM-'.sprintf('%05d', $itemDetail['AssetManagementId']);
           $auditLogsManager = $employeeDetail['Name'] . ' updated assigned branch of '.$TransactionNumber.' from '.$AssetManagementDetail['Name'].' to '.htmlentities($branchName['Name'], ENT_QUOTES).' in asset management.';
           $auditAffectedEmployee = 'Updated assigned branch of '.$TransactionNumber.' from '.$AssetManagementDetail['Name'].' to '.htmlentities($branchName['Name'], ENT_QUOTES).'.';
@@ -2064,26 +2026,33 @@ class admin_controller extends CI_Controller {
   function AddBorrowerStatus()
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $BorrowerStatusDetail = $this->admin_model->getBorrowerStatusDetails($_POST['BorrowerStatusId']);
     if ($_POST['FormType'] == 1) // add Borrower Status
     {
       $data = array(
         'Name'                     => htmlentities($_POST['BorrowerStatus'], ENT_QUOTES)
-        , 'Description'          => htmlentities($_POST['Description'], ENT_QUOTES)
       );
       $query = $this->admin_model->countBorrowerStatus($data);
-      print_r($query);
       if($query == 0) // not existing
       {
         // insert Borrower Status details
           $insertBorrowerStatus = array(
             'Name'                     => htmlentities($_POST['BorrowerStatus'], ENT_QUOTES)
-            , 'Description'                   => htmlentities($_POST['Description'], ENT_QUOTES)
             , 'CreatedBy'              => $EmployeeNumber
-            , 'UpdatedBy'              => $EmployeeNumber
           );
-          $insertBorrowerStatusTable = 'R_Borrower_has_Status';
+          $insertBorrowerStatusTable = 'r_borrowerstatus';
           $this->maintenance_model->insertFunction($insertBorrowerStatus, $insertBorrowerStatusTable);
+        // get generated application id
+          $getData = array(
+            'table'                 => 'r_borrowerstatus'
+            , 'column'              => 'BorrowerStatusId'
+            , 'CreatedBy'           => $EmployeeNumber
+          );
+          $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+        // admin audits finalss
+          $TransactionNumber = 'BST-'.sprintf('%06d', $generatedId['BorrowerStatusId']);
+          $auditLogsManager = 'Added borrower status #'.$TransactionNumber.' in borrower status setup.';
+          $auditAffectedEmployee = 'Added borrower status #'.$TransactionNumber.' in borrower status setup.';
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Borrower Status successfully recorded!'); 
@@ -2101,59 +2070,32 @@ class admin_controller extends CI_Controller {
     }
     else if($_POST['FormType'] == 2) // Edit BorrowerStatus Details 
     {
+      $BorrowerStatusDetail = $this->admin_model->getBorrowerStatusDetails($_POST['BorrowerStatusId']);
       $data = array(
          'Name'                    => htmlentities($_POST['BorrowerStatus'], ENT_QUOTES)
-        , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
       );
       $query = $this->admin_model->countBorrowerStatus($data); //Count if existing
-      print_r($query);
       if($query == 0)
       {
-        if($BorrowerStatusDetail['Name'] != htmlentities($_POST['BorrowerStatus'], ENT_QUOTES))
-        {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$BorrowerStatusDetail['Name'].' to '.htmlentities($_POST['BorrowerStatus'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
-          // update function
-            $set = array( 
-            'Name'                     => htmlentities($_POST['BorrowerStatus'], ENT_QUOTES)
-            );
-            $condition = array( 
-              'BorrowerStatusId' => $_POST['BorrowerStatusId']
-            );
-            $table = 'R_Borrower_has_Status';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-        }
-        if($BorrowerStatusDetail['Description'] != htmlentities($_POST['Description'], ENT_QUOTES))
-        {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$BorrowerStatusDetail['Description'].' to '.htmlentities($_POST['Description'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
-          // update function
-            $set = array( 
-            'Description'                     => htmlentities($_POST['Description'], ENT_QUOTES)
-            );
-            $condition = array( 
-              'BorrowerStatusId' => $_POST['BorrowerStatusId']
-            );
-            $table = 'R_Borrower_has_Status';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-        }
-      // notif
-        $this->session->set_flashdata('alertTitle','Success!'); 
-        $this->session->set_flashdata('alertText','Borrower Status details successfully updated!'); 
-        $this->session->set_flashdata('alertType','success'); 
-        redirect('home/AddBorrowerStatus/');
+        // update function
+          $set = array( 
+          'Name'                     => htmlentities($_POST['BorrowerStatus'], ENT_QUOTES)
+          );
+          $condition = array( 
+            'BorrowerStatusId' => $_POST['BorrowerStatusId']
+          );
+          $table = 'r_borrowerstatus';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+        // admin audits finalss
+          $TransactionNumber = 'BST-'.sprintf('%06d', $_POST['BorrowerStatusId']);
+          $auditLogsManager = 'Updated borrower status #'.$TransactionNumber.' in borrower status setup.';
+          $auditAffectedEmployee = 'Updated borrower status #'.$TransactionNumber.' in borrower status setup.';
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
+        // notif
+          $this->session->set_flashdata('alertTitle','Success!'); 
+          $this->session->set_flashdata('alertText','Borrower Status details successfully updated!'); 
+          $this->session->set_flashdata('alertType','success'); 
+          redirect('home/AddBorrowerStatus/');
       }
       else // if existing
       {
@@ -2189,6 +2131,18 @@ class admin_controller extends CI_Controller {
           );
           $insertIndustryTable = 'R_Industry';
           $this->maintenance_model->insertFunction($insertIndustry, $insertIndustryTable);
+        // get generated application id
+          $getData = array(
+            'table'                 => 'R_Industry'
+            , 'column'              => 'IndustryId'
+            , 'CreatedBy'           => $EmployeeNumber
+          );
+          $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+        // admin audits finalss
+          $TransactionNumber = 'IND-'.sprintf('%06d', $generatedId['IndustryId']);
+          $auditLogsManager = 'Added industry #'.$TransactionNumber.' in industry setup.';
+          $auditAffectedEmployee = 'Added industry #'.$TransactionNumber.' in industry setup.';
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Industry successfully recorded!'); 
@@ -2216,14 +2170,6 @@ class admin_controller extends CI_Controller {
       {
         if($IndustryDetail['Name'] != htmlentities($_POST['Industry'], ENT_QUOTES))
         {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$IndustryDetail['Name'].' to '.htmlentities($_POST['Industry'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
           // update function
             $set = array( 
             'Name'                     => htmlentities($_POST['Industry'], ENT_QUOTES)
@@ -2236,14 +2182,6 @@ class admin_controller extends CI_Controller {
         }
         if($IndustryDetail['Description'] != htmlentities($_POST['Description'], ENT_QUOTES))
         {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$IndustryDetail['Description'].' to '.htmlentities($_POST['Description'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
           // update function
             $set = array( 
             'Description'                     => htmlentities($_POST['Description'], ENT_QUOTES)
@@ -2254,6 +2192,11 @@ class admin_controller extends CI_Controller {
             $table = 'R_Industry';
             $this->maintenance_model->updateFunction1($set, $condition, $table);
         }
+        // admin audits finalss
+          $TransactionNumber = 'IND-'.sprintf('%06d', $_POST['IndustryId']);
+          $auditLogsManager = 'Updated industry #'.$TransactionNumber.' in industry setup.';
+          $auditAffectedEmployee = 'Updated industry #'.$TransactionNumber.' in industry setup.';
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
       // notif
         $this->session->set_flashdata('alertTitle','Success!'); 
         $this->session->set_flashdata('alertText','Industry details successfully updated!'); 
@@ -2294,11 +2237,23 @@ class admin_controller extends CI_Controller {
           );
           $insertEducationTable = 'R_Education';
           $this->maintenance_model->insertFunction($insertEducation, $insertEducationTable);
+        // get generated application id
+          $getData = array(
+            'table'                 => 'R_Education'
+            , 'column'              => 'EducationId'
+            , 'CreatedBy'           => $EmployeeNumber
+          );
+          $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+        // admin audits finalss
+          $TransactionNumber = 'EDU-'.sprintf('%06d', $generatedId['IndustryId']);
+          $auditLogsManager = 'Added education #'.$TransactionNumber.' in education level setup.';
+          $auditAffectedEmployee = 'Added education #'.$TransactionNumber.' in education level setup.';
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Education Level successfully recorded!'); 
           $this->session->set_flashdata('alertType','success'); 
-          redirect('home/AddEducation/'. $EmployeeId['EmployeeId']);
+          redirect('home/AddEducation');
       }
       else
       {
@@ -2316,49 +2271,31 @@ class admin_controller extends CI_Controller {
         , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
       );
       $query = $this->admin_model->countEducation($data);
-      print_r($query);
       if($query == 0)
       {
-        if($EducationDetail['Name'] != htmlentities($_POST['Education'], ENT_QUOTES))
-        {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$EducationDetail['Name'].' to '.htmlentities($_POST['Education'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
-          // update function
-            $set = array( 
-            'Name'                     => htmlentities($_POST['Education'], ENT_QUOTES)
-            );
-            $condition = array( 
-              'EducationId' => $_POST['EducationId']
-            );
-            $table = 'R_Education';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-        }
-        if($EducationDetail['Description'] != htmlentities($_POST['Description'], ENT_QUOTES))
-        {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$EducationDetail['Description'].' to '.htmlentities($_POST['Description'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
-          // update function
-            $set = array( 
-            'Description'                     => htmlentities($_POST['Description'], ENT_QUOTES)
-            );
-            $condition = array( 
-              'EducationId' => $_POST['EducationId']
-            );
-            $table = 'R_Education';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-        }
+        // update function
+          $set = array( 
+          'Name'                     => htmlentities($_POST['Education'], ENT_QUOTES)
+          );
+          $condition = array( 
+            'EducationId' => $_POST['EducationId']
+          );
+          $table = 'R_Education';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+        // update function
+          $set2 = array( 
+          'Description'                     => htmlentities($_POST['Description'], ENT_QUOTES)
+          );
+          $condition2 = array( 
+            'EducationId' => $_POST['EducationId']
+          );
+          $table2 = 'R_Education';
+          $this->maintenance_model->updateFunction1($set2, $condition2, $table2);
+        // admin audits finalss
+          $TransactionNumber = 'EDU-'.sprintf('%06d', $_POST['EducationId']);
+          $auditLogsManager = 'Updated education #'.$TransactionNumber.' in education level setup.';
+          $auditAffectedEmployee = 'Updated education #'.$TransactionNumber.' in education level setup.';
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
       // notif
         $this->session->set_flashdata('alertTitle','Success!'); 
         $this->session->set_flashdata('alertText','Education Level details successfully updated!'); 
@@ -2379,7 +2316,6 @@ class admin_controller extends CI_Controller {
   function AddOccupation()
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $OccupationDetail = $this->admin_model->getOccupationDetails($_POST['OccupationId']);
     if ($_POST['FormType'] == 1) // add Occupation
     {
       $data = array(
@@ -2399,6 +2335,19 @@ class admin_controller extends CI_Controller {
           );
           $insertOccupationTable = 'R_Occupation';
           $this->maintenance_model->insertFunction($insertOccupation, $insertOccupationTable);
+        // get generated application id
+          $getData = array(
+            'table'                 => 'R_Occupation'
+            , 'column'              => 'OccupationId'
+            , 'CreatedBy'           => $EmployeeNumber
+          );
+          $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+        // admin audits finalss
+          $detail = $this->maintenance_model->selectSpecific('R_Occupation', 'OccupationId', $_POST['OccupationId']);
+          $TransactionNumber = 'OCC-'.sprintf('%06d', $generatedId['OccupationId']);
+          $auditLogsManager = 'Added occupation #'.$TransactionNumber.' in occupations setup.';
+          $auditAffectedEmployee = 'Added occupation #'.$TransactionNumber.' in occupations setup.';
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Occupation detail successfully recorded!'); 
@@ -2416,6 +2365,7 @@ class admin_controller extends CI_Controller {
     }
     else if($_POST['FormType'] == 2) // Edit Occupation 
     {
+      $OccupationDetail = $this->admin_model->getOccupationDetails($_POST['OccupationId']);
       $data = array(
         'Name'                     => htmlentities($_POST['Occupation'], ENT_QUOTES)
         , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
@@ -2426,14 +2376,6 @@ class admin_controller extends CI_Controller {
       {
         if($OccupationDetail['Name'] != htmlentities($_POST['Occupation'], ENT_QUOTES))
         {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$OccupationDetail['Name'].' to '.htmlentities($_POST['Occupation'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
           // update function
             $set = array( 
             'Name'                     => htmlentities($_POST['Occupation'], ENT_QUOTES)
@@ -2446,14 +2388,6 @@ class admin_controller extends CI_Controller {
         }
         if($OccupationDetail['Description'] != htmlentities($_POST['Description'], ENT_QUOTES))
         {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$OccupationDetail['Description'].' to '.htmlentities($_POST['Description'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
           // update function
             $set = array( 
             'Description'                     => htmlentities($_POST['Description'], ENT_QUOTES)
@@ -2464,11 +2398,16 @@ class admin_controller extends CI_Controller {
             $table = 'R_Occupation';
             $this->maintenance_model->updateFunction1($set, $condition, $table);
         }
-      // notif
-        $this->session->set_flashdata('alertTitle','Success!'); 
-        $this->session->set_flashdata('alertText','Occupation details successfully updated!'); 
-        $this->session->set_flashdata('alertType','success'); 
-        redirect('home/AddOccupation/');
+        // admin audits finalss
+          $TransactionNumber = 'OCC-'.sprintf('%06d', $_POST['OccupationId']);
+          $auditLogsManager = 'Updated details #'.$TransactionNumber.' in occupations setup.';
+          $auditAffectedEmployee = 'Updated details #'.$TransactionNumber.' in occupations setup.';
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
+        // notif
+          $this->session->set_flashdata('alertTitle','Success!'); 
+          $this->session->set_flashdata('alertText','Occupation details successfully updated!'); 
+          $this->session->set_flashdata('alertType','success'); 
+          redirect('home/AddOccupation/');
       }
       else // if existing
       {
@@ -2649,48 +2588,37 @@ class admin_controller extends CI_Controller {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $ExpenseDetail = $this->admin_model->getExpenseDetails($_POST['ExpenseId']);
     $DateExpense = date('Y-m-d');
+    $time = strtotime($_POST['DateExpense']);
+    $ExpenseDate = date('Y-m-d', $time);
     if ($_POST['FormType'] == 1) // add Expense
     {
-      $data = array(
-        'ExpenseTypeId'                   => htmlentities($_POST['Expense'], ENT_QUOTES)
-        , 'Amount'                        => htmlentities($_POST['Amount'], ENT_QUOTES)
-        , 'DateExpense'                   => htmlentities($DateExpense, ENT_QUOTES)
-
-      );
-      $query = $this->admin_model->countExpense($data);
-      print_r($query);
-      if($query == 0) // not existing
-      {
-        // insert Expense detail
-          $instertExpense = array(
-            'ExpenseTypeId'              => htmlentities($_POST['Expense'], ENT_QUOTES)
-            , 'Amount'                   => htmlentities($_POST['Amount'], ENT_QUOTES)
-            , 'DateExpense'              => htmlentities($DateExpense, ENT_QUOTES)
-            , 'CreatedBy'                => $EmployeeNumber
-          );
-          $insertExpenseTable = 'R_Expense';
-          $this->maintenance_model->insertFunction($instertExpense, $insertExpenseTable);
-        // add into audit table
-            $auditDetail = 'Added expense #' .$ExpenseDetail['ReferenceNo']. '  at the Finance Management';
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-        // notification
-          $this->session->set_flashdata('alertTitle','Success!'); 
-          $this->session->set_flashdata('alertText','Expense details successfully recorded!'); 
-          $this->session->set_flashdata('alertType','success'); 
-          redirect('home/AddExpense/'. $EmployeeId['EmployeeId']);
-      }
-      else
-      {
-        // notification
-          $this->session->set_flashdata('alertTitle','Warning!'); 
-          $this->session->set_flashdata('alertText','Expense details already existing!'); 
-          $this->session->set_flashdata('alertType','warning'); 
-          redirect('home/AddExpense/'. $EmployeeId['EmployeeId']);
-      }
+      // insert Expense detail
+        $instertExpense = array(
+          'ExpenseTypeId'              => htmlentities($_POST['Expense'], ENT_QUOTES)
+          , 'Amount'                   => htmlentities($_POST['Amount'], ENT_QUOTES)
+          , 'DateExpense'              => htmlentities($ExpenseDate, ENT_QUOTES)
+          , 'CreatedBy'                => $EmployeeNumber
+        );
+        $insertExpenseTable = 'R_Expense';
+        $this->maintenance_model->insertFunction($instertExpense, $insertExpenseTable);
+      // get generated application id
+        $getData = array(
+          'table'                 => 'R_Expense'
+          , 'column'              => 'ExpenseId'
+          , 'CreatedBy'           => $EmployeeNumber
+        );
+        $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+      // admin audits finalss
+        $detail = $this->maintenance_model->selectSpecific('R_Expense', 'ExpenseId', $generatedId['ExpenseId']);
+        $TransactionNumber = 'EXP-'.sprintf('%06d', $generatedId['ExpenseId']);
+        $auditLogsManager = 'Added expense #'.$TransactionNumber.' in expenses setup.';
+        $auditAffectedEmployee = 'Added expense #'.$TransactionNumber.' in expenses setup.';
+        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
+      // notification
+        $this->session->set_flashdata('alertTitle','Success!'); 
+        $this->session->set_flashdata('alertText','Expense details successfully recorded!'); 
+        $this->session->set_flashdata('alertType','success'); 
+        redirect('home/AddExpense/'. $EmployeeId['EmployeeId']);
     }
   }
 
@@ -2702,7 +2630,6 @@ class admin_controller extends CI_Controller {
     {
       $data = array(
         'Name'                     => htmlentities($_POST['ExpenseType'], ENT_QUOTES)
-        , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
       );
       $query = $this->admin_model->countExpenseType($data);
       print_r($query);
@@ -2716,6 +2643,19 @@ class admin_controller extends CI_Controller {
           );
           $insertExpenseTypeTable = 'R_ExpenseType';
           $this->maintenance_model->insertFunction($instertExpenseType, $insertExpenseTypeTable);
+        // get generated application id
+          $getData = array(
+            'table'                 => 'R_ExpenseType'
+            , 'column'              => 'ExpenseTypeId'
+            , 'CreatedBy'           => $EmployeeNumber
+          );
+          $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+        // admin audits finalss
+          $detail = $this->maintenance_model->selectSpecific('R_ExpenseType', 'ExpenseTypeId', $generatedId['ExpenseTypeId']);
+          $TransactionNumber = 'EXT-'.sprintf('%06d', $generatedId['ExpenseTypeId']);
+          $auditLogsManager = 'Added expense type #'.$TransactionNumber.' in types of expenses setup.';
+          $auditAffectedEmployee = 'Added expense type #'.$TransactionNumber.' in types of expenses setup.';
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Expense Type successfully recorded!'); 
@@ -2737,19 +2677,10 @@ class admin_controller extends CI_Controller {
         'Name'                     => htmlentities($_POST['ExpenseType'], ENT_QUOTES)
       );
       $query = $this->admin_model->countExpenseType($data);
-      print_r($query);
       if($query == 0)
       {
         if($ExpenseTypeDetail['ExpenseType'] != htmlentities($_POST['ExpenseType'], ENT_QUOTES))
         {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$ExpenseTypeDetail['ExpenseType'].' to '.htmlentities($_POST['ExpenseType'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
           // update function
             $set = array( 
             'Name'                     => htmlentities($_POST['ExpenseType'], ENT_QUOTES)
@@ -2762,14 +2693,6 @@ class admin_controller extends CI_Controller {
         }
         else if($ExpenseTypeDetail['Description'] != htmlentities($_POST['Description'], ENT_QUOTES))
         {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$ExpenseTypeDetail['Description'].' to '.htmlentities($_POST['Description'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
           // update function
             $set = array( 
             'Description'                     => htmlentities($_POST['Description'], ENT_QUOTES)
@@ -2780,6 +2703,12 @@ class admin_controller extends CI_Controller {
             $table = 'R_ExpenseType';
             $this->maintenance_model->updateFunction1($set, $condition, $table);
         }
+        // admin audits finalss
+          $detail = $this->maintenance_model->selectSpecific('R_ExpenseType', 'ExpenseTypeId', $_POST['ExpenseTypeId']);
+          $TransactionNumber = 'EXT-'.sprintf('%06d', $_POST['ExpenseTypeId']);
+          $auditLogsManager = 'Updated expense type #'.$TransactionNumber.' in types of expenses setup.';
+          $auditAffectedEmployee = 'Updated expense type #'.$TransactionNumber.' in types of expenses setup.';
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
       // notif
         $this->session->set_flashdata('alertTitle','Success!'); 
         $this->session->set_flashdata('alertText','Type of Expense details successfully updated!'); 
@@ -2800,7 +2729,6 @@ class admin_controller extends CI_Controller {
   function AddDepositType()
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $WithdrawalTypeDetail = $this->admin_model->getWithdrawalTypeDetails($_POST['WithdrawalTypeId']);
     if ($_POST['FormType'] == 1) // add WithdrawalType
     {
       $data = array(
@@ -2808,7 +2736,6 @@ class admin_controller extends CI_Controller {
         , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
       );
       $query = $this->admin_model->countWithdrawalType($data);
-      print_r($query);
       if($query == 0) // not existing
       {
         // insert Withdrawal Type detail
@@ -2819,9 +2746,22 @@ class admin_controller extends CI_Controller {
           );
           $insertWithdrawalTypeTable = 'R_WithdrawalType';
           $this->maintenance_model->insertFunction($instertWithdrawalType, $insertWithdrawalTypeTable);
+        // get generated application id
+          $getData = array(
+            'table'                 => 'R_WithdrawalType'
+            , 'column'              => 'WithdrawalTypeId'
+            , 'CreatedBy'           => $EmployeeNumber
+          );
+          $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+        // admin audits finalss
+          $detail = $this->maintenance_model->selectSpecific('R_WithdrawalType', 'WithdrawalTypeId', $generatedId['WithdrawalTypeId']);
+          $TransactionNumber = 'DET-'.sprintf('%06d', $generatedId['WithdrawalTypeId']);
+          $auditLogsManager = 'Added deposit type #'.$TransactionNumber.' in types of deposit setup.';
+          $auditAffectedEmployee = 'Added deposit type #'.$TransactionNumber.' in types of deposit setup.';
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
-          $this->session->set_flashdata('alertText','Withdrawal Type successfully recorded!'); 
+          $this->session->set_flashdata('alertText','Withdrawal type successfully recorded!'); 
           $this->session->set_flashdata('alertType','success'); 
           redirect('home/AddDepositType/'. $EmployeeId['EmployeeId']);
       }
@@ -2829,13 +2769,14 @@ class admin_controller extends CI_Controller {
       {
         // notification
           $this->session->set_flashdata('alertTitle','Warning!'); 
-          $this->session->set_flashdata('alertText','Withdrawal Type already existing!'); 
+          $this->session->set_flashdata('alertText','Withdrawal type already existing!'); 
           $this->session->set_flashdata('alertType','warning'); 
           redirect('home/AddDepositType');
       }
     }
     else if($_POST['FormType'] == 2) // Edit Withdrawal Type 
     {
+      $WithdrawalTypeDetail = $this->admin_model->getWithdrawalTypeDetails($_POST['WithdrawalTypeId']);
       $data = array(
         'Name'                     => htmlentities($_POST['WithdrawalType'], ENT_QUOTES)
       );
@@ -2845,14 +2786,6 @@ class admin_controller extends CI_Controller {
       {
         if($WithdrawalTypeDetail['WithdrawalType'] != htmlentities($_POST['WithdrawalType'], ENT_QUOTES))
         {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$WithdrawalTypeDetail['WithdrawalType'].' to '.htmlentities($_POST['WithdrawalType'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
           // update function
             $set = array( 
             'Name'                     => htmlentities($_POST['WithdrawalType'], ENT_QUOTES)
@@ -2865,14 +2798,6 @@ class admin_controller extends CI_Controller {
         }
         else if($WithdrawalTypeDetail['Description'] != htmlentities($_POST['Description'], ENT_QUOTES))
         {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$WithdrawalTypeDetail['Description'].' to '.htmlentities($_POST['Description'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
           // update function
             $set = array( 
             'Description'                     => htmlentities($_POST['Description'], ENT_QUOTES)
@@ -2883,9 +2808,14 @@ class admin_controller extends CI_Controller {
             $table = 'R_WithdrawalType';
             $this->maintenance_model->updateFunction1($set, $condition, $table);
         }
+        // admin audits finalss
+          $TransactionNumber = 'DET-'.sprintf('%06d', $_POST['WithdrawalTypeId']);
+          $auditLogsManager = 'Updated deposit type #'.$TransactionNumber.' in types of deposit setup.';
+          $auditAffectedEmployee = 'Updated deposit type #'.$TransactionNumber.' in types of deposit setup.';
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
       // notif
         $this->session->set_flashdata('alertTitle','Success!'); 
-        $this->session->set_flashdata('alertText','Type of Withdrawal details successfully updated!'); 
+        $this->session->set_flashdata('alertText','Type of withdrawal details successfully updated!'); 
         $this->session->set_flashdata('alertType','success'); 
         redirect('home/AddDepositType/');
       }
@@ -2893,7 +2823,7 @@ class admin_controller extends CI_Controller {
       {
         // notif
         $this->session->set_flashdata('alertTitle','Warning!'); 
-        $this->session->set_flashdata('alertText','Type of Withdrawal details already existing!'); 
+        $this->session->set_flashdata('alertText','Type of withdrawal details already existing!'); 
         $this->session->set_flashdata('alertType','warning'); 
         redirect('home/AddDepositType/');
       }
@@ -2904,28 +2834,41 @@ class admin_controller extends CI_Controller {
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $AssignedBranch = $this->session->userdata('BranchId');
-    $WithdrawalDetail = $this->admin_model->getWithdrawalDetails($_POST['WithdrawalId']);
     $DateWithdrawal = date('Y-m-d');
     if ($_POST['FormType'] == 1) // add Withdrawal
     {
+      $time = strtotime($_POST['DateWithdrawal']);
+      $newformat = date('Y-m-d', $time);
       $data = array(
         'WithdrawalTypeId'                     => htmlentities($_POST['Withdrawal'], ENT_QUOTES)
         , 'Amount'                             => htmlentities($_POST['Amount'], ENT_QUOTES)
-        , 'DateWithdrawal'                     => htmlentities($DateWithdrawal, ENT_QUOTES)
+        , 'DateWithdrawal'                     => htmlentities($newformat, ENT_QUOTES)
       );
       $query = $this->admin_model->countWithdrawal($data);
-      print_r($query);
       if($query == 0) // not existing
       {
         // insert Withdrawal detail
           $instertWithdrawal = array(
             'WithdrawalTypeId'                => htmlentities($_POST['Withdrawal'], ENT_QUOTES)
             , 'Amount'                        => htmlentities($_POST['Amount'], ENT_QUOTES)
-            , 'DateWithdrawal'                => htmlentities($DateWithdrawal, ENT_QUOTES)
+            , 'DateWithdrawal'                => htmlentities($newformat, ENT_QUOTES)
             , 'CreatedBy'                     => $EmployeeNumber
           );
           $insertWithdrawalTable = 'R_Withdrawal';
           $this->maintenance_model->insertFunction($instertWithdrawal, $insertWithdrawalTable);
+        // get generated application id
+          $getData = array(
+            'table'                 => 'R_Withdrawal'
+            , 'column'              => 'WithdrawalId'
+            , 'CreatedBy'           => $EmployeeNumber
+          );
+          $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+        // admin audits finalss
+          $detail = $this->maintenance_model->selectSpecific('R_Withdrawal', 'WithdrawalId', $generatedId['WithdrawalId']);
+          $TransactionNumber = 'DEP-'.sprintf('%06d', $generatedId['WithdrawalId']);
+          $auditLogsManager = 'Added deposit #'.$TransactionNumber.' in deposit finance management.';
+          $auditAffectedEmployee = 'Added deposit #'.$TransactionNumber.' in deposit finance management.';
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Withdrawal details successfully recorded!'); 
@@ -2943,16 +2886,11 @@ class admin_controller extends CI_Controller {
     }
     else if($_POST['FormType'] == 2) // Edit Withdrawals 
     {
+      $WithdrawalDetail = $this->admin_model->getWithdrawalDetails($_POST['WithdrawalId']);
+      $time = strtotime($_POST['DateWithdrawal']);
+      $newformat = date('Y-m-d', $time);
       if($WithdrawalDetail['WithdrawalTypeId'] != htmlentities($_POST['Withdrawal'], ENT_QUOTES))
       {
-        // add into audit table
-          $auditDetail = 'Updated details of  '.$WithdrawalDetail['WithdrawalTypeId'].' to '.htmlentities($_POST['Withdrawal'], ENT_QUOTES);
-          $insertAudit = array(
-            'Description' => $auditDetail,
-            'CreatedBy' => $EmployeeNumber
-          );
-          $auditTable = 'R_Logs';
-          $this->maintenance_model->insertFunction($insertAudit, $auditTable);
         // update function
           $set = array( 
           'WithdrawalTypeId'                     => htmlentities($_POST['Withdrawal'], ENT_QUOTES)
@@ -2963,16 +2901,8 @@ class admin_controller extends CI_Controller {
           $table = 'R_Withdrawal';
           $this->maintenance_model->updateFunction1($set, $condition, $table);
       }
-      else if($WithdrawalDetail['Amount'] != htmlentities($_POST['Amount'], ENT_QUOTES))
+      if($WithdrawalDetail['Amount'] != htmlentities($_POST['Amount'], ENT_QUOTES))
       {
-        // add into audit table
-          $auditDetail = 'Updated details of  '.$WithdrawalDetail['Amount'].' to '.htmlentities($_POST['Amount'], ENT_QUOTES);
-          $insertAudit = array(
-            'Description' => $auditDetail,
-            'CreatedBy' => $EmployeeNumber
-          );
-          $auditTable = 'R_Logs';
-          $this->maintenance_model->insertFunction($insertAudit, $auditTable);
         // update function
           $set = array( 
           'Amount'                     => htmlentities($_POST['Amount'], ENT_QUOTES)
@@ -2983,19 +2913,11 @@ class admin_controller extends CI_Controller {
           $table = 'R_Withdrawal';
           $this->maintenance_model->updateFunction1($set, $condition, $table);
       }
-      else if($WithdrawalDetail['DateWithdrawal'] != htmlentities($_POST['DateWithdrawal'], ENT_QUOTES))
+      if($WithdrawalDetail['rawDateWithdrawal'] != htmlentities($newformat, ENT_QUOTES))
       {
-        // add into audit table
-          $auditDetail = 'Updated details of  '.$WithdrawalDetail['DateWithdrawal'].' to '.htmlentities($_POST['DateWithdrawal'], ENT_QUOTES);
-          $insertAudit = array(
-            'Description' => $auditDetail,
-            'CreatedBy' => $EmployeeNumber
-          );
-          $auditTable = 'R_Logs';
-          $this->maintenance_model->insertFunction($insertAudit, $auditTable);
         // update function
           $set = array( 
-          'DateWithdrawal'                     => htmlentities($_POST['DateWithdrawal'], ENT_QUOTES)
+          'DateWithdrawal'                     => htmlentities($newformat, ENT_QUOTES)
           );
           $condition = array( 
             'WithdrawalId' => $_POST['WithdrawalId']
@@ -3003,6 +2925,11 @@ class admin_controller extends CI_Controller {
           $table = 'R_Withdrawal';
           $this->maintenance_model->updateFunction1($set, $condition, $table);
       }
+      // admin audits finalss
+        $TransactionNumber = 'DEP-'.sprintf('%06d', $_POST['WithdrawalId']);
+        $auditLogsManager = 'Updated deposit #'.$TransactionNumber.' in deposit finance management.';
+        $auditAffectedEmployee = 'Updated deposit #'.$TransactionNumber.' in deposit finance management.';
+        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
       // notif
         $this->session->set_flashdata('alertTitle','Success!'); 
         $this->session->set_flashdata('alertText','Withdrawal details successfully updated!'); 
@@ -3166,8 +3093,10 @@ class admin_controller extends CI_Controller {
       , 'updateType' => htmlentities($this->input->post('updateType'), ENT_QUOTES)
       , 'tableType' => htmlentities($this->input->post('tableType'), ENT_QUOTES)
     );
-
-    $query = $this->admin_model->updateStatus($input);
+    // $query = $this->admin_model->updateStatus($input);
+    $output = $this->admin_model->updateStatus($input);
+    $this->output->set_output(print(json_encode($output)));
+    exit();
   }
 
   function truncateBranchDB()
@@ -3225,7 +3154,7 @@ class admin_controller extends CI_Controller {
     $this->db->truncate('r_borrowers');
     $this->db->truncate('r_borrowerstatus');
     $this->db->truncate('r_borrower_has_status');
-    $this->db->truncate('r_branch');
+    $this->db->truncate('r_branches');
     $this->db->truncate('r_capital');
     $this->db->truncate('r_category');
     $this->db->truncate('r_charges');
@@ -3304,38 +3233,52 @@ class admin_controller extends CI_Controller {
       $this->maintenance_model->insertFunction($insertData4, $auditTable);
     // borrower status
       $insertDataBS1 = array(
-        'Name' => 'Active',
-        'BranchId' => 1,
+        'Name'          => 'Active',
+        'BranchId'      => 1,
+        'IsApprovable'  => 0,
       );
       $insertDataBS2 = array(
         'Name' => 'Deactivated',
         'BranchId' => 1,
+        'IsApprovable'  => 0,
       );
-      $insertDataBS3 = array(
-        'Name' => 'Approved',
-        'BranchId' => 1,
-      );
-      $insertDataBS4 = array(
-        'Name' => 'Disapproved',
-        'BranchId' => 1,
-      );
-      $insertDataBS4 = array(
-        'Name' => 'For Revision',
-        'BranchId' => 1,
-      );
+      // $insertDataBS3 = array(
+      //   'Name' => 'Approved',
+      //   'BranchId' => 1,
+      //   'IsApprovable'  => 1,
+      // );
+      // $insertDataBS4 = array(
+      //   'Name' => 'Disapproved',
+      //   'BranchId' => 1,
+      //   'IsApprovable'  => 1,
+      // );
+      // $insertDataBS5 = array(
+      //   'Name' => 'For Revision',
+      //   'BranchId' => 1,
+      //   'IsApprovable'  => 1,
+      // );
       $auditTableBS = 'r_borrowerstatus';
       $this->maintenance_model->insertFunction($insertDataBS1, $auditTableBS);
       $this->maintenance_model->insertFunction($insertDataBS2, $auditTableBS);
-      $this->maintenance_model->insertFunction($insertDataBS3, $auditTableBS);
-      $this->maintenance_model->insertFunction($insertDataBS4, $auditTableBS);
+      // $this->maintenance_model->insertFunction($insertDataBS3, $auditTableBS);
+      // $this->maintenance_model->insertFunction($insertDataBS4, $auditTableBS);
+      // $this->maintenance_model->insertFunction($insertDataBS5, $auditTableBS);
     // branch
       $insertDataB = array(
         'Name' => 'Taytay',
         'Code' => 'TAY',
         'BranchId' => 1,
       );
-      $auditTableB = 'r_branch';
+      $auditTableB = 'r_branches';
       $this->maintenance_model->insertFunction($insertDataB, $auditTableB);
+    // branch
+      $insertDataP = array(
+        'Name' => 'Owner',
+        'CreatedBy' => '000000',
+        'BranchId' => 1,
+      );
+      $auditTableP = 'r_position';
+      $this->maintenance_model->insertFunction($insertDataP, $auditTableP);
     // employee
       $insertDataE = array(
         'FirstName' => 'GIA TECH',
@@ -3349,22 +3292,36 @@ class admin_controller extends CI_Controller {
         'FirstName' => 'Myrna',
         'LastName' => 'Biliber',
         'EmployeeNumber' => '000002',
+        'Nationality' => 1,
+        'Sex' => 1,
+        'CivilStatus' => 1,
+        'Salutation' => 3,
+        'PositionId' => 1,
+        'ManagerId' => 1,
         'StatusId' => 2,
       );
       $auditTablee2 = 'r_employee';
       $this->maintenance_model->insertFunction($insertDataE2, $auditTablee2);
     // branch has employee
       $insertDataBHE = array(
-        'EmployeeNumber' => '0000002',
+        'EmployeeNumber' => '000000',
         'BranchId' => 1,
       );
       $auditTableBHE = 'branch_has_employee';
       $insertDataBHE2 = array(
-        'EmployeeNumber' => '0000002',
+        'EmployeeNumber' => '000002',
         'BranchId' => 1,
+        'ManagerBranchId' => 1,
       );
       $this->maintenance_model->insertFunction($insertDataBHE, $auditTableBHE);
       $this->maintenance_model->insertFunction($insertDataBHE2, $auditTableBHE);
+    // branch has manager
+      $insertDataBHE3 = array(
+        'EmployeeNumber' => '000002',
+        'BranchId' => 1,
+      );
+      $auditTableBHE3 = 'branch_has_manager';
+      $this->maintenance_model->insertFunction($insertDataBHE3, $auditTableBHE3);
     // r_loanundertaking
       $insertDataLU = array(
         'Description' => 'I hereby certify that all information herein, including all documents submitted along with this application, are genuine, true and correct. I authorize the Creditor and / or its representative to verify any and all information furnished by me, including any credit credit transactions with other institutions.',
@@ -3643,5 +3600,42 @@ class admin_controller extends CI_Controller {
     );
     $auditTable2 = 'employee_has_notifications';
     $this->maintenance_model->insertFunction($insertEmpLog, $auditTable2);
+  }
+
+  function finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $ManagerId, $AffectedEmployeeNumber, $auditLoanDets, $ApplicationId, $independentTable, $independentColumn)
+  {
+    $CreatedBy = $this->session->userdata('EmployeeNumber');
+    $DateNow = date("Y-m-d H:i:s");
+    $insertMainLog = array(
+      'Description'       => $auditLogsManager
+      , 'CreatedBy'       => $CreatedBy
+    );
+    $auditTable1 = 'R_Logs';
+    $this->maintenance_model->insertFunction($insertMainLog, $auditTable1);
+    $insertManagerAudit = array(
+      'Description'         => $auditLogsManager
+      , 'ManagerBranchId'   => $ManagerId
+      , 'CreatedBy'         => $CreatedBy
+    );
+    $auditTable3 = 'manager_has_notifications';
+    $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable3);
+    $insertEmpLog = array(
+      'Description'       => $auditAffectedEmployee
+      , 'EmployeeNumber'  => $AffectedEmployeeNumber
+      , 'CreatedBy'       => $CreatedBy
+    );
+    $auditTable2 = 'employee_has_notifications';
+    $this->maintenance_model->insertFunction($insertEmpLog, $auditTable2);
+
+    if($auditLoanDets != null)
+    {
+      $insertApplicationLog = array(
+        'Description'       => $auditLoanDets
+        , ''.$independentColumn.''   => $ApplicationId
+        , 'CreatedBy'       => $CreatedBy
+      );
+      $auditLoanApplicationTable = $independentTable;
+      $this->maintenance_model->insertFunction($insertApplicationLog, $auditLoanApplicationTable);
+    }
   }
 }

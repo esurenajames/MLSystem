@@ -6,6 +6,7 @@
     <th>Description</th>
     <th>Created By</th>
     <th>Date Created</th>
+    <th>Date Created</th>
   </tr>
   </thead>
   <tbody>
@@ -19,6 +20,7 @@
         echo "<td>".$value['Description']."</td>";
         echo "<td>".$value['LastName'].", ".$value['FirstName']." ".$value['MiddleInitial']."</td>";
         echo "<td>".$value['DateCreated']."</td>";
+        echo "<td>".$value['rawDateCreated']."</td>";
         echo "</tr>";
       }
     ?>

@@ -212,8 +212,8 @@ class employee_model extends CI_Model
                                                 , DATE_FORMAT(EMP.DateOfBirth, '%d %b %Y') as DateOfBirth
                                                 , DATE_FORMAT(EMP.DateHired, '%d %b %Y') as DateHired
                                                 , EMP.StatusId
-                                                , SS.Description as StatusDescription
-
+                                                , SS.Name as StatusDescription
+                                                , SS.EmployeeStatusId as EmployeeStatusId
 
                                                 , S.SalutationId
                                                 , EMP.MiddleName
@@ -249,11 +249,11 @@ class employee_model extends CI_Model
                                                     ON P.PositionId = EMP.PositionId
                                                   INNER JOIN branch_has_employee BE
                                                     ON BE.EmployeeNumber = EMP.EmployeeNumber
-                                                  INNER JOIN R_Status SS
-                                                    ON SS.StatusId = EMP.StatusId
+                                                  INNER JOIN Employee_has_status SS
+                                                    ON SS.EmployeeStatusId = EMP.StatusId
                                                   LEFT JOIN branch_has_manager BM
                                                     ON BM.ManagerBranchId = BE.ManagerBranchId
-                                                  LEFT JOIN r_branch B
+                                                  LEFT JOIN r_branches B
                                                     ON B.BranchId = BE.BranchId
                                                   LEFT JOIN r_employee MNG
                                                     ON MNG.EmployeeNumber = BM.EmployeeNumber
@@ -290,7 +290,7 @@ class employee_model extends CI_Model
                                                 , acronym(EMP.MiddleName) as MiddleInitial
                                                 , EMP.LastName
                                                 , EMP.ExtName
-                                                , PP.FileName
+                                                , (SELECT FileName FROM r_ProfilePicture WHERE EmployeeNumber = EMP.EmployeeNumber AND StatusId = 1) as FileName
                                                 , SX.Name as Sex
                                                 , N.Description as Nationality
                                                 , C.name as CivilStatus
@@ -322,13 +322,10 @@ class employee_model extends CI_Model
                                                     ON BE.EmployeeNumber = EMP.EmployeeNumber
                                                   LEFT JOIN branch_has_manager BM
                                                     ON BM.ManagerBranchId = BE.ManagerBranchId
-                                                  LEFT JOIN r_branch B
+                                                  LEFT JOIN r_branches B
                                                     ON B.BranchId = BE.BranchId
                                                   LEFT JOIN r_employee MNG
                                                     ON MNG.EmployeeNumber = BM.EmployeeNumber
-                                                  LEFT JOIN r_ProfilePicture PP
-                                                    ON PP.EmployeeNumber = EMP.EmployeeNumber
-                                                    AND PP.StatusId = 1
                                                   WHERE EMP.EmployeeNumber = '$Id'
 
       ");
@@ -351,7 +348,7 @@ class employee_model extends CI_Model
                                                     ON BM.ManagerBranchId = BE.ManagerBranchId
                                                   LEFT JOIN r_employee MEMP
                                                     ON MEMP.EmployeeNumber = BM.EmployeeNumber
-                                                  INNER JOIN r_branch B
+                                                  INNER JOIN r_branches B
                                                     ON B.BranchId = BM.BranchId
                                                         WHERE EMP.EmployeeNumber = '$Id'
       ");
@@ -383,6 +380,7 @@ class employee_model extends CI_Model
                                                 , EMP.CreatedBy
                                                 , B.Name as Branch
                                                 , B.BranchId
+                                                , SS.Name as StatusDescription
                                                 FROM r_Employee EMP
                                                   INNER JOIN R_Salutation S
                                                     ON S.SalutationId = EMP.Salutation
@@ -394,11 +392,14 @@ class employee_model extends CI_Model
                                                     ON C.CivilStatusId = EMP.CivilStatus
                                                   INNER JOIN Branch_has_Employee BE
                                                     ON BE.EmployeeNumber = EMP.EmployeeNumber
-                                                  INNER JOIN R_Branch B
+                                                  INNER JOIN R_Branches B
                                                     ON B.BranchId = BE.BranchId
+                                                  INNER JOIN Employee_has_status SS
+                                                    ON SS.EmployeeStatusId = EMP.StatusId
                                                     WHERE EMP.EmployeeNumber != '000000'
                                                     AND BE.BranchId = $AssignedBranchId
-                                                      ORDER BY EMP.LastName ASC
+                                                    AND EMP.EmployeeNumber != '$EmployeeNumber'
+                                                    ORDER BY EMP.LastName ASC
       ");
       $data = $query_string->result_array();
       return $data;
@@ -450,7 +451,6 @@ class employee_model extends CI_Model
 
     function updateEmail($input)
     {
-      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
       $CreatedBy = $this->session->userdata('EmployeeNumber');
       $DateNow = date("Y-m-d H:i:s");
 
@@ -472,7 +472,7 @@ class employee_model extends CI_Model
           // update status
             $set = array( 
               'StatusId' => $input['updateType'],
-              'UpdatedBy' => $EmployeeNumber,
+              'UpdatedBy' => $CreatedBy,
               'DateUpdated' => $DateNow,
             );
             $condition = array( 
@@ -480,31 +480,11 @@ class employee_model extends CI_Model
             );
             $table = 'employee_has_address';
             $this->maintenance_model->updateFunction1($set, $condition, $table);
-          // insert into logs
-            if($input['updateType'] == 1)
-            {
-              $Description = 'Re-activated address record #ADD-' .$AddressTransactionNumber['Id']. ' of employee #'.$EmployeeDetail['EmployeeNumber']; // main log
-              $EmployeeNotification = 'Re-activated address record #ADD-' .$AddressTransactionNumber['Id']. '.'; // employee notification
-            }
-            else if($input['updateType'] == 0)
-            {
-              $Description = 'Deactivated address record #ADD-' .$AddressTransactionNumber['Id']. ' of employee #'.$EmployeeDetail['EmployeeNumber']; // main log
-              $EmployeeNotification = 'Deactivated address record #ADD-' .$AddressTransactionNumber['Id']. '.'; // employee notification
-            }
-            $data2 = array(
-              'Description'   => $Description,
-              'CreatedBy'     => $EmployeeNumber,
-              'DateCreated'   => $DateNow
-            );
-            $this->db->insert('R_Logs', $data2);
-            $data3 = array(
-              'Description'         => $EmployeeNotification,
-              'CreatedBy'           => $EmployeeNumber,
-              'EmployeeNumber'      => $EmployeeDetail['EmployeeNumber'],
-              'DateCreated'         => $DateNow
-            );
-            $this->db->insert('employee_has_notifications', $data3);
-            $this->db->insert('Manager_has_notifications', $data2);
+          // admin audits finals
+            $TransactionNumber = 'ADD-' .$AddressTransactionNumber['Id'];
+            $auditLogsManager = 'Deactivated address record #'.$TransactionNumber.' for employee #'.$EmployeeDetail['EmployeeNumber'].' in address tab.';
+            $auditAffectedEmployee = 'Deactivated address record #'.$TransactionNumber.' in address tab.';
+            $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeDetail['EmployeeNumber']);
         }
         else // set as primary address
         {
@@ -531,30 +511,11 @@ class employee_model extends CI_Model
             );
             $table = 'employee_has_address';
             $this->maintenance_model->updateFunction1($set, $condition, $table);
-          // insert into logs
-            $ManagerBranchId = $this->employee_model->getEmployeeDetails($EmployeeDetail['EmployeeId']);
-            $Description = 'Set address record #ADD-' .$AddressTransactionNumber['Id']. ' of employee #'.$EmployeeDetail['EmployeeNumber'] . ' as primary.'; // main log
-            $EmployeeNotification = 'Set address record #ADD-' .$AddressTransactionNumber['Id']. ' as primary address.';
-            $insertEmpLog = array(
-              'Description'       => $EmployeeNotification
-              , 'EmployeeNumber'  => $EmployeeDetail['EmployeeNumber']
-              , 'CreatedBy'       => $EmployeeNumber
-            );
-            $insertMainLog = array(
-              'Description'       => $Description
-              , 'CreatedBy'       => $EmployeeNumber
-            );
-            $insertManagerAudit = array(
-              'Description'         => $Description
-              , 'ManagerBranchId'   => $ManagerBranchId['ManagerBranchId']
-              , 'CreatedBy'         => $EmployeeNumber
-            );
-            $auditTable2 = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertMainLog, $auditTable2);
-            $auditTable3 = 'employee_has_notifications';
-            $this->maintenance_model->insertFunction($insertEmpLog, $auditTable3);
-            $auditTable4 = 'manager_has_notifications';
-            $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable4);
+          // admin audits finals
+            $TransactionNumber = 'ADD-' .$AddressTransactionNumber['Id'];
+            $auditLogsManager = 'Set address record #'.$TransactionNumber.' for employee #'.$EmployeeDetail['EmployeeNumber'].' in address tab as primary address.';
+            $auditAffectedEmployee = 'Set address record #'.$TransactionNumber.' in address tab as primary address.';
+            $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeDetail['EmployeeNumber']);
         }
       }
       else if($input['tableType'] == 'EmployeeEmail')
@@ -566,7 +527,7 @@ class employee_model extends CI_Model
                                                         ON E.EmployeeNumber = EE.EmployeeNumber
                                                       WHERE EE.EmployeeEmailId = ".$input['Id']."
         ")->row_array();
-        $TransactionNumber = $this->db->query("SELECT LPAD(".$input['Id'].", 6, 0) as Id")->row_array();
+        $TransactionNumbers = $this->db->query("SELECT LPAD(".$input['Id'].", 6, 0) as Id")->row_array();
         if($input['updateType'] == 1 || $input['updateType'] == 0) // deactivate and re-activate email of employee
         {
           // update status
@@ -580,39 +541,19 @@ class employee_model extends CI_Model
             );
             $table = 'employee_has_emails';
             $this->maintenance_model->updateFunction1($set, $condition, $table);
-          // insert into logs
+          // admin audits finals
+            $TransactionNumber = 'EA-' .$TransactionNumbers['Id'];
             if($input['updateType'] == 1)
             {
-              $Description = 'Re-activated email record #EA-' .$TransactionNumber['Id']. ' of employee #'.$EmployeeDetail['EmployeeNumber']; // main log
-              $EmployeeNotification = 'Re-activated email record #EA-' .$TransactionNumber['Id']; // employee notification
+              $auditLogsManager = 'Re-activated email address record #'.$TransactionNumber.' for employee #'.$EmployeeDetail['EmployeeNumber'].' in email address tab.';
+              $auditAffectedEmployee = 'Re-activated email address record #'.$TransactionNumber.' in email address tab.';
             }
-            else if($input['updateType'] == 0)
+            else
             {
-              $Description = 'Deactivated email record #EA-' .$TransactionNumber['Id']. ' of employee #'.$EmployeeDetail['EmployeeNumber']; // main log
-              $EmployeeNotification = 'Deactivated email record #EA-' .$TransactionNumber['Id']; // employee notification
+              $auditLogsManager = 'Deactivated email address record #'.$TransactionNumber.' for employee #'.$EmployeeDetail['EmployeeNumber'].' in email address tab.';
+              $auditAffectedEmployee = 'Deactivated email address record #'.$TransactionNumber.' in email address tab.';
             }
-          // insert into logs
-            $ManagerBranchId = $this->employee_model->getEmployeeDetails($EmployeeDetail['EmployeeId']);
-            $insertEmpLog = array(
-              'Description'       => $EmployeeNotification
-              , 'EmployeeNumber'  => $EmployeeDetail['EmployeeNumber']
-              , 'CreatedBy'       => $EmployeeNumber
-            );
-            $insertMainLog = array(
-              'Description'       => $Description
-              , 'CreatedBy'       => $EmployeeNumber
-            );
-            $insertManagerAudit = array(
-              'Description'         => $Description
-              , 'ManagerBranchId'   => $ManagerBranchId['ManagerBranchId']
-              , 'CreatedBy'         => $EmployeeNumber
-            );
-            $auditTable2 = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertMainLog, $auditTable2);
-            $auditTable3 = 'employee_has_notifications';
-            $this->maintenance_model->insertFunction($insertEmpLog, $auditTable3);
-            $auditTable4 = 'manager_has_notifications';
-            $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable4);
+            $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeDetail['EmployeeNumber']);
         }
         else // set as primary email
         {
@@ -639,33 +580,14 @@ class employee_model extends CI_Model
             );
             $table = 'employee_has_emails';
             $this->maintenance_model->updateFunction1($set, $condition, $table);
-          // insert into logs
-            $Description = 'Set email record #EA-' .$TransactionNumber['Id']. ' of employee #'.$EmployeeDetail['EmployeeNumber'] . ' as primary.';
-            $EmployeeNotification = 'Set email record #EA-' .$TransactionNumber['Id']. ' as primary email address.';
-            $ManagerBranchId = $this->employee_model->getEmployeeDetails($EmployeeDetail['EmployeeId']);
-            $insertEmpLog = array(
-              'Description'       => $EmployeeNotification
-              , 'EmployeeNumber'  => $EmployeeDetail['EmployeeNumber']
-              , 'CreatedBy'       => $EmployeeNumber
-            );
-            $insertMainLog = array(
-              'Description'       => $Description
-              , 'CreatedBy'       => $EmployeeNumber
-            );
-            $insertManagerAudit = array(
-              'Description'         => $Description
-              , 'ManagerBranchId'   => $ManagerBranchId['ManagerBranchId']
-              , 'CreatedBy'         => $EmployeeNumber
-            );
-            $auditTable2 = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertMainLog, $auditTable2);
-            $auditTable3 = 'employee_has_notifications';
-            $this->maintenance_model->insertFunction($insertEmpLog, $auditTable3);
-            $auditTable4 = 'manager_has_notifications';
-            $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable4);
+          // admin audits finals
+            $TransactionNumber = 'EA-' .$TransactionNumbers['Id'];
+            $auditLogsManager = 'Set email address record #'.$TransactionNumber.' for employee #'.$EmployeeDetail['EmployeeNumber'].' in email address tab as primary email address.';
+            $auditAffectedEmployee = 'Set email address record #'.$TransactionNumber.' in email address tab as primary email address.';
+            $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeDetail['EmployeeNumber']);
         }
       }
-      else if($input['tableType'] == 'EmployeeId')
+      else if($input['tableType'] == 'EmployeeId') // employee identification
       {
         $EmployeeDetail = $this->db->query("SELECT  EI.EmployeeNumber 
                                                     , EmployeeId
@@ -674,7 +596,7 @@ class employee_model extends CI_Model
                                                         ON EI.EmployeeNumber = I.EmployeeNumber
                                                       WHERE EI.EmployeeIdentificationId = ".$input['Id']."
         ")->row_array();
-        $TransactionNumber = $this->db->query("SELECT LPAD(".$input['Id'].", 6, 0) as Id")->row_array();
+        $TransactionNumbers = $this->db->query("SELECT LPAD(".$input['Id'].", 6, 0) as Id")->row_array();
         if($input['updateType'] == 1 || $input['updateType'] == 0) // deactivate and re-activate email of employee
         {
           // update status
@@ -688,38 +610,11 @@ class employee_model extends CI_Model
             );
             $table = 'employee_has_identifications';
             $this->maintenance_model->updateFunction1($set, $condition, $table);
-          // insert into logs
-            if($input['updateType'] == 1)
-            {
-              $Description = 'Re-activated identification record #ID-'.$TransactionNumber['Id'].' of employee #'.$EmployeeDetail['EmployeeNumber'];
-              $EmployeeNotification = 'Re-activated identification record #ID-'.$TransactionNumber['Id'].'.';
-            }
-            else if($input['updateType'] == 0)
-            {
-              $Description = 'Deactivated identification record #ID-'.$TransactionNumber['Id'].' of employee #'.$EmployeeDetail['EmployeeNumber'].'.';
-              $EmployeeNotification = 'Deactivated identification record #ID-'.$TransactionNumber['Id'].'.';
-            }
-            $ManagerBranchId = $this->employee_model->getEmployeeDetails($EmployeeDetail['EmployeeId']);
-            $insertEmpLog = array(
-              'Description'       => $EmployeeNotification
-              , 'EmployeeNumber'  => $EmployeeDetail['EmployeeNumber']
-              , 'CreatedBy'       => $EmployeeNumber
-            );
-            $insertMainLog = array(
-              'Description'       => $Description
-              , 'CreatedBy'       => $EmployeeNumber
-            );
-            $insertManagerAudit = array(
-              'Description'         => $Description
-              , 'ManagerBranchId'   => $ManagerBranchId['ManagerBranchId']
-              , 'CreatedBy'         => $EmployeeNumber
-            );
-            $auditTable2 = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertMainLog, $auditTable2);
-            $auditTable3 = 'employee_has_notifications';
-            $this->maintenance_model->insertFunction($insertEmpLog, $auditTable3);
-            $auditTable4 = 'manager_has_notifications';
-            $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable4);
+          // admin audits finals
+            $TransactionNumber = 'ID-' .$TransactionNumbers['Id'];
+            $auditLogsManager = 'Deactivated identification #'.$TransactionNumber.' for employee #'.$EmployeeDetail['EmployeeNumber'].' in identification tab.';
+            $auditAffectedEmployee = 'Deactivated identification #'.$TransactionNumber.' in identification tab.';
+            $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeDetail['EmployeeNumber']);
         }
       }
       else if($input['tableType'] == 'EmployeeContact')
@@ -734,8 +629,8 @@ class employee_model extends CI_Model
                                                       ON EMP.EmployeeNumber = EC.EmployeeNumber
                                                     WHERE EC.EmployeeContactId = ".$input['Id']."
         ")->row_array();
-        $TransactionNumber = $this->db->query("SELECT LPAD(".$input['Id'].", 6, 0) as Id")->row_array();
-        if($input['updateType'] == 1 || $input['updateType'] == 0) // deactivate and re-activate email of employee
+        $TransactionNumbers = $this->db->query("SELECT LPAD(".$input['Id'].", 6, 0) as Id")->row_array();
+        if($input['updateType'] == 1 || $input['updateType'] == 0) // deactivate
         {
           // update status
             $set = array(
@@ -748,38 +643,19 @@ class employee_model extends CI_Model
             );
             $table = 'employee_has_contactnumbers';
             $this->maintenance_model->updateFunction1($set, $condition, $table);
-          // insert into logs
-            if($input['updateType'] == 1)
+          // admin audits finals
+            $TransactionNumber = 'CN-' .$TransactionNumbers['Id'];
+            if($input['updateType'] == 0)
             {
-              $Description = 'Re-activated contact record #CN-'.$TransactionNumber['Id'].' of employee #'.$EmployeeDetail['EmployeeNumber'];
-              $EmployeeNotification = 'Re-activated contact record #CN-'.$TransactionNumber['Id'].'.';
+              $auditLogsManager = 'Deactivated contact record #'.$TransactionNumber.' for employee #'.$EmployeeDetail['EmployeeNumber'].' in contact tab.';
+              $auditAffectedEmployee = 'Deactivated contact record #'.$TransactionNumber.' in contact tab.';
             }
-            else if($input['updateType'] == 0)
+            else
             {
-              $Description = 'Deactivated contact record #CN-'.$TransactionNumber['Id'].' of employee #'.$EmployeeDetail['EmployeeNumber'].'.';
-              $EmployeeNotification = 'Deactivated contact record #CN-'.$TransactionNumber['Id'].'.';
+              $auditLogsManager = 'Re-activated contact record #'.$TransactionNumber.' for employee #'.$EmployeeDetail['EmployeeNumber'].' in contact tab.';
+              $auditAffectedEmployee = 'Re-activated contact record #'.$TransactionNumber.' in contact tab.';
             }
-            $ManagerBranchId = $this->employee_model->getEmployeeDetails($EmployeeDetail['EmployeeId']);
-            $insertEmpLog = array(
-              'Description'       => $EmployeeNotification
-              , 'EmployeeNumber'  => $EmployeeDetail['EmployeeNumber']
-              , 'CreatedBy'       => $EmployeeNumber
-            );
-            $insertMainLog = array(
-              'Description'       => $Description
-              , 'CreatedBy'       => $EmployeeNumber
-            );
-            $insertManagerAudit = array(
-              'Description'         => $Description
-              , 'ManagerBranchId'   => $ManagerBranchId['ManagerBranchId']
-              , 'CreatedBy'         => $EmployeeNumber
-            );
-            $auditTable2 = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertMainLog, $auditTable2);
-            $auditTable3 = 'employee_has_notifications';
-            $this->maintenance_model->insertFunction($insertEmpLog, $auditTable3);
-            $auditTable4 = 'manager_has_notifications';
-            $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable4);
+            $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeDetail['EmployeeNumber']);
         }
         else // set as primary
         {
@@ -806,30 +682,11 @@ class employee_model extends CI_Model
             );
             $table = 'employee_has_contactnumbers';
             $this->maintenance_model->updateFunction1($set, $condition, $table);
-          // insert into logs
-            $Description = 'Set contact record #CN-' .$TransactionNumber['Id']. ' of employee #'.$EmployeeDetail['EmployeeNumber'] . ' as primary.';
-            $EmployeeNotification = 'Set contact record #CN-' .$TransactionNumber['Id']. ' as primary.';
-            $ManagerBranchId = $this->employee_model->getEmployeeDetails($EmployeeDetail['EmployeeId']);
-            $insertEmpLog = array(
-              'Description'       => $EmployeeNotification
-              , 'EmployeeNumber'  => $EmployeeDetail['EmployeeNumber']
-              , 'CreatedBy'       => $EmployeeNumber
-            );
-            $insertMainLog = array(
-              'Description'       => $Description
-              , 'CreatedBy'       => $EmployeeNumber
-            );
-            $insertManagerAudit = array(
-              'Description'         => $Description
-              , 'ManagerBranchId'   => $ManagerBranchId['ManagerBranchId']
-              , 'CreatedBy'         => $EmployeeNumber
-            );
-            $auditTable2 = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertMainLog, $auditTable2);
-            $auditTable3 = 'employee_has_notifications';
-            $this->maintenance_model->insertFunction($insertEmpLog, $auditTable3);
-            $auditTable4 = 'manager_has_notifications';
-            $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable4);
+          // admin audits finals
+            $TransactionNumber = 'CN-' .$TransactionNumbers['Id'];
+            $auditLogsManager = 'Set contact record #'.$TransactionNumber.' for employee #'.$EmployeeDetail['EmployeeNumber'].' in contact tab as primary contact number.';
+            $auditAffectedEmployee = 'Set contact record #'.$TransactionNumber.' in contact tab as primary contact number.';
+            $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeDetail['EmployeeNumber']);
         }
       }
       else if($input['tableType'] == 'EmployeeUpdate')
@@ -889,49 +746,54 @@ class employee_model extends CI_Model
                                                     FROM R_UserRole UR
                                                     WHERE UR.UserRoleId = ".$input['Id']."
         ")->row_array();
-        // update status
-          $set = array(
-            'StatusId' => $input['updateType'],
-            'UpdatedBy' => $CreatedBy,
-            'DateUpdated' => $DateNow,
-          );
-          $condition = array(
-            'UserRoleId' => $input['Id']
-          );
-          $table = 'R_UserRole';
-          $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // insert into logs
-          if($input['updateType'] == 1)
-          {
-            $Description = 'Re-activated employee #'.$EmployeeDetail['EmployeeNumber'].'.';
-            $EmployeeNotification = 'Re-activated employee.';
-          }
-          else if($input['updateType'] == 0)
-          {
-            $Description = 'Deactivated employee #'.$EmployeeDetail['EmployeeNumber'].'.';
-            $EmployeeNotification = 'Deactivated employee.';
-          }
-          $ManagerBranchId = $this->employee_model->getEmployeeDetails($input['Id']);
-          $insertEmpLog = array(
-            'Description'       => $EmployeeNotification
-            , 'EmployeeNumber'  => $EmployeeDetail['EmployeeNumber']
-            , 'CreatedBy'       => $CreatedBy
-          );
-          $insertMainLog = array(
-            'Description'       => $Description
-            , 'CreatedBy'       => $CreatedBy
-          );
-          $insertManagerAudit = array(
-            'Description'         => $Description
-            , 'ManagerBranchId'   => $ManagerBranchId['ManagerBranchId']
-            , 'CreatedBy'         => $CreatedBy
-          );
-          $auditTable2 = 'R_Logs';
-          $this->maintenance_model->insertFunction($insertMainLog, $auditTable2);
-          $auditTable3 = 'employee_has_notifications';
-          $this->maintenance_model->insertFunction($insertEmpLog, $auditTable3);
-          $auditTable4 = 'manager_has_notifications';
-          $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable4);
+        if($input['updateType'] == 1 || $input['updateType'] == 0)
+        {
+          // update status
+            $set = array(
+              'StatusId' => $input['updateType'],
+              'UpdatedBy' => $CreatedBy,
+              'DateUpdated' => $DateNow,
+            );
+            $condition = array(
+              'UserRoleId' => $input['Id']
+            );
+            $table = 'R_UserRole';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+            $ManagerBranchId = $this->employee_model->getEmployeeDetails($input['Id']);
+          // admin audits finals
+            if($input['updateType'] == 1)
+            {
+              $auditLogsManager = 'Re-activated employee #'.$EmployeeDetail['EmployeeNumber'].' in system users.';
+              $auditAffectedEmployee = 'Re-activated in system users.';
+            }
+            else
+            {
+              $auditLogsManager = 'Deactivated employee #'.$EmployeeDetail['EmployeeNumber'].' in system users.';
+              $auditAffectedEmployee = 'Deactivated in system users.';
+            }
+            $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeDetail['EmployeeNumber']);
+        }
+        else // reset password
+        {
+          // update status
+            $set = array(
+              'Password' => $EmployeeDetail['EmployeeNumber'],
+              'IsNew' => 1,
+              'UpdatedBy' => $CreatedBy,
+              'DateUpdated' => $DateNow,
+            );
+            $condition = array(
+              'UserRoleId' => $input['Id'],
+              'EmployeeNumber' => $EmployeeDetail['EmployeeNumber']
+            );
+            $table = 'R_UserRole';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+            $ManagerBranchId = $this->employee_model->getEmployeeDetails($input['Id']);
+          // admin audits finals
+            $auditLogsManager = 'Reset password for employee #'.$EmployeeDetail['EmployeeNumber'].' in system users.';
+            $auditAffectedEmployee = 'Reset password in system users.';
+            $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeDetail['EmployeeNumber']);
+        }
       }
     }
 
@@ -944,6 +806,7 @@ class employee_model extends CI_Model
                                                 , EE.IsPrimary
                                                 , EE.CreatedBy
                                                 , DATE_FORMAT(EE.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                                , EE.DateCreated as rawDateCreated
                                                 , DATE_FORMAT(EE.DateUpdated, '%d %b %Y %h:%i %p') as DateUpdated
                                                 , CONCAT('EA-', LPAD(EE.EmployeeEmailId, 6, 0)) as rowNumber
                                                 , EMP.FirstName
@@ -1004,6 +867,7 @@ class employee_model extends CI_Model
                                                 , CONCAT('ADD-', LPAD(EA.EmployeeAddressId, 6, 0)) as rowNumber
                                                 , acronym(EMP.MiddleName) as MiddleInitial
                                                 , DATE_FORMAT(EA.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                                , EA.DateCreated as rawDateCreated
                                                 , DATE_FORMAT(EA.DateUpdated, '%d %b %Y %h:%i %p') as DateUpdated
                                                 FROM employee_has_address EA
                                                   INNER JOIN r_address A
@@ -1027,9 +891,9 @@ class employee_model extends CI_Model
     function employeeIDs($EmployeeNumber)
     {
       $EmployeeNumber = $this->db->query("SELECT LPAD($EmployeeNumber, 6, 0) as EmployeeNumber")->row_array();
-      $query_string = $this->db->query("SELECT  IC.Name
-                                                , I.Attachment
+      $query_string = $this->db->query("SELECT  I.Attachment
                                                 , I.IdentificationId
+                                                , R.Name
                                                 , I.Description
                                                 , I.IdNumber
                                                 , EI.StatusId
@@ -1046,8 +910,8 @@ class employee_model extends CI_Model
                                                     ON EI.IdentificationId = I.IdentificationId
                                                   INNER JOIN R_Employee EMP
                                                     ON EMP.EmployeeNumber = EI.CreatedBy
-                                                  INNER JOIN r_IDCategory IC
-                                                    ON IC.ID = I.ID
+                                                  INNER JOIN r_requirements R
+                                                    ON R.RequirementId = EI.IdentificationId
                                                       WHERE EI.EmployeeNumber = '".$EmployeeNumber['EmployeeNumber']."'
       ");
       $data = $query_string->result_array();
@@ -1059,6 +923,7 @@ class employee_model extends CI_Model
       $EmployeeNumber = $this->db->query("SELECT LPAD($EmployeeNumber, 6, 0) as EmployeeNumber")->row_array();
       $query_string = $this->db->query("SELECT  Description
                                                 , DATE_FORMAT(EN.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                                , EN.DateCreated as rawDateCreated
                                                 , EMP.FirstName
                                                 , EMP.LastName
                                                 , acronym(EMP.MiddleName) as MiddleInitial
@@ -1141,6 +1006,42 @@ class employee_model extends CI_Model
       ");
       $data = $query_string->result_array();
       return $data;
+    }
+
+    function AuditFunction($auditLogsManager, $auditAffectedEmployee, $ManagerId, $AffectedEmployee)
+    {
+      $CreatedBy = $this->session->userdata('EmployeeNumber');
+      $DateNow = date("Y-m-d H:i:s");
+      // manager and main logs 
+        $insertMainLog = array(
+          'Description'       => $auditLogsManager
+          , 'CreatedBy'       => $CreatedBy
+        );
+        $auditTable1 = 'R_Logs';
+        $this->maintenance_model->insertFunction($insertMainLog, $auditTable1);
+        $insertManagerAudit = array(
+          'Description'         => $auditLogsManager
+          , 'ManagerBranchId'   => $ManagerId
+          , 'CreatedBy'         => $CreatedBy
+        );
+        $auditTable3 = 'manager_has_notifications';
+        $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable3);
+      // employee log
+        $insertEmpLog = array(
+          'Description'       => $auditLogsManager
+          , 'EmployeeNumber'  => $CreatedBy
+          , 'CreatedBy'       => $CreatedBy
+        );
+        $auditTable2 = 'employee_has_notifications';
+        $this->maintenance_model->insertFunction($insertEmpLog, $auditTable2);
+      // edited employee
+        $insertEmpLog = array(
+          'Description'       => $auditAffectedEmployee
+          , 'EmployeeNumber'  => $AffectedEmployee
+          , 'CreatedBy'       => $CreatedBy
+        );
+        $auditTable2 = 'employee_has_notifications';
+        $this->maintenance_model->insertFunction($insertEmpLog, $auditTable2);
     }
 
 }

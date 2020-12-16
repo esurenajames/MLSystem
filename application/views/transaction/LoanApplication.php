@@ -90,7 +90,7 @@
                   </div>
                   <br>
                   <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                       <div class="form-group">
                         <label>Source<span class="text-red">*</span></label><br>
                         <select class="form-control" onchange="functionSourceChange(this.value); loanSummary()" id="selectSource" style="width: 100%" required="" name="SourceType">
@@ -105,7 +105,7 @@
                         </div>
                       </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                       <div class="form-group">
                         <label>Purpose<span class="text-red">*</span></label><br>
                         <select class="form-control" style="width: 100%" onchange="loanSummary()" id="selectPurpose" name="PurposeId">
@@ -135,6 +135,8 @@
                         <input type="number" class="form-control" placeholder="Loan Amount" oninput="getTotalInterest(); btnRemoveCharges(); loanSummary()" id="txtPrincipalAmount" name="PrincipalAmount">
                       </div>
                     </div>
+                  </div>
+                  <div class="row">
                     <div class="col-md-6">
                       <div class="form-group">
                         <label>Term Type<span class="text-red">*</span></label><br>
@@ -153,6 +155,8 @@
                         <input type="number" class="form-control" oninput="getRepaymentDuration(); getTotalInterest(); getPrincipalCollection(); getTotalCollection(); loanSummary()" name="TermNumber" id="txtTermNo">
                       </div>
                     </div>
+                  </div>
+                  <div class="row">
                     <div class="col-md-6">
                       <div class="form-group">
                         <label>Repayment Cycle<span class="text-red">*</span></label><br>
@@ -434,10 +438,6 @@
                       <label>Purpose</label>
                       <h6 id="lblPurpose"></h6>
                     </div>
-                    <div class="col-md-3">
-                      <label>Loan Release Date</label>
-                      <h6 id="lblReleaseDate"></h6>
-                    </div>
                   </div>
                   <div class="row">
                     <div class="col-md-3">
@@ -602,7 +602,7 @@
                       <input type="hidden" name="RiskAssessment" id="txtRiskAssessment">
                     </div>
                   </div>
-                  <h4>Requirements <small><a href=""> Add/Edit Requirements</a></small> </h4>
+                  <h4>Requirements <small><a target="_blank" href="<?php echo base_url();?>/home/AddRequirement"> Add/Edit Requirements</a></small> </h4>
                   <hr>
                   <label>Select Requirements to be Submitted:<span class="text-red">*</span></label><br>
                   <table id="dtblRequirement" class="table table-bordered table-hover" style="width: 100%">
@@ -802,9 +802,8 @@
       $('#lblLoanType').html($('#selectLoanType option:selected').data('city'));
       $('#lblSource').html($('#selectSource option:selected').val());
       $('#lblPurpose').html($('#selectPurpose option:selected').data('city'));
-      $('#lblReleaseDate').html($('#loanReleaseDate').val());
       $('#lblDisbursedType').html($('#selectDisbursedBy option:selected').data('city'));
-      $('#lblPrincipalAmount').html($('#txtPrincipalAmount').val());
+      $('#lblPrincipalAmount').html(parseInt($('#txtPrincipalAmount').val()).toLocaleString('en-US', {minimumFractionDigits: 2}));
       $('#lblTerm').html($('#txtTermNo').val() + ' '  + $('#selectTermType').val());
       $('#lblRepayments').html($('#txtRepayments').val() + ' - ' + $('#selectRepaymentType option:selected').data('city'));
       $('#lblInterestType').html($('#selectInterestType').val());
@@ -881,7 +880,7 @@
           $('.lblEName').html(data['ExtName']);
           $('.lblEmailAddress').html(data['EmailAddress']);
           $('.lblContactNumber').html(data['ContactNumber']);
-          $('.lblDOB').html(data['DateOfBirth']);
+          $('.lblDOB').html(data['DateOfBirth'] + ' | ' + data['Age'] + ' years old');
           $('.lblBorrowerStatus').html(data['StatusDescription']);
           $('.divBorrowerBtn').html('<a target="_blank" href="<?php echo base_url();?>home/BorrowerDetails/'+data['BorrowerId']+'">View Borrower Details</a>');
 
@@ -1344,7 +1343,7 @@
               $.each(data, function (a, b) {
                 row = row + 1; 
 
-                if(b.ChargeType == 'Percentage')
+                if(b.ChargeType == 1)
                 {
                   total = parseInt(b.Amount)/100 * parseInt(PrincipalAmount);
                   amount = parseInt(b.Amount).toLocaleString('en-US', {minimumFractionDigits: 2}) + '%';
@@ -1426,7 +1425,7 @@
       if($('#selectCheck'+rowId+'').is(":checked") == true)
       {
         $('#isSelected'+rowId+'').val(1)
-        if(ChargeType == 'Percentage')
+        if(ChargeType == 1)
         {
           displayTotal = parseInt(displayTotal) +  parseInt(ChargeAmount)/100 * parseInt(PrincipalAmount);
         }
@@ -1438,7 +1437,7 @@
       else
       {
         $('#isSelected'+rowId+'').val(0)
-        if(ChargeType == 'Percentage')
+        if(ChargeType == 1)
         {
           displayTotal = parseInt(displayTotal) - parseInt(ChargeAmount)/100 * parseInt(PrincipalAmount);
         }

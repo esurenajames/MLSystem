@@ -25,7 +25,7 @@
         if($value['StatusId'] == 1)
         {
           $status = "<span class='badge bg-green'>Active</span>";
-          $action = '<a onclick="confirm(\'Are you sure you want to deactivate this employer?\', \''.$value['EmployerId'].'\',0, \'BorrowerEmployer\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+          $action = '<a onclick="getDetail('.$value['EmployerId'].', 2)" class="btn btn-sm btn-default" data-toggle="modal" data-target="#modalNewEmployment" title="View"><span class="fa fa-info-circle"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this employer?\', \''.$value['EmployerId'].'\',0, \'BorrowerEmployer\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
         }
         else if($value['StatusId'] == 0)
         {

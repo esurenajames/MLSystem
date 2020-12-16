@@ -111,8 +111,8 @@
                   </div>
                   <div class="col-md-4">
                       <div class="form-group">
-                        <label for="txtMother">Mother's Maiden Name</label>
-                        <input type="text" class="form-control" id="txtMother" name="MotherName" placeholder="Maiden Name">
+                        <label for="txtMother">Mother's Maiden Name <span class="text-red">*</span></label>
+                        <input type="text" class="form-control" id="txtMother" required="" name="MotherName" placeholder="Maiden Name">
                       </div>
                   </div>
                   <div class="col-md-4">
@@ -567,15 +567,7 @@
                     , { data: "TotalLoans" }
                     , { data: "CreatedBy" }
                     , { data: "StatusId", "render": function (data, type, row) {
-                        if(row.StatusId == 1){
-                          return "<span class='badge bg-green'>Active</span>";
-                        }
-                        else if(row.StatusId == 2){
-                          return "<span class='badge bg-red'>Deactivated</span>";
-                        }
-                        else{
-                          return "N/A";
-                        }
+                        return "<span class='badge bg-"+row.statusColor+"'>"+row.StatusDescription+"</span>";
                       }
                     },
                     { data: "DateCreated" }, 
@@ -604,7 +596,7 @@
                         }
                         else
                         {
-                          return '<a onclick="confirm(\'Are you sure you want to re-activate this borrower?\', \''+row.BorrowerId+'\', 1, \'BorrowerUpdate\')" class="btn btn-warning" title="Re-activate"><span class="fa fa-refresh"></span></a>';
+                          return '<a href="<?php echo base_url();?>home/BorrowerDetails/'+row.BorrowerId+'" class="btn btn-sm btn-default" title="View"><span class="fa fa-info-circle"></span></a> ';
                         }
                       }
                     },

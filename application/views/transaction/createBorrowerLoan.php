@@ -90,7 +90,7 @@
                   </div>
                   <br>
                   <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                       <div class="form-group">
                         <label>Source<span class="text-red">*</span></label><br>
                         <select class="form-control" onchange="functionSourceChange(this.value); loanSummary()" id="selectSource" style="width: 100%" required="" name="SourceType">
@@ -105,7 +105,7 @@
                         </div>
                       </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                       <div class="form-group">
                         <label>Purpose<span class="text-red">*</span></label><br>
                         <select class="form-control" style="width: 100%" onchange="loanSummary()" id="selectPurpose" name="PurposeId">
@@ -114,21 +114,6 @@
                           ?>
                         </select>
                         <a target="_blank" href="<?php echo base_url();?>/home/AddPurpose"> Add/Edit Purpose</a>
-                      </div>
-                    </div>
-                    <div class="col-md-4">
-                      <div class="form-group">
-                        <div class="form-group">
-                            <div class="form-group">
-                              <label>Loan Release Date <span class="text-red">*</span></label>
-                              <div class="input-group date">
-                                <div class="input-group-addon">
-                                  <i class="fa fa-calendar"></i>
-                                </div>
-                                <input type="text" placeholder="Date of Birth" class="form-control" onchange="loanSummary()" name="loanReleaseDate" required="" id="loanReleaseDate">
-                              </div>
-                            </div>
-                        </div>
                       </div>
                     </div>
                   </div>
@@ -141,6 +126,7 @@
                             echo $disbursements;
                           ?>
                         </select>
+                        <a target="_blank" href="<?php echo base_url();?>/home/AddDisbursement"> Add/Edit Disbursement Type</a>
                       </div>
                     </div>
                     <div class="col-md-6">
@@ -149,6 +135,8 @@
                         <input type="number" class="form-control" placeholder="Loan Amount" oninput="getTotalInterest(); btnRemoveCharges(); loanSummary()" id="txtPrincipalAmount" name="PrincipalAmount">
                       </div>
                     </div>
+                  </div>
+                  <div class="row">
                     <div class="col-md-6">
                       <div class="form-group">
                         <label>Term Type<span class="text-red">*</span></label><br>
@@ -167,6 +155,8 @@
                         <input type="number" class="form-control" oninput="getRepaymentDuration(); getTotalInterest(); getPrincipalCollection(); getTotalCollection(); loanSummary()" name="TermNumber" id="txtTermNo">
                       </div>
                     </div>
+                  </div>
+                  <div class="row">
                     <div class="col-md-6">
                       <div class="form-group">
                         <label>Repayment Cycle<span class="text-red">*</span></label><br>
@@ -436,21 +426,17 @@
                   <h4>Loan Product</h4>
                   <hr>
                   <div class="row">
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                       <label>Loan Type</label>
                       <h6 id="lblLoanType"></h6>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                       <label>Source</label>
                       <h6 id="lblSource"></h6>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                       <label>Purpose</label>
                       <h6 id="lblPurpose"></h6>
-                    </div>
-                    <div class="col-md-3">
-                      <label>Loan Release Date</label>
-                      <h6 id="lblReleaseDate"></h6>
                     </div>
                   </div>
                   <div class="row">

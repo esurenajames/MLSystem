@@ -26,7 +26,8 @@
             <tr>
               <th>Name</th>
               <th>Created By</th>
-              <th>Date Created</th>
+              <th>Date Creation</th>
+              <th>Date Creation</th>
             </tr>
             </thead>
             <tbody>
@@ -162,9 +163,10 @@
       "columns": [  { data: "Description" },
                     { data: "CreatedBy" }, 
                     { data: "DateCreated" },
+                    { data: "rawDateCreated" },
       ],
-      // "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
-      "order": [[0, "asc"]]
+      "aoColumnDefs": [{ "bVisible": false, "aTargets": [3] }],
+      "order": [[3, "desc"]]
     });
 
     $("#frmInsert").on('submit', function (e) {

@@ -25,26 +25,25 @@
         <form action="<?php echo base_url(); ?>admin_controller/AddExpense/" id="frmInsert2" method="post">
           <div class="modal-body">
               <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-12">
                   <div class="form-group">
                     <label for="Expense">Type of Expense</label><br>
-                    <select class="form-control" style="width: 100%" name="Expense" id="SelectExpense">
+                    <select class="form-control" style="width: 100%" required="" name="Expense" id="SelectExpense">
                     <?php
                       echo $ExpenseType;
                     ?>
                     </select>
                   </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-12">
                   <div class="form-group">
-                    <label for="Amount">Amount</label><br>
-                    <input type="number" class="form-control" step="0.25" id="txtAmount" name="Amount">
+                    <label>Amount</label><br>
+                    <input type="number" required="" class="form-control" step="0.25" id="txtAmount" name="Amount">
                     <input type="hidden" class="form-control"  id="txtFormType" name="FormType" value="1">
                     <input type="hidden" class="form-control"  id="txtExpenseId" name="ExpenseId">
                   </div>
                 </div>
-              </div>
-              <div class="col-md-6">
+                <div class="col-md-12">
                   <div class="form-group">
                       <div class="form-group">
                         <label>Date of Expense</label>
@@ -52,12 +51,13 @@
                           <div class="input-group-addon">
                             <i class="fa fa-calendar"></i>
                           </div>
-                          <input type="text" class="form-control" name="DateExpense" id="DateExpense">
+                          <input type="text" class="form-control" name="DateExpense" required="" id="DateExpense">
                         </div>
                         <!-- /.input group -->
                       </div>
                   </div>
                 </div>
+              </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -246,10 +246,10 @@
                     {
                       data: "StatusId", "render": function (data, type, row) {
                       if(row.StatusId == 1){
-                          return '<a onclick="confirm(\'Are you sure you want to deactivate this Expense?\', \''+row.ExpenseId+'\', 0)" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a>';
+                          return '<a onclick="confirm(\'Are you sure you want to deactivate this expense?\', \''+row.ExpenseId+'\', 0)" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a>';
                         }
                         else if(row.StatusId == 0){
-                          return '<a onclick="confirm(\'Are you sure you want to re-activate this Expense?\', \''+row.ExpenseId+'\', 1)" class="btn btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
+                          return '<a onclick="confirm(\'Are you sure you want to re-activate this expense?\', \''+row.ExpenseId+'\', 1)" class="btn btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
                         }
                         else{
                           return "N/A";

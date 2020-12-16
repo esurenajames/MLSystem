@@ -27,7 +27,7 @@
       <section class="content">
 
         <div class="modal fade" id="modalProfilePicture">
-          <div class="modal-dialog modal-md">
+          <div class="modal-dialog modal-lg">
             <div class="modal-content">
               <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -37,17 +37,30 @@
               <form autocomplete="off" action="<?php echo base_url(); ?>employee_controller/employeeProcessing/9/<?php print_r($detail['BorrowerId'])?>" id="frmInsert6" method="post" enctype="multipart/form-data">
                 <div class="modal-body">
                   <div class="row">
-                    <div class="col-md-12">
+                    <input type="hidden" id="profileType" name="uploadType">
+                    <div class="col-md-12" id="uploadPic">
                       <div class="form-group">
                         <label for="txtHouseNo">Upload Profile Picture <span class="text-red">*</span></label>
-                        <input type="file" name="ID[]" required="" id="Attachment" accept=".jpeg, .jpg, .png">
+                        <input type="file" name="ID[]" id="Attachment" accept=".jpeg, .jpg, .png">
                       </div>
+                    </div>
+                  </div>
+                  <a class="btn btn-primary" id="cameraDivBtn" onClick="setup(); $(this).hide().next().show();">Access Camera</a>
+                  <div class="row" id="cameraDiv" style="display: none">
+                    <div class="col-md-6">
+                      <div id="live_camera"></div>
+                      <a class="btn btn-primary" onClick="get_take_snap()">Capture Picture</a>
+                      <a class="btn btn-primary" id="cameraDivBtnOff" style="display: none" onClick="OffSetup()">Upload Picture</a>
+                    </div>
+                    <div class="col-md-6">
+                      <div id="img_output"></div>
                     </div>
                   </div>
                 </div>
                 <div class="modal-footer">
                   <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                  <button type="submit" class="btn btn-primary">Submit</button>
+                  <a class="btn btn-primary" id="btnCameraSave" style="display: none" onclick="saveSnap()">Save</a>
+                  <button type="submit" id="btnCameraUpload" class="btn btn-primary">Submit</button>
                 </div>
               </form>
             </div>
@@ -64,87 +77,129 @@
                   <span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title">Employment Record</h4>
               </div>
-              <form autocomplete="off" action="<?php echo base_url(); ?>borrower_controller/borrowerProcessing/6/<?php print_r($detail['BorrowerId']); ?>" enctype="multipart/form-data" id="frmBorrowerDetail" method="post">
+              <form autocomplete="off" action="<?php echo base_url(); ?>borrower_controller/borrowerProcessing/6/<?php print_r($detail['BorrowerId']); ?>" enctype="multipart/form-data" id="frmEmploymentRecord" method="post">
                 <div class="modal-body">
                   <input type="hidden" class="form-control" id="txtEmploymentFormType" name="formType" placeholder="Form Type">
-                  <div class="row">
-                    <div class="col-md-6">
-                      <div class="form-group">
-                        <label>Employment Type<span class="text-red">*</span></label>
-                        <select class="form-control"  required="" name="EmploymentType" id="selectEmploymentType" style="width: 100%">
-                          <option value="1">Present Employer</option>
-                          <option value="2">Previous Employer</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div class="col-md-6">
-                      <div class="form-group">
-                        <label>Industry<span class="text-red">*</span></label>
-                        <select class="form-control"  required="" name="EmploymentIndustry" id="selectEmploymentIndustry" style="width: 100%">
-                          <?php
-                          echo $Industry;
-                          ?>
-                        </select>
-                      </div>
-                    </div>
-                    <div class="col-md-4">
-                      <div class="form-group">
-                        <label>Present Employer/Business <span class="text-red">*</span></label>
-                        <input type="text" class="form-control" required="" id="txtBorrowerEmployer" name="BorrowerEmployer" placeholder="Present employer/business">
-                      </div>
-                    </div>
-                    <div class="col-md-4">
-                      <div class="form-group">
-                        <label>Occupation <span class="text-red">*</span></label>
-                        <select class="form-control"  required="" name="PositionId" id="selectPosition" style="width: 100%">
-                          <?php
-                          echo $Occupation;
-                          ?>
-                        </select>
-                      </div>
-                    </div>
-                    <div class="col-md-4">
-                      <div class="form-group">
+                  <div id="divEmploymentForm">
+                    <div class="row">
+                      <div class="col-md-6">
                         <div class="form-group">
-                          <label>Date Hired <span class="text-red">*</span></label>
-                          <div class="input-group date">
-                            <div class="input-group-addon">
-                              <i class="fa fa-calendar"></i>
+                          <label>Employment Type<span class="text-red">*</span></label>
+                          <select class="form-control"  required="" name="EmploymentType" id="selectEmploymentType" style="width: 100%">
+                            <option value="1">Present Employer</option>
+                            <option value="2">Previous Employer</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label>Industry<span class="text-red">*</span></label>
+                          <select class="form-control"  required="" name="EmploymentIndustry" id="selectEmploymentIndustry" style="width: 100%">
+                            <?php
+                            echo $Industry;
+                            ?>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="form-group">
+                          <label>Present Employer/Business <span class="text-red">*</span></label>
+                          <input type="text" class="form-control" required="" id="txtBorrowerEmployer" name="BorrowerEmployer" placeholder="Present employer/business">
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="form-group">
+                          <label>Occupation <span class="text-red">*</span></label>
+                          <select class="form-control"  required="" name="PositionId" id="selectPosition" style="width: 100%">
+                            <?php
+                            echo $Occupation;
+                            ?>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="form-group">
+                          <div class="form-group">
+                            <label>Date Hired <span class="text-red">*</span></label>
+                            <div class="input-group date">
+                              <div class="input-group-addon">
+                                <i class="fa fa-calendar"></i>
+                              </div>
+                              <input type="text" class="form-control" placeholder="Date Hired" name="DateHired" required="" id="dtpDateHired">
                             </div>
-                            <input type="text" class="form-control" placeholder="Date Hired" name="DateHired" required="" id="dtpDateHired">
                           </div>
                         </div>
                       </div>
-                    </div>
-                    <div class="col-md-4">
-                      <div class="form-group">
-                        <label>Telephone Number <span class="text-red">*</span></label>
-                        <input type="number" class="form-control" required="" id="txtEmployerTelephone" name="TelephoneNumber" placeholder="Telephone Number">
+                      <div class="col-md-4">
+                        <div class="form-group">
+                          <label>Telephone Number <span class="text-red">*</span></label>
+                          <input type="number" class="form-control" required="" id="txtEmployerTelephone" name="TelephoneNumber" placeholder="Telephone Number">
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="form-group">
+                          <label>Employment Tenure (Year)</label>
+                          <input type="text" class="form-control" required="" min="0" value="0" sid="txtBorrowerYear" name="TenureYear" placeholder="Employment Tenure (Year)">
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="form-group">
+                          <label>Employment Tenure (Month) <span class="text-red">*</span></label>
+                          <input type="text" class="form-control" required="" min="0" value="0" maxlength="2" max="2" id="txtBorrowerMonth" name="TenureMonth" placeholder="Employment Tenure (Month)">
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label>Business Address <span class="text-red">*</span></label>
+                          <textarea class="form-control" required="" name="BusinessAddress"></textarea>
+                        </div>
                       </div>
                     </div>
-                    <div class="col-md-4">
-                      <div class="form-group">
-                        <label>Employment Tenure (Year)</label>
-                        <input type="text" class="form-control" required="" min="0" value="0" sid="txtBorrowerYear" name="TenureYear" placeholder="Employment Tenure (Year)">
+                  </div>
+                  <div id="divEmploymentView" style="display: none">
+                    <div class="row">
+                      <div class="col-md-4">
+                        <label>Employment Type</label>
+                        <h6 id="lblEmploymentType"></h6>
+                      </div>
+                      <div class="col-md-4">
+                        <label>Industry</label>
+                        <h6 id="lblEmploymentIndustry"></h6>
+                      </div>
+                      <div class="col-md-4">
+                        <label>Telephone Number</label>
+                        <h6 id="lblEmploymentTelNo"></h6>
                       </div>
                     </div>
-                    <div class="col-md-4">
-                      <div class="form-group">
-                        <label>Employment Tenure (Month) <span class="text-red">*</span></label>
-                        <input type="text" class="form-control" required="" min="0" value="0" maxlength="2" max="2" id="txtBorrowerMonth" name="TenureMonth" placeholder="Employment Tenure (Month)">
+                    <div class="row">
+                      <div class="col-md-4">
+                        <label>Employment Tenure</label>
+                        <h6 id="lblEmploymentTenure"></h6>
+                      </div>
+                      <div class="col-md-4">
+                        <label>Present Employer/Business</label>
+                        <h6 id="lblEmploymentEmployer"></h6>
+                      </div>
+                      <div class="col-md-4">
+                        <label>Occupation</label>
+                        <h6 id="lblEmploymentOccupation"></h6>
                       </div>
                     </div>
-                    <div class="col-md-12">
-                      <div class="form-group">
-                        <label>Business Address <span class="text-red">*</span></label>
-                        <textarea class="form-control" required="" name="BusinessAddress"></textarea>
+                    <div class="row">
+                      <div class="col-md-4">
+                        <label>Date Hired</label>
+                        <h6 id="lblEmploymentDateHired"></h6>
                       </div>
-                    </div>
+                      <div class="col-md-4">
+                        <label>Business Address</label>
+                        <h6 id="lblEmploymentAddress"></h6>
+                      </div>
+                    </div>                    
                   </div>
                 </div>
                 <div class="modal-footer">
                   <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                  <button type="submit" class="btn btn-primary">Submit</button>
+                  <button type="submit" id="btnSubmitEmployer" class="btn btn-primary">Submit</button>
                 </div>
               </form>
             </div>
@@ -197,29 +252,30 @@
         </div>
 
         <div class="modal fade" id="modalNewEmail">
-          <div class="modal-dialog modal-lg">
+          <div class="modal-dialog modal-md">
           <div class="modal-content">
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span></button>
               <h4 class="modal-title">ADD EMAIL ADDRESS</h4>
             </div>
-              <form action="<?php echo base_url(); ?>borrower_controller/BorrowerProcessing/9/<?php print_r($detail['BorrowerId']) ?>" method="post">
+              <form action="<?php echo base_url(); ?>borrower_controller/BorrowerProcessing/10/<?php print_r($detail['BorrowerId']) ?>" method="post">
                 <div class="modal-body">
                   <div class="row">
-                    <div class="col-md-6">
-                      <div class="form-group">
-                        <label for="Email">Email Address</label>
-                        <div class="form-group">
-                          <input type="text" class="form-control" name="Email" required="" id="txtEmail" placeholder="@yahoo.com">
-                        </div>
+                    <div class="col-md-12">
+                      <label>Email Address</label>
+                      <div class="input-group">
+                        <span class="input-group-addon">
+                          <input type="checkbox" name="isPrimary[]" value="1" title="Primary Email Address?">
+                        </span>
+                        <input type="email" name="EmailAddress" required="" class="form-control">
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="modal-footer">
                   <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                  <button type="submit" class="btn btn-primary">Submit Email</button>
+                  <button type="submit" class="btn btn-primary">Submit</button>
                 </div>
               </form>
           </div>
@@ -235,7 +291,7 @@
                 <span aria-hidden="true">&times;</span></button>
               <h4 class="modal-title">ADD PERSONAL REFERENCE</h4>
             </div>
-              <form autocomplete="off" action="<?php echo base_url(); ?>borrower_controller/BorrowerProcessing/2/<?php print_r($detail['BorrowerId']) ?>" id="frmInsert" method="post">
+              <form autocomplete="off" action="<?php echo base_url(); ?>borrower_controller/BorrowerProcessing/2/<?php print_r($detail['BorrowerId']) ?>" class="frmCheck" method="post">
                 <div class="modal-body">
                   <div class="row">
                     <div class="col-md-4">
@@ -277,7 +333,7 @@
                 <span aria-hidden="true">&times;</span></button>
               <h4 class="modal-title">ADD EDUCATIONAL BACKGROUND</h4>
             </div>
-              <form autocomplete="off" action="<?php echo base_url(); ?>borrower_controller/BorrowerProcessing/8/<?php print_r($detail['BorrowerId']) ?>" id="frmInsert" method="post">
+              <form autocomplete="off" action="<?php echo base_url(); ?>borrower_controller/BorrowerProcessing/8/<?php print_r($detail['BorrowerId']) ?>" class="frmCheck" method="post">
                 <div class="modal-body">
                   <div class="row">
                     <div class="col-md-4">
@@ -285,17 +341,10 @@
                         <label>Education Level<span class="text-red">*</span></label>
                         <input type="hidden" class="form-control" id="txtBorrowerEducationId" name="BorrowerEducationId">
                         <input type="hidden" class="form-control" id="txtBorrowerId" name="BorrowerId" value="<?php print_r($detail['BorrowerId']) ?>">
-                        <select class="form-control" style="width: 100%" name="EducationLevel" id="SelectEducationLevel">
-                          <option>No Grade Completed</option>
-                          <option>Pre School</option>
-                          <option>Some Elementary</option>
-                          <option>Elementary Graudate</option>
-                          <option>Some High-School</option>
-                          <option>High-School Graduate</option>
-                          <option>Post-Secondary</option>
-                          <option>College Undergraduate</option>
-                          <option>College Graduate</option>
-                          <option>Post-Baccalaureate</option>
+                        <select class="form-control select2" style="width: 100%" name="EducationLevel" id="SelectEducationLevel">
+                          <?php
+                            echo $EducationList;
+                          ?>
                         </select>
                       </div>
                     </div>
@@ -308,14 +357,14 @@
                     <div class="col-md-4">
                       <div class="form-group">
                         <label>Year Graduated<span class="text-red">*</span></label>
-                        <input type="text" class="form-control" required="" id="txtEducationYear" name="EducationYear">
+                        <input type="number" class="form-control" required="" id="txtEducationYear" name="EducationYear">
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="modal-footer">
                   <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                  <button type="submit" class="btn btn-primary">Submit Education Background</button>
+                  <button type="submit" class="btn btn-primary">Submit</button>
                 </div>
               </form>
           </div>
@@ -331,7 +380,7 @@
                 <span aria-hidden="true">&times;</span></button>
               <h4 class="modal-title">ADD CO-MAKER</h4>
             </div>
-              <form action="<?php echo base_url(); ?>borrower_controller/BorrowerProcessing/3/<?php print_r($detail['BorrowerId']) ?>" id="frmInsert" method="post">
+              <form action="<?php echo base_url(); ?>borrower_controller/BorrowerProcessing/3/<?php print_r($detail['BorrowerId']) ?>"  class="frmCheck" method="post">
                 <div class="modal-body">
                 <div id="displayComaker" style="display: none">
                   <div class="col-md-4">
@@ -421,25 +470,27 @@
                         </select>
                       </div>
                     </div>
-                    <div class="col-md-4">
+                  </div>
+                  <div class="row">
+                    <div class="col-md-3">
                       <div class="form-group">
                         <label>Employer/Business<span class="text-red">*</span></label>
                         <input type="text" class="form-control" placeholder="Employer/Business" name="Employer">
                       </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                       <div class="form-group">
                         <label>Monthly Income<span class="text-red">*</span></label>
                         <input type="number" min="0" value="0" class="form-control" placeholder="Monthly Income" name="MonthlyIncome">
                       </div>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                       <div class="form-group">
                         <label>Tenure (Years)</label>
                         <input type="number" min="0" value="0" class="form-control" name="TenureYear">
                       </div>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                       <div class="form-group">
                         <label>Tenure (Months)<span class="text-red">*</span></label>
                         <input type="number" min="0" value="0" required="" class="form-control" name="TenureMonth">
@@ -480,7 +531,7 @@
               </div>
                 <div class="modal-footer">
                   <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                  <button type="submit" class="btn btn-primary">Submit Co-Maker</button>
+                  <button type="submit" class="btn btn-primary" id="btnSubmitCoMaker">Submit</button>
                 </div>
               </form>
           </div>
@@ -494,44 +545,98 @@
               <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Borrower Details</h4>
+                <h4 id="lblBorrowerSpouse"></h4>
               </div>
               <form autocomplete="off" action="<?php echo base_url(); ?>borrower_controller/borrowerProcessing/5/<?php print_r($detail['BorrowerId']); ?>" enctype="multipart/form-data" id="frmBorrowerDetail" method="post">
                 <div class="modal-body">
                   <input type="hidden" class="form-control" id="txtFormType" required="" name="formType" placeholder="First Name">
                   <div id="displaySpouse" style="display: none">
-                    <div class="col-md-4">
-                      <label>Full Name</label>
-                      <h6 id="lblSpouseName"></h6>
+                    <div class="row">
+                      <div class="col-md-4">
+                        <label>Full Name</label>
+                        <h6 id="lblSpouseName"></h6>
+                      </div>
+                      <div class="col-md-4">
+                        <label>Gender</label><br>
+                        <h6 id="lblSpouseGender"></h6>
+                      </div>
+                      <div class="col-md-4">
+                        <label>Nationality</label><br>
+                        <h6 id="lblSpouseNationality"></h6>
+                      </div>
+                      <div class="col-md-4">
+                        <label>Civil Status</label><br>
+                        <h6 id="lblSpouseCivil"></h6>
+                      </div>
+                      <div class="col-md-4">
+                        <label>Date of Birth</label><br>
+                        <h6 id="lblSpouseBirth"></h6>
+                      </div>
+                      <div class="col-md-4">
+                        <label>No. of Dependents</label><br>
+                        <h6 id="lblSpouseDependents"></h6>
+                      </div>
                     </div>
-                    <div class="col-md-4">
-                      <label>Gender</label><br>
-                      <h6 id="lblSpouseGender"></h6>
+                    <hr>
+                    <h5>EMPLOYER DETAILS</h5>
+                    <div class="row">
+                      <div class="col-md-4">
+                        <label>Present Employer/Business</label><br>
+                        <h6 id="lblSpouseEmployer"></h6>
+                      </div>
+                      <div class="col-md-4">
+                        <label>Position Title</label><br>
+                        <h6 id="lblSpousePosition"></h6>
+                      </div>
+                      <div class="col-md-4">
+                        <label>Employment Tenure</label><br>
+                        <h6 id="lblSpouseTenure"></h6>
+                      </div>
+                      <div class="col-md-4">
+                        <label>Email Address</label><br>
+                        <h6 id="lblSpouseEmail"></h6>
+                      </div>
+                      <div class="col-md-4">
+                        <label>Telephone Number</label><br>
+                        <h6 id="lblSpouseTelNo"></h6>
+                      </div>
+                      <div class="col-md-4">
+                        <label>Cellphone Number</label><br>
+                        <h6 id="lblSpouseCelNo"></h6>
+                      </div>
+                      <div class="col-md-12">
+                        <label>Business Address</label><br>
+                        <h6 id="lblBusinessAddress"></h6>
+                      </div>
                     </div>
-                    <div class="col-md-4">
-                      <label>Nationality</label><br>
-                      <h6 id="lblSpouseNationality"></h6>
+                    <hr>
+                    <h5>CITY ADDRESS</h5>
+                    <div class="row">
+                      <div class="col-md-12">
+                        <label>House No/Street/Subdivision</label><br>
+                        <h6 id="lblSpouseCityAddress"></h6>
+                      </div>
+                      <div class="col-md-6">
+                        <label>Length of stay in city address</label><br>
+                        <h6 id="lblSpouseStay"></h6>
+                      </div>
+                      <div class="col-md-3">
+                        <label>Telephone at city address</label><br>
+                        <h6 id="lblSpouseHomeTelNo"></h6>
+                      </div>
+                      <div class="col-md-3">
+                        <label>Cellphone at city address</label><br>
+                        <h6 id="lblSpouseHomeCelNo"></h6>
+                      </div>
                     </div>
-                    <div class="col-md-4">
-                      <label>Civil Status</label><br>
-                      <h6 id="lblSpouseCivil"></h6>
+                    <hr>
+                    <h5>PROVINCIAL ADDRESS</h5>
+                    <div class="row">
+                      <div class="col-md-12">
+                        <label>House No/Street/Subdivision</label><br>
+                        <h6 id="lblSpouseProvAddress"></h6>
+                      </div>
                     </div>
-                    <div class="col-md-4">
-                      <label>Date of Birth</label><br>
-                      <h6 id="lblSpouseBirth"></h6>
-                    </div>
-                    <div class="col-md-4">
-                      <label>No. of Dependents</label><br>
-                      <h6 id="lblSpouseDependents"></h6>
-                    </div>
-                    <div class="col-md-4">
-                      <label>Birth Place</label><br>
-                      <h6 id="lblSpousePlace"></h6>
-                    </div>
-                    <br>
-                    <br>
-                    <br>
-                    <br>
                     <br>
                     <br>
                     <br>
@@ -627,16 +732,16 @@
                           </div>
                         </div>
                       </div>
-                      <div class="col-md-3">
+                      <div class="col-md-4">
                           <div class="form-group">
                             <label for="txtMother">Mother's Maiden Name</label>
                             <input type="text" class="form-control" id="txtMother" name="MotherName" placeholder="Maiden Name">
                           </div>
                       </div>
-                      <div class="col-md-3">
+                      <div class="col-md-4">
                         <div class="form-group">
-                          <label for="txtDependents">No. of Dependents <span class="text-red">*</span></label>
-                          <input type="text" class="form-control" id="txtDependents" name="NoDependents" required="" placeholder="No. of dependents">
+                          <label>No. of Dependents <span class="text-red">*</span></label>
+                          <input type="number" class="form-control" id="txtDependents" name="NoDependents" required="" placeholder="No. of dependents">
                         </div>
                       </div>
                     </div>
@@ -658,13 +763,13 @@
                           <div class="col-md-3">
                             <div class="form-group">
                               <label>Employment Tenure (Year)</label>
-                              <input type="text" class="form-control" id="txtPresentEmployer" name="TenureYear" placeholder="Employment Tenure (Year)">
+                              <input type="number" class="form-control" id="txtPresentEmployer" name="TenureYear" placeholder="Employment Tenure (Year)">
                             </div>
                           </div>
                           <div class="col-md-3">
                             <div class="form-group">
                               <label>Employment Tenure (Month)</label>
-                              <input type="text" class="form-control" id="txtPresentEmployer" name="TenureMonth" placeholder="Employment Tenure (Month)">
+                              <input type="number" class="form-control" id="txtPresentEmployer" name="TenureMonth" placeholder="Employment Tenure (Month)">
                             </div>
                           </div>
                           <div class="col-md-4">
@@ -702,34 +807,34 @@
                             <div class="col-md-12">
                               <div class="form-group">
                                 <label for="txtHouseNo">House No/Street/Subdivision <span class="text-red">*</span></label>
-                                <input type="text" class="form-control" id="txtHouseNo" name="HouseNo" required="" placeholder="House No/Street/Subdivision">
+                                <input type="text" class="form-control" id="txtHouseNo" name="HouseNo" placeholder="House No/Street/Subdivision">
                               </div>
                             </div>
                             <div class="col-md-6">
                               <div class="form-group">
-                                <label for="selectRegion">Region <span class="text-red">*</span></label>
-                                <select class="form-control select2"  required="" onchange="changeRegion(this.value)" id="selectRegion" name="RegionId" style="width: 100%">
+                                <label>Region <span class="text-red">*</span></label>
+                                <select class="form-control select2" onchange="changeRegion3(this.value)" id="selectRegion3" name="RegionId" style="width: 100%">
                                 </select>
                               </div>
                             </div>
                             <div class="col-md-6">
                               <div class="form-group">
-                                <label for="selectProvince">Province/City<span class="text-red">*</span></label>
-                                <select class="form-control select2"  required="" id="selectProvince" onchange="changeProvince(this.value)" name="ProvinceId" style="width: 100%">
+                                <label>Province/City<span class="text-red">*</span></label>
+                                <select class="form-control select2" id="selectProvince3" onchange="changeProvince3(this.value)" name="ProvinceId" style="width: 100%">
                                 </select>
                               </div>
                             </div>
                             <div class="col-md-6">
                               <div class="form-group">
-                                <label for="selectCity">Municipality <span class="text-red">*</span></label>
-                                <select class="form-control select2" required="" id="selectCity" onchange="changeCity(this.value)" name="CityId" style="width: 100%">
+                                <label>Municipality <span class="text-red">*</span></label>
+                                <select class="form-control select2" id="selectCity3" onchange="changeCity3(this.value)" name="CityId" style="width: 100%">
                                 </select>
                               </div>
                             </div>
                             <div class="col-md-6">
                               <div class="form-group">
-                                <label for="selectBarangay">Barangay <span class="text-red">*</span></label>
-                                <select class="form-control select2" required="" id="selectBarangay" name="BarangayId" style="width: 100%">
+                                <label>Barangay <span class="text-red">*</span></label>
+                                <select class="form-control select2" id="selectBarangay3" name="BarangayId" style="width: 100%">
                                 </select>
                               </div>
                             </div>
@@ -739,13 +844,13 @@
                             <div class="col-md-3">
                               <div class="form-group">
                                 <label for="txtYearsStayed">Years<span class="text-red">*</span></label>
-                                <input type="number" min="0" class="form-control" id="txtYearsStayed" name="YearsStayed" required="" placeholder="Years stayed">
+                                <input type="number" min="0" class="form-control" id="txtYearsStayed" name="YearsStayed" placeholder="Years stayed">
                               </div>
                             </div>
                             <div class="col-md-3">
                               <div class="form-group">
                                 <label for="txtMonthsStayed">Months <span class="text-red">*</span></label>
-                                <input type="number" min="0" max="11" maxlength="2" class="form-control" id="txtMonthsStayed" name="MonthsStayed" required="" placeholder="Months stayed">
+                                <input type="number" min="0" max="11" maxlength="2" class="form-control" id="txtMonthsStayed" name="MonthsStayed" placeholder="Months stayed">
                               </div>
                             </div>
                             <div class="col-md-3">
@@ -763,7 +868,7 @@
                             <div class="col-md-12">
                               <center><label>PROVINCIAL ADDRESS</label> <br> 
                                 <label><input type="checkbox" class="minimal" id="chkAddress" name="SameAddress" value="1" onclick="chkFunction(this.value, 2)"> Same as city address </label>
-                                <input type="hidden" class="form-control" required="" id="txtAddress2" name="IsSameAddress" required="">
+                                <input type="hidden" class="form-control" required="" id="txtAddress2" name="IsSameAddress">
                               </center>
                             </div>
                           </div>
@@ -778,7 +883,7 @@
                             </div>
                             <div class="col-md-6">
                               <div class="form-group">
-                                <label for="selectRegion2">Region <span class="text-red">*</span></label>
+                                <label>Region <span class="text-red">*</span></label>
                                 <select class="form-control select2"  onchange="changeRegion2(this.value)" id="selectRegion2" name="RegionId2" style="width: 100%">
                                 </select>
                               </div>
@@ -874,66 +979,192 @@
                   <span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title">Borrower Address</h4>
               </div>
-              <form autocomplete="off" action="<?php echo base_url(); ?>borrower_controller/borrowerProcessing/9/<?php print_r($detail['BorrowerId'])?>" id="frmInsert" method="post">
+              <form autocomplete="off" action="<?php echo base_url(); ?>borrower_controller/borrowerProcessing/9/<?php print_r($detail['BorrowerId'])?>" id="frmAddressRecord" method="post">
                 <div class="modal-body">
-                  <div class="row">
-                    <div class="col-md-6">
-                      <div class="form-group">
-                        <label for="select">Address Type <span class="text-red">*</span></label>
-                        <select class="form-control select2"  required="" id="selectAddressType" name="AddressType" style="width: 100%">
-                          <option value="City Address">City Address</option>
-                          <option value="Province Address">Provincial Address</option>
-                        </select>
+                  <div id="divAddressForm">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="select">Address Type <span class="text-red">*</span></label>
+                          <select class="form-control select2"  required="" id="selectAddressType" onchange="addressType(this.value)" name="AddressType" style="width: 100%">
+                            <option value="City Address">City Address</option>
+                            <option value="Province Address">Provincial Address</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label>Primary Address? <span class="text-red">*</span></label>
+                          <select class="form-control select2"  required="" name="isPrimary" style="width: 100%">
+                            <option value="1">Yes</option>
+                            <option value="0">No</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label for="txtHouseNo">House No/Street/Subdivision <span class="text-red">*</span></label>
+                          <input type="text" class="form-control" id="txtHouseNo" name="HouseNo" required="" placeholder="House No.">
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label>Region <span class="text-red">*</span></label>
+                          <select class="form-control select2"  required="" onchange="changeRegion(this.value)" id="selectRegion" name="RegionId" style="width: 100%">
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label>Province <span class="text-red">*</span></label>
+                          <select class="form-control select2"  required="" id="selectProvince" onchange="changeProvince(this.value)" name="ProvinceId" style="width: 100%">
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="selectCity">City <span class="text-red">*</span></label>
+                          <select class="form-control select2" required="" id="selectCity" onchange="changeCity(this.value)" name="CityId" style="width: 100%">
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="selectBarangay">Barangay <span class="text-red">*</span></label>
+                          <select class="form-control select2" required="" id="selectBarangay" name="BarangayId" style="width: 100%">
+                          </select>
+                        </div>
                       </div>
                     </div>
-                    <div class="col-md-6">
-                      <div class="form-group">
-                        <label>Primary Address? <span class="text-red">*</span></label>
-                        <select class="form-control select2"  required="" name="isPrimary" style="width: 100%">
-                          <option value="1">Yes</option>
-                          <option value="0">No</option>
-                        </select>
+                    <div id="divCityAddress" style="display: none">
+                      <div class="col-md-12">
+                        <label>Length of stay in city address</label><br>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label>Years<span class="text-red">*</span></label>
+                          <input type="number" min="0" class="form-control" name="YearsStayed" placeholder="Years stayed">
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label>Months <span class="text-red">*</span></label>
+                          <input type="number" min="0" max="11" maxlength="2" class="form-control" name="MonthsStayed" placeholder="Months stayed">
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="txtTelephoneCityAddress">Telephone at city address</label>
+                          <input type="number" class="form-control" name="TelephoneCityAddress" placeholder="Telephone number for city address">
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="txtTelephoneCityAddress">Cellphone at city address</label>
+                          <input type="number" class="form-control" name="CellphoneCityAdd" placeholder="Cellphone number for city address">
+                        </div>
                       </div>
                     </div>
-                    <div class="col-md-6">
-                      <div class="form-group">
-                        <label for="txtHouseNo">House No/Street/Subdivision <span class="text-red">*</span></label>
-                        <input type="text" class="form-control" id="txtHouseNo" name="HouseNo" required="" placeholder="House No.">
+                    <div id="divResidenceType">
+                      <div class="col-md-12">
+                        <label>Type of Residence</label><br>
+                        <div class="form-group">
+                          <div class="radio">
+                            <label>
+                              <input type="radio" name="optionsRadios" id="optionsRadios1" onclick="chkRent(this.value)" value="Owned" checked="">
+                              Owned - Mortgage
+                            </label>
+                            <label>
+                              <input type="radio" name="optionsRadios" id="optionsRadios2" onclick="chkRent(this.value)" value="Living with relatives">
+                              Living with relatives
+                            </label>
+                            <label>
+                              <input type="radio" name="optionsRadios" id="optionsRadios3" onclick="chkRent(this.value)" value="Rented">
+                              Rented
+                            </label>
+                          </div>
+                          <div class="row">
+                            <div id="divRentedDetails" style="display: none">
+                              <input type="hidden" class="form-control" id="txtRentedType" name="isRented" required="">
+                              <div class="col-md-6">
+                                <div class="form-group">
+                                  <label for="txtLandLord">Name of Landlord</label>
+                                  <input type="text" class="form-control" id="txtLandLord" name="NameOfLandlord" placeholder="Name of Landlord/Lessor">
+                                </div>
+                              </div>
+                              <div class="col-md-6">
+                                <div class="form-group">
+                                  <label for="txtLandLordNumber">Telephone No.</label>
+                                  <input type="text" class="form-control" id="txtLandLordNumber" name="LandLordNumber" placeholder="Telephone Number">
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <div class="col-md-6">
-                      <div class="form-group">
-                        <label for="selectRegion">Region <span class="text-red">*</span></label>
-                        <select class="form-control select2"  required="" onchange="changeRegion(this.value)" id="selectRegion" name="RegionId" style="width: 100%">
-                        </select>
+                  </div>
+                  <div id="divAddressView" style="display: none">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <label>Address Type</label>
+                        <h6 id="lblAddressType"></h6>
+                      </div>
+                      <div class="col-md-6">
+                        <label>Primary Address?</label>
+                        <h6 id="lblPrimary"></h6>
                       </div>
                     </div>
-                    <div class="col-md-6">
-                      <div class="form-group">
-                        <label for="selectRegion">Province <span class="text-red">*</span></label>
-                        <select class="form-control select2"  required="" id="selectProvince" onchange="changeProvince(this.value)" name="ProvinceId" style="width: 100%">
-                        </select>
+                    <div class="row">
+                      <div class="col-md-12">
+                        <label>Address</label>
+                        <h6 id="lblAddressRecord"></h6>
                       </div>
                     </div>
-                    <div class="col-md-6">
-                      <div class="form-group">
-                        <label for="selectCity">City <span class="text-red">*</span></label>
-                        <select class="form-control select2" required="" id="selectCity" onchange="changeCity(this.value)" name="CityId" style="width: 100%">
-                        </select>
+                    <div id="divLengthOfStay" style="display: none">
+                      <div class="row">
+                        <div class="col-md-12">
+                          <label>Length of stay in city address</label>
+                        </div>
+                        <div class="col-md-12">
+                          <label>Years/Months Stayed</label>
+                          <h6 id="lblAddressTenure"></h6>
+                        </div>
+                        <div class="col-md-6">
+                          <label>Telephone at city address</label>
+                          <h6 id="lblAddressTelNo"></h6>
+                        </div>
+                        <div class="col-md-6">
+                          <label>Cellphone at city address</label>
+                          <h6 id="lblAddressCelNo"></h6>
+                        </div>
                       </div>
                     </div>
-                    <div class="col-md-6">
-                      <div class="form-group">
-                        <label for="selectBarangay">Barangay <span class="text-red">*</span></label>
-                        <select class="form-control select2" required="" id="selectBarangay" name="BarangayId" style="width: 100%">
-                        </select>
+                    <div class="row">
+                      <div id="divTypeOfResidence" style="display: none">
+                        <div class="col-md-3">
+                          <label>Type of Residence</label>
+                          <h6 id="lblAddressTypeOfResidence"></h6>
+                        </div>
+                      </div>
+                      <div id="divTypeOfResidenceDets" style="display: none">
+                        <div class="col-md-3">
+                          <label>Name of Landlord</label>
+                          <h6 id="lblAddressLandLord"></h6>
+                        </div>
+                        <div class="col-md-3">
+                          <label>Telephone No.</label>
+                          <h6 id="lblAddressTypeOfAddressTelNo"></h6>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
+                <br>
+                <br>
                 <div class="modal-footer">
                   <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                  <button type="submit" class="btn btn-primary">Submit</button>
+                  <button type="submit" id="btnSubmitAddress" class="btn btn-primary">Submit</button>
                 </div>
               </form>
             </div>
@@ -1035,6 +1266,7 @@
                                 echo "<td>".$value['Description']."</td>";
                                 echo "<td>".$value['CreatedBy']."</td>";
                                 echo "<td>".$value['DateCreated']."</td>";
+                                echo "<td>".$value['rawDateCreated']."</td>";
                                 echo "</tr>";
                               }
                             }
@@ -1078,7 +1310,7 @@
                           <th>Amount</th>
                           <th>Payment For</th>
                           <th>Date Creation</th>
-                          <th>Status</th>
+                          <th>Action</th>
                           <th>Action</th>
                         </tr>
                         </thead>
@@ -1094,23 +1326,21 @@
                                 echo "<td>".$value['TransactionNumber']."</td>";
                                 echo "<td>".$value['ReferenceNo']."</td>";
                                 echo "<td>".$value['CreatedBy']."</td>";
-                                echo "<td>".$value['DateCreated']."</td>";
                                 echo "<td>".number_format($value['Amount'], 2)."</td>";
                                 echo "<td>".$value['PaymentDate']."</td>";
+                                echo "<td>".$value['DateCreated']."</td>";
 
                                 if($value['StatusId'] == 1)
                                 {
-                                  $status = "<span class='badge bg-green'>Active</span>";
-                                  $action = '<a target="_blank" href="'.base_url().'home/loandetail/'.$value['ApplicationId'].'" class="btn btn-default btn-sm" title="View"><span class="fa fa-info-circle"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this Collection record?\', \''.$value['PaymentMadeId'].'\', 0, \'BorrowerEducation\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                                  $action = '<a target="_blank" href="'.base_url().'home/loandetail/'.$value['ApplicationId'].'" class="btn btn-default btn-sm" title="View"><span class="fa fa-info-circle"></span></a> ';
                                 }
                                 else if($value['StatusId'] == 0)
                                 {
-                                  $status = "<span class='badge bg-red'>Deactivated</span>";
                                   $action = '<a target="_blank" href="'.base_url().'home/loandetail/'.$value['ApplicationId'].'" class="btn btn-default btn-sm" title="View"><span class="fa fa-info-circle"></span></a> ';
                                 }
 
-                                echo "<td>".$status."</td>";
                                 echo "<td>".$action."</td>";
+                                echo "<td>".$value['rawDateCreated']."</td>";
                                 echo "</tr>";
                               }
                             }
@@ -1120,7 +1350,7 @@
                     </div>
                     <div class="tab-pane" id="tabReference">
                       <h4>PERSONAL REFERENCE INFORMATION</h4>
-                      <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewPersonal">Add Personal Reference</button>
+                      <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewPersonal">Add Record</button>
                       <br>
                       <br>
                       <br>
@@ -1128,7 +1358,7 @@
                     </div>
                     <div class="tab-pane" id="tabCoMaker">
                       <h4>CO-MAKER INFORMATION</h4>
-                      <button type="button" onclick="AddComaker()" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewCoMaker">Add Co-Maker</button>
+                      <button type="button" onclick="AddComaker()" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewCoMaker">Add Record</button>
                       <br>
                       <br>
                       <br>
@@ -1136,7 +1366,7 @@
                     </div>
                     <div class="tab-pane" id="tabSpouseInfo">
                       <h4>SPOUSE INFORMATION</h4>
-                      <button type="button" class="btn btn-primary pull-right" data-toggle="modal" onclick="getDetail(<?php print_r($detail['BorrowerId']); ?>, 2)" data-target="#modalBorrowerDetails">Add Spouse</button>
+                      <button type="button" class="btn btn-primary pull-right" data-toggle="modal" onclick="getDetail(<?php print_r($detail['BorrowerId']); ?>, 2)" data-target="#modalBorrowerDetails">Add Record</button>
                       <br>
                       <br>
                       <br>
@@ -1144,7 +1374,7 @@
                     </div>
                     <div class="tab-pane" id="tabEmployment">
                       <h4>EMPLOYMENT INFORMATION</h4>
-                      <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewEmployment">Add Employment Record</button>
+                      <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewEmployment">Add Record</button>
                       <br>
                       <br>
                       <br>
@@ -1152,7 +1382,7 @@
                     </div>
                     <div class="tab-pane" id="tabContactInfo">
                       <h4>CONTACT INFORMATION</h4>
-                      <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewContact">Add Contact</button>
+                      <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewContact">Add Record</button>
                       <br>
                       <br>
                       <br>
@@ -1160,7 +1390,7 @@
                     </div>
                     <div class="tab-pane" id="tabAddress">
                       <h4>ADDRESS INFORMATION</h4>
-                      <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewAddress">Add Address</button>
+                      <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewAddress">Add Record</button>
                       <br>
                       <br>
                       <br>
@@ -1168,7 +1398,7 @@
                     </div>
                     <div class="tab-pane" id="tabEmail">
                       <h4>EMAIL INFORMATION</h4>
-                      <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewEmail">Add Email</button>
+                      <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewEmail">Add Record</button>
                       <br>
                       <br>
                       <br>
@@ -1176,7 +1406,7 @@
                     </div>
                     <div class="tab-pane" id="tabSupportingDocuments">
                       <h4>SUPPORTING DOCUMENTS</h4>
-                      <button type="button" class="btn btn-primary pull-right" onclick="requirementList()" data-toggle="modal" data-target="#modalSupportingDocument">Add Supporting Doc</button>
+                      <button type="button" class="btn btn-primary pull-right" onclick="requirementList('<?php print_r($detail['BorrowerId'])?>')" data-toggle="modal" data-target="#modalSupportingDocument">Add Record</button>
                       <br>
                       <br>
                       <br>
@@ -1184,7 +1414,7 @@
                     </div>
                     <div class="tab-pane" id="Education">
                       <h4>EDUCATIONAL</h4>
-                      <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewEducation">Add Educational Background</button>
+                      <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewEducation">Add Record</button>
                       <br>
                       <br>
                       <br>
@@ -1255,6 +1485,70 @@
 
 <script src="<?php echo base_url(); ?>resources/functionalities/borrower/detailfooter.js"></script>
 <script type="text/javascript">
+  function get_take_snap() {
+     // Simple call the take some your selfi and some get your live image data
+    Webcam.snap( function(data_uri) {
+      document.getElementById('img_output').innerHTML = 
+        '<img id="imageprev" src="'+data_uri+'"/>';
+    });
+  }
+
+  function OffSetup()
+  {
+    $('#uploadPic').show();
+    Webcam.reset();
+    $('#cameraDiv').hide();
+    $('#cameraDivBtn').show();
+    $('#cameraDivBtnOff').show();
+    $('#btnCameraSave').hide();
+    $('#btnCameraUpload').show();
+    $('#img_output').html('');
+    $('#profileType').val(0);
+  }
+
+  function setup() {
+    $('#profileType').val(1);
+    $('#uploadPic').hide();
+    $('#btnCameraSave').show();
+    $('#btnCameraUpload').hide();
+    Webcam.reset();
+    Webcam.set({
+       width: 400,
+       height: 300,
+       image_format: 'jpeg',
+       jpeg_quality: 100
+    });
+    $('#cameraDivBtnOff').show();
+    Webcam.attach( '#live_camera' );
+  }
+
+  function saveSnap()
+  {
+    swal({
+      title: 'Confirm',
+      text: 'Are you sure you want to submit this picture?',
+      type: 'info',
+      showCancelButton: true,
+      buttonsStyling: false,
+      confirmButtonClass: 'btn btn-success',
+      confirmButtonText: 'Confirm',
+      cancelButtonClass: 'btn btn-secondary'
+    }).then(function(){
+       // Get base64 value from <img id='imageprev'> source
+       var base64image = document.getElementById("imageprev").src;
+      Webcam.upload( base64image, '<?php echo base_url()."/employee_controller/employeeProcessing/9/"; ?><?php print_r($detail['BorrowerId'])?>/1', function(code, text) {
+          swal({
+            title: 'Success!',
+            text: 'Image successfully saved',
+            type: 'success',
+            buttonsStyling: false,
+            confirmButtonClass: 'btn btn-primary'
+          });
+          location.reload(true);
+      });
+    });
+  }
+
 
   if("<?php print_r($this->session->flashdata('alertTitle')) ?>" != '')
   {
@@ -1288,7 +1582,16 @@
       , { data: "CreatedBy" }
       , { data: "DateApproved" }
       , { data: "StatusId", "render": function (data, type, b) {
-          return '<a class="btn btn-sm btn-default" target="_blank" href="<?php echo base_url(); ?>home/loandetail/'+b.ApplicationId+'" title="View"><span class="fa fa-info-circle"></span></a> <a target="_blank" class="btn btn-sm btn-success" href="<?php echo base_url(); ?>home/Renew/'+b.ApplicationId+'" title="Re-New"><span class="fa fa-refresh"></span></a>';
+          if(b.StatusId == 4)
+          {
+            forRenewal = '<a target="_blank" class="btn btn-sm btn-success" href="<?php echo base_url(); ?>home/Renew/'+b.ApplicationId+'" title="Re-New"><span class="fa fa-refresh"></span></a>'
+          }
+          else
+          {
+            forRenewal = '';
+          }
+
+          return '<a class="btn btn-sm btn-default" target="_blank" href="<?php echo base_url(); ?>home/loandetail/'+b.ApplicationId+'" title="View"><span class="fa fa-info-circle"></span></a> ' + forRenewal;
         }
       }
     ],

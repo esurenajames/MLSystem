@@ -4,7 +4,7 @@
   <!-- Content Header (Page header) -->
   <section class="content-header">
     <h1>
-      Types of Withdrawal
+      Types of Deposit
     </h1>
     <ol class="breadcrumb">
       <li><a href="http://localhost/ELendingTool/home/Dashboard" class="active"><i class="fa fa-dashboard"></i>Dashboard</a></li>
@@ -20,7 +20,7 @@
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">Add Withdrawal Type</h4>
+          <h4 class="modal-title">Add Deposit Type</h4>
         </div>
         <form action="<?php echo base_url(); ?>admin_controller/AddDepositType/" id="frmInsert2" method="post">
           <div class="modal-body">
@@ -204,7 +204,7 @@
       "columns": [  { data: "ReferenceNo" }
                     , { data: "WithdrawalType" }
                     , { data: "Description" }
-                    , { data: "Name" }
+                    , { data: "CreatedBy" }
                     , { data: "DateCreated" } 
                     , {
                       data: "StatusId", "render": function (data, type, row) {

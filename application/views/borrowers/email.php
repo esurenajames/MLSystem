@@ -8,6 +8,7 @@
     <th>Date Creation</th>
     <th>Status</th>
     <th>Action</th>
+    <th>Action</th>
   </tr>
   </thead>
   <tbody>
@@ -52,6 +53,7 @@
         echo "<td>".$value['DateCreated']."</td>";
         echo "<td>".$status."</td>";
         echo "<td>".$action."</td>";
+        echo "<td>".$value['rawDateCreated']."</td>";
         echo "</tr>";
       }
     ?>

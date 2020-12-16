@@ -17,7 +17,7 @@ class admin_model extends CI_Model
                                                   THEN 'N/A'
                                                   ELSE Remarks
                                                 END as Remarks
-                                                , DATE_FORMAT(L.DateCreated, '%d %b %Y %r') as DateCreated
+                                                , DATE_FORMAT(L.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                                 , LogId
                                                 FROM R_Logs L
                                                   INNER JOIN R_Employee EMP
@@ -162,7 +162,7 @@ class admin_model extends CI_Model
     function countBranch($data)
     {
       $query_string = $this->db->query("SELECT  * 
-                                                FROM R_Branch
+                                                FROM R_Branches
                                                   WHERE Code = '".$data['Code']."'
                                                   AND Name = '".$data['Name']."'
                                                   AND Description = '".$data['Description']."'
@@ -182,11 +182,11 @@ class admin_model extends CI_Model
                                                 , BRNCH.CreatedBy
                                                 , BRNCH.StatusId
                                                 , BRNCH.LeaseMonthly
-                                                , DATE_FORMAT(BRNCH.DateCreated, '%d %b %Y %r') as DateCreated
-                                                , DATE_FORMAT(BRNCH.DateUpdated, '%d %b %Y %r') as DateUpdated
-                                                , DATE_FORMAT(BRNCH.DateFromLease, '%d %b %Y %r') as DateFrom
-                                                , DATE_FORMAT(BRNCH.DateToLease, '%d %b %Y %r') as DateTo
-                                                FROM R_Branch BRNCH
+                                                , DATE_FORMAT(BRNCH.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                , DATE_FORMAT(BRNCH.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
+                                                , DATE_FORMAT(BRNCH.DateFromLease, '%b %d, %Y %h:%i %p') as DateFrom
+                                                , DATE_FORMAT(BRNCH.DateToLease, '%b %d, %Y %h:%i %p') as DateTo
+                                                FROM R_Branches BRNCH
                                                   WHERE BRNCH.BranchId = '$Id'
       ");
       $BranchDetail = $query_string->row_array();
@@ -392,7 +392,7 @@ class admin_model extends CI_Model
                                                 , AssignedTo
                                                 , BRNCH.Name
                                                 FROM R_AssetManagement AM
-                                                INNER JOIN R_Branch BRNCH
+                                                INNER JOIN R_Branches BRNCH
                                                   ON BRNCH.BranchId = AM.BranchId
                                                   WHERE AM.AssetManagementId = '$Id'
       ");
@@ -426,9 +426,9 @@ class admin_model extends CI_Model
     function countBorrowerStatus($data)
     {
       $query_string = $this->db->query("SELECT  * 
-                                                FROM R_Borrower_has_Status
+                                                FROM R_BorrowerStatus
                                                   WHERE Name = '".$data['Name']."'
-                                                  AND Description = '".$data['Description']."'
+                                                  AND StatusId = 1
       ");
       $data = $query_string->num_rows();
       return $data;
@@ -437,8 +437,7 @@ class admin_model extends CI_Model
     function getBorrowerStatusDetails($Id)
     {
       $query_string = $this->db->query("SELECT  Name
-                                                , Description
-                                                FROM R_Borrower_has_Status 
+                                                FROM R_BorrowerStatus 
                                                   WHERE BorrowerStatusId = '$Id'
       ");
       $BorrowerStatusDetail = $query_string->row_array();
@@ -601,7 +600,6 @@ class admin_model extends CI_Model
       $query_string = $this->db->query("SELECT  * 
                                                 FROM R_ExpenseType ET
                                                   WHERE ET.Name = '".$data['Name']."'
-                                                  AND ET.Description = '".$data['Description']."'
       ");
       $data = $query_string->num_rows();
       return $data;
@@ -616,7 +614,7 @@ class admin_model extends CI_Model
                                                 , EX.ExpenseTypeId
                                                 , EX.DateExpense
                                                 , CONCAT('EX-', LPAD(EX.ExpenseId, 6, 0)) as ReferenceNo
-                                                , DATE_FORMAT(EX.DateExpense, '%d %b %Y %r') as DateExpense
+                                                , DATE_FORMAT(EX.DateExpense, '%b %d, %Y %h:%i %p') as DateExpense
                                                 FROM R_Expense EX 
                                                   INNER JOIN R_ExpenseType ET
                                                    ON EX.ExpenseTypeId = ET.ExpenseTypeId
@@ -654,7 +652,7 @@ class admin_model extends CI_Model
       $query_string = $this->db->query("SELECT  * 
                                                 FROM R_WithdrawalType WT
                                                   WHERE WT.Name = '".$data['Name']."'
-                                                  AND WT.Description = '".$data['Description']."'
+                                                  AND StatusId = 1
       ");
       $data = $query_string->num_rows();
       return $data;
@@ -668,8 +666,9 @@ class admin_model extends CI_Model
                                                 , WithdrawalId
                                                 , W.WithdrawalTypeId
                                                 , W.DateWithdrawal
-                                                , CONCAT('W-', LPAD(W.WithdrawalId, 6, 0)) as ReferenceNo
+                                                , CONCAT('DEP-', LPAD(W.WithdrawalId, 6, 0)) as ReferenceNo
                                                 , DATE_FORMAT(W.DateWithdrawal, '%d %b %Y') as DateWithdrawal
+                                                , DATE_FORMAT(W.DateWithdrawal, '%Y-%m-%d') as rawDateWithdrawal
                                                 FROM R_Withdrawal W 
                                                   INNER JOIN R_WithdrawalType WT
                                                    ON W.WithdrawalTypeId = WT.WithdrawalTypeId
@@ -684,6 +683,8 @@ class admin_model extends CI_Model
       $query_string = $this->db->query("SELECT  * 
                                                 FROM R_Withdrawal W
                                                   WHERE W.Amount = '".$data['Amount']."'
+                                                  AND WithdrawalTypeId = '".$data['WithdrawalTypeId']."'
+                                                  AND DateWithdrawal = '".$data['DateWithdrawal']."'
       ");
       $data = $query_string->num_rows();
       return $data;
@@ -696,77 +697,100 @@ class admin_model extends CI_Model
 
       if($input['tableType'] == 'Bank')
       {
-        $BankDetail = $this->db->query("SELECT  BankName
-                                                    FROM R_Bank BNK
+        $count = $this->db->query("SELECT  COUNT(*) as ifUsed
+                                                    FROM t_paymentsmade
                                                       WHERE BankId = ".$input['Id']."
+                                                      AND StatusId = 1
         ")->row_array();
+        if($count['ifUsed'] == 0)
+        {
+          $Detail = $this->db->query("SELECT  BankName
+                                              , CONCAT('BNK-', LPAD(BNK.BankId, 6, 0)) as ReferenceNo
+                                                FROM R_Bank BNK
+                                                  WHERE BankId = ".$input['Id']."
+          ")->row_array();
 
-        // update status
-          $set = array(
-            'StatusId' => $input['updateType'],
-            'UpdatedBy' => $EmployeeNumber,
-            'DateUpdated' => $DateNow,
-          );
-          $condition = array(
-            'BankId' => $input['Id']
-          );
-          $table = 'R_Bank';
-          $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // insert into logs
-          if($input['updateType'] == 1)
-          {
-            $Description = 'Re-activated ' .$BankDetail['Name']. ' at the system setup'; // main log
-          }
-          else if($input['updateType'] == 0)
-          {
-            $Description = 'Deactivated ' .$BankDetail['Name']. '  at the system setup'; // main log
-          }
-          $data2 = array(
-            'Description'   => $Description,
-            'CreatedBy'     => $EmployeeNumber,
-            'DateCreated'   => $DateNow
-          );
-          $this->db->insert('R_Logs', $data2);
+          // update status
+            $set = array(
+              'StatusId' => $input['updateType'],
+              'UpdatedBy' => $EmployeeNumber,
+              'DateUpdated' => $DateNow,
+            );
+            $condition = array(
+              'BankId' => $input['Id']
+            );
+            $table = 'R_Bank';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+          // admin audits finalss
+            if($input['updateType'] == 1)
+            {
+              $auditLogsManager = 'Re-activated bank #' .$Detail['ReferenceNo']. ' at the bank setup'; // main log
+              $auditAffectedEmployee = 'Re-activated bank #' .$Detail['ReferenceNo']. ' at the bank setup'; // main log
+            }
+            else if($input['updateType'] == 0)
+            {
+              $auditLogsManager = 'Deactivated bank #' .$Detail['ReferenceNo']. ' at the bank setup'; // main log
+              $auditAffectedEmployee = 'Deactivated bank #' .$Detail['ReferenceNo']. ' at the bank setup'; // main log
+            }
+            $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
+            return 1;
+        }
+        else
+        {
+          return 0;
+        }
       }
       else if($input['tableType'] == 'Branch')
       {
-        $BranchDetail = $this->db->query("SELECT  Name
-                                                    FROM R_Branch BRNCH
+        $count = $this->db->query("SELECT  COUNT(*) as ifUsed
+                                                    FROM branch_has_employee
                                                       WHERE BranchId = ".$input['Id']."
+                                                      AND StatusId != 3
         ")->row_array();
+        if($count['ifUsed'] == 0)
+        {
+          $Detail = $this->db->query("SELECT  Name
+                                                    , CONCAT('BRNCH-', LPAD(BRNCH.BranchId, 6, 0)) as ReferenceNo
+                                                      FROM R_Branches BRNCH
+                                                        WHERE BranchId = ".$input['Id']."
+          ")->row_array();
 
-        // update status
-          $set = array(
-            'StatusId' => $input['updateType'],
-            'UpdatedBy' => $EmployeeNumber,
-            'DateUpdated' => $DateNow,
-          );
-          $condition = array(
-            'BranchId' => $input['Id']
-          );
-          $table = 'R_Branch';
-          $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // insert into logs
-          if($input['updateType'] == 1)
-          {
-            $Description = 'Re-activated ' .$BranchDetail['Name']. ' at the system setup'; // main log
-          }
-          else if($input['updateType'] == 0)
-          {
-            $Description = 'Deactivated ' .$BranchDetail['Name']. '  at the system setup'; // main log
-          }
-          $data2 = array(
-            'Description'   => $Description,
-            'CreatedBy'     => $EmployeeNumber,
-            'DateCreated'   => $DateNow
-          );
-          $this->db->insert('R_Logs', $data2);
+          // update status
+            $set = array(
+              'StatusId' => $input['updateType'],
+              'UpdatedBy' => $EmployeeNumber,
+              'DateUpdated' => $DateNow,
+            );
+            $condition = array(
+              'BranchId' => $input['Id']
+            );
+            $table = 'R_Branches';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+          // admin audits finalss
+            if($input['updateType'] == 1)
+            {
+              $auditLogsManager = 'Re-activated branch #' .$Detail['ReferenceNo']. ' at the branch setup'; // main log
+              $auditAffectedEmployee = 'Re-activated branch #' .$Detail['ReferenceNo']. ' at the branch setup'; // main log
+            }
+            else if($input['updateType'] == 0)
+            {
+              $auditLogsManager = 'Deactivated branch #' .$Detail['ReferenceNo']. ' at the branch setup'; // main log
+              $auditAffectedEmployee = 'Deactivated branch #' .$Detail['ReferenceNo']. ' at the branch setup'; // main log
+            }
+            $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
+            return 1;
+        }
+        else
+        {
+          return 0;
+        }
       }
       else if($input['tableType'] == 'Loan')
       {
-        $LoanDetail = $this->db->query("SELECT  Name
-                                                    FROM R_Loans L
-                                                      WHERE LoanId = ".$input['Id']."
+        $Detail = $this->db->query("SELECT  Name
+                                            , CONCAT('LN-', LPAD(L.LoanId, 6, 0)) as ReferenceNo
+                                            FROM R_Loans L
+                                              WHERE LoanId = ".$input['Id']."
         ")->row_array();
 
         // update status
@@ -780,27 +804,25 @@ class admin_model extends CI_Model
           );
           $table = 'R_Loans';
           $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // insert into logs
+        // admin audits finalss
           if($input['updateType'] == 1)
           {
-            $Description = 'Re-activated ' .$LoanDetail['Name']. ' at the system setup'; // main log
+            $auditLogsManager = 'Re-activated loan #' .$Detail['ReferenceNo']. ' at the loan setup'; // main log
+            $auditAffectedEmployee = 'Re-activated loan #' .$Detail['ReferenceNo']. ' at the loan setup'; // main log
           }
           else if($input['updateType'] == 0)
           {
-            $Description = 'Deactivated ' .$LoanDetail['Name']. '  at the system setup'; // main log
+            $auditLogsManager = 'Deactivated loan #' .$Detail['ReferenceNo']. ' at the loan setup'; // main log
+            $auditAffectedEmployee = 'Deactivated loan #' .$Detail['ReferenceNo']. ' at the loan setup'; // main log
           }
-          $data2 = array(
-            'Description'   => $Description,
-            'CreatedBy'     => $EmployeeNumber,
-            'DateCreated'   => $DateNow
-          );
-          $this->db->insert('R_Logs', $data2);
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
       }
       else if($input['tableType'] == 'Charge')
       {
-        $ChargeDetail = $this->db->query("SELECT  Name
-                                                    FROM R_Charges CH
-                                                      WHERE ChargeId = ".$input['Id']."
+        $Detail = $this->db->query("SELECT  Name
+                                                  , CONCAT('CHRG-', LPAD(CH.ChargeId, 6, 0)) as ReferenceNo
+                                                  FROM R_Charges CH
+                                                    WHERE ChargeId = ".$input['Id']."
         ")->row_array();
 
         // update status
@@ -814,27 +836,25 @@ class admin_model extends CI_Model
           );
           $table = 'R_Charges';
           $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // insert into logs
+        // admin audits finalss
           if($input['updateType'] == 1)
           {
-            $Description = 'Re-activated ' .$ChargeDetail['Name']. ' at the system setup'; // main log
+            $auditLogsManager = 'Re-activated charge #' .$Detail['ReferenceNo']. ' at the charges setup'; // main log
+            $auditAffectedEmployee = 'Re-activated charge #' .$Detail['ReferenceNo']. ' at the charges setup'; // main log
           }
           else if($input['updateType'] == 0)
           {
-            $Description = 'Deactivated ' .$ChargeDetail['Name']. '  at the system setup'; // main log
+            $auditLogsManager = 'Deactivated charge #' .$Detail['ReferenceNo']. ' at the charges setup'; // main log
+            $auditAffectedEmployee = 'Deactivated charge #' .$Detail['ReferenceNo']. ' at the charges setup'; // main log
           }
-          $data2 = array(
-            'Description'   => $Description,
-            'CreatedBy'     => $EmployeeNumber,
-            'DateCreated'   => $DateNow
-          );
-          $this->db->insert('R_Logs', $data2);
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
       }
       else if($input['tableType'] == 'Education')
       {
-        $EducationDetail = $this->db->query("SELECT  Name
-                                                    FROM R_Education EDU
-                                                      WHERE EducationId= ".$input['Id']."
+        $Detail = $this->db->query("SELECT  Name
+                                            , CONCAT('EDU-', LPAD(EDU.EducationId, 6, 0)) as ReferenceNo
+                                              FROM R_Education EDU
+                                                WHERE EducationId= ".$input['Id']."
         ")->row_array();
 
         // update status
@@ -848,27 +868,25 @@ class admin_model extends CI_Model
           );
           $table = 'R_Education';
           $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // insert into logs
+        // admin audits finalss
           if($input['updateType'] == 1)
           {
-            $Description = 'Re-activated ' .$EducationDetail['Name']. ' at the system setup'; // main log
+            $auditLogsManager = 'Re-activated education #' .$Detail['ReferenceNo']. ' at the education setup'; // main log
+            $auditAffectedEmployee = 'Re-activated education #' .$Detail['ReferenceNo']. ' at the education setup'; // main log
           }
           else if($input['updateType'] == 0)
           {
-            $Description = 'Deactivated ' .$EducationDetail['Name']. '  at the system setup'; // main log
+            $auditLogsManager = 'Deactivated education #' .$Detail['ReferenceNo']. ' at the education setup'; // main log
+            $auditAffectedEmployee = 'Deactivated education #' .$Detail['ReferenceNo']. ' at the education setup'; // main log
           }
-          $data2 = array(
-            'Description'   => $Description,
-            'CreatedBy'     => $EmployeeNumber,
-            'DateCreated'   => $DateNow
-          );
-          $this->db->insert('R_Logs', $data2);
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
       }
       else if($input['tableType'] == 'Requirement')
       {
-        $RequirementDetail = $this->db->query("SELECT  Name
-                                                    FROM R_Requirements R
-                                                      WHERE RequirementId = ".$input['Id']."
+        $Detail = $this->db->query("SELECT  Name
+                                            , CONCAT('REQ-', LPAD(R.RequirementId, 6, 0)) as ReferenceNo
+                                            FROM R_Requirements R
+                                              WHERE RequirementId = ".$input['Id']."
         ")->row_array();
 
         // update status
@@ -882,55 +900,62 @@ class admin_model extends CI_Model
           );
           $table = 'R_Requirements';
           $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // insert into logs
+
+        // admin audits finalss
           if($input['updateType'] == 1)
           {
-            $Description = 'Re-activated ' .$RequirementDetail['Name']. ' at the system setup'; // main log
+            $auditLogsManager = 'Re-activated requirement #' .$Detail['ReferenceNo']. ' at the requirement setup'; // main log
+            $auditAffectedEmployee = 'Re-activated requirement #' .$Detail['ReferenceNo']. ' at the requirement setup'; // main log
           }
           else if($input['updateType'] == 0)
           {
-            $Description = 'Deactivated ' .$RequirementDetail['Name']. '  at the system setup'; // main log
+            $auditLogsManager = 'Deactivated requirement #' .$Detail['ReferenceNo']. ' at the requirement setup'; // main log
+            $auditAffectedEmployee = 'Deactivated requirement #' .$Detail['ReferenceNo']. ' at the requirement setup'; // main log
           }
-          $data2 = array(
-            'Description'   => $Description,
-            'CreatedBy'     => $EmployeeNumber,
-            'DateCreated'   => $DateNow
-          );
-          $this->db->insert('R_Logs', $data2);
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
       }
       else if($input['tableType'] == 'Position')
       {
-        $PositionDetail = $this->db->query("SELECT  Name
-                                                    FROM R_Position PS
-                                                      WHERE PositionId = ".$input['Id']."
+        $count = $this->db->query("SELECT  COUNT(*) as ifUsed
+                                                    FROM R_Employee
+                                                          WHERE PositionId = ".$input['Id']."
         ")->row_array();
+        if($count['ifUsed'] == 0)
+        {
+          $PositionDetail = $this->db->query("SELECT  Name
+                                                      , CONCAT('POS-', LPAD(PS.PositionId, 6, 0)) as ReferenceNo
+                                                      FROM R_Position PS
+                                                        WHERE PositionId = ".$input['Id']."
+          ")->row_array();
 
-        // update status
-          $set = array(
-            'StatusId' => $input['updateType'],
-            'UpdatedBy' => $EmployeeNumber,
-            'DateUpdated' => $DateNow,
-          );
-          $condition = array(
-            'PositionId' => $input['Id']
-          );
-          $table = 'R_Position';
-          $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // insert into logs
-          if($input['updateType'] == 1)
-          {
-            $Description = 'Re-activated ' .$PositionDetail['Name']. ' at the system setup'; // main log
-          }
-          else if($input['updateType'] == 0)
-          {
-            $Description = 'Deactivated ' .$PositionDetail['Name']. '  at the system setup'; // main log
-          }
-          $data2 = array(
-            'Description'   => $Description,
-            'CreatedBy'     => $EmployeeNumber,
-            'DateCreated'   => $DateNow
-          );
-          $this->db->insert('R_Logs', $data2);
+          // update status
+            $set = array(
+              'StatusId' => $input['updateType'],
+              'UpdatedBy' => $EmployeeNumber,
+            );
+            $condition = array(
+              'PositionId' => $input['Id']
+            );
+            $table = 'R_Position';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+          // admin audits finalss
+            if($input['updateType'] == 1)
+            {
+              $auditLogsManager = 'Re-activated position #' .$PositionDetail['ReferenceNo']. ' at the positions setup'; // main log
+              $auditAffectedEmployee = 'Re-activated position #' .$PositionDetail['ReferenceNo']. ' at the positions setup'; // main log
+            }
+            else if($input['updateType'] == 0)
+            {
+              $auditLogsManager = 'Deactivated position #' .$PositionDetail['ReferenceNo']. ' at the positions setup'; // main log
+              $auditAffectedEmployee = 'Deactivated position #' .$PositionDetail['ReferenceNo']. ' at the positions setup'; // main log
+            }
+            $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
+          return 1;
+        }
+        else
+        {
+          return 0;
+        }
       }
       else if($input['tableType'] == 'Optional')
       {
@@ -968,9 +993,10 @@ class admin_model extends CI_Model
       }
       else if($input['tableType'] == 'Purpose')
       {
-        $PurposeDetail = $this->db->query("SELECT  Name
-                                                    FROM R_Purpose PP
-                                                      WHERE PurposeId = ".$input['Id']."
+        $Detail = $this->db->query("SELECT  Name
+                                            , CONCAT('PUR-', LPAD(PP.PurposeId, 6, 0)) as ReferenceNo
+                                              FROM R_Purpose PP
+                                                WHERE PurposeId = ".$input['Id']."
         ")->row_array();
 
         // update status
@@ -984,25 +1010,23 @@ class admin_model extends CI_Model
           );
           $table = 'R_Purpose';
           $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // insert into logs
+        // admin audits finalss
           if($input['updateType'] == 1)
           {
-            $Description = 'Re-activated ' .$PurposeDetail['Name']. ' at the system setup'; // main log
+            $auditLogsManager = 'Re-activated purpose #' .$Detail['ReferenceNo']. ' at the purpose setup'; // main log
+            $auditAffectedEmployee = 'Re-activated purpose #' .$Detail['ReferenceNo']. ' at the purpose setup'; // main log
           }
           else if($input['updateType'] == 0)
           {
-            $Description = 'Deactivated ' .$PurposeDetail['Name']. '  at the system setup'; // main log
+            $auditLogsManager = 'Deactivated purpose #' .$Detail['ReferenceNo']. ' at the purpose setup'; // main log
+            $auditAffectedEmployee = 'Deactivated purpose #' .$Detail['ReferenceNo']. ' at the purpose setup'; // main log
           }
-          $data2 = array(
-            'Description'   => $Description,
-            'CreatedBy'     => $EmployeeNumber,
-            'DateCreated'   => $DateNow
-          );
-          $this->db->insert('R_Logs', $data2);
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
       }
       else if($input['tableType'] == 'Method')
       {
-        $MethodDetail = $this->db->query("SELECT  Name
+        $Detail = $this->db->query("SELECT  Name
+                                                  , CONCAT('M-', LPAD(M.MethodId, 6, 0)) as ReferenceNo
                                                     FROM R_MethodOfPayment M
                                                       WHERE MethodId = ".$input['Id']."
         ")->row_array();
@@ -1018,25 +1042,24 @@ class admin_model extends CI_Model
           );
           $table = 'R_MethodOfPayment';
           $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // insert into logs
+
+        // admin audits finalss
           if($input['updateType'] == 1)
           {
-            $Description = 'Re-activated ' .$MethodDetail['Name']. ' at the system setup'; // main log
+            $auditLogsManager = 'Re-activated method of payment #' .$Detail['ReferenceNo']. ' at the method of payment setup'; // main log
+            $auditAffectedEmployee = 'Re-activated method of payment #' .$Detail['ReferenceNo']. ' at the method of payment setup'; // main log
           }
           else if($input['updateType'] == 0)
           {
-            $Description = 'Deactivated ' .$MethodDetail['Name']. '  at the system setup'; // main log
+            $auditLogsManager = 'Deactivated method of payment #' .$Detail['ReferenceNo']. ' at the method of payment setup'; // main log
+            $auditAffectedEmployee = 'Deactivated method of payment #' .$Detail['ReferenceNo']. ' at the method of payment setup'; // main log
           }
-          $data2 = array(
-            'Description'   => $Description,
-            'CreatedBy'     => $EmployeeNumber,
-            'DateCreated'   => $DateNow
-          );
-          $this->db->insert('R_Logs', $data2);
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
       }
       else if($input['tableType'] == 'Category')
       {
-        $CategoryDetail = $this->db->query("SELECT  Name
+        $Detail = $this->db->query("SELECT  Name
+                                                  , CONCAT('CAT-', LPAD(A.CategoryId, 6, 0)) as ReferenceNo
                                                     FROM R_Category A
                                                       WHERE CategoryId = ".$input['Id']."
         ")->row_array();
@@ -1052,27 +1075,25 @@ class admin_model extends CI_Model
           );
           $table = 'R_Category';
           $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // insert into logs
+        // admin audits finalss
           if($input['updateType'] == 1)
           {
-            $Description = 'Re-activated ' .$CategoryDetail['Name']. ' at the system setup'; // main log
+            $auditLogsManager = 'Re-activated asset category #' .$Detail['ReferenceNo']. ' at the asset category setup'; // main log
+            $auditAffectedEmployee = 'Re-activated asset category #' .$Detail['ReferenceNo']. ' at the asset category setup'; // main log
           }
           else if($input['updateType'] == 0)
           {
-            $Description = 'Deactivated ' .$CategoryDetail['Name']. '  at the system setup'; // main log
+            $auditLogsManager = 'Deactivated asset category #' .$Detail['ReferenceNo']. ' at the asset category setup'; // main log
+            $auditAffectedEmployee = 'Deactivated asset category #' .$Detail['ReferenceNo']. ' at the asset category setup'; // main log
           }
-          $data2 = array(
-            'Description'   => $Description,
-            'CreatedBy'     => $EmployeeNumber,
-            'DateCreated'   => $DateNow
-          );
-          $this->db->insert('R_Logs', $data2);
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
       }
       else if($input['tableType'] == 'LoanStatus')
       {
-        $LoanStatusDetail = $this->db->query("SELECT  Name
-                                                    FROM R_LoanStatus LS
-                                                      WHERE LoanStatusId = ".$input['Id']."
+        $Detail = $this->db->query("SELECT  Name
+                                            , CONCAT('LST-', LPAD(LS.LoanStatusId, 6, 0)) as ReferenceNo
+                                            FROM R_LoanStatus LS
+                                              WHERE LoanStatusId = ".$input['Id']."
         ")->row_array();
 
         // update status
@@ -1086,61 +1107,56 @@ class admin_model extends CI_Model
           );
           $table = 'R_LoanStatus';
           $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // insert into logs
+
+        // admin audits finalss
           if($input['updateType'] == 1)
           {
-            $Description = 'Re-activated ' .$LoanStatusDetail['Name']. ' at the system setup'; // main log
+            $auditLogsManager = 'Re-activated loan status #' .$Detail['ReferenceNo']. ' at the loan status setup'; // main log
+            $auditAffectedEmployee = 'Re-activated loan status #' .$Detail['ReferenceNo']. ' at the loan status setup'; // main log
           }
           else if($input['updateType'] == 0)
           {
-            $Description = 'Deactivated ' .$LoanStatusDetail['Name']. '  at the system setup'; // main log
+            $auditLogsManager = 'Deactivated loan status #' .$Detail['ReferenceNo']. ' at the loan status setup'; // main log
+            $auditAffectedEmployee = 'Deactivated loan status #' .$Detail['ReferenceNo']. ' at the loan status setup'; // main log
           }
-          $data2 = array(
-            'Description'   => $Description,
-            'CreatedBy'     => $EmployeeNumber,
-            'DateCreated'   => $DateNow
-          );
-          $this->db->insert('R_Logs', $data2);
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
       }
       else if($input['tableType'] == 'BorrowerStatus')
       {
-        $BorrowerStatusDetail = $this->db->query("SELECT  Name
-                                                    FROM R_Borrower_has_Status BS
-                                                      WHERE BorrowerStatusId = ".$input['Id']."
+        $Detail = $this->db->query("SELECT  Name
+                                            , CONCAT('BST-', LPAD(BS.BorrowerStatusId, 6, 0)) as ReferenceNo
+                                            FROM R_BorrowerStatus BS
+                                              WHERE BorrowerStatusId = ".$input['Id']."
         ")->row_array();
 
         // update status
           $set = array(
             'StatusId' => $input['updateType'],
-            'UpdatedBy' => $EmployeeNumber,
-            'DateUpdated' => $DateNow,
           );
           $condition = array(
             'BorrowerStatusId' => $input['Id']
           );
-          $table = 'R_Borrower_has_Status';
+          $table = 'R_BorrowerStatus';
           $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // insert into logs
+        // admin audits finalss
           if($input['updateType'] == 1)
           {
-            $Description = 'Re-activated ' .$BorrowerStatusDetail['Name']. ' at the system setup'; // main log
+            $auditLogsManager = 'Re-activated borrower status #' .$Detail['ReferenceNo']. ' at the borrower status setup'; // main log
+            $auditAffectedEmployee = 'Re-activated borrower status #' .$Detail['ReferenceNo']. ' at the borrower status setup'; // main log
           }
           else if($input['updateType'] == 0)
           {
-            $Description = 'Deactivated ' .$BorrowerStatusDetail['Name']. '  at the system setup'; // main log
+            $auditLogsManager = 'Deactivated borrower status #' .$Detail['ReferenceNo']. ' at the borrower status setup'; // main log
+            $auditAffectedEmployee = 'Deactivated borrower status #' .$Detail['ReferenceNo']. ' at the borrower status setup'; // main log
           }
-          $data2 = array(
-            'Description'   => $Description,
-            'CreatedBy'     => $EmployeeNumber,
-            'DateCreated'   => $DateNow
-          );
-          $this->db->insert('R_Logs', $data2);
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
       }
       else if($input['tableType'] == 'Industry')
       {
-        $IndustryDetail = $this->db->query("SELECT  Name
-                                                    FROM R_Industry
-                                                      WHERE IndustryId = ".$input['Id']."
+        $Detail = $this->db->query("SELECT  Name
+                                            , CONCAT('IND-', LPAD(IndustryId, 6, 0)) as ReferenceNo
+                                            FROM R_Industry
+                                              WHERE IndustryId = ".$input['Id']."
         ")->row_array();
 
         // update status
@@ -1154,26 +1170,24 @@ class admin_model extends CI_Model
           );
           $table = 'R_Industry';
           $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // insert into logs
+        // admin audits finalss
           if($input['updateType'] == 1)
           {
-            $Description = 'Re-activated ' .$IndustryDetail['Name']. ' at the system setup'; // main log
+            $auditLogsManager = 'Re-activated industry #' .$Detail['ReferenceNo']. ' at the industry setup'; // main log
+            $auditAffectedEmployee = 'Re-activated industry #' .$Detail['ReferenceNo']. ' at the industry setup'; // main log
           }
           else if($input['updateType'] == 0)
           {
-            $Description = 'Deactivated ' .$IndustryDetail['Name']. '  at the system setup'; // main log
+            $auditLogsManager = 'Deactivated industry #' .$Detail['ReferenceNo']. ' at the industry setup'; // main log
+            $auditAffectedEmployee = 'Deactivated industry #' .$Detail['ReferenceNo']. ' at the industry setup'; // main log
           }
-          $data2 = array(
-            'Description'   => $Description,
-            'CreatedBy'     => $EmployeeNumber,
-            'DateCreated'   => $DateNow
-          );
-          $this->db->insert('R_Logs', $data2);
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
+          return 1;
       }
       else if($input['tableType'] == 'AssetManagement')
       {
-        $AssetDetail = $this->db->query("SELECT  SerialNumber
-                                                  , CONCAT('AM-', LPAD(AM.AssetManagementId, 6, 0)) as rowNumber
+        $Detail = $this->db->query("SELECT  SerialNumber
+                                                  , CONCAT('AM-', LPAD(AM.AssetManagementId, 6, 0)) as ReferenceNo
                                                     FROM R_AssetManagement AM
                                                       WHERE AssetManagementId = ".$input['Id']."
         ")->row_array();
@@ -1189,61 +1203,71 @@ class admin_model extends CI_Model
           );
           $table = 'R_AssetManagement';
           $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // insert into logs
-          if($input['updateType'] == 2)
-          {
-            $Description = 'Re-activated ' .$AssetDetail['rowNumber']. ' at the Asset Management'; // main log
-          }
-          else if($input['updateType'] == 6)
-          {
-            $Description = 'Deactivated ' .$AssetDetail['rowNumber']. '  at the Asset Management'; // main log
-          }
-          $data2 = array(
-            'Description'   => $Description,
-            'CreatedBy'     => $EmployeeNumber,
-            'DateCreated'   => $DateNow
-          );
-          $this->db->insert('R_Logs', $data2);
-      }
-      else if($input['tableType'] == 'Occupation')
-      {
-        $OccupationDetail = $this->db->query("SELECT  Name
-                                                    FROM R_Occupation OCCU
-                                                      WHERE OccupationId = ".$input['Id']."
-        ")->row_array();
 
-        // update status
-          $set = array(
-            'StatusId' => $input['updateType'],
-            'UpdatedBy' => $EmployeeNumber,
-            'DateUpdated' => $DateNow,
-          );
-          $condition = array(
-            'OccupationId' => $input['Id']
-          );
-          $table = 'R_Occupation';
-          $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // insert into logs
+        // admin audits finalss
           if($input['updateType'] == 1)
           {
-            $Description = 'Re-activated ' .$OccupationDetail['Name']. ' at the Occupations Module'; // main log
+            $auditLogsManager = 'Re-activated asset #' .$Detail['ReferenceNo']. ' at the asset management module'; // main log
+            $auditAffectedEmployee = 'Re-activated asset #' .$Detail['ReferenceNo']. ' at the asset management module'; // main log
           }
           else if($input['updateType'] == 0)
           {
-            $Description = 'Deactivated ' .$OccupationDetail['Name']. '  at the Occupations Module'; // main log
+            $auditLogsManager = 'Deactivated asset #' .$Detail['ReferenceNo']. ' at the asset management module'; // main log
+            $auditAffectedEmployee = 'Deactivated asset #' .$Detail['ReferenceNo']. ' at the asset management module'; // main log
           }
-          $data2 = array(
-            'Description'   => $Description,
-            'CreatedBy'     => $EmployeeNumber,
-            'DateCreated'   => $DateNow
-          );
-          $this->db->insert('R_Logs', $data2);
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
+      }
+      else if($input['tableType'] == 'Occupation')
+      {
+        $count = $this->db->query("SELECT  COUNT(*) as ifUsed
+                                                    FROM borrower_has_employer
+                                                      WHERE PositionId = ".$input['Id']."
+                                                      AND StatusId = 1
+        ")->row_array();
+        if($count['ifUsed'] == 0)
+        {
+          $OccupationDetail = $this->db->query("SELECT  Name
+                                                      , CONCAT('OCC-', LPAD(OCCU.OccupationId, 6, 0)) as ReferenceNo
+                                                      FROM R_Occupation OCCU
+                                                        WHERE OccupationId = ".$input['Id']."
+          ")->row_array();
+
+          // update status
+            $set = array(
+              'StatusId' => $input['updateType'],
+              'UpdatedBy' => $EmployeeNumber,
+              'DateUpdated' => $DateNow,
+            );
+            $condition = array(
+              'OccupationId' => $input['Id']
+            );
+            $table = 'R_Occupation';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+          // admin audits finalss
+            if($input['updateType'] == 1)
+            {
+              $auditLogsManager = 'Re-activated occupation #' .$OccupationDetail['ReferenceNo']. ' at the occupations setup'; // main log
+              $auditAffectedEmployee = 'Re-activated occupation #' .$OccupationDetail['ReferenceNo']. ' at the occupations setup'; // main log
+            }
+            else if($input['updateType'] == 0)
+            {
+              $auditLogsManager = 'Deactivated occupation #' .$OccupationDetail['ReferenceNo']. ' at the occupations setup'; // main log
+              $auditAffectedEmployee = 'Deactivated occupation #' .$OccupationDetail['ReferenceNo']. ' at the occupations setup'; // main log
+            }
+            $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
+            return 1;
+        }
+        else
+        {
+          return 0;
+        }
       }
       else if($input['tableType'] == 'Repayment')
       {
-        $RepaymentDetail = $this->db->query("SELECT  Type
-                                                    FROM R_RepaymentCycle RC
-                                                      WHERE RepaymentId = ".$input['Id']."
+        $Detail = $this->db->query("SELECT  Type
+                                            , CONCAT('RC-', LPAD(RC.RepaymentId, 6, 0)) as ReferenceNo
+                                              FROM R_RepaymentCycle RC
+                                                WHERE RepaymentId = ".$input['Id']."
         ")->row_array();
 
         // update status
@@ -1257,27 +1281,26 @@ class admin_model extends CI_Model
           );
           $table = 'R_RepaymentCycle';
           $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // insert into logs
+
+        // admin audits finalss
           if($input['updateType'] == 1)
           {
-            $Description = 'Re-activated ' .$RepaymentDetail['Type']. ' at the Repayment Cycles in System Setup'; // main log
+            $auditLogsManager = 'Re-activated repayment cycle #' .$Detail['ReferenceNo']. ' at the repayment cycle setup'; // main log
+            $auditAffectedEmployee = 'Re-activated repayment cycle #' .$Detail['ReferenceNo']. ' at the repayment cycle setup'; // main log
           }
           else if($input['updateType'] == 0)
           {
-            $Description = 'Deactivated ' .$RepaymentDetail['Type']. '  at the Repayment Cycles in System Setup'; // main log
+            $auditLogsManager = 'Deactivated repayment cycle #' .$Detail['ReferenceNo']. ' at the repayment cycle setup'; // main log
+            $auditAffectedEmployee = 'Deactivated repayment cycle #' .$Detail['ReferenceNo']. ' at the repayment cycle setup'; // main log
           }
-          $data2 = array(
-            'Description'   => $Description,
-            'CreatedBy'     => $EmployeeNumber,
-            'DateCreated'   => $DateNow
-          );
-          $this->db->insert('R_Logs', $data2);
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
       }
       else if($input['tableType'] == 'Disbursement')
       {
-        $DisbursementDetail = $this->db->query("SELECT  Name
-                                                    FROM R_Disbursement RC
-                                                      WHERE DisbursementId = ".$input['Id']."
+        $Detail = $this->db->query("SELECT  Name
+                                            , CONCAT('DIS-', LPAD(RC.DisbursementId, 6, 0)) as ReferenceNo
+                                            FROM R_Disbursement RC
+                                              WHERE DisbursementId = ".$input['Id']."
         ")->row_array();
 
         // update status
@@ -1291,27 +1314,26 @@ class admin_model extends CI_Model
           );
           $table = 'R_Disbursement';
           $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // insert into logs
+
+        // admin audits finalss
           if($input['updateType'] == 1)
           {
-            $Description = 'Re-activated ' .$DisbursementDetail['Name']. ' at the Disbursement in System Setup'; // main log
+            $auditLogsManager = 'Re-activated disbursement type #' .$Detail['ReferenceNo']. ' at the disbursements setup'; // main log
+            $auditAffectedEmployee = 'Re-activated disbursement type #' .$Detail['ReferenceNo']. ' at the disbursements setup'; // main log
           }
           else if($input['updateType'] == 0)
           {
-            $Description = 'Deactivated ' .$DisbursementDetail['Name']. '  at the Disbursement in System Setup'; // main log
+            $auditLogsManager = 'Deactivated disbursement type #' .$Detail['ReferenceNo']. ' at the disbursements setup'; // main log
+            $auditAffectedEmployee = 'Deactivated disbursement type #' .$Detail['ReferenceNo']. ' at the disbursements setup'; // main log
           }
-          $data2 = array(
-            'Description'   => $Description,
-            'CreatedBy'     => $EmployeeNumber,
-            'DateCreated'   => $DateNow
-          );
-          $this->db->insert('R_Logs', $data2);
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
       }
       else if($input['tableType'] == 'Capital')
       {
-        $CapitalDetail = $this->db->query("SELECT  Amount
-                                                    FROM R_Capital C
-                                                      WHERE CapitalId = ".$input['Id']."
+        $Detail = $this->db->query("SELECT  Amount
+                                            , CONCAT('CAP-', LPAD(C.CapitalId, 6, 0)) as ReferenceNo
+                                            FROM R_Capital C
+                                              WHERE CapitalId = ".$input['Id']."
         ")->row_array();
 
         // update status
@@ -1325,27 +1347,26 @@ class admin_model extends CI_Model
           );
           $table = 'R_Capital';
           $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // insert into logs
+
+        // admin audits finalss
           if($input['updateType'] == 1)
           {
-            $Description = 'Re-activated ' .$CapitalDetail['Amount']. ' at the Initial Capital in System Setup'; // main log
+            $auditLogsManager = 'Re-activated capital #' .$Detail['ReferenceNo']. ' at the initial capital setup'; // main log
+            $auditAffectedEmployee = 'Re-activated capital #' .$Detail['ReferenceNo']. ' at the initial capital setup'; // main log
           }
           else if($input['updateType'] == 0)
           {
-            $Description = 'Deactivated ' .$CapitalDetail['Amount']. '  at the Initial Capital in System Setup'; // main log
+            $auditLogsManager = 'Deactivated capital #' .$Detail['ReferenceNo']. ' at the initial capital setup'; // main log
+            $auditAffectedEmployee = 'Deactivated capital #' .$Detail['ReferenceNo']. ' at the initial capital setup'; // main log
           }
-          $data2 = array(
-            'Description'   => $Description,
-            'CreatedBy'     => $EmployeeNumber,
-            'DateCreated'   => $DateNow
-          );
-          $this->db->insert('R_Logs', $data2);
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
       }
       else if($input['tableType'] == 'ExpenseType')
       {
-        $ExpenseTypeDetail = $this->db->query("SELECT  Name
-                                                    FROM R_ExpenseType ET
-                                                      WHERE ExpenseTypeId = ".$input['Id']."
+        $Detail = $this->db->query("SELECT  Name
+                                            , CONCAT('EXT-', LPAD(ET.ExpenseTypeId, 6, 0)) as ReferenceNo
+                                            FROM R_ExpenseType ET
+                                              WHERE ExpenseTypeId = ".$input['Id']."
         ")->row_array();
 
         // update status
@@ -1359,27 +1380,24 @@ class admin_model extends CI_Model
           );
           $table = 'R_ExpenseType';
           $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // insert into logs
+
+        // admin audits finalss
           if($input['updateType'] == 1)
           {
-            $Description = 'Re-activated ' .$ExpenseTypeDetail['Name']. ' at the Types of Expenses in System Setup'; // main log
+            $auditLogsManager = 'Re-activated expense type #' .$Detail['ReferenceNo']. ' at the types of expenses setup'; // main log
+            $auditAffectedEmployee = 'Re-activated expense type #' .$Detail['ReferenceNo']. ' at the types of expenses setup'; // main log
           }
           else if($input['updateType'] == 0)
           {
-            $Description = 'Deactivated ' .$ExpenseTypeDetail['Name']. '  at the Types of Expenses in System Setup'; // main log
+            $auditLogsManager = 'Deactivated expense type #' .$Detail['ReferenceNo']. ' at the types of expenses setup'; // main log
+            $auditAffectedEmployee = 'Deactivated expense type #' .$Detail['ReferenceNo']. ' at the types of expenses setup'; // main log
           }
-          $data2 = array(
-            'Description'   => $Description,
-            'CreatedBy'     => $EmployeeNumber,
-            'DateCreated'   => $DateNow
-          );
-          $this->db->insert('R_Logs', $data2);
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
       }
       else if($input['tableType'] == 'Expense')
       {
-        $ExpenseDetail = $this->db->query("SELECT  EX.ExpenseTypeId as Name
-                                                , CONCAT('EX-', LPAD(EX.ExpenseId, 6, 0)) as ReferenceNo
-
+        $Detail = $this->db->query("SELECT  EX.ExpenseTypeId as Name
+                                                , CONCAT('EXP-', LPAD(EX.ExpenseId, 6, 0)) as ReferenceNo
                                                     FROM R_Expense EX
                                                       WHERE ExpenseId = ".$input['Id']."
         ")->row_array();
@@ -1395,25 +1413,23 @@ class admin_model extends CI_Model
           );
           $table = 'R_Expense';
           $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // insert into logs
+        // admin audits finalss
           if($input['updateType'] == 1)
           {
-            $Description = 'Re-activated #' .$ExpenseDetail['ReferenceNo']. ' at the Finance Management'; // main log
+            $auditLogsManager = 'Re-activated expense #' .$Detail['ReferenceNo']. ' at the expense finance management module'; // main log
+            $auditAffectedEmployee = 'Re-activated expense #' .$Detail['ReferenceNo']. ' at the expense finance management module'; // main log
           }
           else if($input['updateType'] == 0)
           {
-            $Description = 'Deactivated #' .$ExpenseDetail['ReferenceNo']. '  at the Finance Management'; // main log
+            $auditLogsManager = 'Deactivated expense #' .$Detail['ReferenceNo']. ' at the expense finance management module'; // main log
+            $auditAffectedEmployee = 'Deactivated expense #' .$Detail['ReferenceNo']. ' at the expense finance management module'; // main log
           }
-          $data2 = array(
-            'Description'   => $Description,
-            'CreatedBy'     => $EmployeeNumber,
-            'DateCreated'   => $DateNow
-          );
-          $this->db->insert('R_Logs', $data2);
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
       }
       else if($input['tableType'] == 'WithdrawalType')
       {
-        $WithdrawalTypeDetail = $this->db->query("SELECT  Name
+        $Detail = $this->db->query("SELECT  Name
+                                            , CONCAT('DET-', LPAD(ET.WithdrawalTypeId, 6, 0)) as ReferenceNo
                                                     FROM R_WithdrawalType ET
                                                       WHERE WithdrawalTypeId = ".$input['Id']."
         ")->row_array();
@@ -1429,29 +1445,25 @@ class admin_model extends CI_Model
           );
           $table = 'R_WithdrawalType';
           $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // insert into logs
+        // admin audits finalss
           if($input['updateType'] == 1)
           {
-            $Description = 'Re-activated ' .$WithdrawalTypeDetail['Name']. ' at the Types of Withdrawal in System Setup'; // main log
+            $auditLogsManager = 'Re-activated deposit type #' .$Detail['ReferenceNo']. ' at the types of deposit setup'; // main log
+            $auditAffectedEmployee = 'Re-activated deposit type #' .$Detail['ReferenceNo']. ' at the types of deposit setup'; // main log
           }
           else if($input['updateType'] == 0)
           {
-            $Description = 'Deactivated ' .$WithdrawalTypeDetail['Name']. '  at the Types of Withdrawal in System Setup'; // main log
+            $auditLogsManager = 'Deactivated deposit type #' .$Detail['ReferenceNo']. ' at the types of deposit setup'; // main log
+            $auditAffectedEmployee = 'Deactivated deposit type #' .$Detail['ReferenceNo']. ' at the types of deposit setup'; // main log
           }
-          $data2 = array(
-            'Description'   => $Description,
-            'CreatedBy'     => $EmployeeNumber,
-            'DateCreated'   => $DateNow
-          );
-          $this->db->insert('R_Logs', $data2);
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
       }
       else if($input['tableType'] == 'Withdrawal')
       {
-        $WithdrawalDetail = $this->db->query("SELECT  W.WithdrawalId as Name
+        $Detail = $this->db->query("SELECT  W.WithdrawalId as Name
                                                 , CONCAT('DEP-', LPAD(W.WithdrawalId, 6, 0)) as ReferenceNo
-          
-                                                    FROM R_Withdrawal W
-                                                      WHERE WithdrawalId = ".$input['Id']."
+                                                FROM R_Withdrawal W
+                                                  WHERE WithdrawalId = ".$input['Id']."
         ")->row_array();
 
         // update status
@@ -1465,21 +1477,55 @@ class admin_model extends CI_Model
           );
           $table = 'R_Withdrawal';
           $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // insert into logs
+        // admin audits finalss
           if($input['updateType'] == 1)
           {
-            $Description = 'Re-activated #' .$WithdrawalDetail['ReferenceNo']. ' at the Withdrawal in Finance Management'; // main log
+            $auditLogsManager = 'Re-activated deposit #' .$Detail['ReferenceNo']. ' at the deposit finance management'; // main log
+            $auditAffectedEmployee = 'Re-activated deposit #' .$Detail['ReferenceNo']. ' at the deposit finance management'; // main log
           }
           else if($input['updateType'] == 0)
           {
-            $Description = 'Deactivated #' .$WithdrawalDetail['ReferenceNo']. '  at the Withdrawal in Finance Management'; // main log
+            $auditLogsManager = 'Deactivated deposit #' .$Detail['ReferenceNo']. ' at the deposit finance management'; // main log
+            $auditAffectedEmployee = 'Deactivated deposit #' .$Detail['ReferenceNo']. ' at the deposit finance management'; // main log
           }
-          $data2 = array(
-            'Description'   => $Description,
-            'CreatedBy'     => $EmployeeNumber,
-            'DateCreated'   => $DateNow
-          );
-          $this->db->insert('R_Logs', $data2);
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
+      }
+    }
+
+    function finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $ManagerId, $AffectedEmployeeNumber, $auditLoanDets, $ApplicationId, $independentTable, $independentColumn)
+    {
+      $CreatedBy = $this->session->userdata('EmployeeNumber');
+      $DateNow = date("Y-m-d H:i:s");
+      $insertMainLog = array(
+        'Description'       => $auditLogsManager
+        , 'CreatedBy'       => $CreatedBy
+      );
+      $auditTable1 = 'R_Logs';
+      $this->maintenance_model->insertFunction($insertMainLog, $auditTable1);
+      $insertManagerAudit = array(
+        'Description'         => $auditLogsManager
+        , 'ManagerBranchId'   => $ManagerId
+        , 'CreatedBy'         => $CreatedBy
+      );
+      $auditTable3 = 'manager_has_notifications';
+      $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable3);
+      $insertEmpLog = array(
+        'Description'       => $auditAffectedEmployee
+        , 'EmployeeNumber'  => $AffectedEmployeeNumber
+        , 'CreatedBy'       => $CreatedBy
+      );
+      $auditTable2 = 'employee_has_notifications';
+      $this->maintenance_model->insertFunction($insertEmpLog, $auditTable2);
+
+      if($auditLoanDets != null)
+      {
+        $insertApplicationLog = array(
+          'Description'       => $auditLoanDets
+          , ''.$independentColumn.''   => $ApplicationId
+          , 'CreatedBy'       => $CreatedBy
+        );
+        $auditLoanApplicationTable = $independentTable;
+        $this->maintenance_model->insertFunction($insertApplicationLog, $auditLoanApplicationTable);
       }
     }
 

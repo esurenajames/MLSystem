@@ -21,7 +21,7 @@
               <span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title" id="modalApprovalUpdateTitle"></h4>
           </div>
-          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/loanapproval/<?php print_r($detail['ApplicationId']) ?>" method="post">
+          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/loanapproval/<?php print_r($detail['ApplicationId']) ?>" enctype="multipart/form-data" method="post">
             <div class="modal-body">
               <div class="row">
                 <div class="col-md-12">
@@ -47,7 +47,7 @@
                     $balanceDues = $totalDues - $payments['Total'];
 
                   ?>
-                  <input type="" id="txtTotalBalance" name="CurrentBalance" value="<?php print_r($balanceDues) ?>">
+                  <input type="hidden" id="txtTotalBalance" name="CurrentBalance" value="<?php print_r($balanceDues) ?>">
                 </div>
                 <div class="col-md-12">
                   <div class="form-group">
@@ -764,7 +764,6 @@
                     <h6 id="lblDateAcquired"></h6>
                   </div>
                   <div class="col-md-4">
-                    <label>Download Attachments</label>
                     <h6 id="lblDownloadCollateral"></h6>
                   </div>
                 </div>
@@ -788,7 +787,7 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-primary">Submit</button>
+              <button type="submit" id="btnSubmitCollateral" class="btn btn-primary">Submit</button>
             </div>
           </form>
         </div>
@@ -803,14 +802,14 @@
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="modalObligation">Add Obligation</h4>
+            <h4 class="modal-title" id="modalObligationTitle">Add Monthly Obligation</h4>
           </div>
           <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddObligation/<?php print_r($detail['ApplicationId']) ?>" method="post">
             <div class="modal-body">
               <div class="row">
                 <div class="col-md-12">
-                  <label>Obligation</label>
-                  <input type="text" class="form-control" name="Obligation" id="txtObligation">
+                  <label>Obligation <span class="text-red">*</span></label>
+                  <input type="text" class="form-control" required="" name="Obligation" id="txtObligation">
                   <input type="hidden" name="FormType" id="txtFormTypeObligation" value="1">
                   <input type="hidden" name="MonthlyObligationId" id="txtMonthlyObligationId">
                 </div>
@@ -823,8 +822,8 @@
               </div>
               <div class="row">
                 <div class="col-md-12">
-                  <label>Amount</label>
-                  <input type="number" class="form-control" name="Amount" id="txtObligationAmount">
+                  <label>Amount <span class="text-red">*</span></label>
+                  <input type="number" class="form-control" required="" name="Amount" id="txtObligationAmount">
                 </div>
               </div>
             </div>
@@ -845,14 +844,14 @@
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="modalExpense">Add Expense</h4>
+            <h4 class="modal-title" id="modalExpenseTitle">Add Monthly Expense</h4>
           </div>
           <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddExpense/<?php print_r($detail['ApplicationId']) ?>" method="post">
             <div class="modal-body">
               <div class="row">
                 <div class="col-md-12">
-                  <label>Expense</label>
-                  <input type="text" class="form-control" name="Expense" id="txtExpense">
+                  <label>Expense <span class="text-red">*</span></label>
+                  <input type="text" class="form-control" required="" name="Expense" id="txtExpense">
                   <input type="hidden" name="FormTypeExpense" id="txtFormTypeExpense" value="1">
                   <input type="hidden" name="ExpenseId" id="txtExpenseId">
                 </div>
@@ -865,8 +864,8 @@
               </div>
               <div class="row">
                 <div class="col-md-12">
-                  <label>Amount</label>
-                  <input type="number" class="form-control" name="Amount" id="txtExpenseAmount">
+                  <label>Amount <span class="text-red">*</span></label>
+                  <input type="number" class="form-control" required="" name="Amount" id="txtExpenseAmount">
                 </div>
               </div>
             </div>
@@ -923,7 +922,7 @@
               <span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title">Add Charges</h4>
           </div>
-          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddRequirement/<?php print_r($detail['ApplicationId']) ?>" method="post">
+          <form autocomplete="off" action="<?php echo base_url(); ?>/loanapplication_controller/addCharges/<?php print_r($detail['ApplicationId']) ?>" method="post">
             <div class="modal-body">
               <div class="row">
                 <div class="col-md-12">
@@ -934,6 +933,7 @@
                   ?>
                   <input type="hidden" name="FormType" id="txtChargeFormType" value="1">
                   <input type="hidden" name="RequirementId" id="txtChargeId">
+                  <input type="hidden" name="chargeTotal" id="txtChargeTotal">
                 </select>
                 </div>
                 <div id="divChargeDisplay" style="display: none">
@@ -973,14 +973,14 @@
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="modalIncome">Add Other Source of Income</h4>
+            <h4 class="modal-title" id="modalIncomeTitle">Add Other Source of Income</h4>
           </div>
           <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddIncome/<?php print_r($detail['ApplicationId']) ?>" method="post">
             <div class="modal-body">
               <div class="row">
                 <div class="col-md-12">
-                  <label>Source</label>
-                  <input type="text" class="form-control" name="Source" id="txtIncomeSource">
+                  <label>Source <span class="text-red">*</span></label>
+                  <input type="text" class="form-control" required="" name="Source" id="txtIncomeSource">
                   <input type="hidden" name="FormType" id="txtFormTypeIncome" value="1">
                   <input type="hidden" name="IncomeId" id="txtIncomeId">
                 </div>
@@ -993,8 +993,8 @@
               </div>
               <div class="row">
                 <div class="col-md-12">
-                  <label>Amount</label>
-                  <input type="number" class="form-control" name="Amount" id="txtIncomeAmount">
+                  <label>Amount <span class="text-red">*</span></label>
+                  <input type="number" class="form-control" required="" name="Amount" id="txtIncomeAmount">
                 </div>
               </div>
             </div>
@@ -1115,51 +1115,51 @@
             <div class="row">
               <div class="col-md-6">
                 <label>Payment For</label>
-                <h6>Payment For</h6>
+                <h6 id="lblPenaltyPaymentFor"></h6>
               </div>
               <div class="col-md-6">
                 <label>Collection Date</label>
-                <h6>Collection Date</h6>
+                <h6 id="lblPenaltyCollectionDate"></h6>
               </div>
               <div class="col-md-3">
                 <label>Penalty Type</label>
-                <h6>Penalty Type</h6>
+                <h6 id="lblPenaltyType"></h6>
               </div>
               <div class="col-md-3">
                 <label>Amount</label>
-                <h6>Amount</h6>
+                <h6 id="lblPenaltyAmount"></h6>
               </div>
               <div class="col-md-3">
                 <label>Grace Period</label>
-                <h6>Grace Period</h6>
+                <h6 id="lblPenaltyGracePeriod"></h6>
               </div>
               <div class="col-md-3">
                 <label>Total Penalty</label>
-                <h6>Total Penalty</h6>
+                <h6 id="lblPenaltyTotal"></h6>
               </div>
               <div class="col-md-6">
                 <label>Amount Paid</label>
-                <h6>Amount Paid</h6>
+                <h6 id="lblPenaltyPaid"></h6>
               </div>
               <div class="col-md-6">
                 <label>Change</label>
-                <h6>Change</h6>
+                <h6 id="lblPenaltyChange"></h6>
               </div>
               <div class="col-md-6">
                 <label>Payment Method</label>
-                <h6>Payment Method</h6>
+                <h6 id="lblPenaltyPaymentMethod"></h6>
               </div>
               <div class="col-md-6">
                 <label>Change sent through</label>
-                <h6>Change</h6>
+                <h6 id="lblPenaltyChangeMethod"></h6>
               </div>
               <div class="col-md-6">
                 <label>Bank</label>
-                <h6>Bank</h6>
+                <h6 id="lblPenaltyBank"></h6>
               </div>
               <div class="col-md-12">
                 <label>Remarks</label>
-                <h6>Remarks</h6>
+                <h6 id="lblPenaltyRemarks"></h6>
               </div>
             </div>
           </div>
@@ -1192,12 +1192,12 @@
                     echo '<img class="profile-user-img img-responsive img-circle" src="'.base_url().'/borrowerpicture/'. $detail["FileName"].'" class="user-image" alt="User Image">';
                   }
                 ?>
-  		          <center><a href="">View</a></center>
+  		          <center><a target="_blank" href="<?php echo base_url() ?>/home/borrowerdetails/<?php print_r($detail['BorrowerId']) ?>">View</a></center>
   		      	</div>
   		      	<div class="col-md-4">
   		      		<label><?php print_r($detail['Name']) ?></label><br>
   		      		<label><?php print_r($detail['BorrowerNumber']) ?></label><br>
-  		      		<label>Date of Birth:</label> <?php print_r($detail['DOB'] . ' ' . $detail['Age'] . 'yrs old') ?> <br>
+  		      		<label>Date of Birth:</label> <?php print_r($detail['DOB'] . ' | ' . $detail['Age'] . ' yrs old') ?> <br>
   		      		<label>Created By:</label> <?php print_r($detail['CreatedBy']) ?><br>
   		      		<label>Date Created:</label> <?php print_r($detail['DateCreated']) ?><br>
   		      	</div>
@@ -1217,7 +1217,7 @@
 
                   if($detail['ForRestructuring'] != 1) // pending for restructure
                   {
-                    echo '<a data-toggle="modal" data-target="#modalStatus">Edit Status</a>';
+                    echo ' <a data-toggle="modal" href="#" data-target="#modalStatus">Edit Status</a>';
                   }
                   else
                   {
@@ -1447,9 +1447,12 @@
                   <table id="dtblHistory" class="table table-bordered table-hover" style="width: 100%">
                     <thead>
                     <tr>
-                      <th>#</th>
+                      <th>Reference No</th>
+                      <th>Action</th>
+                      <th>Remarks</th>
                       <th>Action</th>
                       <th>By</th>
+                      <th>Date Creation</th>
                       <th>Date Creation</th>
                     </tr>
                     </thead>
@@ -1462,8 +1465,18 @@
                           echo "<tr>";
                           echo "<td>".$rowNumber."</td>";
                           echo "<td>".$value['Description']."</td>";
+                          echo "<td>".$value['Remarks']."</td>";
+                          if($value['FileName'] != '')
+                          {
+                            echo '<td><a href="'.base_url().'/home/download/1/'.$value['NotificationId'].'" title="Download">'.$value['FileName'].'</a></td>';
+                          }
+                          else
+                          {
+                            echo '<td>N/A</td>';
+                          }
                           echo "<td>".$value['CreatedBy']."</td>";
                           echo "<td>".$value['DateCreated']."</td>";
+                          echo "<td>".$value['rawDateCreated']."</td>";
                           echo "</tr>";
                         }
                       ?>
@@ -1475,7 +1488,7 @@
                   <?php 
                     if($detail['StatusId'] == 1)
                     {
-                      echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalRepayment" onclick="computePayment()">Add Collection</a>';
+                      echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalRepayment" onclick="computePayment()">Add Record</a>';
                     }
                   ?>
                 	<br>
@@ -1535,7 +1548,7 @@
                   <?php 
                     if($detail['StatusId'] == 1)
                     {
-                      echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalDisbursement">Add Disbursement</a>';
+                      echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalDisbursement">Add Record</a>';
                     }
                   ?>
                   <br>
@@ -1569,12 +1582,12 @@
                           if($value['StatusId'] == 1)
                           {
                             $status = "<span class='badge bg-green'>Active</span>";
-                            $action = '<a onclick="EditDisbursement(\''.$value['DisbursementId'].'\')" data-toggle="modal" data-target="#modalDisbursement" class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this Disbursement record?\', \''.$value['DisbursementId'].'\', 0, \'Disbursements\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                            $action = '<a onclick="confirm(\'Are you sure you want to deactivate this disbursement record?\', \''.$value['DisbursementId'].'\', 0, \'Disbursements\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
                           }
                           else
                           {
                             $status = "<span class='badge bg-red'>Deactivated</span>";
-                            $action = '<a onclick="confirm(\'Are you sure you want to re-activate this Disbursement record?\', \''.$value['DisbursementId'].'\', 1, \'Disbursements\')" class="btn btn-warning" title="Re-Activate"><span class="fa fa-refresh"></span></a>';
+                            $action = 'N/A';
                           }
                           echo "<td>".$status."</td>";
                           echo "<td>".$action."</td>";
@@ -1590,7 +1603,7 @@
                     <?php 
                       if($detail['StatusId'] == 1)
                       {
-                        echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalPenalty">Add Penalty</a>';
+                        echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalPenalty">Add Record</a>';
                       }
                     ?>                  
                     <br>
@@ -1626,7 +1639,7 @@
                                 else 
                                 {
                                   $status = '<span class="badge bg-red">Deactivated</span>';
-                                  $action = '<a onclick="confirm(\'Are you sure you want to re-activate this penalty record?\', \''.$value['ApplicationPenaltyId'].'\', 1, \'Penalty\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                                  $action = 'N/A';
                                 }
                                 echo "<tr>";
                                 echo "<td>".$value['ReferenceNo']."</td>";
@@ -1654,7 +1667,7 @@
                   <?php
                     if($detail['StatusId'] == 1 || $detail['BranchId'] == $this->session->userdata('BranchId'))
                     {
-                      echo '<a class="btn btn-primary btn-sm pull-right" onclick="onCollateralChange(1)" data-toggle="modal" data-target="#modalCollateral">Add Collateral</a>';
+                      echo '<a class="btn btn-primary btn-sm pull-right" onclick="onCollateralChange(1)" data-toggle="modal" data-target="#modalCollateral">Add Record</a>';
                     }
                   ?>
                 	<br>
@@ -1669,7 +1682,7 @@
                       <th>Type</th>
                       <th>Register Date</th>
                       <th>Date Creation</th>
-                      <th>Status</th>
+                      <th>Action</th>
                       <th>Action</th>
                     </tr>
                     </thead>
@@ -1686,17 +1699,7 @@
                           echo "<td>".$value['CollateralType']."</td>";
                           echo "<td>".$value['DateRegistered']."</td>";
                           echo "<td>".$value['DateCreated']."</td>";
-                          if($value['StatusId'] == 2)
-                          {
-                            $status = "<span class='badge bg-green'>Active</span>";
-                            $action = '<a onclick="confirm(\'Are you sure you want to deactivate this collateral record?\', \''.$value['CollateralId'].'\', 6, \'Collaterals\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
-                          }
-                          else
-                          {
-                            $status = "<span class='badge bg-red'>Deactivated</span>";
-                            $action = '<a onclick="confirm(\'Are you sure you want to re-activate this collateral record?\', \''.$value['CollateralId'].'\', 2, \'Collaterals\') "class="btn btn-warning btn-sm" title="Re-activate"><span class="fa fa-refresh"></span></a>';
-                          }
-                          echo "<td>".$status."</td>";
+                          $action = '<a onclick="confirm(\'Are you sure you want to re-activate this collateral record?\', \''.$value['CollateralId'].'\', 2, \'Collaterals\') "class="btn btn-warning btn-sm" title="Re-activate"><span class="fa fa-refresh"></span></a>';
                           if($detail['BranchId'] == $this->session->userdata('BranchId'))
                           {
                             echo '<td><a class="btn btn-default btn-sm" data-toggle="modal" data-target="#modalCollateral" title="View" onclick="viewCollateral('.$value['CollateralId'].', 1)"><span class="fa fa-info-circle"></span></a> <a class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalCollateral" title="Edit" onclick="viewCollateral('.$value['CollateralId'].', 2)"><span class="fa fa-edit"></span></a> </td> ';
@@ -1705,6 +1708,7 @@
                           {
                             echo '<td></td>';
                           }
+                          echo "<td>".$value['rawDateCreated']."</td>";
                           echo "</tr>";
                         }
                       ?>
@@ -1716,7 +1720,7 @@
                   <?php
                     if($detail['StatusId'] == 1 || $detail['BranchId'] == $this->session->userdata('BranchId'))
                     {
-                      echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalRequirement">Add Requirements</a>';
+                      echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalRequirement">Add Record</a>';
                     }
                   ?>
                 	<br>
@@ -1728,6 +1732,7 @@
                       <th>Name</th>
                       <th>Date Creation</th>
                       <th>Status</th>
+                      <th>Action</th>
                       <th>Action</th>
                     </tr>
                     </thead>
@@ -1742,17 +1747,21 @@
                           echo "<td>".$value['Name']."</td>";
                           echo "<td>".$value['DateCreated']."</td>";
                           echo "<td>".$value['Description']."</td>";
-                          if ($value['StatusId'] == 7) // Pending 
+                          if ($value['StatusId'] == 7) // Submitted 
                           {
-                            $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationRequirementId'].')" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a>';
+                            $action = '<a href="'.base_url().'/home/download/2/'.$value['ApplicationRequirementId'].'" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a>  <a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationRequirementId'].')" class="btn btn-success btn-sm" title="Upload"><span class="fa fa-upload"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this requirement?\', '.$value['ApplicationRequirementId'].', 6, \'Requirements\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
                           }
                           else if($value['StatusId'] == 2) // submitted
                           {
-                            $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationRequirementId'].')" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a>  <a onclick="confirm(\'Are you sure you want to deactivate this requirement?\', '.$value['ApplicationRequirementId'].', 6, \'Requirements\')" class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
+                            $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationRequirementId'].')" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a><a onclick="confirm(\'Are you sure you want to deactivate this requirement?\', '.$value['ApplicationRequirementId'].', 6, \'Requirements\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                          }
+                          else if($value['StatusId'] == 6) // deactivated
+                          {
+                            $action = 'N/A';
                           }
                           else 
                           {
-                            $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationRequirementId'].')" class="btn btn-success btn-sm" title="Upload"><span class="fa fa-upload"></span></a> <a onclick="confirm(\'Are you sure you want to re-activate this requirement?\', '.$value['ApplicationRequirementId'].', 2, \'Requirements\')" class="btn btn-warning btn-sm" title="Re-activate"><span class="fa fa-refresh"></span></a>';
+                            $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationRequirementId'].')" class="btn btn-success btn-sm" title="Upload"><span class="fa fa-upload"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this requirement?\', '.$value['ApplicationRequirementId'].', 2, \'Requirements\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
                           }
 
                           if($detail['BranchId'] == $this->session->userdata('BranchId'))
@@ -1763,6 +1772,7 @@
                           {
                             echo "<td>N/A</td>";
                           }
+                          echo "<td>".$value['rawDateCreated']."</td>";
                           echo "</tr>";
                         }
                       ?>
@@ -1774,7 +1784,7 @@
                   <?php 
                     if($detail['StatusId'] == 1 || $detail['BranchId'] == $this->session->userdata('BranchId'))
                     {
-                      echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" onclick="onclickCharge(1)" data-target="#modalCharge">Add Charge</a>';
+                      echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" onclick="onclickCharge(1)" data-target="#modalCharge">Add Record</a>';
                     }
                   ?>
                   <br>
@@ -1788,6 +1798,7 @@
                       <th>Charge Type</th>
                       <th>Total Charge</th>
                       <th>Status</th>
+                      <th>Date Creation</th>
                       <th>Action</th>
                     </tr>
                     </thead>
@@ -1804,28 +1815,30 @@
                           if($value['ChargeType'] == 1) // pecentage
                           {
                             echo "<td>Percentage</td>";
+                            echo "<td> Php ".number_format($value['Amount']/100 * $detail['RawPrincipalAmount'], 2)."</td>";
                           }
                           else
                           { 
                             echo "<td>Flat Rate</td>";
+                            echo "<td> Php ".number_format($value['Amount'])."</td>";
                           }
-                          echo "<td> Php ".number_format($value['TotalCharge'], 2)."</td>";
                           if($value['StatusId'] == 1) // Pending 
                            {
                             $status = "<span class='badge bg-orange'>Pending</span>";
-                            $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationChargeId'].')" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this Charge?\', \''.$value['ApplicationChargeId'].'\', 6, \'Charge\')" class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
+                            $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationChargeId'].')" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this charge?\', \''.$value['ApplicationChargeId'].'\', 6, \'Charge\')" class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
                           }
                           else if($value['StatusId'] == 2) // paid
                           {
                             $status = "<span class='badge bg-green'>Paid</span>";
-                            $action = '<a onclick="confirm(\'Are you sure you want to deactivate this Charge?\', '.$value['ApplicationChargeId'].', 2, \'Charge\')" class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
+                            $action = '<a onclick="confirm(\'Are you sure you want to deactivate this charge? Please make sure that you cancel the corresponding payment collection in the collections as well tab.\', '.$value['ApplicationChargeId'].', 2, \'Charge\')" class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
                           }
                           else // deactivated
                           {
                             $status = "<span class='badge bg-red'>Deactivated</span>";
-                            $action = '';
+                            $action = 'N/A';
                           }
                           echo '<td>'.$status.'</td>';
+                          echo "<td>".$value['DateCreated']."</td>";
                           if($detail['BranchId'] == $this->session->userdata('BranchId'))
                           {
                             echo '<td>'.$action.'</td>';
@@ -1841,11 +1854,11 @@
                   </table>
                 </div>
                 <div class="tab-pane" id="tabIncome">
-                	<h4>Sources of Other Income</h4>
+                	<h4>Other Sources of Income</h4>
                   <?php 
                     if($detail['StatusId'] == 1 || $detail['BranchId'] == $this->session->userdata('BranchId'))
                     {
-                      echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalIncome">Add Income</a>';
+                      echo '<a class="btn btn-primary btn-sm pull-right" onclick="EditIncome(\'null\', \'Add\')" data-toggle="modal" data-target="#modalIncome">Add Record</a>';
                     }
                   ?>
                 	<br>
@@ -1853,13 +1866,13 @@
                   <table id="dtblIncome" class="table table-bordered table-hover" style="width: 100%">
                     <thead>
                     <tr>
-                      <th>#</th>
+                      <th>Reference No</th>
                       <th>Source</th>
                       <th>Details</th>
                       <th>Amount</th>
-                      <th>Status</th>
                       <th>Created By</th>
                       <th>Date Creation</th>
+                      <th>Status</th>
                       <th>Action</th>
                     </tr>
                     </thead>
@@ -1879,7 +1892,7 @@
                           if($value['StatusId'] == 2)
                           {
                             $status = "<span class='badge bg-green'>Active</span>";
-                            $action = '<a onclick="EditIncome(\''.$value['IncomeId'].'\')" data-toggle="modal" data-target="#modalIncome" class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this Source of Income record?\', \''.$value['IncomeId'].'\', 6, \'Incomes\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                            $action = '<a onclick="EditIncome(\''.$value['IncomeId'].'\', \'Edit\')" data-toggle="modal" data-target="#modalIncome" class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this Source of Income record?\', \''.$value['IncomeId'].'\', 6, \'Incomes\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
                           }
                           else
                           {
@@ -1907,7 +1920,7 @@
                   <?php 
                     if($detail['StatusId'] == 1 || $detail['BranchId'] == $this->session->userdata('BranchId'))
                     {
-                      echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalExpense">Add Expense</a>';
+                      echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" onclick="EditExpense(\'null\', \'Add\')" data-target="#modalExpense">Add Record</a>';
                     }
                   ?>
                 	<br>
@@ -1941,7 +1954,7 @@
                           if($value['StatusId'] == 2)
                           {
                             $status = "<span class='badge bg-green'>Active</span>";
-                            $action = '<a onclick="EditExpense(\''.$value['ExpenseId'].'\')" data-toggle="modal" data-target="#modalExpense" class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this expense record?\', \''.$value['ExpenseId'].'\', 6, \'Expenses\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                            $action = '<a onclick="EditExpense(\''.$value['ExpenseId'].'\', \'Edit\')" data-toggle="modal" data-target="#modalExpense" class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this expense record?\', \''.$value['ExpenseId'].'\', 6, \'Expenses\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
                           }
                           else
                           {
@@ -1969,7 +1982,7 @@
                   <?php 
                     if($detail['StatusId'] == 1 || $detail['BranchId'] == $this->session->userdata('BranchId'))
                     {
-                      echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalObligation">Add Obligations</a>';
+                      echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" onclick="EditObligation(\'null\', \'Edit\')"  data-target="#modalObligation">Add Record</a>';
                     }
                   ?>
                 	<br>
@@ -2004,7 +2017,7 @@
                           if($value['StatusId'] == 2)
                           {
                             $status = "<span class='badge bg-green'>Active</span>";
-                            $action = '<a onclick="EditObligation(\''.$value['MonthlyObligationId'].'\')" data-toggle="modal" data-target="#modalObligation" class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this obligation record?\', \''.$value['MonthlyObligationId'].'\', 6, \'Obligations\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                            $action = '<a onclick="EditObligation(\''.$value['MonthlyObligationId'].'\', \'Edit\')" data-toggle="modal" data-target="#modalObligation" class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this obligation record?\', \''.$value['MonthlyObligationId'].'\', 6, \'Obligations\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
                           }
                           else
                           {
@@ -2031,7 +2044,7 @@
                   <?php 
                     if($detail['StatusId'] == 1 || $detail['BranchId'] == $this->session->userdata('BranchId'))
                     {
-                      echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalComment">Add Comment</a>';
+                      echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalComment">Add Record</a>';
                     }
                   ?>
                 	<br>
@@ -2043,6 +2056,7 @@
                       <th>Comment</th>
                       <th>By</th>
                       <th>Date Creation</th>
+                      <th>Status</th>
                       <th>Action</th>
                     </tr>
                     </thead>
@@ -2057,9 +2071,32 @@
                           echo "<td>".$value['Comment']."</td>";
                           echo "<td>".$value['Name']."</td>";
                           echo "<td>".$value['DateCreated']."</td>";
+                          if($value['StatusId'] == 1)
+                          {
+                            echo "<td>Active</td>";
+                          }
+                          else
+                          {
+                            echo "<td>Deactivated</td>";
+                          }
                           if($detail['BranchId'] == $this->session->userdata('BranchId'))
                           {
-                            echo '<td><a class="btn btn-default btn-sm" title="Download"><span class="fa fa-download"></span></a> <a class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a></td> ';
+                            if($value['StatusId'] == 1)
+                            {
+                              $action = '<a onclick="confirm(\'Are you sure you want to deactivate this comment?\', \''.$value['CommentId'].'\', 6, \'Comment\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                            }
+                            else
+                            {
+                              $action = '';
+                            }
+                            if($value['FileName'] != null)
+                            {
+                              echo '<td><a href="'.base_url().'/home/download/3/'.$value['CommentId'].'" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a> '.$action.'</td> ';
+                            }
+                            else
+                            {
+                              echo '<td>'.$action.'</td> ';
+                            }
                           }
                           echo "</tr>";
                         }
@@ -2153,11 +2190,13 @@
   });
 
   $('#dtblCollateral').DataTable({
-    "order": [[3, "asc"]]
+    "aoColumnDefs": [{ "bVisible": false, "aTargets": [8] }],
+    "order": [[8, "desc"]]
   });
 
   $('#dtblRequirements').DataTable({
-    "order": [[0, "desc"]]
+    "aoColumnDefs": [{ "bVisible": false, "aTargets": [5] }],
+    "order": [[3, "desc"], [5, "desc"]]
   });
 
   $('#dtblComments').DataTable({
@@ -2175,7 +2214,8 @@
 
   var rowNumber = 0;
   $('#dtblHistory').DataTable({
-    "order": [[0, "desc"]]
+    "aoColumnDefs": [{ "bVisible": false, "aTargets": [6] }],
+    "order": [[6, "desc"]]
   });
 
   $('#dtblCharges').DataTable({
@@ -2325,17 +2365,20 @@
         success: function(data)
         {
           $('#divChargeDisplay').slideDown();
-          if(data['ChargeType'] == 'Percentage')
+          if(data['ChargeType'] == 1)
           {
+            $('#lblChargeType').html('Percentage');
             $('#lblChargeAmount').html(parseInt(data['Amount']).toLocaleString('en-US', {minimumFractionDigits: 2})+'%');
             $('#lblChargeTotal').html('Php ' + parseInt(data['Amount']/100 * '<?php print_r($detail['RawPrincipalAmount'])?>').toLocaleString('en-US', {minimumFractionDigits: 2}));
+            $('#txtChargeTotal').val(parseInt(data['Amount']/100 * '<?php print_r($detail['RawPrincipalAmount'])?>'));
           }
           else
           {
             $('#lblChargeAmount').html('Php ' + parseInt(data['Amount']).toLocaleString('en-US', {minimumFractionDigits: 2}));
             $('#lblChargeTotal').html('Php ' + parseInt(data['Amount']).toLocaleString('en-US', {minimumFractionDigits: 2}));
+            $('#txtChargeTotal').val(parseInt(data['Amount']));
+            $('#lblChargeType').html('Flat Rate');
           }
-          $('#lblChargeType').html(data['ChargeType']);
         },
         error: function()
         {
@@ -2671,7 +2714,7 @@
     function viewPenalty(applicationPenaltyId)
     {
       $.ajax({
-        url: '<?php echo base_url()?>' + "/loanapplication_controller/getExpenseDetails",
+        url: '<?php echo base_url()?>' + "/loanapplication_controller/getPenaltyPaymentDetails",
         type: "POST",
         async: false,
         data: {
@@ -2683,11 +2726,25 @@
         },
         success: function(data)
         {
-          $('#txtExpense').val(data['Source']);
-          $('#txtExpenseDetail').val(data['Details']);
-          $('#txtExpenseAmount').val(data['Amount']);
-          $('#txtExpenseId').val(ExpenseId);
-          $('#txtFormTypeExpense').val(2);
+          $('#lblPenaltyPaymentFor').html(data['PaymentDate']);
+          $('#lblPenaltyCollectionDate').html(data['DateCollected']);
+          $('#lblPenaltyType').html(data['PenaltyType']);
+          if(data['PenaltyType'] == 'Percentage')
+          {
+            $('#lblPenaltyAmount').html(parseInt(data['Amount']).toLocaleString('en-US', {minimumFractionDigits: 2}) +  '%');
+          }
+          else
+          {
+            $('#lblPenaltyAmount').html('Php ' +  parseInt(data['Amount']).toLocaleString('en-US', {minimumFractionDigits: 2}));
+          }
+          $('#lblPenaltyGracePeriod').html(data['GracePeriod']);
+          $('#lblPenaltyTotal').html(data['TotalPenalty']);
+          $('#lblPenaltyPaid').html('Php ' +  parseInt(data['AmountPaid']).toLocaleString('en-US', {minimumFractionDigits: 2}));
+          $('#lblPenaltyChange').html('Php ' +  parseInt(data['AmountChange']).toLocaleString('en-US', {minimumFractionDigits: 2}));
+          $('#lblPenaltyPaymentMethod').html(data['PaymentMethod']);
+          $('#lblPenaltyChangeMethod').html(data['ChangeMethod']);
+          $('#lblPenaltyBank').html(data['BankName']);
+          $('#lblPenaltyRemarks').html(data['Remarks']);
         },
 
         error: function()
@@ -2754,117 +2811,141 @@
     });
   }
 
-  function EditObligation(MonthlyObligationId)
+  function EditObligation(MonthlyObligationId, formType)
   {
-    $.ajax({
-      url: '<?php echo base_url()?>' + "/loanapplication_controller/getObligationDetails",
-      type: "POST",
-      async: false,
-      data: {
-        Id : MonthlyObligationId
-      },
-      dataType: "JSON",
-      beforeSend: function(){
-          $('.loading').show();
-      },
-      success: function(data)
-      {
-        $('#txtObligation').val(data['Source']);
-        $('#txtObligationDetail').val(data['Details']);
-        $('#txtObligationAmount').val(data['Amount']);
-        $('#txtMonthlyObligationId').val(MonthlyObligationId);
-        $('#txtFormTypeObligation').val(2);
-      },
-      error: function()
-      {
-        setTimeout(function() {
-          swal({
-            title: 'Warning!',
-            text: 'Something went wrong, please contact the administrator or refresh page!',
-            type: 'warning',
-            buttonsStyling: false,
-            confirmButtonClass: 'btn btn-primary'
-          });
-          // location.reload();
-        }, 2000);
-      }
-    });
+    if(formType == 'Add')
+    {
+      $('#modalObligationTitle').html('Add Monthly Obligation');
+    }
+    else
+    {
+      $('#modalObligationTitle').html('Edit Monthly Obligation');
+      $.ajax({
+        url: '<?php echo base_url()?>' + "/loanapplication_controller/getObligationDetails",
+        type: "POST",
+        async: false,
+        data: {
+          Id : MonthlyObligationId
+        },
+        dataType: "JSON",
+        beforeSend: function(){
+            $('.loading').show();
+        },
+        success: function(data)
+        {
+          $('#txtObligation').val(data['Source']);
+          $('#txtObligationDetail').val(data['Details']);
+          $('#txtObligationAmount').val(data['Amount']);
+          $('#txtMonthlyObligationId').val(MonthlyObligationId);
+          $('#txtFormTypeObligation').val(2);
+        },
+        error: function()
+        {
+          setTimeout(function() {
+            swal({
+              title: 'Warning!',
+              text: 'Something went wrong, please contact the administrator or refresh page!',
+              type: 'warning',
+              buttonsStyling: false,
+              confirmButtonClass: 'btn btn-primary'
+            });
+            // location.reload();
+          }, 2000);
+        }
+      });
+    }
   }
 
-  function EditExpense(ExpenseId)
-  { 
-    $.ajax({
-      url: '<?php echo base_url()?>' + "/loanapplication_controller/getExpenseDetails",
-      type: "POST",
-      async: false,
-      data: {
-        Id : ExpenseId
-      },
-      dataType: "JSON",
-      beforeSend: function(){
-          $('.loading').show();
-      },
-      success: function(data)
-      {
-        $('#txtExpense').val(data['Source']);
-        $('#txtExpenseDetail').val(data['Details']);
-        $('#txtExpenseAmount').val(data['Amount']);
-        $('#txtExpenseId').val(ExpenseId);
-        $('#txtFormTypeExpense').val(2);
-      },
+  function EditExpense(ExpenseId, formType)
+  {
+    if(formType == 'Add')
+    {
+      $('#modalExpenseTitle').html('Add Monthly Expense');
+    }
+    else
+    {
+      $('#modalExpenseTitle').html('Edit Monthly Expense');
+      $.ajax({
+        url: '<?php echo base_url()?>' + "/loanapplication_controller/getExpenseDetails",
+        type: "POST",
+        async: false,
+        data: {
+          Id : ExpenseId
+        },
+        dataType: "JSON",
+        beforeSend: function(){
+            $('.loading').show();
+        },
+        success: function(data)
+        {
+          $('#txtExpense').val(data['Source']);
+          $('#txtExpenseDetail').val(data['Details']);
+          $('#txtExpenseAmount').val(data['Amount']);
+          $('#txtExpenseId').val(ExpenseId);
+          $('#txtFormTypeExpense').val(2);
+        },
 
-      error: function()
-      {
-        setTimeout(function() {
-          swal({
-            title: 'Warning!',
-            text: 'Something went wrong, please contact the administrator or refresh page!',
-            type: 'warning',
-            buttonsStyling: false,
-            confirmButtonClass: 'btn btn-primary'
-          });
-          // location.reload();
-        }, 2000);
-      }
-    });
+        error: function()
+        {
+          setTimeout(function() {
+            swal({
+              title: 'Warning!',
+              text: 'Something went wrong, please contact the administrator or refresh page!',
+              type: 'warning',
+              buttonsStyling: false,
+              confirmButtonClass: 'btn btn-primary'
+            });
+            // location.reload();
+          }, 2000);
+        }
+      });
+    }
   }
 
-  function EditIncome(IncomeId)
+  function EditIncome(IncomeId, formType)
   { 
-    $.ajax({
-      url: '<?php echo base_url()?>' + "/loanapplication_controller/getIncomeDetails",
-      type: "POST",
-      async: false,
-      data: {
-        Id : IncomeId
-      },
-      dataType: "JSON",
-      beforeSend: function(){
-          $('.loading').show();
-      },
-      success: function(data)
-      {
-        $('#txtIncomeSource').val(data['Source']);
-        $('#txtIncomeDetail').val(data['Details']);
-        $('#txtIncomeAmount').val(data['Amount']);
-        $('#txtIncomeId').val(IncomeId);
-        $('#txtFormTypeIncome').val(2);
-      },
+    if(formType == 'Add')
+    {
+      $('#modalIncomeTitle').html('Add Other Source of Income');
+    }
+    else
+    {
+      $('#modalIncomeTitle').html('Edit Other Source of Income');
+      $.ajax({
+        url: '<?php echo base_url()?>' + "/loanapplication_controller/getIncomeDetails",
+        type: "POST",
+        async: false,
+        data: {
+          Id : IncomeId
+        },
+        dataType: "JSON",
+        beforeSend: function(){
+            $('.loading').show();
+        },
+        success: function(data)
+        {
+          $('#txtIncomeSource').val(data['Source']);
+          $('#txtIncomeDetail').val(data['Details']);
+          $('#txtIncomeAmount').val(data['Amount']);
+          $('#txtIncomeId').val(IncomeId);
+          $('#txtFormTypeIncome').val(2);
+        },
 
-      error: function()
-      {
-        setTimeout(function() {
-          swal({
-            title: 'Warning!',
-            text: 'Something went wrong, please contact the administrator or refresh page!',
-            type: 'warning',
-            buttonsStyling: false,
-            confirmButtonClass: 'btn btn-primary'
-          });
-          // location.reload();
-        }, 2000);
-      }
-    });
+        error: function()
+        {
+          setTimeout(function() {
+            swal({
+              title: 'Warning!',
+              text: 'Something went wrong, please contact the administrator or refresh page!',
+              type: 'warning',
+              buttonsStyling: false,
+              confirmButtonClass: 'btn btn-primary'
+            });
+            // location.reload();
+          }, 2000);
+        }
+      });
+    }
   }
 
   function EditDisbursement(DisbursementId)
@@ -2924,10 +3005,18 @@
         {
           $('#CollateralTitle').html('Collateral Information');
           $('#divCollateralDetails').show();
+          $('#btnSubmitCollateral').hide();
           $('#divCollateralForm').hide();
 
           $('#lblCollateralType').html(data['CollateralType']);
-          $('#lblDownloadCollateral').html('<a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>/home/download/3/'+CollateralId+'" title="Download">Download</a> ');
+          if(data['withFiles'] > 0)
+          {
+            $('#lblDownloadCollateral').html('<label>Download Attachments</label><br> <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>/home/download/4/'+CollateralId+'" title="Download">Download</a> ');
+          }
+          else
+          {            
+            $('#lblDownloadCollateral').html('');
+          }
           $('#lblProductName').html(data['ProductName']);
           $('#lblValue').html('Php ' +  parseInt(data['Value']).toLocaleString('en-US', {minimumFractionDigits: 2}));
           $('#lblDateRegistered').html(data['DateRegistered']);
@@ -2948,6 +3037,7 @@
         }
         else // display editing content
         {
+          $('#btnSubmitCollateral').show();
           $('#divCollateralDetails').hide();
           $('#divCollateralAutomobile').hide();
           $('#divCollateralForm').show();

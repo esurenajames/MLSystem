@@ -153,10 +153,14 @@
             <ul class="nav nav-tabs">
               <li class="active"><a href="#auditLogs" data-toggle="tab">Audit Logs</a></li>
               <li><a href="#securitySettings" data-toggle="tab">Security Settings</a></li>
-              <li><a href="#Notifications" data-toggle="tab">Employee Notifications</a></li>
+              <?php if($this->session->userdata('IsManager') == 1) {?>
+                <li><a href="#Notifications" data-toggle="tab">Employee Notifications</a></li>
+              <?php } else {?>
+              <?php }?>
             </ul>
             <div class="tab-content">
               <div class="active tab-pane" id="auditLogs">
+
                 <?php $this->load->view('profile/profileAudit'); ?>
               </div>
               <div class="tab-pane" id="securitySettings">
@@ -270,6 +274,20 @@
                   </tr>
                   </thead>
                   <tbody>
+                    <?php
+                      $row = 0;
+                      foreach ($Audit2 as $value) 
+                      {
+                        $row = $row + 1;
+                        echo "<tr>";
+                        echo "<td>".$row."</td>";
+                        echo "<td>".$value['Description']."</td>";
+                        echo "<td>".$value['CreatedBy']."</td>";
+                        echo "<td>".$value['DateCreated']."</td>";
+                        echo "<td>".$value['rawDateCreated']."</td>";
+                        echo "</tr>";
+                      }
+                    ?>
                   </tbody>
                 </table>
               </div>
@@ -518,6 +536,10 @@
 
     var rowNo = 0;
     $('#dtblAudit').DataTable({
+      // "aoColumnDefs": [{ "bVisible": false, "aTargets": [4] }],
+      "order": [[0, "desc"]]
+    });
+    $('#example2').DataTable({
       // "aoColumnDefs": [{ "bVisible": false, "aTargets": [4] }],
       "order": [[0, "desc"]]
     });

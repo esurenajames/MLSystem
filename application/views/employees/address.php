@@ -10,6 +10,7 @@
     <th>Date Updated</th>
     <th>Status</th>
     <th>Action</th>
+    <th>Action</th>
   </tr>
   </thead>
   <tbody>
@@ -52,10 +53,11 @@
         }
         else
         {
-          $action = '<a onclick="confirmAddress(\'Are you sure you want to re-activate this address?\', \''.$value['EmployeeAddressId'].'\', 1, \''.$value['EmployeeNumber'].'\')" class="btn btn-warning btn-sm" title="Deactivate"><span class="fa fa-refresh"></span></a>';
+          $action = 'N/A';
         }
         echo "<td>".$status."</td>";
         echo "<td>".$action."</td>";
+        echo "<td>".$value['rawDateCreated']."</td>";
         echo "</tr>";
       }
     ?>

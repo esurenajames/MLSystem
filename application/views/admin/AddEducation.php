@@ -22,7 +22,7 @@
         <form action="<?php echo base_url(); ?>admin_controller/AddEducation/" id="frmInsert2" method="post">
           <div class="modal-body">
               <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-12">
                   <div class="form-group">
                     <label for="Education">Education Level</label><br>
                     <input type="text" class="form-control" id="txtEducation" name="Education">
@@ -55,7 +55,7 @@
         <h3 class="box-title">List of Education Levels</h3>
       </div>
       <div class="box-body">
-        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewEducation">Add Education Level</button>
+        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewEducation">Add Record</button>
         <br>
         <br>
         <form name="ApproverDocForm" method="post" id="ApproverDocForm">

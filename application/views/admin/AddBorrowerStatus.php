@@ -23,18 +23,12 @@
         <form action="<?php echo base_url(); ?>admin_controller/AddBorrowerStatus/" id="frmInsert2" method="post">
           <div class="modal-body">
               <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-12">
                   <div class="form-group">
                     <label for="BorrowerStatus">Borrower Status</label><br>
                     <input type="text" class="form-control" id="txtBorrowerStatus" name="BorrowerStatus">
                     <input type="hidden" class="form-control" id="txtFormType" name="FormType" value="1">
                     <input type="hidden" class="form-control" id="txtBorrowerStatusId" name="BorrowerStatusId">
-                  </div>
-                </div>
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label for="Description">Description</label>
-                    <textarea type="text" class="form-control" id="txtDescription" name="Description" placeholder="Description"></textarea>
                   </div>
                 </div>
               </div>
@@ -56,7 +50,7 @@
         <h3 class="box-title">List of Borrower's Status</h3>
       </div>
       <div class="box-body">
-        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewBorrowerStatus">Add Borrower Status</button>
+        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewBorrowerStatus">Add Record</button>
         <br>
         <br>
         <form name="ApproverDocForm" method="post" id="ApproverDocForm">
@@ -65,10 +59,8 @@
             <tr>
               <th>#</th>
               <th>Status Name</th>
-              <th>Description</th>
               <th>Status</th>
               <th>Date Created</th>
-              <th>Date Updated</th>
               <th>Action</th>
             </tr>
             </thead>
@@ -206,7 +198,6 @@
       "ajax": { url: '<?php echo base_url()."/datatables_controller/BorrowerStatus/"; ?>', type: 'POST', "dataSrc": "" },
       "columns": [  { data: "ReferenceNo" }
                     , { data: "BorrowerStatus" }
-                    , { data: "Description" }
                     , {
                       data: "StatusId", "render": function (data, type, row) {
                         if(row.StatusId == 1){
@@ -221,7 +212,6 @@
                       }
                     },
                     { data: "DateCreated" }, 
-                    { data: "DateUpdated" }, 
                     {
                       data: "StatusId", "render": function (data, type, row) {
                       if(row.StatusId == 1){

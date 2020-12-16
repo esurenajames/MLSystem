@@ -270,11 +270,13 @@
         $('#selectNationality').val(data['NationalityId']).change();
         $('#selectCivilStatus').val(data['CivilStatusId']).change();
         $('#selectPosition').val(data['PositionId']).change();
+        $('#selectStatusId').val(data['StatusId']).change();
 
-        $('#datepicker').daterangepicker({
+        $('#DateOfBirth').daterangepicker({
             "startDate": moment(data['RawDOB']).format('DD MMM YY'),
             "singleDatePicker": true,
             "timePicker": false,
+            "showDropdowns": true,
             "linkedCalendars": false,
             "showCustomRangeLabel": false,
             // "maxDate": Start,
@@ -287,7 +289,9 @@
 
         $('#dateHired').daterangepicker({
             "startDate": moment(data['RawDateHired']).format('DD MMM YY'),
+            "maxDate": moment().format('DD MMM YY'),
             "singleDatePicker": true,
+            "showDropdowns": true,
             "timePicker": false,
             "linkedCalendars": false,
             "showCustomRangeLabel": false,
@@ -542,14 +546,14 @@ $(function () {
 
   dtblEmailAddress = $('#dtblEmailAddress').DataTable({
     "pageLength": 10,
-    // "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
-    "order": [[6, "asc"], [3, "desc"]]
+    "aoColumnDefs": [{ "bVisible": false, "aTargets": [8] }],
+    "order": [[4, "desc"], [6, "asc"]]
   });
   
   dtblAddress = $('#dtblAddress').DataTable({
     "pageLength": 10,
-    // "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
-    "order": [[3, "asc"]]
+    "aoColumnDefs": [{ "bVisible": false, "aTargets": [9] }],
+    "order": [[4, "desc"], [9, "desc"]]
   });
   
   dtblContactNumber = $('#dtblContactNumber').DataTable({
@@ -566,8 +570,18 @@ $(function () {
   
   dtblAudit = $('#dtblAudit').DataTable({
     "pageLength": 10,
-    // "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
-    "order": [[0, "desc"]]
+    "aoColumnDefs": [{ "bVisible": false, "aTargets": [4] }],
+    "order": [[4, "desc"]]
   });
+
+  $('#modalProfilePicture').on('hidden.bs.modal', function () {
+    Webcam.reset();
+    $('#cameraDiv').hide();
+    $('#cameraDivBtn').show();
+    $('#cameraDivBtnOff').hide();
+    $('#btnCameraSave').hide();
+    $('#btnCameraUpload').show();
+    $('#uploadPic').show();
+  })
 
 })

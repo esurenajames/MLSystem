@@ -41,14 +41,14 @@ class loanapplication_model extends CI_Model
                                           THEN AHI.Amount/100 * PrincipalAmount
                                           ELSE PrincipalAmount + AHI.Amount
                                         END / (A.TermNo * A.RepaymentNo) as totalInterestPerCollection
-                                      , DATE_FORMAT(B.DateCreated, '%b %d, %Y') as DateCreated
+                                      , DATE_FORMAT(B.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                       , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as CreatedBy
                                       , EMP.EmployeeNumber as EmployeeCreator
                                       , A.TransactionNumber
                                       , CASE
                                           WHEN A.DateApproved IS NULL
                                           THEN 'N/A'
-                                          ELSE DATE_FORMAT(A.DateApproved, '%b %d, %Y %r')
+                                          ELSE DATE_FORMAT(A.DateApproved, '%b %d, %Y %h:%i %p')
                                         END as DateApproved
                                       , FORMAT(A.PrincipalAmount, 2) as PrincipalAmount
                                       , AHI.InterestType
@@ -105,7 +105,7 @@ class loanapplication_model extends CI_Model
                                             FROM application_has_approver
                                               WHERE ApplicationId = A.ApplicationId
                                               AND StatusId = 5
-                                              AND ApproverNumber = '000002'
+                                              AND ApproverNumber = '$EmployeeNumber'
                                       ) as IsApprover
                                       , A.SourceName
                                       , A.BorrowerMonthlyIncome
@@ -169,7 +169,7 @@ class loanapplication_model extends CI_Model
                                         -- AND BHE.StatusId = 1
                                         -- AND BHC.IsPrimary = 1
                                         -- AND BHC.StatusId = 1
-                                        -- AND BHP.StatusId = 1
+                                        AND BHP.StatusId = 1
     ");
 
     $data = $query->row_array();
@@ -242,7 +242,7 @@ class loanapplication_model extends CI_Model
                                               , BA.BrgyDesc
                                               FROM R_Spouse B
                                                 INNER JOIN borrowerAddressHistory BAH
-                                                  ON B.BorrowerId = BAH.BorrowerId
+                                                  ON B.SpouseId = BAH.BorrowerId
                                                 INNER JOIN R_Address A
                                                   ON A.AddressId = BAH.AddressId
                                                 INNER JOIN add_barangay BA
@@ -270,7 +270,7 @@ class loanapplication_model extends CI_Model
                                               , A.ContactNumber
                                               FROM R_Spouse B
                                                 INNER JOIN borrowerAddressHistory BAH
-                                                  ON B.BorrowerId = BAH.BorrowerId
+                                                  ON B.SpouseId = BAH.BorrowerId
                                                 INNER JOIN R_Address A
                                                   ON A.AddressId = BAH.AddressId
                                                 INNER JOIN add_barangay BA
@@ -385,6 +385,8 @@ class loanapplication_model extends CI_Model
                                               , DATE_FORMAT(B.DateOfBirth, '%Y-%b-%d') as RawDateOfBirth
                                               , SS.Name as StatusDescription
                                               , B.StatusId
+                                              , DATE_FORMAT(B.DateOfBirth, '%m-%d-%Y') as ReportDOB
+                                              , E.EmailAddress
 
                                               , B.MiddleName
                                               , S.SalutationId
@@ -403,6 +405,10 @@ class loanapplication_model extends CI_Model
                                                   ON C.CivilStatusId = B.CivilStatus
                                                 INNER JOIN R_BorrowerStatus SS
                                                   ON SS.BorrowerStatusId = B.StatusId
+                                                LEFT JOIN Borrower_Has_Emails BHE
+                                                  ON BHE.BorrowerId = B.SpouseId
+                                                LEFT JOIN R_Emails E
+                                                  ON E.EmailId = BHE.EmailId
                                                 WHERE B.SpouseId = $Id
                                                 AND B.StatusId = 1
 
@@ -445,7 +451,7 @@ class loanapplication_model extends CI_Model
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $query = $this->db->query("SELECT Amount
                                       , CONCAT('PYM-', LPAD(P.PaymentMadeId, 6, 0)) as ReferenceNo
-                                      , DATE_FORMAT(P.DateCreated, '%b %d, %Y %r') as DateCreated
+                                      , DATE_FORMAT(P.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                       , DATE_FORMAT(P.DateCollected, '%b %d, %Y') as DateCollected
                                       , DATE_FORMAT(P.PaymentDate, '%b %d, %Y') as PaymentDate
                                       , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName) as CreatedBy
@@ -968,7 +974,7 @@ class loanapplication_model extends CI_Model
                                               , PM.AmountPaid as AmountPaid
                                               , BNK.BankName
                                               , DATE_FORMAT(PM.DateCollected, '%b %d, %Y') as dateCollected
-                                              , DATE_FORMAT(PM.dateCreated, '%b %d, %Y %r') as dateCreated
+                                              , DATE_FORMAT(PM.dateCreated, '%b %d, %Y %h:%i %p') as DateCreated
 
                                               , PM.ChangeAmount as rawChangeAmount
                                               , PM.AmountPaid as rawAmountPaid
@@ -1008,7 +1014,7 @@ class loanapplication_model extends CI_Model
                                               , PM.Description
                                               , BNK.BankName
                                               , DATE_FORMAT(PM.DateCollected, '%b %d, %Y') as dateCollected
-                                              , DATE_FORMAT(PM.dateCreated, '%b %d, %Y %r') as dateCreated
+                                              , DATE_FORMAT(PM.dateCreated, '%b %d, %Y %h:%i %p') as DateCreated
 
                                               , PM.ChangeAmount as rawChangeAmount
                                               , PM.AmountPaid as rawAmountPaid
@@ -1039,7 +1045,7 @@ class loanapplication_model extends CI_Model
                                               , EXT.Name
                                               , EX.Amount
                                               , DATE_FORMAT(EX.DateExpense, '%b %d, %Y') as DateExpense
-                                              , DATE_FORMAT(EX.DateCreated, '%b %d, %Y') as DateCreated
+                                              , DATE_FORMAT(EX.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                               , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName) as CreatedBy
                                               FROM R_Expense EX
                                                     INNER JOIN r_expensetype EXT
@@ -1060,7 +1066,12 @@ class loanapplication_model extends CI_Model
     $query_string = $this->db->query("SELECT  A.ApplicationId
                                               , AHN.Description
                                               , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as CreatedBy
-                                              , DATE_FORMAT(AHN.DateCreated, '%b %d, %Y %r') as DateCreated
+                                              , Remarks
+                                              , FileName
+                                              , FileTitle
+                                              , DATE_FORMAT(AHN.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                              , AHN.DateCreated as rawDateCreated
+                                              , AHN.NotificationId
                                               FROM Application_has_notifications AHN
                                                 INNER JOIN T_Application A
                                                   ON A.ApplicationId = AHN.ApplicationId
@@ -1083,7 +1094,7 @@ class loanapplication_model extends CI_Model
                                     , ApplicationPenaltyId
                                     , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as CreatedBy
                                     , AHP.StatusId
-                                    , DATE_FORMAT(AHP.DateCreated, '%b %d, %Y %r') as DateCreated
+                                    , DATE_FORMAT(AHP.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                       FROM Application_has_Penalty AHP
                                         INNER JOIN r_status S
                                           ON S.StatusId = AHP.StatusId
@@ -1099,16 +1110,21 @@ class loanapplication_model extends CI_Model
   function getLoanComments($ID)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $query_string = $this->db->query("SELECT  CONCAT('COM-', LPAD(CommentId, 6, 0)) as ReferenceNo
+    $query_string = $this->db->query("SELECT  CONCAT('COM-', LPAD(AC.CommentId, 6, 0)) as ReferenceNo
                                               , AC.ApplicationId
                                               , AC.CommentId
                                               , AC.Comment
                                               , AC.CreatedBy
-                                              , DATE_FORMAT(AC.DateCreated, '%b %d, %Y') as DateCreated
+                                              , AC.CommentId
+                                              , AC.StatusId
+                                              , DATE_FORMAT(AC.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                               , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as Name
+                                              , FileName
                                               FROM Application_has_Comments AC
                                                 INNER JOIN r_employee EMP
                                                   ON EMP.EmployeeNumber = AC.CreatedBy
+                                                LEFT JOIN comments_has_attachments CHA
+                                                  ON CHA.CommentId = AC.CommentId
                                                     WHERE AC.ApplicationId = $ID
     ");
     $data = $query_string->result_array();
@@ -1118,14 +1134,15 @@ class loanapplication_model extends CI_Model
   function displayRequirements($ID)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $query_string = $this->db->query("SELECT  CONCAT('REQ-', LPAD(AR.RequirementId, 4, 0)) as ReferenceNo
+    $query_string = $this->db->query("SELECT  CONCAT('REQ-', LPAD(AR.ApplicationRequirementId, 6, 0)) as ReferenceNo
                                               , AR.ApplicationId
                                               , AR.RequirementId
                                               , R.Name
                                               , S.Description
                                               , AR.ApplicationRequirementId
                                               , AR.StatusId
-                                              , DATE_FORMAT(AR.DateCreated, '%b %d, %Y') as DateCreated
+                                              , DATE_FORMAT(AR.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                              , AR.DateCreated as rawDateCreated
                                               FROM Application_has_Requirements AR
                                                     INNER JOIN R_Requirements R
                                                       ON R.RequirementId = AR.RequirementId
@@ -1164,11 +1181,12 @@ class loanapplication_model extends CI_Model
   function getCollateral($ID)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $query_string = $this->db->query("SELECT  CONCAT('CLR-', LPAD(C.CollateralId, 4, 0)) as ReferenceNo
+    $query_string = $this->db->query("SELECT  CONCAT('CLR-', LPAD(C.CollateralId, 6, 0)) as ReferenceNo
                                               , C.ProductName
                                               , C.Value
                                               , DATE_FORMAT(C.DateRegistered, '%b %d, %Y') as DateRegistered
-                                              , DATE_FORMAT(C.DateCreated, '%b %d, %Y') as DateCreated
+                                              , DATE_FORMAT(C.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                              , C.DateCreated as rawDateCreated
                                               , CT.Name as CollateralType
                                               , CS.Name as CurrentStatus
                                               , C.CollateralId
@@ -1190,7 +1208,7 @@ class loanapplication_model extends CI_Model
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $query_string = $this->db->query("SELECT  CONCAT('DB-', LPAD(AHD.DisbursementId, 6, 0)) as ReferenceNo
-                                              , DATE_FORMAT(AHD.DateCreated, '%b %d, %Y, %r') as DateCreated
+                                              , DATE_FORMAT(AHD.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                               , AHD.Amount
                                               , AHD.Description
                                               , AHD.ApplicationId
@@ -1214,7 +1232,7 @@ class loanapplication_model extends CI_Model
   function getIncome($ID)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $query_string = $this->db->query("SELECT  CONCAT('INC-', LPAD(AI.IncomeId, 4, 0)) as ReferenceNo
+    $query_string = $this->db->query("SELECT  CONCAT('INC-', LPAD(AI.IncomeId, 6, 0)) as ReferenceNo
                                               , AI.ApplicationId
                                               , AI.Source
                                               , AI.IncomeId
@@ -1223,7 +1241,7 @@ class loanapplication_model extends CI_Model
                                               , AI.CreatedBy
                                               , AI.StatusId
                                               , S.Description
-                                              , DATE_FORMAT(AI.DateCreated, '%b %d, %Y %r') as DateCreated
+                                              , DATE_FORMAT(AI.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                               , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as Name
                                               FROM Application_has_MonthlyIncome AI
                                                 INNER JOIN r_status S
@@ -1239,7 +1257,7 @@ class loanapplication_model extends CI_Model
   function getDisbursements($ID)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $query_string = $this->db->query("SELECT  CONCAT('DIS-', LPAD(C.CollateralId, 4, 0)) as ReferenceNo
+    $query_string = $this->db->query("SELECT  CONCAT('DIS-', LPAD(C.CollateralId, 6, 0)) as ReferenceNo
                                               , C.ProductName
                                               , C.Value
                                               , DATE_FORMAT(C.DateRegistered, '%b %d, %Y') as DateRegistered
@@ -1262,7 +1280,7 @@ class loanapplication_model extends CI_Model
   function displayCharges($ID)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $query_string = $this->db->query("SELECT  CONCAT('CHR-', LPAD(AHC.ApplicationChargeId, 4, 0)) as ReferenceNo
+    $query_string = $this->db->query("SELECT  CONCAT('CHR-', LPAD(AHC.ApplicationChargeId, 6, 0)) as ReferenceNo
                                               , C.ChargeId
                                               , AHC.ApplicationChargeId
                                               , C.Name
@@ -1279,7 +1297,7 @@ class loanapplication_model extends CI_Model
                                                 END as TotalCharge
                                               , AHC.StatusId
                                               , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as CreatedBy
-                                              , DATE_FORMAT(AHC.DateCreated, '%b %d, %Y %r') as DateCreated
+                                              , DATE_FORMAT(AHC.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                               FROM Application_has_charges AHC
                                                 INNER JOIN R_Charges C
                                                   ON C.ChargeId = AHC.ChargeId
@@ -1313,7 +1331,7 @@ class loanapplication_model extends CI_Model
   function getExpenses($ID)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $query_string = $this->db->query("SELECT  CONCAT('EXP-', LPAD(AE.ExpenseId, 4, 0)) as ReferenceNo
+    $query_string = $this->db->query("SELECT  CONCAT('EXP-', LPAD(AE.ExpenseId, 6, 0)) as ReferenceNo
                                               , AE.ApplicationId
                                               , AE.Source
                                               , AE.ExpenseId
@@ -1321,7 +1339,7 @@ class loanapplication_model extends CI_Model
                                               , AE.Amount
                                               , AE.StatusId
                                               , S.Description
-                                              , DATE_FORMAT(AE.DateCreated, '%b %d, %Y') as DateCreated
+                                              , DATE_FORMAT(AE.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                               , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as CreatedBy
                                               FROM Application_has_Expense AE
                                                 INNER JOIN r_status S
@@ -1337,7 +1355,7 @@ class loanapplication_model extends CI_Model
   function getLoanObligations($ID)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $query_string = $this->db->query("SELECT  CONCAT('OBL-', LPAD(AO.MonthlyObligationId, 4, 0)) as ReferenceNo
+    $query_string = $this->db->query("SELECT  CONCAT('OBL-', LPAD(AO.MonthlyObligationId, 6, 0)) as ReferenceNo
                                               , AO.ApplicationId
                                               , AO.Source
                                               , AO.MonthlyObligationId
@@ -1345,7 +1363,7 @@ class loanapplication_model extends CI_Model
                                               , AO.Amount
                                               , AO.StatusId
                                               , S.Description
-                                              , DATE_FORMAT(AO.DateCreated, '%b %d, %Y') as DateCreated
+                                              , DATE_FORMAT(AO.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                               , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as CreatedBy
                                               FROM Application_has_MonthlyObligation AO
                                                 INNER JOIN r_status S
@@ -1413,8 +1431,9 @@ class loanapplication_model extends CI_Model
   {
     $query_string = $this->db->query("SELECT  * 
                                               FROM Application_has_Requirements
-                                                WHERE RequirementId = '".$data['Requirement']."'
+                                                WHERE RequirementId = '".$data['RequirementId']."'
                                                 AND ApplicationId = '".$data['ApplicationId']."'
+                                                AND StatusId != 6
     ");
     $data = $query_string->num_rows();
     return $data;
@@ -1471,16 +1490,29 @@ class loanapplication_model extends CI_Model
 
   function getPenaltyPaymentDetails($Id)
   {
-    $query_string = $this->db->query("SELECT  ApplicationId
-                                              , ExpenseId
-                                              , Source
-                                              , Amount
-                                              , Details
-                                              FROM Application_has_Expense 
-                                                WHERE ExpenseId = '$Id'
+    $query_string = $this->db->query("SELECT  DATE_FORMAT(AHP.DatePaid, '%b %d, %Y') as PaymentDate
+                                              , DATE_FORMAT(AHP.DateCollected, '%b %d, %Y') as DateCollected
+                                              , AHP.PenaltyType
+                                              , AHP.Amount
+                                              , AHP.AmountPaid
+                                              , AHP.TotalPenalty
+                                              , AHP.AmountPaid - AHP.TotalPenalty as AmountChange
+                                              , AHP.GracePeriod
+                                              , CM.Name as ChangeMethod
+                                              , PM.Name as PaymentMethod
+                                              , B.BankName
+                                              , AHP.Remarks
+                                              FROM application_has_penalty AHP
+                                                INNER JOIN r_methodofpayment CM
+                                                  ON CM.MethodId = AHP.ChangeMethod
+                                                INNER JOIN r_disbursement PM
+                                                  ON PM.DisbursementId = AHP.PaymentMethod
+                                                INNER JOIN r_bank B
+                                                  ON B.BankId = AHP.BankId
+                                                WHERE AHP.applicationPenaltyId = $Id
     ");
-    $ExpenseDetail = $query_string->row_array();
-    return $ExpenseDetail;
+    $data = $query_string->row_array();
+    return $data;
   }
 
   function getExpenseDetails($Id)
@@ -1500,7 +1532,7 @@ class loanapplication_model extends CI_Model
   function getIncomeDetails($Id)
   {
     $query_string = $this->db->query("SELECT  ApplicationId
-                                              , CONCAT('INC-', LPAD(IncomeId, 4, 0)) as ReferenceNo
+                                              , CONCAT('INC-', LPAD(IncomeId, 6, 0)) as ReferenceNo
                                               , IncomeId
                                               , Source
                                               , Amount
@@ -1528,10 +1560,30 @@ class loanapplication_model extends CI_Model
 
   function getRequirementDetails($Id)
   {
-    $query_string = $this->db->query("SELECT  ApplicationId
-                                              , RequirementId
-                                              FROM Application_has_Requirements 
-                                                WHERE RequirementId = '$Id'
+    $query_string = $this->db->query("SELECT  AHR.ApplicationId
+                                              , AHR.RequirementId
+                                              , A.TransactionNumber
+                                              , A.ApplicationId
+                                              , A.StatusId
+                                              FROM Application_has_Requirements AHR 
+                                                INNER JOIN T_Application A
+                                                  ON A.ApplicationId = AHR.ApplicationId
+                                                  WHERE AHR.RequirementId = '$Id'
+    ");
+    $RequirementDetail = $query_string->row_array();
+    return $RequirementDetail;
+  }
+
+  function getRequirementDetails2($ApplicationRequirementId)
+  {
+    $query_string = $this->db->query("SELECT  AHR.ApplicationId
+                                              , AHR.RequirementId
+                                              , A.TransactionNumber
+                                              , A.ApplicationId
+                                              FROM Application_has_Requirements AHR 
+                                                INNER JOIN T_Application A
+                                                  ON A.ApplicationId = AHR.ApplicationId
+                                                  WHERE AHR.ApplicationRequirementId = $ApplicationRequirementId
     ");
     $RequirementDetail = $query_string->row_array();
     return $RequirementDetail;
@@ -1539,7 +1591,7 @@ class loanapplication_model extends CI_Model
 
   function getCollateralDetails($Id)
   {
-    $query_string = $this->db->query("SELECT  ApplicationId
+    $query_string = $this->db->query("SELECT DISTINCT  ApplicationId
                                               , C.CollateralId
                                               , C.CollateralTypeId
                                               , C.StatusId
@@ -1554,6 +1606,7 @@ class loanapplication_model extends CI_Model
                                               , C.EngineNo
                                               , CT.Name as CollateralType
                                               , CS.Name as CollateralStatus
+                                              , (SELECT COUNT(*) FROM collaterals_has_files WHERE StatusId = 1 AND CollateralId = C.CollateralId) as withFiles
                                               FROM application_has_collaterals AHC
                                                 INNER JOIN R_Collaterals C
                                                   ON C.CollateralId = AHC.CollateralId
@@ -1609,11 +1662,11 @@ class loanapplication_model extends CI_Model
 
     if($input['Type'] == 'Obligations')
     {
-      $ObligationDetail = $this->db->query("SELECT  MonthlyObligationId
-                                                , CONCAT('OBG-', LPAD(MonthlyObligationId, 4, 0)) as ReferenceNo
-                                                  , ApplicationId
-                                                  FROM Application_has_MonthlyObligation
-                                                    WHERE MonthlyObligationId = ".$input['Id']."
+      $Detail = $this->db->query("SELECT  MonthlyObligationId
+                                          , CONCAT('OBG-', LPAD(MonthlyObligationId, 6, 0)) as ReferenceNo
+                                          , ApplicationId
+                                          FROM Application_has_MonthlyObligation
+                                            WHERE MonthlyObligationId = ".$input['Id']."
       ")->row_array();
       // update status
         $set = array(
@@ -1626,45 +1679,29 @@ class loanapplication_model extends CI_Model
         );
         $table = 'Application_has_MonthlyObligation';
         $this->maintenance_model->updateFunction1($set, $condition, $table);
-      // insert into Application_has_Notifications
+      // admin audits finals
+        $loanDetails = $this->getLoanApplicationDetails($Detail['ApplicationId']);
         if($input['updateType'] == 2)
         {
-          $ObligationDescription = 'Re-activated obligation record #' .$ObligationDetail['ReferenceNo'].'.'; // Application Notification
+          $auditLogsManager = 'Re-activated monthly obligation #'.$Detail['ReferenceNo'].' in monthly obligations tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedEmployee = 'Re-activated monthly obligation #'.$Detail['ReferenceNo'].' in monthly obligations tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedTable = 'Re-activated monthly obligation #'.$Detail['ReferenceNo'].' in monthly obligations tab.';
         }
         else if($input['updateType'] == 6)
         {
-          $ObligationDescription = 'Deactivated obligation record #' .$ObligationDetail['ReferenceNo'].'.'; // Application Notification
+          $auditLogsManager = 'Deactivated monthly obligation #'.$Detail['ReferenceNo'].' in monthly obligations tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedEmployee = 'Deactivated monthly obligation #'.$Detail['ReferenceNo'].' in monthly obligations tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedTable = 'Deactivated monthly obligation #'.$Detail['ReferenceNo'].' in monthly obligations tab.';
         }
-        $data3 = array(
-          'Description'   => $ObligationDescription,
-          'ApplicationId' => $ObligationDetail['ApplicationId'],
-          'CreatedBy'     => $EmployeeNumber,
-          'DateCreated'   => $DateNow
-        );
-        $this->db->insert('Application_has_Notifications', $data3);
-      // insert into logs
-        if($input['updateType'] == 2)
-        {
-          $Description = 'Re-activated obligation record #' .$ObligationDetail['ReferenceNo']. 'of' .$ObligationDetail['ApplicationId']. ' at the Obligation tab '; // main log
-        }
-        else if($input['updateType'] == 6)
-        {
-          $Description = 'Deactivated obligation record #' .$ObligationDetail['ReferenceNo']. 'of' .$ObligationDetail['ApplicationId']. ' at the Obligation tab '; // main log
-        }
-        $data2 = array(
-          'Description'   => $Description,
-          'CreatedBy'     => $EmployeeNumber,
-          'DateCreated'   => $DateNow
-        );
-        $this->db->insert('R_Logs', $data2);
+        $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $Detail['ApplicationId'], 'Application_has_notifications', 'ApplicationId');
     }
     else if($input['Type'] == 'Expenses')
     {
-      $ExpenseDetail = $this->db->query("SELECT  Source
-                                                , CONCAT('EXP-', LPAD(ExpenseId, 4, 0)) as ReferenceNo
-                                                , ApplicationId
-                                                  FROM Application_has_Expense
-                                                    WHERE ExpenseId = ".$input['Id']."
+      $Detail = $this->db->query("SELECT  Source
+                                          , CONCAT('EXP-', LPAD(ExpenseId, 6, 0)) as ReferenceNo
+                                          , ApplicationId
+                                            FROM Application_has_Expense
+                                              WHERE ExpenseId = ".$input['Id']."
       ")->row_array();
 
       // update status
@@ -1678,60 +1715,29 @@ class loanapplication_model extends CI_Model
         );
         $table = 'Application_has_Expense';
         $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // insert into Application_has_Notifications
+      // admin audits finals
+        $loanDetails = $this->getLoanApplicationDetails($Detail['ApplicationId']);
         if($input['updateType'] == 2)
         {
-          $ExpenseDescription = 'Re-activated expense record #' .$ExpenseDetail['ReferenceNo']. '.'; // Application Notification
+          $auditLogsManager = 'Re-activated monthly expense #'.$Detail['ReferenceNo'].' in monthly expenses tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedEmployee = 'Re-activated monthly expense #'.$Detail['ReferenceNo'].' in monthly expenses tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedTable = 'Re-activated monthly expense #'.$Detail['ReferenceNo'].' in monthly expenses tab.';
         }
         else if($input['updateType'] == 6)
         {
-          $ExpenseDescription = 'Deactivated expense record #' .$ExpenseDetail['ReferenceNo']. '.'; // Application Notification
+          $auditLogsManager = 'Deactivated monthly expense #'.$Detail['ReferenceNo'].' in monthly expenses tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedEmployee = 'Deactivated monthly expense #'.$Detail['ReferenceNo'].' in monthly expenses tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedTable = 'Deactivated monthly expense #'.$Detail['ReferenceNo'].' in monthly expenses tab.';
         }
-        $data3 = array(
-          'Description'   => $ExpenseDescription,
-          'ApplicationId' => $ExpenseDetail['ApplicationId'],
-          'CreatedBy'     => $EmployeeNumber,
-          'DateCreated'   => $DateNow
-        );
-        $this->db->insert('Application_has_Notifications', $data3);
-      // insert into logs
-        if($input['updateType'] == 2)
-        {
-          $Description = 'Re-activated expense record #' .$ExpenseDetail['Referenceno'].' of'.$ExpenseDetail['ApplicationId']. ' at the Expense tab '; // main log
-        }
-        else if($input['updateType'] == 6)
-        {
-          $Description = 'Deactivated expense record #' .$ExpenseDetail['Referenceno'].' of' .$ExpenseDetail['ApplicationId']. ' at the Expense tab '; // main log
-        }
-        $data2 = array(
-          'Description'   => $Description,
-          'CreatedBy'     => $EmployeeNumber,
-          'DateCreated'   => $DateNow
-        );
-        $this->db->insert('R_Logs', $data2);
-        // insert into Application_has_Notifications
-        if($input['updateType'] == 2)
-        {
-          $Description = 'Re-activated ' .$ExpenseDetail['Source']. ' of Expense # '; // Application Notification
-        }
-        else if($input['updateType'] == 6)
-        {
-          $Description = 'Deactivated ' .$ExpenseDetail['Source']. '  of Expense #'; // Application Notification
-        }
-        $data2 = array(
-          'Description'   => $Description,
-          'CreatedBy'     => $EmployeeNumber,
-          'DateCreated'   => $DateNow
-        );
-        $this->db->insert('Application_has_Notifications', $data2);
+        $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $Detail['ApplicationId'], 'Application_has_notifications', 'ApplicationId');
     }
     else if($input['Type'] == 'Incomes')
     {
-      $IncomeDetail = $this->db->query("SELECT  Source
-                                                , CONCAT('INC-', LPAD(IncomeId, 4, 0)) as ReferenceNo
-                                                , ApplicationId
-                                                  FROM Application_has_MonthlyIncome
-                                                    WHERE IncomeId = ".$input['Id']."
+      $Detail = $this->db->query("SELECT  Source
+                                          , CONCAT('INC-', LPAD(IncomeId, 6, 0)) as ReferenceNo
+                                          , ApplicationId
+                                            FROM Application_has_MonthlyIncome
+                                              WHERE IncomeId = ".$input['Id']."
       ")->row_array();
 
       // update status
@@ -1745,44 +1751,28 @@ class loanapplication_model extends CI_Model
         );
         $table = 'Application_has_MonthlyIncome';
         $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // insert into Application_has_Notifications
+        $loanDetails = $this->getLoanApplicationDetails($Detail['ApplicationId']);
+      // admin audits finals
         if($input['updateType'] == 2)
         {
-          $IncomeDescription = 'Re-activated Income #' .$IncomeDetail['ReferenceNo'].'.'; // Application Notification
+          $auditLogsManager = 'Re-activated other source of income #'.$Detail['ReferenceNo'].' in other sources of income tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedEmployee = 'Re-activated other source of income #'.$Detail['ReferenceNo'].' in other sources of income tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedTable = 'Re-activated other source of income #'.$Detail['ReferenceNo'].' in other sources of income tab.';
         }
         else if($input['updateType'] == 6)
         {
-          $IncomeDescription = 'Deactivated Income #' .$IncomeDetail['ReferenceNo'].'.'; // Application Notification
+          $auditLogsManager = 'Deactivated other source of income #'.$Detail['ReferenceNo'].' in other sources of income tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedEmployee = 'Deactivated other source of income #'.$Detail['ReferenceNo'].' in other sources of income tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedTable = 'Deactivated other source of income #'.$Detail['ReferenceNo'].' in other sources of income tab.';
         }
-        $data3 = array(
-          'Description'   => $IncomeDescription,
-          'ApplicationId' => $IncomeDetail['ApplicationId'],
-          'CreatedBy'     => $EmployeeNumber,
-          'DateCreated'   => $DateNow
-        );
-        $this->db->insert('Application_has_Notifications', $data3);
-      // insert into logs
-        if($input['updateType'] == 2)
-        {
-          $Description = 'Re-activated Income #' .$IncomeDetail['Source']. 'of' .$IncomeDescription['ApplicationId'].' at the incomes tab.'; // main log
-        }
-        else if($input['updateType'] == 6)
-        {
-          $Description = 'Deactivated Income #' .$IncomeDetail['Source']. 'of' .$IncomeDescription['ApplicationId'].' at the incomes tab.'; // main log
-        }
-        $data2 = array(
-          'Description'   => $Description,
-          'CreatedBy'     => $EmployeeNumber,
-          'DateCreated'   => $DateNow
-        );
-        $this->db->insert('R_Logs', $data2);
+        $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $Detail['ApplicationId'], 'Application_has_notifications', 'ApplicationId');
     }
     else if($input['Type'] == 'Disbursements')
     {
-      $DisbursementDetail = $this->db->query("SELECT  AHD.Description
+      $Detail = $this->db->query("SELECT  AHD.Description
                                                 , ApplicationId
                                                 , DisbursementId
-                                                , CONCAT('DB-', LPAD(DisbursementId, 4, 0)) as ReferenceNo
+                                                , CONCAT('DB-', LPAD(DisbursementId, 6, 0)) as ReferenceNo
                                                   FROM Application_has_Disbursement AHD
                                                     WHERE DisbursementId = ".$input['Id']."
       ")->row_array();
@@ -1798,50 +1788,39 @@ class loanapplication_model extends CI_Model
         );
         $table = 'Application_has_Disbursement';
         $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // insert into Application_has_Notifications
+      // admin audits finals
+        $loanDetails = $this->getLoanApplicationDetails($Detail['ApplicationId']);
         if($input['updateType'] == 0)
         {
-          $DisbursementDescription = 'Re-activated disbursement record #' .$DisbursementDetail['ReferenceNo']; // Application Notification
+          $auditLogsManager = 'Deactivated disbursement #'.$Detail['ReferenceNo'].' in disbursement tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedEmployee = 'Deactivated disbursement #'.$Detail['ReferenceNo'].' in disbursement tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedTable = 'Deactivated disbursement #'.$Detail['ReferenceNo'].' in disbursement tab.';
         }
         else if($input['updateType'] == 1)
         {
-          $DisbursementDescription = 'Deactivated disbursement record #' .$DisbursementDetail['ReferenceNo']; // Application Notification
+          $auditLogsManager = 'Re-activated disbursement #'.$Detail['ReferenceNo'].' in disbursement tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedEmployee = 'Re-activated disbursement #'.$Detail['ReferenceNo'].' in disbursement tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedTable = 'Re-activated disbursement #'.$Detail['ReferenceNo'].' in disbursement tab.';
         }
-        $data3 = array(
-          'Description'   => $DisbursementDescription,
-          'ApplicationId' => $DisbursementDetail['ApplicationId'],
-          'CreatedBy'     => $EmployeeNumber,
-          'DateCreated'   => $DateNow
-        );
-        $this->db->insert('Application_has_Notifications', $data3);
-      // insert into logs
-        if($input['updateType'] == 2)
-        {
-          $DisbursementDescription = 'Re-activated ' .$DisbursementDetail['Source']. ' from ' .$DisbursementDetail['ApplicationId'].'.'; // main log
-        }
-        else if($input['updateType'] == 6)
-        {
-          $DisbursementDescription = 'Deactivated ' .$DisbursementDetail['Source']. ' from ' .$DisbursementDetail['ApplicationId'].'.'; // main log
-        }
-        $data2 = array(
-          'Description'   => $DisbursementDescription,
-          'CreatedBy'     => $EmployeeNumber,
-          'DateCreated'   => $DateNow
-        );
-        $this->db->insert('R_Logs', $data2);
+        $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $Detail['ApplicationId'], 'Application_has_notifications', 'ApplicationId');
     }
     else if($input['Type'] == 'Requirements')
     {
-      $RequirementDetail = $this->db->query("SELECT  ApplicationRequirementId
-                                                , CONCAT('REQ-', LPAD(ApplicationRequirementId, 4, 0)) as ReferenceNo
-                                                , ApplicationId
-                                                  FROM Application_has_Requirements
+      $RequirementDetail = $this->db->query("SELECT  AHR.ApplicationRequirementId
+                                                , CONCAT('REQ-', LPAD(AHR.ApplicationRequirementId, 6, 0)) as ReferenceNo
+                                                , AHR.ApplicationId
+                                                , B.BorrowerId
+                                                  FROM Application_has_Requirements AHR
+                                                    INNER JOIN T_Application A
+                                                      ON A.ApplicationId = AHR.ApplicationId
+                                                    INNER JOIN R_Borrowers B
+                                                      ON B.BorrowerId = A.BorrowerId
                                                     WHERE ApplicationRequirementId = ".$input['Id']."
       ")->row_array();
 
       // update status
         $set = array(
-          'StatusId' => $input['updateType'],
+          'StatusId' => 6,
           'UpdatedBy' => $EmployeeNumber,
           'DateUpdated' => $DateNow,
         );
@@ -1850,43 +1829,22 @@ class loanapplication_model extends CI_Model
         );
         $table = 'Application_has_Requirements';
         $this->maintenance_model->updateFunction1($set, $condition, $table);
-      // insert into logs
-        if($input['updateType'] == 2)
-        {
-          $Description = 'Re-activated requirement record #' .$RequirementDetail['ApplicationRequirementId']. ' from' .$RequirementDetail['ApplicationId'].'.'; // main log
-        }
-        else if($input['updateType'] == 6)
-        {
-          $Description = 'Deactivated requirement record #' .$RequirementDetail['ApplicationRequirementId']. ' from' .$RequirementDetail['ApplicationId'].'.'; // main log
-        }
-        $data2 = array(
-          'Description'   => $Description,
-          'CreatedBy'     => $EmployeeNumber,
-          'DateCreated'   => $DateNow
-        );
-        $this->db->insert('R_Logs', $data2);
-        // insert into Application_has_Notifications
-        if($input['updateType'] == 2)
-        {
-          $Description = 'Re-activated requirement record #' .$RequirementDetail['ReferenceNo']. '.'; // Application Notification
-        }
-        else if($input['updateType'] == 6)
-        {
-          $Description = 'Deactivated requirement record #' .$RequirementDetail['ReferenceNo']. '.'; // Application Notification
-        }
-        $data2 = array(
-          'Description'   => $Description,
-          'CreatedBy'     => $EmployeeNumber,
-          'DateCreated'   => $DateNow
-        );
-        $this->db->insert('Application_has_Notifications', $data2);
+
+      // admin audits finals
+        $loanDetails = $this->getLoanApplicationDetails($RequirementDetail['ApplicationId']);
+        $TransactionNumber = 'REQ-'.sprintf('%06d', $RequirementDetail['ApplicationRequirementId']);
+        $auditLogsManager = 'Deactivated requirement #'.$RequirementDetail['ReferenceNo'].' in requirement tab for application #'.$loanDetails['TransactionNumber'].'.';
+        $auditAffectedEmployee = 'Deactivated requirement #'.$RequirementDetail['ReferenceNo'].' in requirement tab for application #'.$loanDetails['TransactionNumber'].'.';
+        $auditAffectedTable = 'Deactivated requirement #'.$RequirementDetail['ReferenceNo'].' in requirement tab.';
+        $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $RequirementDetail['ApplicationId'], 'Application_has_notifications', 'ApplicationId');
     }
     else if($input['Type'] == 'Penalty')
     {
-      $PenaltyDetail = $this->db->query("SELECT  ApplicationId
-                                                , ApplicationPenaltyId
-                                                , CONCAT('PLT-', LPAD(ApplicationPenaltyId, 4, 0)) as ReferenceNo
-                                                  FROM Application_has_Penalty                                                     WHERE ApplicationPenaltyId = ".$input['Id']."
+      $Detail = $this->db->query("SELECT  ApplicationId
+                                          , ApplicationPenaltyId
+                                          , CONCAT('PLT-', LPAD(ApplicationPenaltyId, 6, 0)) as ReferenceNo
+                                            FROM Application_has_Penalty                                                    
+                                            WHERE ApplicationPenaltyId = ".$input['Id']."
       ")->row_array();
 
       // update status
@@ -1900,49 +1858,29 @@ class loanapplication_model extends CI_Model
         );
         $table = 'Application_has_Penalty';
         $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // insert into Application_has_Notifications
-        if($input['updateType'] == 2)
-        {
-          $PenaltyDescription = 'Re-activated penalty record #' .$PenaltyDetail['ReferenceNo'].'.'; // Application Notification
-        }
-        else if($input['updateType'] == 6)
-        {
-          $PenaltyDescription = 'Deactivated penalty record #' .$PenaltyDetail['ReferenceNo'].'.'; // Application Notification
-        }
-        $data3 = array(
-          'Description'   => $PenaltyDescription,
-          'ApplicationId' => $PenaltyDetail['ApplicationId'],
-          'CreatedBy'     => $EmployeeNumber,
-          'DateCreated'   => $DateNow
-        );
-        $this->db->insert('Application_has_Notifications', $data3);
-      // insert into logs
-        if($input['updateType'] == 2)
-        {
-          $PenaltyDescription = 'Re-activated penalty record #' .$PenaltyDetail['Source']. ' from ' .$PenaltyDetail['ApplicationId'].'.'; // main log
-        }
-        else if($input['updateType'] == 6)
-        {
-          $PenaltyDescription = 'Deactivated penalty record #' .$PenaltyDetail['Source']. ' from ' .$PenaltyDetail['ApplicationId'].'.'; // main log
-        }
-        $data2 = array(
-          'Description'   => $PenaltyDescription,
-          'CreatedBy'     => $EmployeeNumber,
-          'DateCreated'   => $DateNow
-        );
-        $this->db->insert('R_Logs', $data2);
+      // admin audits finals
+        $loanDetails = $this->getLoanApplicationDetails($Detail['ApplicationId']);
+        $auditLogsManager = 'Deactivated penalty #'.$Detail['ReferenceNo'].' in penalty tab for application #'.$loanDetails['TransactionNumber'].'.';
+        $auditAffectedEmployee = 'Deactivated penalty #'.$Detail['ReferenceNo'].' in penalty tab for application #'.$loanDetails['TransactionNumber'].'.';
+        $auditAffectedTable = 'Deactivated penalty #'.$Detail['ReferenceNo'].' in penalty tab.';
+        $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $Detail['ApplicationId'], 'Application_has_notifications', 'ApplicationId');
     }
     else if($input['Type'] == 'Charge')
     {
-      $ChargeDetail = $this->db->query("SELECT  ApplicationChargeId
-                                                , ApplicationId
-                                                  FROM Application_Has_Charges
-                                                    WHERE ApplicationChargeId = ".$input['Id']."
+      $ChargeDetail = $this->db->query("SELECT  AHC.ApplicationChargeId
+                                                , AHC.ApplicationId
+                                                , CONCAT('CHR-', LPAD(AHC.ApplicationChargeId, 6, 0)) as ReferenceNo
+                                                , A.TransactionNumber
+                                                , A.StatusId
+                                                  FROM Application_Has_Charges AHC
+                                                    INNER JOIN T_Application A
+                                                      ON A.ApplicationId = AHC.ApplicationId
+                                                        WHERE AHC.ApplicationChargeId = ".$input['Id']."
       ")->row_array();
 
       // update status
         $set = array(
-          'StatusId' => $input['updateType'],
+          'StatusId' => 6,
           'UpdatedBy' => $EmployeeNumber,
           'DateUpdated' => $DateNow,
         );
@@ -1951,41 +1889,19 @@ class loanapplication_model extends CI_Model
         );
         $table = 'Application_Has_Charges';
         $this->maintenance_model->updateFunction1($set, $condition, $table);
-      // insert into logs
-        if($input['updateType'] == 7)
-        {
-          $Description = 'Re-activated ' .$ChargeDetail['ApplicationChargeId']. ' of Application #'; // main log
-        }
-        else if($input['updateType'] == 6)
-        {
-          $Description = 'Deactivated ' .$ChargeDetail['ApplicationChargeId']. '  of Application #'; // main log
-        }
-        $data2 = array(
-          'Description'   => $Description,
-          'CreatedBy'     => $EmployeeNumber,
-          'DateCreated'   => $DateNow
-        );
-        $this->db->insert('R_Logs', $data2);
-        // insert into Application_has_Notifications
-        if($input['updateType'] == 7)
-        {
-          $Description = 'Re-activated ' .$ChargeDetail['ApplicationChargeId']. ' of Charge # '; // Application Notification
-        }
-        else if($input['updateType'] == 6)
-        {
-          $Description = 'Deactivated ' .$ChargeDetail['ApplicationChargeId']. '  of Charge #'; // Application Notification
-        }
-        $data2 = array(
-          'Description'   => $Description,
-          'CreatedBy'     => $EmployeeNumber,
-          'DateCreated'   => $DateNow
-        );
-        $this->db->insert('Application_has_Notifications', $data2);
+      // check if to restart
+        $this->forRestart($ChargeDetail['ApplicationId'], $ChargeDetail['StatusId']);
+
+      // admin audits finals
+        $loanDetails = $this->getLoanApplicationDetails($ChargeDetail['ApplicationId']);
+        $auditLogsManager = 'Deactivated charge #'.$ChargeDetail['ReferenceNo'].' in charge tab for application #'.$loanDetails['TransactionNumber'].'.';
+        $auditAffectedEmployee = 'Deactivated charge #'.$ChargeDetail['ReferenceNo'].' in charge tab for application #'.$loanDetails['TransactionNumber'].'.';
+        $auditAffectedTable = 'Deactivated charge #'.$ChargeDetail['ReferenceNo'].' in charge tab.';
+        $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $ChargeDetail['ApplicationId'], 'Application_has_notifications', 'ApplicationId');
     }
     else if($input['Type'] == 'Collateral')
     {
-      $CollateralDetail = $this->db->query("SELECT  Source
-                                                , CONCAT('CLR-', LPAD(ApplicationCollateralId, 4, 0)) as ReferenceNo
+      $CollateralDetail = $this->db->query("SELECT  CONCAT('CLR-', LPAD(ApplicationCollateralId, 6, 0)) as ReferenceNo
                                                 , ApplicationId
                                                   FROM Application_has_Collaterals
                                                     WHERE ApplicationCollateralId = ".$input['Id']."
@@ -1998,7 +1914,7 @@ class loanapplication_model extends CI_Model
           'DateUpdated' => $DateNow,
         );
         $condition = array(
-          'ExpenseId' => $input['Id']
+          'ApplicationCollateralId' => $input['Id']
         );
         $table = 'Application_has_Collaterals';
         $this->maintenance_model->updateFunction1($set, $condition, $table);
@@ -2034,6 +1950,36 @@ class loanapplication_model extends CI_Model
         );
         $this->db->insert('R_Logs', $data2);
     }
+    else if($input['Type'] == 'Comment')
+    {
+      $Details = $this->db->query("SELECT  CONCAT('COM-', LPAD(AHC.CommentId, 6, 0)) as ReferenceNo
+                                                , AHC.ApplicationId
+                                                  FROM Application_has_Comments AHC
+                                                    INNER JOIN T_Application A
+                                                      ON A.ApplicationId = AHC.ApplicationId
+                                                      WHERE AHC.CommentId = ".$input['Id']."
+      ")->row_array();
+
+      // update status
+        $set = array(
+          'StatusId' => 6,
+          'UpdatedBy' => $EmployeeNumber,
+          'DateUpdated' => $DateNow,
+        );
+        $condition = array(
+          'CommentId' => $input['Id']
+        );
+        $table = 'Application_has_Comments';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+
+      // admin audits finals
+        $loanDetails = $this->getLoanApplicationDetails($Details['ApplicationId']);
+        $TransactionNumber = 'COM-'.sprintf('%06d', $Details['ApplicationRequirementId']);
+        $auditLogsManager = 'Deactivated comment #'.$Details['ReferenceNo'].' in comments tab for application #'.$loanDetails['TransactionNumber'].'.';
+        $auditAffectedEmployee = 'Deactivated comment #'.$Details['ReferenceNo'].' in comments tab for application #'.$loanDetails['TransactionNumber'].'.';
+        $auditAffectedTable = 'Deactivated comment #'.$Details['ReferenceNo'].' in comments tab.';
+        $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $Details['ApplicationId'], 'Application_has_notifications', 'ApplicationId');
+    }
   }
   
   function getRequirements($Id)
@@ -2044,7 +1990,7 @@ class loanapplication_model extends CI_Model
                                         , IsMandatory
                                         FROM r_requirements R
                                           WHERE R.StatusId = 1 
-                                          AND requirementId NOT IN (SELECT RequirementId FROM Application_has_Requirements AR WHERE AR.ApplicationId = $Id )
+                                          AND requirementId NOT IN (SELECT RequirementId FROM Application_has_Requirements AR WHERE AR.ApplicationId = $Id AND StatusId != 6)
     ");
     $output = '<option selected disabled value="">Select Requirement Type</option>';
     foreach ($query->result() as $row)
@@ -2315,10 +2261,23 @@ class loanapplication_model extends CI_Model
 
     function getSubmittedReqs($BorrowerId)
     {
-      $query_string = $this->db->query("SELECT  DISTINCT IdentificationId
+      $query_string = $this->db->query("SELECT  DISTINCT RequirementId
+                                                , IdentificationId
                                                 FROM borrower_has_supportdocuments
                                                   WHERE StatusId = 1
                                                   AND BorrowerId = $BorrowerId
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getSubmittedSupportDocuments($IdentificationId)
+    {
+      $query_string = $this->db->query("SELECT  DISTINCT Attachment
+                                                , FileName
+                                                , IdentificationId
+                                                FROM r_identificationcards
+                                                  WHERE IdentificationId = $IdentificationId
       ");
       $data = $query_string->result_array();
       return $data;
@@ -2827,7 +2786,7 @@ class loanapplication_model extends CI_Model
                                                 , EXT.Name
                                                 , SUM(EX.Amount) as Amount
                                                 , DATE_FORMAT(EX.DateExpense, '%b %d, %Y') as DateExpense
-                                                , DATE_FORMAT(EX.DateCreated, '%b %d, %Y') as DateCreated
+                                                , DATE_FORMAT(EX.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                                 , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName) as CreatedBy
                                                 FROM R_Expense EX
                                                       INNER JOIN r_expensetype EXT
@@ -2873,5 +2832,65 @@ class loanapplication_model extends CI_Model
       ");
       $data = $query_string->result_array();
       return $data;
+    }
+
+    function auditFunction($auditLogsManager, $auditAffectedEmployee, $ManagerId, $AffectedEmployeeNumber, $auditLoanDets, $ApplicationId, $independentTable, $independentColumn)
+    {
+      $CreatedBy = $this->session->userdata('EmployeeNumber');
+      $DateNow = date("Y-m-d H:i:s");
+      $insertMainLog = array(
+        'Description'       => $auditLogsManager
+        , 'CreatedBy'       => $CreatedBy
+      );
+      $auditTable1 = 'R_Logs';
+      $this->maintenance_model->insertFunction($insertMainLog, $auditTable1);
+      $insertManagerAudit = array(
+        'Description'         => $auditLogsManager
+        , 'ManagerBranchId'   => $ManagerId
+        , 'CreatedBy'         => $CreatedBy
+      );
+      $auditTable3 = 'manager_has_notifications';
+      $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable3);
+      $insertEmpLog = array(
+        'Description'       => $auditAffectedEmployee
+        , 'EmployeeNumber'  => $AffectedEmployeeNumber
+        , 'CreatedBy'       => $CreatedBy
+      );
+      $auditTable2 = 'employee_has_notifications';
+      $this->maintenance_model->insertFunction($insertEmpLog, $auditTable2);
+      $insertApplicationLog = array(
+        'Description'       => $auditLoanDets
+        , ''.$independentColumn.''   => $ApplicationId
+        , 'CreatedBy'       => $CreatedBy
+      );
+      $auditLoanApplicationTable = $independentTable;
+      $this->maintenance_model->insertFunction($insertApplicationLog, $auditLoanApplicationTable);
+    }
+
+    function getSubmittedRequirment($Id)
+    {
+      $query = $this->db->query("SELECT   FileName
+                                          , Title as FileTitle
+                                              FROM requirements_has_attachments 
+                                                  WHERE ApplicationRequirementId = $Id
+                                                  AND StatusId = 1
+      ");
+      $data = $query->row_array();
+      return $data;
+    }
+
+    function forRestart($ApplicationId)
+    {
+      $CreatedBy = $this->session->userdata('EmployeeNumber');
+      $DateNow = date("Y-m-d H:i:s");
+      $set = array( 
+        'StatusId' => 5
+      );
+      $condition = array( 
+        'ApplicationId' => $ApplicationId,
+        'StatusId' => 1
+      );
+      $table = 'application_has_approver';
+      $this->maintenance_model->updateFunction1($set, $condition, $table);  
     }
 }

@@ -28,7 +28,7 @@ class LMS extends CI_Controller {
 
 	function accessCheck()
 	{
-      $DateNow = date("Y-m-d H:i:s");
+    $DateNow = date("Y-m-d H:i:s");
 		if($_POST["btnProcess"] == 1) // login
 		{
 			$userDetails = array(
@@ -48,16 +48,23 @@ class LMS extends CI_Controller {
 	        'EmployeeId' => $result[0]['EmployeeId'],
 	        'Password' => $result[0]['Password'],
 	        'ManagerId' => $result[0]['ManagerId'],
+	        'IsManager' => $result[0]['isManager'],
         	'logged_in' => 1,
 	      );
 	      $this->session->set_userdata($loginSession);
 
 	      $data = array(
 	      	'Description' => 'Logged in.'
-	      	, 'DateCreated' => $DateNow
 	      	, 'CreatedBy' => $_POST["txtUsername"]
 	      );
-	      $this->access->audit($data);
+
+	      $data2 = array(
+	      	'Description' => 'Logged in.'
+	      	, 'CreatedBy' => $_POST["txtUsername"]
+	      	, 'EmployeeNumber' => $result[0]['EmployeeNumber']
+	      );
+	      $this->access->audit($data, 1);
+	      $this->access->audit($data2, 2);
 
 				redirect('home/Dashboard');
 			}
@@ -73,18 +80,32 @@ class LMS extends CI_Controller {
 		}
 		else if($_POST["btnProcess"] == 3) // log out
 		{
-     	$this->session->set_flashdata('logout','Account successfully logged out.'); 
-      $data = array(
-      	'Description' => 'Logged Out.'
-      	, 'DateCreated' => $DateNow
-      	, 'CreatedBy' => $this->session->userdata('EmployeeNumber')
-      );
-      $this->access->audit($data);
-      $loginSession = array(
-        'logged_in' => 0,
-      );
-      $this->session->set_userdata($loginSession);
-   		redirect(site_url());
+			if($this->session->userdata('EmployeeNumber') === '')
+			{
+	     	$this->session->set_flashdata('error','Session expired.'); 
+	   		redirect(site_url());
+			}
+			else
+			{
+	     	$this->session->set_flashdata('logout','Account successfully logged out.'); 
+	      $data = array(
+	      	'Description' => 'Logged out.'
+	      	, 'CreatedBy' => $this->session->userdata('EmployeeNumber')
+	      );
+
+	      $data2 = array(
+	      	'Description' => 'Logged out.'
+	      	, 'CreatedBy' => $this->session->userdata('EmployeeNumber')
+	      	, 'EmployeeNumber' => $this->session->userdata('EmployeeNumber')
+	      );
+	      $this->access->audit($data, 1);
+	      $this->access->audit($data2, 2);
+	      $loginSession = array(
+	        'logged_in' => 0,
+	      );
+	      $this->session->set_userdata($loginSession);
+	   		redirect(site_url());
+			}
 		}
 	}
 	

@@ -27,8 +27,8 @@
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label for="ConditionalType">Type</label><br>
-                    <select class="form-control" style="width: 100%" name="ChargeType" id="selectCharges">
+                    <label for="ConditionalType">Type <span class="text-red">*</span></label><br>
+                    <select class="form-control" required="" style="width: 100%" name="ChargeType" id="selectCharges">
                       <option value="1">Percentage</option>
                       <option value="0">Fixed Amount</option>
                     </select>
@@ -36,8 +36,8 @@
                 </div>
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label for="ConditionalName">Name</label><br>
-                    <input type="text" class="form-control" id="txtConditionalName" name="ConditionalName">
+                    <label for="ConditionalName">Name <span class="text-red">*</span></label><br>
+                    <input type="text" class="form-control" required="" id="txtConditionalName" name="ConditionalName">
                     <input type="hidden" class="form-control" name="FormType" id="txtFormType" value="1">
                     <input type="hidden" class="form-control" id="txtChargeId" name="ChargeId">
                   </div>
@@ -50,8 +50,8 @@
                 </div>
                 <div class="col-md-12">
                   <div class="form-group">
-                    <label for="ConditionalName">Amount</label><br>
-                    <input type="number" class="form-control" id="txtAmount" name="Amount">
+                    <label for="ConditionalName">Amount <span class="text-red">*</span></label><br>
+                    <input type="number" class="form-control" required="" id="txtAmount" name="Amount">
                   </div>
                 </div>
               </div>
@@ -73,7 +73,7 @@
           <h3 class="box-title">List of Additional Charges</h3>
         </div>
         <div class="box-body">
-          <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewCharges">Add Additional Charge</button>
+          <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewCharges">Add Record</button>
           <br>
           <br>
           <form name="ApproverDocForm" method="post" id="ApproverDocForm">
@@ -229,11 +229,15 @@
                     , { data: "ChargeType" }
                     , { data: "ChargeName" }
                     , { data: "Description" }
-                    , { data: "Amount" }
+                    , {
+                      data: "Amount", "render": function (data, type, row) {
+                        return parseInt(row.Amount).toLocaleString('en-US', {minimumFractionDigits: 2});
+                      }
+                    }
                     , {
                       data: "StatusId", "render": function (data, type, row) {
                         if(row.StatusId == 1){
-                          return "<span class='badge bg-green'>Active</span>";
+                        return "<span class='badge bg-green'>Active</span>";
                         }
                         else if(row.StatusId == 0){
                           return "<span class='badge bg-red'>Deactivated</span>";

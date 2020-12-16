@@ -151,6 +151,7 @@ class employee_controller extends CI_Controller {
   function employeeProcessing()
   {
     $CreatedBy = $this->session->userdata('EmployeeNumber');
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $DateNow = date("Y-m-d H:i:s");
     if($this->uri->segment(3) == 1) // add employee
     {
@@ -187,7 +188,7 @@ class employee_controller extends CI_Controller {
             , 'DateOfBirth'                 => htmlentities($newformat, ENT_QUOTES)
             , 'DateHired'                   => htmlentities($dateHired, ENT_QUOTES)
             , 'PositionId'                  => htmlentities($_POST['PositionId'], ENT_QUOTES)
-            , 'StatusId'                    => 1
+            , 'StatusId'                    => 2
             , 'CreatedBy'                   => $CreatedBy
             , 'UpdatedBy'                   => $CreatedBy
           );
@@ -430,10 +431,10 @@ class employee_controller extends CI_Controller {
               $insertTableAddress2 = 'employee_has_address';
               $this->maintenance_model->insertFunction($insertDataAddress2, $insertTableAddress2);
           }
-        // admin audits
-          $auditLogsManager = 'Added '. $generatedEmployeeNumber . ' in employee list.';
+        // admin audits finals
+          $auditLogsManager = 'Added employee #'.$generatedEmployeeNumber.' in employee list.';
           $auditAffectedEmployee = 'Added in employee list.';
-          $this->auditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $generatedEmployeeNumber);
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $generatedEmployeeNumber);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Employee successfully recorded!'); 
@@ -541,28 +542,11 @@ class employee_controller extends CI_Controller {
           );
           $NewId = $this->maintenance_model->getGeneratedId2($getNewId);
           $rowNumber = $this->db->query("SELECT LPAD(".$NewId['EmployeeContactId'].", 6, 0) as number")->row_array();
-          $auditMainAndManagerLog = 'Added new contact record #CN-' . $rowNumber['number'].' for employee #'. $this->uri->segment(4);
-          $auditEmpDetail = 'Added new contact record #CN-' . $rowNumber['number'];
-          $insertEmpLog = array(
-            'Description'       => $auditEmpDetail
-            , 'EmployeeNumber'  => $this->uri->segment(4)
-            , 'CreatedBy'       => $CreatedBy
-          );
-          $insertMainLog = array(
-            'Description'       => $auditMainAndManagerLog
-            , 'CreatedBy'       => $CreatedBy
-          );
-          $insertManagerAudit = array(
-            'Description'         => $auditMainAndManagerLog
-            , 'ManagerBranchId'   => $employeeDetail['ManagerBranchId']
-            , 'CreatedBy'         => $CreatedBy
-          );
-          $auditTable2 = 'R_Logs';
-          $this->maintenance_model->insertFunction($insertMainLog, $auditTable2);
-          $auditTable3 = 'employee_has_notifications';
-          $this->maintenance_model->insertFunction($insertEmpLog, $auditTable3);
-          $auditTable4 = 'manager_has_notifications';
-          $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable4);
+        // admin audits finals
+          $TransactionNumber = 'CN-'.$rowNumber['number'];
+          $auditLogsManager = 'Added new contact record #'.$TransactionNumber.' for employee #'.$this->uri->segment(4).' in contact tab.';
+          $auditAffectedEmployee = 'Added new contact record #'.$TransactionNumber.' in contact tab.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $this->uri->segment(4));
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Contact number successfully added!'); 
@@ -638,28 +622,11 @@ class employee_controller extends CI_Controller {
           );
           $NewId = $this->maintenance_model->getGeneratedId2($getNewId);
           $rowNumber = $this->db->query("SELECT LPAD(".$NewId['EmployeeEmailId'].", 6, 0) as number")->row_array();
-          $auditMainAndManagerLog = 'Added new email record #EA-' . $rowNumber['number'].' for employee #'. $this->uri->segment(4);
-          $auditEmpDetail = 'Added new email record #EA-' . $rowNumber['number'];
-          $insertEmpLog = array(
-            'Description'       => $auditEmpDetail
-            , 'EmployeeNumber'  => $this->uri->segment(4)
-            , 'CreatedBy'       => $CreatedBy
-          );
-          $insertMainLog = array(
-            'Description'       => $auditMainAndManagerLog
-            , 'CreatedBy'       => $CreatedBy
-          );
-          $insertManagerAudit = array(
-            'Description'         => $auditMainAndManagerLog
-            , 'ManagerBranchId'   => $employeeDetail['ManagerBranchId']
-            , 'CreatedBy'         => $CreatedBy
-          );
-          $auditTable2 = 'R_Logs';
-          $this->maintenance_model->insertFunction($insertMainLog, $auditTable2);
-          $auditTable3 = 'employee_has_notifications';
-          $this->maintenance_model->insertFunction($insertEmpLog, $auditTable3);
-          $auditTable4 = 'manager_has_notifications';
-          $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable4);
+        // admin audits finals
+          $TransactionNumber = 'EA-' .$rowNumber['number'];
+          $auditLogsManager = 'Added new email record #'.$TransactionNumber.' for employee #'.$employeeDetail['EmployeeNumber'].' in email address tab.';
+          $auditAffectedEmployee = 'Added new email record #'.$TransactionNumber.' in email address tab.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $employeeDetail['EmployeeNumber']);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Email address successfully added!'); 
@@ -677,6 +644,7 @@ class employee_controller extends CI_Controller {
     }
     else if($this->uri->segment(3) == 4) // add address
     {
+      $CreatedBy = $this->session->userdata('EmployeeNumber');
       $EmployeeNumber = $this->db->query("SELECT LPAD(".$this->uri->segment(4).", 6, 0) as EmployeeNumber")->row_array();
       $EmployeeDetail = $this->db->query("SELECT  EmployeeId
                                                   FROM R_Employee
@@ -696,7 +664,7 @@ class employee_controller extends CI_Controller {
             'HouseNo'                           => htmlentities($_POST['HouseNo'], ENT_QUOTES)
             , 'AddressType'                     => htmlentities($_POST['AddressType'], ENT_QUOTES)
             , 'BarangayId'                      => htmlentities($_POST['BarangayId'], ENT_QUOTES)
-            , 'CreatedBy'                       => $EmployeeNumber['EmployeeNumber']
+            , 'CreatedBy'                       => $CreatedBy
           );
           $insertTableAddress = 'r_address';
           $this->maintenance_model->insertFunction($insertDataAddress, $insertTableAddress);
@@ -725,28 +693,17 @@ class employee_controller extends CI_Controller {
             'EmployeeNumber'                    => $this->uri->segment(4)
             , 'AddressId'                       => $AddressId['AddressId']
             , 'IsPrimary'                       => htmlentities($_POST['isPrimary'], ENT_QUOTES)
-            , 'CreatedBy'                       => $EmployeeNumber['EmployeeNumber']
-            , 'UpdatedBy'                       => $EmployeeNumber['EmployeeNumber']
+            , 'CreatedBy'                       => $CreatedBy
+            , 'UpdatedBy'                       => $CreatedBy
           );
           $insertTableAddress2 = 'employee_has_address';
           $this->maintenance_model->insertFunction($insertDataAddress2, $insertTableAddress2);
 
-        // insert into main logs
-          $auditDetail = 'Added new address for employee #'. $EmployeeNumber['EmployeeNumber'];
-          $insertData = array(
-            'Description' => $auditDetail
-            , 'CreatedBy' => $CreatedBy
-          );
-          $auditTable = 'R_Logs';
-          $this->maintenance_model->insertFunction($insertData, $auditTable);
-        // insert into employee notification
-          $auditDetail2 = 'Added new address.';
-          $insertData2 = array(
-            'Description' => $auditDetail2
-            , 'CreatedBy' => $CreatedBy
-          );
-          $auditTable2 = 'R_Logs';
-          $this->maintenance_model->insertFunction($insertData2, $auditTable2);
+        // admin audits finals
+          $TransactionNumber = 'ADD-'.sprintf('%06d', $AddressId['AddressId']);
+          $auditLogsManager = 'Added new address #'.$TransactionNumber.' for employee #'.$EmployeeNumber['EmployeeNumber'].' in address tab.';
+          $auditAffectedEmployee = 'Added new address #'.$TransactionNumber.' in address tab.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $this->uri->segment(4));
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Employee Address successfully recorded!'); 
@@ -862,28 +819,11 @@ class employee_controller extends CI_Controller {
             );
             $NewId = $this->maintenance_model->getGeneratedId2($getNewId);
             $rowNumber = $this->db->query("SELECT LPAD(".$NewId['EmployeeIdentificationId'].", 6, 0) as number")->row_array();
-            $auditMainAndManagerLog = 'Added new ID record #ID-' . $rowNumber['number'].' for employee #'. $this->uri->segment(4);
-            $auditEmpDetail = 'Added new ID record #ID-' . $rowNumber['number'];
-            $insertEmpLog = array(
-              'Description'       => $auditEmpDetail
-              , 'EmployeeNumber'  => $this->uri->segment(4)
-              , 'CreatedBy'       => $CreatedBy
-            );
-            $insertMainLog = array(
-              'Description'       => $auditMainAndManagerLog
-              , 'CreatedBy'       => $CreatedBy
-            );
-            $insertManagerAudit = array(
-              'Description'         => $auditMainAndManagerLog
-              , 'ManagerBranchId'   => $employeeDetail['ManagerBranchId']
-              , 'CreatedBy'         => $CreatedBy
-            );
-            $auditTable2 = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertMainLog, $auditTable2);
-            $auditTable3 = 'employee_has_notifications';
-            $this->maintenance_model->insertFunction($insertEmpLog, $auditTable3);
-            $auditTable4 = 'manager_has_notifications';
-            $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable4);
+        // admin audits finals
+          $TransactionNumber = '#ID-' . $rowNumber['number'];
+          $auditLogsManager = 'Added new ID record #'.$TransactionNumber.' for employee #'.$EmployeeNumber['EmployeeNumber'].' in identifications tab.';
+          $auditAffectedEmployee = 'Added new ID record #'.$TransactionNumber.' in identifications tab.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $this->uri->segment(4));
           // notification
             $this->session->set_flashdata('alertTitle','Success!'); 
             $this->session->set_flashdata('alertText','ID successfully recorded!'); 
@@ -931,6 +871,25 @@ class employee_controller extends CI_Controller {
         , 'DateHired'                   => htmlentities($dateHired, ENT_QUOTES)
       );
       $query = $this->employee_model->countEmployee($data);
+      // status
+        if($employeeDetail['EmployeeStatusId'] != htmlentities($_POST['StatusId'], ENT_QUOTES))
+        {
+          // admin audits finalss
+            $auditLogsManager = 'Updated employee status of employee #'. $EmployeeNumber['EmployeeNumber'];
+            $auditAffectedEmployee = 'Updated employee status.';
+            $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber['EmployeeNumber']);
+
+          // update detail
+            $set = array( 
+              'StatusId' => htmlentities($_POST['StatusId'], ENT_QUOTES)
+            );
+
+            $condition = array( 
+              'EmployeeId' => $this->uri->segment(4)
+            );
+            $table = 'R_Employee';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+        }
       if($query == 0) // not existing
       {
         $this->updatePersonalInformation();
@@ -951,7 +910,7 @@ class employee_controller extends CI_Controller {
           redirect('home/employeeDetails/'. $EmployeeDetail['EmployeeId']);
       }
     }
-    else if($this->uri->segment(3) == 7 || $this->uri->segment(3) == 8) // add profile picture
+    else if($this->uri->segment(3) == 7) // profile picture of employee
     {
       $EmployeeNumber = $this->db->query("SELECT LPAD(".$this->uri->segment(4).", 6, 0) as EmployeeNumber")->row_array();
       $EmployeeDetail = $this->db->query("SELECT  EmployeeId
@@ -959,6 +918,144 @@ class employee_controller extends CI_Controller {
                                                     WHERE EmployeeNumber = ".$EmployeeNumber['EmployeeNumber']."
       ")->row_array();
 
+      if(isset($_POST['uploadType'])) // camera
+      {
+        $path = './profilepicture';
+        $config = array
+        (
+        'upload_path' => $path,
+        'allowed_types' => 'png|jpg|jpeg',
+        'overwrite' => 1
+        );
+        
+        $this->load->library('upload', $config);
+
+        $files = $_FILES['ID'];
+        $fileName = "";
+        $images = array();
+        
+        foreach ($files['name'] as $key => $image) 
+        {
+          $file_ext = pathinfo($image, PATHINFO_EXTENSION);
+
+          $_FILES['ID[]']['name']= $files['name'][$key];
+          $_FILES['ID[]']['type']= $files['type'][$key];
+          $_FILES['ID[]']['tmp_name']= $files['tmp_name'][$key];
+          $_FILES['ID[]']['error']= $files['error'][$key];
+          $_FILES['ID[]']['size']= $files['size'][$key];
+          $uniq_id = uniqid();
+          $fileName = $uniq_id.'.'.$file_ext;
+          $fileName = str_replace(" ","_",$fileName);
+          $images[] = $fileName;
+
+          $config['file_name'] = $fileName;
+          $Title = $_FILES['ID[]']['name'];
+
+          $this->upload->initialize($config);
+
+          if ($this->upload->do_upload('ID[]')) 
+          {
+              $this->upload->data();
+          } 
+              else
+          {
+              $fileName = "";
+          }
+        }
+
+        $attachment = $fileName;
+        if($attachment != "")
+        {
+          // update detail
+            $set = array( 
+              'StatusId' => 0
+            );
+
+            $condition = array( 
+              'EmployeeNumber' => $EmployeeNumber['EmployeeNumber']
+              , 'StatusId' => 1
+            );
+            $table = 'r_ProfilePicture';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+          // insert into table
+            $insertData = array(
+              'FileName'                                => htmlentities($attachment, ENT_QUOTES)
+              , 'EmployeeNumber'                        => $EmployeeNumber['EmployeeNumber']
+            );
+            $insertTable = 'r_ProfilePicture';
+            $this->maintenance_model->insertFunction($insertData, $insertTable);
+          // admin audits finalss
+            $auditLogsManager = 'Employee #'.$CreatedBy . ' changed profile picture of #'.$EmployeeNumber['EmployeeNumber'].'.';
+            $auditAffectedEmployee = 'Changed profile picture.';
+            $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber['EmployeeNumber']);
+          // notification
+            $this->session->set_flashdata('alertTitle','Success!'); 
+            $this->session->set_flashdata('alertText','Profile successfully updated!'); 
+            $this->session->set_flashdata('alertType','success'); 
+            if($this->uri->segment(3) == 7) // admin update
+            {
+              redirect('home/employeeDetails/'. $EmployeeDetail['EmployeeId']);
+            }
+            else 
+            {
+              redirect('home/userProfile/'. $EmployeeNumber['EmployeeNumber']);
+            }
+        }
+        else
+        {
+          // Notification
+            $this->session->set_flashdata('alertTitle','Warning!'); 
+            $this->session->set_flashdata('alertText','File uploaded was unsuccessful! Please try again!'); 
+            $this->session->set_flashdata('alertType','warning');
+            if($this->uri->segment(3) == 7) // admin update
+            {
+              redirect('home/employeeDetails/'. $EmployeeDetail['EmployeeId']);
+            }
+            else 
+            {
+              redirect('home/userProfile/'. $EmployeeNumber['EmployeeNumber']);
+            }
+        }
+      }
+      else
+      {
+        $myfilename =  time() . '.jpg';
+        $livefilepath = 'profilepicture/';
+        move_uploaded_file($_FILES['webcam']['tmp_name'], $livefilepath.$myfilename);
+
+        // update detail
+          $set = array( 
+            'StatusId' => 0
+          );
+
+          $condition = array( 
+            'EmployeeNumber' => $this->uri->segment(4)
+            , 'StatusId' => 1
+          );
+          $table = 'r_ProfilePicture';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+        // insert into table
+          $insertData = array(
+            'FileName'                                => htmlentities($myfilename, ENT_QUOTES)
+            , 'EmployeeNumber'                        => $this->uri->segment(4)
+          );
+          $insertTable = 'r_ProfilePicture';
+          $this->maintenance_model->insertFunction($insertData, $insertTable);
+        // admin audits finalss
+          $auditLogsManager = 'Employee #'.$EmployeeNumber['EmployeeNumber'] . ' changed profile picture.';
+          $auditAffectedEmployee = 'Changed profile picture.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber['EmployeeNumber']);
+        echo $livefilepath.$myfilename;
+      }
+    }
+    else if($this->uri->segment(3) == 8) // add profile pictre
+    {
+      $CreatedBy = $this->session->userdata('EmployeeNumber');
+      $EmployeeNumber = $this->db->query("SELECT LPAD(".$this->uri->segment(4).", 6, 0) as EmployeeNumber")->row_array();
+      $EmployeeDetail = $this->db->query("SELECT  EmployeeId
+                                                  FROM R_Employee
+                                                    WHERE EmployeeNumber = ".$EmployeeNumber['EmployeeNumber']."
+      ")->row_array();
       $path = './profilepicture';
       $config = array
       (
@@ -1023,29 +1120,10 @@ class employee_controller extends CI_Controller {
           );
           $insertTable = 'r_ProfilePicture';
           $this->maintenance_model->insertFunction($insertData, $insertTable);
-        // notifications
-          $auditMainAndManagerLog = 'Changed profile picture.';
-          $auditEmpDetail = $EmployeeNumber['EmployeeNumber'] . ' changed profile picture.';
-          $insertEmpLog = array(
-            'Description'       => $auditEmpDetail
-            , 'EmployeeNumber'  => $this->uri->segment(4)
-            , 'CreatedBy'       => $CreatedBy
-          );
-          $insertMainLog = array(
-            'Description'       => $auditMainAndManagerLog
-            , 'CreatedBy'       => $CreatedBy
-          );
-          $insertManagerAudit = array(
-            'Description'         => $auditMainAndManagerLog
-            , 'ManagerBranchId'   => $employeeDetail['ManagerBranchId']
-            , 'CreatedBy'         => $CreatedBy
-          );
-          $auditTable2 = 'R_Logs';
-          $this->maintenance_model->insertFunction($insertMainLog, $auditTable2);
-          $auditTable3 = 'employee_has_notifications';
-          $this->maintenance_model->insertFunction($insertEmpLog, $auditTable3);
-          $auditTable4 = 'manager_has_notifications';
-          $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable4);
+        // admin audits finalss
+          $auditLogsManager = 'Employee #'.$EmployeeNumber['EmployeeNumber'] . ' changed profile picture.';
+          $auditAffectedEmployee = 'Changed profile picture.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber['EmployeeNumber']);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Profile successfully updated!'); 
@@ -1075,54 +1153,13 @@ class employee_controller extends CI_Controller {
           }
       }
     }
-    else if($this->uri->segment(3) == 9) // add profile picture
+    else if($this->uri->segment(3) == 9) // add profile picture (borrower)
     {
-      $path = './borrowerpicture';
-      $config = array
-      (
-        'upload_path' => $path,
-        'allowed_types' => 'png|jpg|jpeg',
-        'overwrite' => 1
-      );
-      
-      $this->load->library('upload', $config);
-
-      $files = $_FILES['ID'];
-      $fileName = "";
-      $images = array();
-      
-      foreach ($files['name'] as $key => $image) 
+      if($this->uri->segment(5) == 1) // camera
       {
-        $file_ext = pathinfo($image, PATHINFO_EXTENSION);
-
-        $_FILES['ID[]']['name']= $files['name'][$key];
-        $_FILES['ID[]']['type']= $files['type'][$key];
-        $_FILES['ID[]']['tmp_name']= $files['tmp_name'][$key];
-        $_FILES['ID[]']['error']= $files['error'][$key];
-        $_FILES['ID[]']['size']= $files['size'][$key];
-        $uniq_id = uniqid();
-        $fileName = $uniq_id.'.'.$file_ext;
-        $fileName = str_replace(" ","_",$fileName);
-        $images[] = $fileName;
-
-        $config['file_name'] = $fileName;
-        $Title = $_FILES['ID[]']['name'];
-
-        $this->upload->initialize($config);
-
-        if ($this->upload->do_upload('ID[]')) 
-        {
-            $this->upload->data();
-        } 
-            else
-        {
-            $fileName = "";
-        }
-      }
-
-      $attachment = $fileName;
-      if($attachment != "")
-      {
+        $myfilename =  time() . '.jpg';
+        $livefilepath = 'borrowerpicture/';
+        move_uploaded_file($_FILES['webcam']['tmp_name'], $livefilepath.$myfilename);
         // update detail
           $set = array( 
             'StatusId' => 0
@@ -1136,41 +1173,118 @@ class employee_controller extends CI_Controller {
           $this->maintenance_model->updateFunction1($set, $condition, $table);
         // insert into address table
           $insertData = array(
-            'FileName'                                => htmlentities($attachment, ENT_QUOTES)
+            'FileName'                                => htmlentities($myfilename, ENT_QUOTES)
             , 'BorrowerId'                            => $this->uri->segment(4)
           );
           $insertTable = 'borrower_has_picture';
           $this->maintenance_model->insertFunction($insertData, $insertTable);
-        // notifications
-          $auditMainAndManagerLog = 'Changed profile picture.'; // of borrower name
-          $auditBorrowerDetail = 'Changed profile picture.';
-          $insertBorrowerAudit = array(
-            'Description'       => $auditBorrowerDetail
-            , 'BorrowerId'      => $this->uri->segment(4)
-            , 'CreatedBy'       => $CreatedBy
-          );
-          $auditTable4 = 'borrower_has_notifications';
-          $this->maintenance_model->insertFunction($insertBorrowerAudit, $auditTable4);
+        // admin audits finalss
+          $borrowerDetail = $this->maintenance_model->selectSpecific('R_Borrowers', 'BorrowerId', $this->uri->segment(4));
+          $auditLogsManager = 'Changed profile picture of borrower #'. $borrowerDetail['BorrowerNumber'];
+          $auditAffectedEmployee = 'Changed profile picture of borrower #'. $borrowerDetail['BorrowerNumber'];
+          $auditAffectedTable = 'Changed profile picture';
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(4), 'borrower_has_notifications', 'BorrowerId');
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Profile successfully updated!'); 
           $this->session->set_flashdata('alertType','success'); 
           redirect('home/BorrowerDetails/'. $this->uri->segment(4));
+        echo $livefilepath.$myfilename;
       }
       else
       {
-        // Notification
-          $this->session->set_flashdata('alertTitle','Warning!'); 
-          $this->session->set_flashdata('alertText','File uploaded was unsuccessful! Please try again!'); 
-          $this->session->set_flashdata('alertType','warning');
-          if($this->uri->segment(3) == 7) // admin update
+        $path = './borrowerpicture';
+        $config = array
+        (
+          'upload_path' => $path,
+          'allowed_types' => 'png|jpg|jpeg',
+          'overwrite' => 1
+        );
+        
+        $this->load->library('upload', $config);
+
+        $files = $_FILES['ID'];
+        $fileName = "";
+        $images = array();
+        
+        foreach ($files['name'] as $key => $image) 
+        {
+          $file_ext = pathinfo($image, PATHINFO_EXTENSION);
+
+          $_FILES['ID[]']['name']= $files['name'][$key];
+          $_FILES['ID[]']['type']= $files['type'][$key];
+          $_FILES['ID[]']['tmp_name']= $files['tmp_name'][$key];
+          $_FILES['ID[]']['error']= $files['error'][$key];
+          $_FILES['ID[]']['size']= $files['size'][$key];
+          $uniq_id = uniqid();
+          $fileName = $uniq_id.'.'.$file_ext;
+          $fileName = str_replace(" ","_",$fileName);
+          $images[] = $fileName;
+
+          $config['file_name'] = $fileName;
+          $Title = $_FILES['ID[]']['name'];
+
+          $this->upload->initialize($config);
+
+          if ($this->upload->do_upload('ID[]')) 
           {
-            redirect('home/employeeDetails/'. $EmployeeDetail['EmployeeId']);
-          }
-          else 
+              $this->upload->data();
+          } 
+              else
           {
-            redirect('home/userProfile/'. $EmployeeNumber['EmployeeNumber']);
+              $fileName = "";
           }
+        }
+
+        $attachment = $fileName;
+        if($attachment != "")
+        {
+          // update detail
+            $set = array( 
+              'StatusId' => 0
+            );
+
+            $condition = array( 
+              'BorrowerId' => $this->uri->segment(4)
+              , 'StatusId' => 1
+            );
+            $table = 'borrower_has_picture';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+          // insert into address table
+            $insertData = array(
+              'FileName'                                => htmlentities($attachment, ENT_QUOTES)
+              , 'BorrowerId'                            => $this->uri->segment(4)
+            );
+            $insertTable = 'borrower_has_picture';
+            $this->maintenance_model->insertFunction($insertData, $insertTable);
+          // admin audits finalss
+            $borrowerDetail = $this->maintenance_model->selectSpecific('R_Borrowers', 'BorrowerId', $this->uri->segment(4));
+            $auditLogsManager = 'Changed profile picture of borrower #'. $borrowerDetail['BorrowerNumber'];
+            $auditAffectedEmployee = 'Changed profile picture of borrower #'. $borrowerDetail['BorrowerNumber'];
+            $auditAffectedTable = 'Changed profile picture';
+            $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(4), 'borrower_has_notifications', 'BorrowerId');
+          // notification
+            $this->session->set_flashdata('alertTitle','Success!'); 
+            $this->session->set_flashdata('alertText','Profile successfully updated!'); 
+            $this->session->set_flashdata('alertType','success'); 
+            redirect('home/BorrowerDetails/'. $this->uri->segment(4));
+        }
+        else
+        {
+          // Notification
+            $this->session->set_flashdata('alertTitle','Warning!'); 
+            $this->session->set_flashdata('alertText','File uploaded was unsuccessful! Please try again!'); 
+            $this->session->set_flashdata('alertType','warning');
+            if($this->uri->segment(3) == 7) // admin update
+            {
+              redirect('home/employeeDetails/'. $EmployeeDetail['EmployeeId']);
+            }
+            else 
+            {
+              redirect('home/userProfile/'. $EmployeeNumber['EmployeeNumber']);
+            }
+        }
+        
       }
     }
   }
@@ -1190,33 +1304,10 @@ class employee_controller extends CI_Controller {
     // first name
       if($employeeDetail['FirstName'] != htmlentities($_POST['FirstName'], ENT_QUOTES))
       {
-        // insert into main logs
-          $auditDetail = 'Updated first name from '.$employeeDetail['FirstName'].' to '.htmlentities($_POST['FirstName'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
-          $insertAudit = array(
-            'Description' => $auditDetail,
-            'CreatedBy' => $CreatedBy
-          );
-          $auditTable = 'R_Logs';
-          $this->maintenance_model->insertFunction($insertAudit, $auditTable);
-        // insert into employee notification
-          $auditEmployee = 'Updated first name from '.$employeeDetail['FirstName'].' to '.htmlentities($_POST['FirstName'], ENT_QUOTES);
-          $insertEmployeeAudit = array(
-            'Description' => $auditEmployee,
-            'CreatedBy' => $CreatedBy,
-            'EmployeeNumber'  => $EmployeeNumber['EmployeeNumber']
-          );
-          $auditEmployeeTable = 'employee_has_notifications';
-          $this->maintenance_model->insertFunction($insertEmployeeAudit, $auditEmployeeTable);
-        // insert into manager notification
-          $auditManager = 'Updated first name from '.$employeeDetail['FirstName'].' to '.htmlentities($_POST['FirstName'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
-          $insertManagerAudit = array(
-            'Description' => $auditManager,
-            'CreatedBy' => $CreatedBy,
-            'ManagerBranchId'  => $employeeDetail['ManagerBranchId']
-          );
-          $auditManagerTable = 'manager_has_notifications';
-          $this->maintenance_model->insertFunction($insertManagerAudit, $auditManagerTable);
-
+        // admin audits finalss
+          $auditLogsManager = 'Updated first name from '.$employeeDetail['FirstName'].' to '.htmlentities($_POST['FirstName'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
+          $auditAffectedEmployee = 'Updated first name from '.$employeeDetail['FirstName'].' to '.htmlentities($_POST['FirstName'], ENT_QUOTES);
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $employeeDetail['EmployeeNumber']);
         // update detail
           $set = array( 
             'FirstName' => htmlentities($_POST['FirstName'], ENT_QUOTES)
@@ -1231,32 +1322,10 @@ class employee_controller extends CI_Controller {
     // middle name
       if($employeeDetail['MiddleName'] != htmlentities($_POST['MiddleName'], ENT_QUOTES))
       {
-        // insert into main logs
-          $auditDetail = 'Updated middle name from '.$employeeDetail['MiddleName'].' to '.htmlentities($_POST['MiddleName'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
-          $insertData = array(
-            'Description' => $auditDetail,
-            'CreatedBy' => $CreatedBy
-          );
-          $auditTable = 'R_Logs';
-          $this->maintenance_model->insertFunction($insertData, $auditTable);
-        // insert into employee notification
-          $auditEmployee = 'Updated middle name from '.$employeeDetail['MiddleName'].' to '.htmlentities($_POST['MiddleName'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
-          $insertEmployeeAudit = array(
-            'Description' => $auditEmployee,
-            'CreatedBy' => $CreatedBy,
-            'EmployeeNumber'  => $EmployeeNumber['EmployeeNumber']
-          );
-          $auditEmployeeTable = 'employee_has_notifications';
-          $this->maintenance_model->insertFunction($insertEmployeeAudit, $auditEmployeeTable);
-        // insert into manager notification
-          $auditManager = 'Updated middle name from '.$employeeDetail['MiddleName'].' to '.htmlentities($_POST['MiddleName'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
-          $insertManagerAudit = array(
-            'Description' => $auditManager,
-            'CreatedBy' => $CreatedBy,
-            'ManagerBranchId'  => $employeeDetail['ManagerBranchId']
-          );
-          $auditManagerTable = 'manager_has_notifications';
-          $this->maintenance_model->insertFunction($insertManagerAudit, $auditManagerTable);
+        // admin audits finalss
+          $auditLogsManager = 'Updated middle name from '.$employeeDetail['MiddleName'].' to '.htmlentities($_POST['MiddleName'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
+          $auditAffectedEmployee = 'Updated middle name from '.$employeeDetail['MiddleName'].' to '.htmlentities($_POST['MiddleName'], ENT_QUOTES);
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $employeeDetail['EmployeeNumber']);
 
         // update detail
           $set = array( 
@@ -1272,33 +1341,10 @@ class employee_controller extends CI_Controller {
     // last name
       if($employeeDetail['LastName'] != htmlentities($_POST['LastName'], ENT_QUOTES))
       {
-        // insert into main logs
-          $auditDetail = 'Updated last name from '.$employeeDetail['LastName'].' to '.htmlentities($_POST['LastName'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
-          $insertData = array(
-            'Description' => $auditDetail,
-            'CreatedBy' => $CreatedBy
-          );
-          $auditTable = 'R_Logs';
-          $this->maintenance_model->insertFunction($insertData, $auditTable);
-        // insert into employee notification
-          $auditEmployee = 'Updated last name from '.$employeeDetail['LastName'].' to '.htmlentities($_POST['LastName'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
-          $insertEmployeeAudit = array(
-            'Description' => $auditEmployee,
-            'CreatedBy' => $CreatedBy,
-            'EmployeeNumber'  => $EmployeeNumber['EmployeeNumber']
-          );
-          $auditEmployeeTable = 'employee_has_notifications';
-          $this->maintenance_model->insertFunction($insertEmployeeAudit, $auditEmployeeTable);
-        // insert into manager notification
-          $auditManager = 'Updated last name from '.$employeeDetail['LastName'].' to '.htmlentities($_POST['LastName'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
-          $insertManagerAudit = array(
-            'Description' => $auditManager,
-            'CreatedBy' => $CreatedBy,
-            'ManagerBranchId'  => $employeeDetail['ManagerBranchId']
-          );
-          $auditManagerTable = 'manager_has_notifications';
-          $this->maintenance_model->insertFunction($insertManagerAudit, $auditManagerTable);
-
+        // admin audits finalss
+          $auditLogsManager = 'Updated last name from '.$employeeDetail['LastName'].' to '.htmlentities($_POST['LastName'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
+          $auditAffectedEmployee = 'Updated last name from '.$employeeDetail['LastName'].' to '.htmlentities($_POST['LastName'], ENT_QUOTES);
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $employeeDetail['EmployeeNumber']);
         // update detail
           $set = array( 
             'LastName' => htmlentities($_POST['LastName'], ENT_QUOTES)
@@ -1313,32 +1359,10 @@ class employee_controller extends CI_Controller {
     // ext name
       if($employeeDetail['ExtName'] != htmlentities($_POST['ExtName'], ENT_QUOTES))
       {
-        // insert into main logs
-          $auditDetail = 'Updated extension name from '.$employeeDetail['ExtName'].' to '.htmlentities($_POST['ExtName'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
-          $insertData = array(
-            'Description' => $auditDetail,
-            'CreatedBy' => $CreatedBy
-          );
-          $auditTable = 'R_Logs';
-          $this->maintenance_model->insertFunction($insertData, $auditTable);
-        // insert into employee notification
-          $auditEmployee = 'Updated extension name from '.$employeeDetail['ExtName'].' to '.htmlentities($_POST['ExtName'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
-          $insertEmployeeAudit = array(
-            'Description' => $auditEmployee,
-            'CreatedBy' => $CreatedBy,
-            'EmployeeNumber'  => $EmployeeNumber['EmployeeNumber']
-          );
-          $auditEmployeeTable = 'employee_has_notifications';
-          $this->maintenance_model->insertFunction($insertEmployeeAudit, $auditEmployeeTable);
-        // insert into manager notification
-          $auditManager = 'Updated extension name from '.$employeeDetail['ExtName'].' to '.htmlentities($_POST['ExtName'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
-          $insertManagerAudit = array(
-            'Description' => $auditManager,
-            'CreatedBy' => $CreatedBy,
-            'ManagerBranchId'  => $employeeDetail['ManagerBranchId']
-          );
-          $auditManagerTable = 'manager_has_notifications';
-          $this->maintenance_model->insertFunction($insertManagerAudit, $auditManagerTable);
+        // admin audits finalss
+          $auditLogsManager = 'Updated extension name from '.$employeeDetail['ExtName'].' to '.htmlentities($_POST['ExtName'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
+          $auditAffectedEmployee = 'Updated extension name from '.$employeeDetail['ExtName'].' to '.htmlentities($_POST['ExtName'], ENT_QUOTES);
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $employeeDetail['EmployeeNumber']);
 
         // update detail
           $set = array( 
@@ -1359,32 +1383,10 @@ class employee_controller extends CI_Controller {
       $newUpdateData = date('Y-m-d', $convertNewPost);
       if($oldData != $newData)
       {
-        // insert into main logs
-          $auditDetail = 'Updated birth date from '.$oldData.' to '.$newData.' of employee #'. $EmployeeNumber['EmployeeNumber'];
-          $insertData = array(
-            'Description' => $auditDetail,
-            'CreatedBy' => $CreatedBy
-          );
-          $auditTable = 'R_Logs';
-          $this->maintenance_model->insertFunction($insertData, $auditTable);
-        // insert into employee notification
-          $auditEmployee = 'Updated birth date from '.$oldData.' to '.$newData.' of employee #'. $EmployeeNumber['EmployeeNumber'];
-          $insertEmployeeAudit = array(
-            'Description' => $auditEmployee,
-            'CreatedBy' => $CreatedBy,
-            'EmployeeNumber'  => $EmployeeNumber['EmployeeNumber']
-          );
-          $auditEmployeeTable = 'employee_has_notifications';
-          $this->maintenance_model->insertFunction($insertEmployeeAudit, $auditEmployeeTable);
-        // insert into manager notification
-          $auditManager = 'Updated birth date from '.$oldData.' to '.$newData.' of employee #'. $EmployeeNumber['EmployeeNumber'];
-          $insertManagerAudit = array(
-            'Description' => $auditManager,
-            'CreatedBy' => $CreatedBy,
-            'ManagerBranchId'  => $employeeDetail['ManagerBranchId']
-          );
-          $auditManagerTable = 'manager_has_notifications';
-          $this->maintenance_model->insertFunction($insertManagerAudit, $auditManagerTable);
+        // admin audits finalss
+          $auditLogsManager = 'Updated birth date from '.$oldData.' to '.$newData.' of employee #'. $EmployeeNumber['EmployeeNumber'];
+          $auditAffectedEmployee = 'Updated birth date from '.$oldData.' to '.$newData;
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $employeeDetail['EmployeeNumber']);
 
         // update detail
           $set = array( 
@@ -1436,32 +1438,10 @@ class employee_controller extends CI_Controller {
         );
         $oldDetail = $this->employee_model->getNameOfCategory($data1);
         $newDetail = $this->employee_model->getNameOfCategory($data2);
-        // insert into main logs
-          $auditDetail = 'Updated salutation from '.$oldDetail['Name'].' to '.htmlentities($newDetail['Name'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
-          $insertData = array(
-            'Description' => $auditDetail,
-            'CreatedBy' => $CreatedBy
-          );
-          $auditTable = 'R_Logs';
-          $this->maintenance_model->insertFunction($insertData, $auditTable);
-        // insert into employee notification
-          $auditEmployee = 'Updated salutation from '.$oldDetail['Name'].' to '.htmlentities($newDetail['Name'], ENT_QUOTES);
-          $insertEmployeeAudit = array(
-            'Description'     => $auditEmployee,
-            'CreatedBy'       => $CreatedBy,
-            'EmployeeNumber'  => $EmployeeNumber['EmployeeNumber']
-          );
-          $auditEmployeeTable = 'employee_has_notifications';
-          $this->maintenance_model->insertFunction($insertEmployeeAudit, $auditEmployeeTable);
-        // insert into manager notification
-          $auditManager = 'Updated salutation from '.$oldDetail['Name'].' to '.htmlentities($newDetail['Name'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
-          $insertManagerAudit = array(
-            'Description' => $auditManager,
-            'CreatedBy' => $CreatedBy,
-            'ManagerBranchId' => $employeeDetail['ManagerBranchId']
-          );
-          $auditManagerTable = 'manager_has_notifications';
-          $this->maintenance_model->insertFunction($insertManagerAudit, $auditManagerTable);
+        // admin audits finalss
+          $auditLogsManager = 'Updated salutation from '.$oldDetail['Name'].' to '.htmlentities($newDetail['Name'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
+          $auditAffectedEmployee = 'Updated salutation from '.$oldDetail['Name'].' to '.htmlentities($newDetail['Name'], ENT_QUOTES);
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $this->uri->segment(4));
 
         // update detail
           $set = array( 
@@ -1490,32 +1470,10 @@ class employee_controller extends CI_Controller {
         );
         $oldDetail = $this->employee_model->getNameOfCategory($data1);
         $newDetail = $this->employee_model->getNameOfCategory($data2);
-        // insert into main logs
-          $auditDetail = 'Updated gender from '.$oldDetail['Name'].' to '.htmlentities($newDetail['Name'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
-          $insertData = array(
-            'Description' => $auditDetail,
-            'CreatedBy' => $CreatedBy
-          );
-          $auditTable = 'R_Logs';
-          $this->maintenance_model->insertFunction($insertData, $auditTable);
-        // insert into employee notification
-          $auditEmployee = 'Updated gender from '.$oldDetail['Name'].' to '.htmlentities($newDetail['Name'], ENT_QUOTES);
-          $insertEmployeeAudit = array(
-            'Description' => $auditEmployee,
-            'CreatedBy' => $CreatedBy,
-            'EmployeeNumber'  => $EmployeeNumber['EmployeeNumber']
-          );
-          $auditEmployeeTable = 'employee_has_notifications';
-          $this->maintenance_model->insertFunction($insertEmployeeAudit, $auditEmployeeTable);
-        // insert into manager notification
-          $auditManager = 'Updated gender from '.$oldDetail['Name'].' to '.htmlentities($newDetail['Name'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
-          $insertManagerAudit = array(
-            'Description' => $auditManager,
-            'CreatedBy' => $CreatedBy,
-            'ManagerBranchId' => $employeeDetail['ManagerBranchId']
-          );
-          $auditManagerTable = 'manager_has_notifications';
-          $this->maintenance_model->insertFunction($insertManagerAudit, $auditManagerTable);
+        // admin audits finalss
+          $auditLogsManager = 'Updated gender from '.$oldDetail['Name'].' to '.htmlentities($newDetail['Name'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
+          $auditAffectedEmployee = 'Updated gender from '.$oldDetail['Name'].' to '.htmlentities($newDetail['Name'], ENT_QUOTES);
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber['EmployeeNumber']);
 
         // update detail
           $set = array( 
@@ -1544,32 +1502,10 @@ class employee_controller extends CI_Controller {
         );
         $oldDetail = $this->employee_model->getNameOfCategory($data1);
         $newDetail = $this->employee_model->getNameOfCategory($data2);
-        // insert into main logs
-          $auditDetail = 'Updated nationality from '.$oldDetail['Description'].' to '.htmlentities($newDetail['Description'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
-          $insertData = array(
-            'Description' => $auditDetail,
-            'CreatedBy' => $CreatedBy
-          );
-          $auditTable = 'R_Logs';
-          $this->maintenance_model->insertFunction($insertData, $auditTable);
-        // insert into employee notification
-          $auditEmployee = 'Updated nationality from '.$oldDetail['Description'].' to '.htmlentities($newDetail['Description'], ENT_QUOTES);
-          $insertEmployeeAudit = array(
-            'Description' => $auditEmployee,
-            'CreatedBy' => $CreatedBy,
-            'EmployeeNumber'  => $EmployeeNumber['EmployeeNumber']
-          );
-          $auditEmployeeTable = 'employee_has_notifications';
-          $this->maintenance_model->insertFunction($insertEmployeeAudit, $auditEmployeeTable);
-        // insert into manager notification
-          $auditManager = 'Updated nationality from '.$oldDetail['Description'].' to '.htmlentities($newDetail['Description'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
-          $insertManagerAudit = array(
-            'Description' => $auditManager,
-            'CreatedBy' => $CreatedBy,
-            'ManagerBranchId'  => $employeeDetail['ManagerBranchId']
-          );
-          $auditManagerTable = 'manager_has_notifications';
-          $this->maintenance_model->insertFunction($insertManagerAudit, $auditManagerTable);
+        // admin audits finalss
+          $auditLogsManager = 'Updated nationality from '.$oldDetail['Description'].' to '.htmlentities($newDetail['Description'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
+          $auditAffectedEmployee = 'Updated nationality from '.$oldDetail['Description'].' to '.htmlentities($newDetail['Description'], ENT_QUOTES);
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber['EmployeeNumber']);
 
         // update detail
           $set = array( 
@@ -1598,32 +1534,10 @@ class employee_controller extends CI_Controller {
         );
         $oldDetail = $this->employee_model->getNameOfCategory($data1);
         $newDetail = $this->employee_model->getNameOfCategory($data2);
-        // insert into main logs
-          $auditDetail = 'Updated civil status from '.$oldDetail['Name'].' to '.htmlentities($newDetail['Name'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
-          $insertData = array(
-            'Description' => $auditDetail,
-            'CreatedBy' => $CreatedBy
-          );
-          $auditTable = 'R_Logs';
-          $this->maintenance_model->insertFunction($insertData, $auditTable);
-        // insert into employee notification
-          $auditEmployee = 'Updated civil status from '.$oldDetail['Name'].' to '.htmlentities($newDetail['Name'], ENT_QUOTES);
-          $insertEmployeeAudit = array(
-            'Description' => $auditEmployee,
-            'CreatedBy' => $CreatedBy,
-            'EmployeeNumber'  => $EmployeeNumber['EmployeeNumber']
-          );
-          $auditEmployeeTable = 'employee_has_notifications';
-          $this->maintenance_model->insertFunction($insertEmployeeAudit, $auditEmployeeTable);
-        // insert into manager notification
-          $auditManager = 'Updated civil status from '.$oldDetail['Name'].' to '.htmlentities($newDetail['Name'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
-          $insertManagerAudit = array(
-            'Description' => $auditManager,
-            'CreatedBy' => $CreatedBy,
-            'ManagerBranchId'  => $employeeDetail['ManagerBranchId']
-          );
-          $auditManagerTable = 'manager_has_notifications';
-          $this->maintenance_model->insertFunction($insertManagerAudit, $auditManagerTable);
+        // admin audits finalss
+          $auditLogsManager = 'Updated civil status from '.$oldDetail['Name'].' to '.htmlentities($newDetail['Name'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
+          $auditAffectedEmployee = 'Updated civil status from '.$oldDetail['Name'].' to '.htmlentities($newDetail['Name'], ENT_QUOTES);
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber['EmployeeNumber']);
 
         // update detail
           $set = array( 
@@ -1639,32 +1553,10 @@ class employee_controller extends CI_Controller {
     // date hired
       if($oldData2 != $newData2)
       {
-        // insert into main logs
-          $auditDetail = 'Updated date hired from '.$oldData2.' to '.$newData2.' of employee #'. $EmployeeNumber['EmployeeNumber'];
-          $insertData = array(
-            'Description' => $auditDetail,
-            'CreatedBy' => $CreatedBy
-          );
-          $auditTable = 'R_Logs';
-          $this->maintenance_model->insertFunction($insertData, $auditTable);
-        // insert into employee notification
-          $auditEmployee = 'Updated date hired from '.$oldData2.' to '.$newData2;
-          $insertEmployeeAudit = array(
-            'Description' => $auditEmployee,
-            'CreatedBy' => $CreatedBy,
-            'EmployeeNumber'  => $EmployeeNumber['EmployeeNumber']
-          );
-          $auditEmployeeTable = 'employee_has_notifications';
-          $this->maintenance_model->insertFunction($insertEmployeeAudit, $auditEmployeeTable);
-        // insert into manager notification
-          $auditManager = 'Updated date hired from '.$oldData2.' to '.$newData2.' of employee #'. $EmployeeNumber['EmployeeNumber'];
-          $insertManagerAudit = array(
-            'Description' => $auditManager,
-            'CreatedBy' => $CreatedBy,
-            'ManagerBranchId'  => $employeeDetail['ManagerBranchId']
-          );
-          $auditManagerTable = 'manager_has_notifications';
-          $this->maintenance_model->insertFunction($insertManagerAudit, $auditManagerTable);
+        // admin audits finalss
+          $auditLogsManager = 'Updated date hired from '.$oldData2.' to '.$newData2.' of employee #'. $EmployeeNumber['EmployeeNumber'];
+          $auditAffectedEmployee = 'Updated date hired from '.$oldData2.' to '.$newData2;
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber['EmployeeNumber']);
 
         // update detail
           $set = array( 
@@ -1728,7 +1620,43 @@ class employee_controller extends CI_Controller {
       redirect('home/accessmanagement/'. $this->uri->segment(3));
   }
 
-  function AuditFunction($auditLogsManager, $auditAffectedEmployee, $ManagerId, $AffectedEmployeeNumber)
+  function AuditFunction($auditLogsManager, $auditAffectedEmployee, $ManagerId, $AffectedEmployee)
+  {
+    $CreatedBy = $this->session->userdata('EmployeeNumber');
+    $DateNow = date("Y-m-d H:i:s");
+    // manager and main logs 
+      $insertMainLog = array(
+        'Description'       => $auditLogsManager
+        , 'CreatedBy'       => $CreatedBy
+      );
+      $auditTable1 = 'R_Logs';
+      $this->maintenance_model->insertFunction($insertMainLog, $auditTable1);
+      $insertManagerAudit = array(
+        'Description'         => $auditLogsManager
+        , 'ManagerBranchId'   => $ManagerId
+        , 'CreatedBy'         => $CreatedBy
+      );
+      $auditTable3 = 'manager_has_notifications';
+      $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable3);
+    // employee log
+      $insertEmpLog = array(
+        'Description'       => $auditLogsManager
+        , 'EmployeeNumber'  => $CreatedBy
+        , 'CreatedBy'       => $CreatedBy
+      );
+      $auditTable2 = 'employee_has_notifications';
+      $this->maintenance_model->insertFunction($insertEmpLog, $auditTable2);
+    // edited employee
+      $insertEmpLog = array(
+        'Description'       => $auditAffectedEmployee
+        , 'EmployeeNumber'  => $AffectedEmployee
+        , 'CreatedBy'       => $CreatedBy
+      );
+      $auditTable2 = 'employee_has_notifications';
+      $this->maintenance_model->insertFunction($insertEmpLog, $auditTable2);
+  }
+
+  function finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $ManagerId, $AffectedEmployeeNumber, $auditLoanDets, $ApplicationId, $independentTable, $independentColumn)
   {
     $CreatedBy = $this->session->userdata('EmployeeNumber');
     $DateNow = date("Y-m-d H:i:s");
@@ -1752,6 +1680,17 @@ class employee_controller extends CI_Controller {
     );
     $auditTable2 = 'employee_has_notifications';
     $this->maintenance_model->insertFunction($insertEmpLog, $auditTable2);
+
+    if($auditLoanDets != null)
+    {
+      $insertApplicationLog = array(
+        'Description'       => $auditLoanDets
+        , ''.$independentColumn.''   => $ApplicationId
+        , 'CreatedBy'       => $CreatedBy
+      );
+      $auditLoanApplicationTable = $independentTable;
+      $this->maintenance_model->insertFunction($insertApplicationLog, $auditLoanApplicationTable);
+    }
   }
 
 }

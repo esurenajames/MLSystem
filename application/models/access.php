@@ -34,16 +34,17 @@ class access extends CI_Model
                                                 , EmployeeId
                                                 , U.Password
                                                 , EMP.ManagerId
+                                                , (SELECT COUNT(*) FROM branch_has_manager WHERE EmployeeNumber = EMP.EmployeeNumber AND StatusId = 1) isManager
                                                 FROM R_Userrole U
                                                   INNER JOIN R_Employee EMP
                                                       ON EMP.EmployeeNumber = U.EmployeeNumber
                                                   LEFT JOIN branch_has_employee BE
                                                     ON BE.EmployeeNumber = EMP.EmployeeNumber
-                                                  LEFT JOIN r_branch B
+                                                  LEFT JOIN r_branches B
                                                     ON B.BranchId = BE.BranchId
                                                   LEFT JOIN branch_has_manager BM
                                                     ON BM.EmployeeNumber = EMP.EmployeeNumber
-                                                  LEFT JOIN r_branch BMM
+                                                  LEFT JOIN r_branches BMM
                                                     ON BMM.BranchId = BM.BranchId
                                                     WHERE U.EmployeeNumber = '".$input['username']."'
                                                     AND CAST(Password AS CHAR(10000) CHARACTER SET utf8) = '".$input['password']."'
@@ -53,9 +54,16 @@ class access extends CI_Model
       return $data;
     }
 
-    function audit($data2)
+    function audit($data2, $type)
     {
-      $this->db->insert('R_Logs', $data2);
+      if($type == 2)
+      {
+        $this->db->insert('Employee_Has_Notifications', $data2);
+      }
+      else
+      {
+        $this->db->insert('R_Logs', $data2);
+      }
     }
 
 }

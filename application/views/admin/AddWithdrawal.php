@@ -24,40 +24,40 @@
         </div>
         <form action="<?php echo base_url(); ?>admin_controller/AddDeposit/" id="frmInsert2" method="post">
           <div class="modal-body">
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label for="Withdrawal">Type of Deposit</label><br>
-                    <select class="form-control" style="width: 100%" name="Withdrawal" id="SelectWithdrawal">
-                    <?php
-                      echo $WithdrawalType;
-                    ?>
-                    </select>
-                  </div>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label for="Withdrawal">Type of Deposit</label><br>
+                  <select class="form-control" style="width: 100%" required="" name="Withdrawal" id="SelectWithdrawal">
+                  <?php
+                    echo $WithdrawalType;
+                  ?>
+                  </select>
                 </div>
-                <div class="col-md-12">
+              </div>
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label for="Amount">Amount</label><br>
+                  <input type="number" class="form-control" step="0.25" required="" id="txtAmount" name="Amount">
+                  <input type="hidden" class="form-control"  id="txtFormType" name="FormType" value="1">
+                  <input type="hidden" class="form-control"  id="txtWithdrawalId" name="WithdrawalId">
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="form-group">
                   <div class="form-group">
-                    <label for="Amount">Amount</label><br>
-                    <input type="number" class="form-control" id="txtAmount" name="Amount">
-                    <input type="hidden" class="form-control"  id="txtFormType" name="FormType" value="1">
-                    <input type="hidden" class="form-control"  id="txtWithdrawalId" name="WithdrawalId">
+                    <label>Date of Deposit</label>
+                    <div class="input-group date">
+                      <div class="input-group-addon">
+                        <i class="fa fa-calendar"></i>
+                      </div>
+                      <input type="text" class="form-control" required="" name="DateWithdrawal" id="DateWithdrawal">
+                    </div>
+                    <!-- /.input group -->
                   </div>
                 </div>
               </div>
-              <div class="col-md-6">
-                  <div class="form-group">
-                      <div class="form-group">
-                        <label>Date of Deposit</label>
-                        <div class="input-group date">
-                          <div class="input-group-addon">
-                            <i class="fa fa-calendar"></i>
-                          </div>
-                          <input type="text" class="form-control" name="DateWithdrawal" id="DateWithdrawal">
-                        </div>
-                        <!-- /.input group -->
-                      </div>
-                  </div>
-                </div>
+            </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

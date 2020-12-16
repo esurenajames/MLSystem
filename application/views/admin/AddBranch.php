@@ -27,16 +27,16 @@
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label for="Branch">Branch</label><br>
-                    <input type="text" class="form-control" id="txtBranch" name="Branch">
+                    <label for="Branch">Branch <span class="text-red">*</span></label><br>
+                    <input type="text" class="form-control" required=""  id="txtBranch" name="Branch">
                     <input type="hidden" class="form-control" id="txtFormType" name="FormType" value="1">
                     <input type="hidden" class="form-control" id="txtBranchId" name="BranchId">
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label for="Code">Branch Code</label><br>
-                    <input type="text" class="form-control" id="txtCode" name="Code">
+                    <label for="Code">Branch Code <span class="text-red">*</span></label><br>
+                    <input type="text" class="form-control" required=""  id="txtCode" name="Code">
                   </div>
                 </div>
                 <div class="col-md-12">
@@ -48,12 +48,12 @@
                 <div class="col-md-6">
                   <div class="form-group">
                       <div class="form-group">
-                        <label>Date from Lease</label>
+                        <label>Date from Lease <span class="text-red">*</span></label>
                         <div class="input-group date">
                           <div class="input-group-addon">
                             <i class="fa fa-calendar"></i>
                           </div>
-                          <input type="text" class="form-control" name="DateFrom" required="" id="DateFrom">
+                          <input type="text" required=""  class="form-control" name="DateFrom" required="" id="DateFrom">
                         </div>
                         <!-- /.input group -->
                       </div>
@@ -62,12 +62,12 @@
                 <div class="col-md-6">
                   <div class="form-group">
                       <div class="form-group">
-                        <label>Date to Lease</label>
+                        <label>Date to Lease <span class="text-red">*</span></label>
                         <div class="input-group date">
                           <div class="input-group-addon">
                             <i class="fa fa-calendar"></i>
                           </div>
-                          <input type="text" class="form-control" name="DateTo" required="" id="DateTo">
+                          <input type="text" required=""  class="form-control" name="DateTo" required="" id="DateTo">
                         </div>
                         <!-- /.input group -->
                       </div>
@@ -75,8 +75,8 @@
                 </div>
                 <div class="col-md-12">
                   <div class="form-group">
-                    <label for="Monthly">Monthly Lease</label>
-                    <input type="text" class="form-control" id="txtMonthly" name="Monthly" placeholder="Amount">
+                    <label for="Monthly">Monthly Lease <span class="text-red">*</span></label>
+                    <input type="number" class="form-control" id="txtMonthly" required="" name="Monthly" placeholder="Amount">
                   </div>
                 </div>
               </div>
@@ -98,30 +98,28 @@
           <h3 class="box-title">List of Branches</h3>
         </div>
         <div class="box-body">
-          <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewBranch">Add Branch</button>
+          <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewBranch">Add Record</button>
           <br>
           <br>
-          <form name="ApproverDocForm" method="post" id="ApproverDocForm">
-            <table id="example1" class="table table-bordered table-hover">
-              <thead>
-              <tr>
-                <th>#</th>
-                <th>Branch</th>
-                <th>Code</th>
-                <th>Description</th>
-                <th>Date of Lease from</th>
-                <th>Date of Lease to</th>
-                <th>Monthly Lease</th>
-                <th>Status</th>
-                <th>Date Created</th>
-                <th>Date Updated</th>
-                <th>Action</th>
-              </tr>
-              </thead>
-              <tbody>
-              </tbody>
-            </table>
-          </form>
+          <table id="example1" style="width: 100%" class="table table-bordered table-hover">
+            <thead>
+            <tr>
+              <th>Reference No</th>
+              <th>Branch</th>
+              <th>Code</th>
+              <th>Description</th>
+              <th>Lease from</th>
+              <th>Lease to</th>
+              <th>Monthly Lease</th>
+              <th>Status</th>
+              <th>Date Created</th>
+              <th>Date Updated</th>
+              <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
         </div>
       </div>
     </section>
@@ -180,14 +178,27 @@
           },
           success: function(data)
           {
-            refreshPage();
-            swal({
-              title: 'Success!',
-              text: 'Branch successfully updated!',
-              type: 'success',
-              buttonsStyling: false,
-              confirmButtonClass: 'btn btn-primary'
-            });
+            if(data == 1)
+            {
+              refreshPage();
+              swal({
+                title: 'Success!',
+                text: 'Branch successfully updated!',
+                type: 'success',
+                buttonsStyling: false,
+                confirmButtonClass: 'btn btn-primary'
+              });
+            }
+            else
+            {
+              swal({
+                title: 'Info!',
+                text: 'Record is in use, record cannot be updated!',
+                type: 'info',
+                buttonsStyling: false,
+                confirmButtonClass: 'btn btn-primary'
+              });
+            }
           },
           error: function (response) 
           {
@@ -260,7 +271,11 @@
                     , { data: "Description" }
                     , { data: "DateFrom" }
                     , { data: "DateTo" }
-                    , { data: "LeaseMonthly" }
+                    , {
+                      data: "LeaseMonthly", "render": function (data, type, row) {
+                        return parseInt(row.LeaseMonthly).toLocaleString('en-US', {minimumFractionDigits: 2});
+                      }
+                    }
                     , {
                       data: "StatusId", "render": function (data, type, row) {
                         if(row.StatusId == 1){
@@ -279,10 +294,10 @@
                     {
                       data: "StatusId", "render": function (data, type, row) {
                       if(row.StatusId == 1){
-                          return '<a onclick="confirm(\'Are you sure you want to deactivate this branch?\', \''+row.BranchId+'\', 0)" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a> <a onclick="Edit('+row.BranchId+')" data-toggle="modal" data-target="#modalNewBranch" class="btn btn-info" title="Edit"><span class="fa fa-edit"></span></a>';
+                          return '<a onclick="confirm(\'Are you sure you want to deactivate this branch?\', \''+row.BranchId+'\', 0)" class="btn btn-sm btn-danger" title="Deactivate"><span class="fa fa-close"></span></a> <a onclick="Edit('+row.BranchId+')" data-toggle="modal" data-target="#modalNewBranch" class="btn btn-sm btn-info" title="Edit"><span class="fa fa-edit"></span></a>';
                         }
                         else if(row.StatusId == 0){
-                          return '<a onclick="confirm(\'Are you sure you want to re-activate this branch?\', \''+row.BranchId+'\', 1)" class="btn btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
+                          return '<a onclick="confirm(\'Are you sure you want to re-activate this branch?\', \''+row.BranchId+'\', 1)" class="btn btn-sm btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
                         }
                         else{
                           return "N/A";
@@ -293,31 +308,6 @@
       // "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
       "order": [[0, "asc"]]
     });
-
-    $("#frmInsert").on('submit', function (e) {
-      if(varNewPassword = 1 && varStatus == 1 && $('#txtNewPassword').val() == $('#txtConfirmPassword').val() && $('#txtOldPassword').val() != $('#txtNewPassword').val())
-      {
-        e.preventDefault(); 
-        swal({
-          title: 'Confirm',
-          text: 'Are you sure you sure with this password?',
-          type: 'info',
-          showCancelButton: true,
-          buttonsStyling: false,
-          confirmButtonClass: 'btn btn-success',
-          confirmButtonText: 'Confirm',
-          cancelButtonClass: 'btn btn-secondary'
-        }).then(function(){
-          e.currentTarget.submit();
-        });
-      }
-      else
-      {
-        alert('please make sure your new password is not equal to your old password!')
-        e.preventDefault();
-      }
-    });
-
 
     $('#DateFrom').daterangepicker({
         "startDate": moment().format('DD MMM YY hh:mm A'),
@@ -350,5 +340,21 @@
     $('#modalNewBranch').on('hide.bs.modal', function () {
       $('#txtFormType').val(1)
     })
+
+    $("#frmInsert2").on('submit', function (e) {
+      e.preventDefault(); 
+      swal({
+        title: 'Confirm',
+        text: 'Are you sure you want to submit this form?',
+        type: 'info',
+        showCancelButton: true,
+        buttonsStyling: false,
+        confirmButtonClass: 'btn btn-success',
+        confirmButtonText: 'Confirm',
+        cancelButtonClass: 'btn btn-secondary'
+      }).then(function(){
+        e.currentTarget.submit();
+      });
+    });
   })
 </script>

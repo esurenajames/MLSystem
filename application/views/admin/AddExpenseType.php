@@ -25,10 +25,10 @@
         <form action="<?php echo base_url(); ?>admin_controller/AddExpenseType/" id="frmInsert2" method="post">
           <div class="modal-body">
               <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-12">
                   <div class="form-group">
-                    <label for="Asset">Name</label><br>
-                    <input type="Text" class="form-control" id="txtExpenseType" name="ExpenseType">
+                    <label>Name</label><br>
+                    <input type="text" class="form-control" id="txtExpenseType" name="ExpenseType">
                     <input type="hidden" class="form-control"  id="txtFormType" name="FormType" value="1">
                     <input type="hidden" class="form-control"  id="txtExpenseTypeId" name="ExpenseTypeId" >
                   </div>
@@ -57,7 +57,7 @@
       <div class="box-header with-border">
       </div>
       <div class="box-body">
-        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewExpenseType">Add New Type of Expense</button>
+        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewExpenseType">Add Record</button>
         <br>
         <br>
         <form name="ApproverDocForm" method="post" id="ApproverDocForm">

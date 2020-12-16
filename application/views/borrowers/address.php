@@ -36,11 +36,11 @@
         }
         if($value['StatusId'] == 1 && $value['IsPrimary'] == 1)
         {
-          $action = '<a onclick="confirm(\'Are you sure you want to deactivate this address?\', \''.$value['BorrowerAddressHistoryId'].'\', 0,\'BorrowerAddress\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+          $action = '<a onclick="getDetail('.$value['BorrowerAddressHistoryId'].', 3)" class="btn btn-sm btn-default" data-toggle="modal" data-target="#modalNewAddress" title="View"><span class="fa fa-info-circle"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this address?\', \''.$value['BorrowerAddressHistoryId'].'\', 0,\'BorrowerAddress\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
         }
         else if($value['StatusId'] == 1 && $value['IsPrimary'] == 0)
         {
-          $action = '<a onclick="confirm(\'Are you sure you want to deactivate this address?\', \''.$value['BorrowerAddressHistoryId'].'\', 0, \'BorrowerAddress\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a> <a onclick="confirm(\'Are you sure you want to make this address your primary address?\', \''.$value['BorrowerAddressHistoryId'].'\', 2, \'BorrowerAddress\')" class="btn btn-success btn-sm" title="Make as primary"><span class="fa fa-check-circle"></span></a>';
+          $action = '<a onclick="getDetail('.$value['BorrowerAddressHistoryId'].', 3)" class="btn btn-sm btn-default" data-toggle="modal" data-target="#modalNewAddress" title="View"><span class="fa fa-info-circle"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this address?\', \''.$value['BorrowerAddressHistoryId'].'\', 0, \'BorrowerAddress\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a> <a onclick="confirm(\'Are you sure you want to make this address your primary address?\', \''.$value['BorrowerAddressHistoryId'].'\', 2, \'BorrowerAddress\')" class="btn btn-success btn-sm" title="Make as primary"><span class="fa fa-check-circle"></span></a>';
         }
         else
         {
@@ -49,6 +49,7 @@
         echo "<td>".$value['DateCreated']."</td>";
         echo "<td>".$status."</td>";
         echo "<td>".$action."</td>";
+        echo "<td>".$value['rawDateCreated']."</td>";
         echo "</tr>";
       }
     ?>

@@ -50,9 +50,8 @@ class borrower_model extends CI_Model
                                                   AND MiddleName = '".$input['MiddleName']."'
                                                   AND ExtName = '".$input['ExtName']."'
                                                   AND LastName = '".$input['LastName']."'
-                                                  AND DateOfBirth = '".$input['DateOfBirth']."'
+                                                  AND DateOfBirth = '".$input['DOB']."'
                                                   AND MotherName = '".$input['MotherName']."'
-
       ");
       $data = $query_string->num_rows();
       return $data;
@@ -102,20 +101,6 @@ class borrower_model extends CI_Model
       {
         return 0;
       }
-    }
-
-    function countPersonalReference($input)
-    {
-      $query_string = $this->db->query("SELECT  * 
-                                                FROM borrower_has_reference
-                                                  WHERE BorrowerId = '".$input['BorrowerId']."'
-                                                  AND Name = '".$input['Name']."'
-                                                  AND Address = '".$input['Address']."'
-                                                  AND ContactNumber = '".$input['ContactNumber']."'
-
-      ");
-      $data = $query_string->num_rows();
-      return $data;
     }
 
     function countCoMaker($input)
@@ -177,7 +162,7 @@ class borrower_model extends CI_Model
                                                 , N.Description as Nationality
                                                 , C.name as CivilStatus
                                                 , DATE_FORMAT(B.DateOfBirth, '%d %b %Y') as DateOfBirth
-                                                , DATE_FORMAT(B.DateCreated, '%d %b %Y') as DateAdded
+                                                , DATE_FORMAT(B.DateCreated, '%d %b %Y %h:%i %p') as DateAdded
                                                 , DATE_FORMAT(B.DateOfBirth, '%Y-%b-%d') as RawDateOfBirth
                                                 , SS.Name as StatusDescription
                                                 , B.StatusId
@@ -238,7 +223,8 @@ class borrower_model extends CI_Model
                                                 , EE.BorrowerEmailId
                                                 , EE.IsPrimary
                                                 , EE.CreatedBy
-                                                , DATE_FORMAT(EE.DateCreated, '%Y-%b-%d') as DateCreated
+                                                , DATE_FORMAT(EE.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                                , EE.DateCreated as rawDateCreated
                                                 , CONCAT('EA-', LPAD(EE.BorrowerEmailId, 6, 0)) as rowNumber
                                                 FROM R_Emails E
                                                   INNER JOIN borrower_has_emails EE
@@ -258,7 +244,7 @@ class borrower_model extends CI_Model
                                                 , EC.BorrowerContactId
                                                 , EC.IsPrimary
                                                 , CONCAT('CN-', LPAD(EC.BorrowerContactId, 6, 0)) as rowNumber
-                                                , DATE_FORMAT(EC.DateCreated, '%Y-%b-%d') as DateCreated
+                                                , DATE_FORMAT(EC.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
                                                 FROM R_ContactNumbers CN
                                                   INNER JOIN borrower_has_contactNumbers EC
                                                     ON EC.ContactNumberId = CN.ContactNumberId
@@ -280,7 +266,8 @@ class borrower_model extends CI_Model
                                                 , UPPER(R.regDesc) as regDesc
                                                 , EA.StatusId
                                                 , EA.BorrowerId
-                                                , DATE_FORMAT(EA.DateCreated, '%Y-%b-%d') as DateCreated
+                                                , DATE_FORMAT(EA.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                                , EA.DateCreated as rawDateCreated
                                                 , CONCAT('ADD-', LPAD(EA.BorrowerAddressHistoryId, 6, 0)) as rowNumber
                                                 FROM borrowerAddressHistory EA
                                                   INNER JOIN r_address A
@@ -296,6 +283,79 @@ class borrower_model extends CI_Model
                                                       WHERE EA.BorrowerId = ".$BorrowerID."
       ");
       $data = $query_string->result_array();
+      return $data;
+    }
+
+
+    function getBorrowerCityAddress($Id)
+    {
+      $query_string = $this->db->query("SELECT DISTINCT  MAX(EA.BorrowerAddressHistoryId) as BorrowerAddressHistoryId
+                                                , IsPrimary
+                                                , A.AddressType
+                                                , EA.AddressType as Address
+                                                , UPPER(A.HouseNo) as HouseNo
+                                                , UPPER(B.brgyDesc) as brgyDesc
+                                                , UPPER(P.provDesc) as provDesc
+                                                , UPPER(C.cityMunDesc) as cityMunDesc
+                                                , UPPER(R.regDesc) as regDesc
+                                                , EA.YearsStayed
+                                                , EA.MonthsStayed
+                                                , EA.NameOfLandlord
+                                                , EA.StatusId
+                                                , EA.BorrowerId
+                                                , DATE_FORMAT(EA.DateCreated, '%d %b %Y %r') as DateCreated
+                                                , CONCAT('ADD-', LPAD(EA.BorrowerAddressHistoryId, 6, 0)) as rowNumber
+                                                , A.ContactNumber
+                                                , A.Telephone
+                                                , EA.ContactNumber as AddressContactNumber
+                                                FROM borrowerAddressHistory EA
+                                                  INNER JOIN r_address A
+                                                    ON A.AddressId = EA.AddressId
+                                                  INNER JOIN add_barangay B
+                                                    ON B.brgyCode = A.BarangayId
+                                                  INNER JOIN add_province P
+                                                    ON P.provCode = B.provCode
+                                                  INNER JOIN add_city C
+                                                    ON C.citymunCode = B.citymunCode
+                                                  INNER JOIN add_region R 
+                                                    ON R.regCode = B.regCode
+                                                      WHERE EA.BorrowerAddressHistoryId = ".$Id."
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getBorrowerEmployment($Id)
+    {
+      $query_string = $this->db->query("SELECT  CONCAT('ER-', LPAD(BHE.EmployerId, 6, 0)) as rowNumber
+                                                , EmployerName
+                                                , BHP.Name as Position
+                                                , I.Name as Industry
+                                                , CASE
+                                                    WHEN EmployerStatus = 1
+                                                    THEN 'Present Employer'
+                                                    ELSE 'Previous Employer'
+                                                  END as EmployerStatus
+                                                , DATE_FORMAT(BHE.DateHired, '%d %b %Y') as DateHired
+                                                , DATE_FORMAT(BHE.DateCreated, '%d %b %Y') as DateCreated
+                                                , TenureYear
+                                                , TenureMonth
+                                                , BusinessAddress
+                                                , TelephoneNumber
+                                                , EmployerId
+                                                , BHE.StatusId
+                                                FROM borrower_has_employer BHE
+                                                  INNER JOIN R_Borrowers B
+                                                    ON B.BorrowerId = BHE.BorrowerId
+                                                  LEFT JOIN r_occupation BHP
+                                                    ON BHP.OccupationId = BHE.PositionId
+                                                  LEFT JOIN R_Industry I
+                                                    ON I.IndustryId = BHE.IndustryId
+                                                      WHERE BHE.EmployerId = $Id
+
+      ");
+
+      $data = $query_string->row_array();
       return $data;
     }
 
@@ -320,29 +380,42 @@ class borrower_model extends CI_Model
         $AddressTransactionNumber = $this->db->query("SELECT LPAD(".$input['Id'].", 6, 0) as Id")->row_array();
         if($input['updateType'] == 1 || $input['updateType'] == 0) // deactivate and re-activate address of Borrower
         {
-          // update status
-            $set = array( 
-              'StatusId' => $input['updateType'],
-              'UpdatedBy' => $EmployeeNumber,
-              'DateUpdated' => $DateNow,
-            );
-            $condition = array( 
-              'BorrowerAddressHistoryId' => $input['Id']
-            );
-            $table = 'borrowerAddressHistory';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-          // insert into logs
-            if($input['updateType'] == 1)
-            {
-              $auditBorrower = 'Re-activated address #ADD-' .$AddressTransactionNumber['Id']. '.'; // main log
-              $auditStaff = 'Re-activated address #ADD-' .$AddressTransactionNumber['Id'].' of '.$BorrowerDetail['BorrowerId'].'.'; // employee notification
-            }
-            else if($input['updateType'] == 0)
-            {
-              $auditBorrower = 'Deactivated address #ADD-' .$AddressTransactionNumber['Id']. '.'; // main log
-              $auditStaff = 'Deactivated address #ADD-' .$AddressTransactionNumber['Id'].' of '.$BorrowerDetail['BorrowerId'].'.'; // employee notification
-            }
-            $this->auditBorrower($auditBorrower, $auditStaff, $BorrowerDetail['BorrowerId']);
+          $count = $this->db->query("SELECT  COUNT(*) as ifUsed
+                                                      FROM application_has_address
+                                                            WHERE BorrowerAddressHistoryId = ".$input['Id']."
+                                                            AND StatusId = 1
+          ")->row_array();
+          if($count['ifUsed'] == 0)
+          {
+            // update status
+              $set = array( 
+                'StatusId' => $input['updateType'],
+                'UpdatedBy' => $EmployeeNumber,
+                'DateUpdated' => $DateNow,
+              );
+              $condition = array( 
+                'BorrowerAddressHistoryId' => $input['Id']
+              );
+              $table = 'borrowerAddressHistory';
+              $this->maintenance_model->updateFunction1($set, $condition, $table);
+            // admin audits finalss
+              if($input['updateType'] == 1)
+              {
+                $auditLogsManager = 'Re-activated address record #ADD-' .$AddressTransactionNumber['Id']. ' of borrower #'.$BorrowerDetail['BorrowerNumber'].'.';
+                $auditBorrowerDetails = 'Re-activated address record #ADD-' .$AddressTransactionNumber['Id']. ' in address record tab.';
+              }
+              else if($input['updateType'] == 0)
+              {
+                $auditLogsManager = 'Deactivated address record #ADD-' .$AddressTransactionNumber['Id']. ' of borrower #'.$BorrowerDetail['BorrowerNumber'].'.';
+                $auditBorrowerDetails = 'Deactivated address record #ADD-' .$AddressTransactionNumber['Id']. ' in address record tab.';
+              }
+              $this->auditBorrowerDetails($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditBorrowerDetails, $BorrowerDetail['BorrowerId']);
+            return 1;
+          }
+          else
+          {
+            return 0;
+          }
         }
         else // set as primary address
         {
@@ -368,17 +441,19 @@ class borrower_model extends CI_Model
               'BorrowerAddressHistoryId' => $input['Id']
             );
             $table = 'borrowerAddressHistory';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-          // insert into logs
-            $auditBorrower = 'Set address record #ADD-' .$AddressTransactionNumber['Id']. ' of borrower #'.$BorrowerDetail['BorrowerNumber'] . ' as primary.';
-            $auditStaff = 'Set address record #ADD-' .$AddressTransactionNumber['Id']. ' as primary address.';
-            $this->auditBorrower($auditBorrower, $auditStaff, $BorrowerDetail['BorrowerId']);
+            $this->maintenance_model->updateFunction1($set, $condition, $table);            
+          // admin audits finalss
+            $auditLogsManager = 'Set address record #ADD-' .$AddressTransactionNumber['Id']. ' of borrower #'.$BorrowerDetail['BorrowerNumber'].' as primary.';
+            $auditBorrowerDetails = 'Set address record #ADD-' .$AddressTransactionNumber['Id']. ' as primary in address record tab.';
+            $this->auditBorrowerDetails($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditBorrowerDetails, $BorrowerDetail['BorrowerId']);
+            return 1;
         }
-      } // DONE
+      }
       else if($input['tableType'] == 'BorrowerEmail')
       {
         $BorrowerDetail = $this->db->query("SELECT  BE.BorrowerEmailId 
                                                     , B.BorrowerId
+                                                    , B.BorrowerNumber
                                                     FROM borrower_has_emails BE
                                                       INNER JOIN R_Borrowers B
                                                         ON B.BorrowerId = BE.BorrowerId
@@ -387,6 +462,13 @@ class borrower_model extends CI_Model
         $EmailTransaction = $this->db->query("SELECT LPAD(".$input['Id'].", 6, 0) as Id")->row_array();
         if($input['updateType'] == 1 || $input['updateType'] == 0) // deactivate and re-activate email of borrower
         {
+          $count = $this->db->query("SELECT  COUNT(*) as ifUsed
+                                                      FROM application_has_email
+                                                            WHERE BorrowerEmailId = ".$input['Id']."
+                                                            AND StatusId = 1
+          ")->row_array();
+          if($count['ifUsed'] == 0)
+          {
           // update status
             $set = array( 
               'StatusId' => $input['updateType'],
@@ -398,18 +480,24 @@ class borrower_model extends CI_Model
             );
             $table = 'borrower_has_emails';
             $this->maintenance_model->updateFunction1($set, $condition, $table);
-          // insert into logs
+          // admin audits finalss
             if($input['updateType'] == 1)
             {
-              $auditBorrower = 'Re-activated email address #EA-'.$EmailTransaction['Id'].'.';
-              $auditStaff = 'Re-activated email address #EA-'.$EmailTransaction['Id'].' of '.$BorrowerDetail['BorrowerId'].'.';
+              $auditLogsManager = 'Re-activated email address record #ADD-' .$EmailTransaction['Id']. ' of borrower #'.$BorrowerDetail['BorrowerNumber'].'.';
+              $auditBorrowerDetails = 'Re-activated email address record #ADD-' .$EmailTransaction['Id']. ' in email address record tab.';
             }
             else if($input['updateType'] == 0)
             {
-              $auditBorrower = 'Deactivated email address #EA-'.$EmailTransaction['Id'].'.';
-              $auditStaff = 'Deactivated email address #EA-'.$EmailTransaction['Id'].' of '.$BorrowerDetail['BorrowerId'].'.';
+              $auditLogsManager = 'Deactivated email address record #ADD-' .$EmailTransaction['Id']. ' of borrower #'.$BorrowerDetail['BorrowerNumber'].'.';
+              $auditBorrowerDetails = 'Deactivated email address record #ADD-' .$EmailTransaction['Id']. ' in email address record tab.';
             }
-            $this->auditBorrower($auditBorrower, $auditStaff, $BorrowerDetail['BorrowerId']);
+            $this->auditBorrowerDetails($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditBorrowerDetails, $BorrowerDetail['BorrowerId']);
+            return 1;
+          }
+          else
+          {
+            return 0;
+          }
         }
         else // set as primary email
         {
@@ -436,17 +524,19 @@ class borrower_model extends CI_Model
             );
             $table = 'Borrower_has_emails';
             $this->maintenance_model->updateFunction1($set, $condition, $table);
-          // insert into logs
-            $auditBorrower = 'Set Email record #EM-' .$EmailTransaction['Id']. ' of borrower #'.$BorrowerDetail['BorrowerId'] . ' as primary.';
-            $auditStaff = 'Set Email record #EM-' .$EmailTransaction['Id']. ' as primary address.';
-            $this->auditBorrower($auditBorrower, $auditStaff, $BorrowerDetail['BorrowerId']);
+          // admin audits finalss
+            $auditLogsManager = 'Set email record #EA-' .$EmailTransaction['Id']. ' of borrower #'.$BorrowerDetail['BorrowerNumber'].' as primary.';
+            $auditBorrowerDetails = 'Set email record #EA-' .$EmailTransaction['Id']. ' as primary in email record tab.';
+            $this->auditBorrowerDetails($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditBorrowerDetails, $BorrowerDetail['BorrowerId']);
+            return 1;
         }
-      } // DONE
+      }
       else if($input['tableType'] == 'BorrowerContact')
       {
         $BorrowerDetail = $this->db->query("SELECT  BC.BorrowerContactId 
                                                   , C.Number
                                                   , B.BorrowerId
+                                                  , B.BorrowerNumber
                                                   FROM Borrower_has_Contactnumbers BC
                                                     INNER JOIN R_ContactNumbers C
                                                       ON BC.ContactNumberId = C.ContactNumberId
@@ -457,29 +547,42 @@ class borrower_model extends CI_Model
         $TransactionNumber = $this->db->query("SELECT LPAD(".$input['Id'].", 6, 0) as Id")->row_array();
         if($input['updateType'] == 1 || $input['updateType'] == 0) // activate and deactivate Contact Number of Borrower
         {
-          // update status
-            $set = array(
-              'StatusId' => $input['updateType'],
-              'UpdatedBy' => $EmployeeNumber,
-              'DateUpdated' => $DateNow,
-            );
-            $condition = array(
-              'BorrowerContactId' => $input['Id']
-            );
-            $table = 'Borrower_has_contactnumbers';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-          // insert into logs
-            if($input['updateType'] == 1)
-            {
-              $auditBorrower = 'Re-activated contact #CN-'.$TransactionNumber['Id'].'.';
-              $auditStaff = 'Re-activated contact #CN-'.$TransactionNumber['Id'].' of '.$BorrowerDetail['BorrowerId'].'.';
-            }
-            else if($input['updateType'] == 0)
-            {
-              $auditBorrower = 'Deactivated contact #CN-'.$TransactionNumber['Id'].'.';
-              $auditStaff = 'Deactivated contact #CN-'.$TransactionNumber['Id'].' of '.$BorrowerDetail['BorrowerId'].'.';
-            }
-            $this->auditBorrower($auditBorrower, $auditStaff, $BorrowerDetail['BorrowerId']);
+          $count = $this->db->query("SELECT  COUNT(*) as ifUsed
+                                                      FROM application_has_contact
+                                                            WHERE BorrowerContactId = ".$input['Id']."
+                                                            AND StatusId = 1
+          ")->row_array();
+          if($count['ifUsed'] == 0)
+          {
+            // update status
+              $set = array(
+                'StatusId' => $input['updateType'],
+                'UpdatedBy' => $EmployeeNumber,
+                'DateUpdated' => $DateNow,
+              );
+              $condition = array(
+                'BorrowerContactId' => $input['Id']
+              );
+              $table = 'Borrower_has_contactnumbers';
+              $this->maintenance_model->updateFunction1($set, $condition, $table);
+            // admin audits finalss
+              if($input['updateType'] == 1)
+              {
+                $auditLogsManager = 'Re-activated contact record #CN-'.$TransactionNumber['Id'].' of borrower #'.$BorrowerDetail['BorrowerNumber'].'.';
+                $auditBorrowerDetails = 'Re-activated contact record #CN-'.$TransactionNumber['Id'].'  in contact record tab.';
+              }
+              else if($input['updateType'] == 0)
+              {
+                $auditLogsManager = 'Deactivated contact record #CN-'.$TransactionNumber['Id'].'  of borrower #'.$BorrowerDetail['BorrowerNumber'].'.';
+                $auditBorrowerDetails = 'Deactivated contact record #CN-'.$TransactionNumber['Id'].'  in contact record tab.';
+              }
+              $this->auditBorrowerDetails($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditBorrowerDetails, $BorrowerDetail['BorrowerId']);
+            return 1;
+          }
+          else
+          {
+            return 0;
+          }
         }
         else // set as PRIMARY
         {
@@ -506,17 +609,19 @@ class borrower_model extends CI_Model
             );
             $table2 = 'Borrower_has_contactnumbers';
             $this->maintenance_model->updateFunction1($set2, $condition2, $table2);
-          // insert into logs
-            $auditBorrower = 'Set contact number #CN-' .$TransactionNumber['Id']. ' as primary.';
-            $auditStaff = 'Set contact number #CN-' .$TransactionNumber['Id']. ' of borrower #'.$BorrowerDetail['BorrowerId'] . ' as primary.';
-            $this->auditBorrower($auditBorrower, $auditStaff, $BorrowerDetail['BorrowerId']);
+          // admin audits finalss
+            $auditLogsManager = 'Set contact number #CN-' .$TransactionNumber['Id']. ' of borrower #'.$BorrowerDetail['BorrowerNumber'].' as primary.';
+            $auditBorrowerDetails = 'Set contact number #CN-' .$TransactionNumber['Id']. ' as primary in contact record tab.';
+            $this->auditBorrowerDetails($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditBorrowerDetails, $BorrowerDetail['BorrowerId']);
+            return 1;
         }
-      } //DONE
+      }
       else if($input['tableType'] == 'BorrowerDocuments')
       {
         $BorrowerDetail = $this->db->query("SELECT  BS.BorrowerIdentificationId 
                                                   , IC.IdentificationId
                                                   , B.BorrowerId
+                                                  , B.BorrowerNumber
                                                   FROM borrower_has_supportdocuments BS
                                                     INNER JOIN R_IdentificationCards IC
                                                       ON BS.IdentificationId = IC.IdentificationId
@@ -527,36 +632,50 @@ class borrower_model extends CI_Model
         $DocumentNumber = $this->db->query("SELECT LPAD(".$input['Id'].", 6, 0) as Id")->row_array();
         if($input['updateType'] == 1 || $input['updateType'] == 0) // activate and deactivate Contact Number of Borrower
         {
-          // update status
-            $set = array(
-              'StatusId' => $input['updateType'],
-              'UpdatedBy' => $EmployeeNumber,
-              'DateUpdated' => $DateNow,
-            );
-            $condition = array(
-              'BorrowerIdentificationId' => $input['Id']
-            );
-            $table = 'borrower_has_supportdocuments';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-          // insert into logs
-            if($input['updateType'] == 1)
-            {
-              $auditBorrower = 'Re-activated supporting document #SD-'.$DocumentNumber['Id'].'.';
-              $auditStaff = 'Re-activated supporting document #SD-'.$DocumentNumber['Id'].' of '.$BorrowerDetail['BorrowerId'].'.';
-            }
-            else if($input['updateType'] == 0)
-            {
-              $auditBorrower = 'Deactivated supporting document #SD-'.$DocumentNumber['Id'].'.';
-              $auditStaff = 'Deactivated supporting document #SD-'.$DocumentNumber['Id'].' of '.$BorrowerDetail['BorrowerId'].'.';
-            }
-            $this->auditBorrower($auditBorrower, $auditStaff, $BorrowerDetail['BorrowerId']);
+          // $count = $this->db->query("SELECT  COUNT(*) as ifUsed
+          //                                             FROM application_has_documents
+          //                                                   WHERE BorrowerIdentificationId = ".$input['Id']."
+          //                                                   AND StatusId = 1
+          // ")->row_array();
+          // if($count['ifUsed'] == 0)
+          // {
+            // update status
+              $set = array(
+                'StatusId' => $input['updateType'],
+                'UpdatedBy' => $EmployeeNumber,
+                'DateUpdated' => $DateNow,
+              );
+              $condition = array(
+                'BorrowerIdentificationId' => $input['Id']
+              );
+              $table = 'borrower_has_supportdocuments';
+              $this->maintenance_model->updateFunction1($set, $condition, $table);
+            // admin audits finalss
+              if($input['updateType'] == 1)
+              {
+                $auditLogsManager = 'Re-activated supporting document #SD-'.$DocumentNumber['Id'].' of borrower #'.$BorrowerDetail['BorrowerNumber'].'.';
+                $auditBorrowerDetails = 'Re-activated supporting document #SD-'.$DocumentNumber['Id'].'  in supporting document record tab.';
+              }
+              else if($input['updateType'] == 0)
+              {
+                $auditLogsManager = 'Deactivated supporting document #SD-'.$DocumentNumber['Id'].'  of borrower #'.$BorrowerDetail['BorrowerNumber'].'.';
+                $auditBorrowerDetails = 'Deactivated supporting document #SD-'.$DocumentNumber['Id'].'  in supporting document  record tab.';
+              }
+              $this->auditBorrowerDetails($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditBorrowerDetails, $BorrowerDetail['BorrowerId']);
+            return 1;
+          // }
+          // else
+          // {
+          //   return 0;
+          // }
         }
-      } //DONE
+      }
       else if($input['tableType'] == 'BorrowerSpouse')
       {
         $BorrowerDetail = $this->db->query("SELECT  BSP.BorrowerSpouseId 
                                                   , SP.SpouseId
                                                   , B.BorrowerId
+                                                  , B.BorrowerNumber
                                                   FROM Borrower_has_spouse BSP
                                                     INNER JOIN R_Spouse SP
                                                       ON BSP.SpouseId = SP.SpouseId
@@ -567,35 +686,72 @@ class borrower_model extends CI_Model
         $SpouseNumber = $this->db->query("SELECT LPAD(".$input['Id'].", 6, 0) as Id")->row_array();
         if($input['updateType'] == 1 || $input['updateType'] == 0) // activate and deactivate Contact Number of Borrower
         {
-          // update status
-            $set = array(
-              'StatusId' => $input['updateType'],
-              'UpdatedBy' => $EmployeeNumber,
-              'DateUpdated' => $DateNow,
-            );
-            $condition = array(
-              'SpouseId' => $input['Id']
-            );
-            $table = 'Borrower_has_spouse';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-          // insert into logs
-            if($input['updateType'] == 1)
-            {
-              $auditBorrower = 'Re-activated spouse record #SP-'.$SpouseNumber['Id'].' of '.$BorrowerDetail['BorrowerId'];
-              $auditStaff = 'Re-activated spouse record #SP-'.$SpouseNumber['Id'].'.';
-            }
-            else if($input['updateType'] == 0)
-            {
-              $auditBorrower = 'Deactivated spouse record #SP-'.$SpouseNumber['Id'].' of '.$BorrowerDetail['BorrowerId'];
-              $auditStaff = 'Deactivated spouse record #SP-'.$SpouseNumber['Id'].'.';
-            }
-            $this->auditBorrower($auditBorrower, $auditStaff, $BorrowerDetail['BorrowerId']);
+          $count = $this->db->query("SELECT  COUNT(*) as ifUsed
+                                                      FROM application_has_spouse
+                                                            WHERE SpouseId = ".$input['Id']."
+                                                            AND StatusId = 1
+          ")->row_array();
+          if($count['ifUsed'] == 0)
+          {
+            // admin audits finalss
+              if($input['updateType'] == 1)
+              {
+                // update active
+                  $set = array(
+                    'StatusId' => 0,
+                    'UpdatedBy' => $EmployeeNumber,
+                    'DateUpdated' => $DateNow,
+                  );
+                  $condition = array(
+                    'BorrowerId' => $BorrowerDetail['BorrowerId']
+                    , 'StatusId' => 1
+                  );
+                  $table = 'Borrower_has_spouse';
+                  $this->maintenance_model->updateFunction1($set, $condition, $table);
+                // update status
+                  $set = array(
+                    'StatusId' => $input['updateType'],
+                    'UpdatedBy' => $EmployeeNumber,
+                    'DateUpdated' => $DateNow,
+                  );
+                  $condition = array(
+                    'SpouseId' => $input['Id']
+                  );
+                  $table = 'Borrower_has_spouse';
+                  $this->maintenance_model->updateFunction1($set, $condition, $table);
+                $auditLogsManager = 'Re-activated spouse record #SP-'.$SpouseNumber['Id'].' of borrower #'.$BorrowerDetail['BorrowerNumber'].'.';
+                $auditBorrowerDetails = 'Re-activated spouse record #SP-'.$SpouseNumber['Id'].' in spouse tab.';
+              }
+              else if($input['updateType'] == 0)
+              {
+                // update status
+                  $set = array(
+                    'StatusId' => $input['updateType'],
+                    'UpdatedBy' => $EmployeeNumber,
+                    'DateUpdated' => $DateNow,
+                  );
+                  $condition = array(
+                    'SpouseId' => $input['Id']
+                  );
+                  $table = 'Borrower_has_spouse';
+                  $this->maintenance_model->updateFunction1($set, $condition, $table);
+                $auditLogsManager = 'Deactivated spouse record #SP-'.$SpouseNumber['Id'].' of borrower #'.$BorrowerDetail['BorrowerNumber'].' in spouse tab.';
+                $auditBorrowerDetails = 'Deactivated spouse record #SP-'.$SpouseNumber['Id'].' in spouse tab.';
+              }
+              $this->auditBorrowerDetails($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditBorrowerDetails, $BorrowerDetail['BorrowerId']);
+            return 1;
+          }
+          else
+          {
+            return 0;
+          }
         }
-      } //DONE
+      }
       else if($input['tableType'] == 'BorrowerEmployer')
       {
         $BorrowerDetail = $this->db->query("SELECT  BEMP.EmployerId
                                                   , B.BorrowerId
+                                                  , B.BorrowerNumber
                                                   FROM borrower_has_employer BEMP
                                                     INNER JOIN R_Borrowers B
                                                       ON B.BorrowerId = BEMP.BorrowerId
@@ -604,35 +760,50 @@ class borrower_model extends CI_Model
         $EmployerNumber = $this->db->query("SELECT LPAD(".$input['Id'].", 6, 0) as Id")->row_array();
         if($input['updateType'] == 1 || $input['updateType'] == 0) // activate and deactivate Employer of Borrower
         {
-          // update status
-            $set = array(
-              'StatusId' => $input['updateType'],
-              'UpdatedBy' => $EmployeeNumber,
-              'DateUpdated' => $DateNow,
-            );
-            $condition = array(
-              'EmployerId' => $input['Id']
-            );
-            $table = 'borrower_has_employer';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-          // insert into logs
-            if($input['updateType'] == 1)
-            {
-              $auditBorrower = 'Re-activated employement #EP-'.$EmployerNumber['Id'].'.';
-              $auditStaff = 'Re-activated employement #EP-'.$EmployerNumber['Id'].' of borrower #' .$BorrowerDetail['BorrowerId'].'.';
-            }
-            else if($input['updateType'] == 0)
-            {
-              $auditBorrower = 'Deactivated employement #EP-'.$EmployerNumber['Id'].'.';
-              $auditStaff = 'Deactivated employement #EP-'.$EmployerNumber['Id'].' of borrower #' .$BorrowerDetail['BorrowerId'].'.';
-            }
-            $this->auditBorrower($auditBorrower, $auditStaff, $BorrowerDetail['BorrowerId']);
+          $count = $this->db->query("SELECT  COUNT(*) as ifUsed
+                                                      FROM application_has_employer
+                                                            WHERE EmployerId = ".$input['Id']."
+                                                            AND StatusId = 1
+          ")->row_array();
+          if($count['ifUsed'] == 0)
+          {
+            // update status
+              $set = array(
+                'StatusId' => $input['updateType'],
+                'UpdatedBy' => $EmployeeNumber,
+                'DateUpdated' => $DateNow,
+              );
+              $condition = array(
+                'EmployerId' => $input['Id']
+              );
+              $table = 'borrower_has_employer';
+              $this->maintenance_model->updateFunction1($set, $condition, $table);
+            // admin audits finalss
+              if($input['updateType'] == 1)
+              {
+                $auditLogsManager = 'Re-activated employment record #EP-'.$EmployerNumber['Id'].' of borrower #'.$BorrowerDetail['BorrowerNumber'].'.';
+                $auditBorrowerDetails = 'Re-activated employment record #EP-'.$EmployerNumber['Id'].' in employment record tab.';
+              }
+              else if($input['updateType'] == 0)
+              {
+                $auditLogsManager = 'Deactivated employment record #EP-'.$EmployerNumber['Id'].' of borrower #'.$BorrowerDetail['BorrowerNumber'].'.';
+                $auditBorrowerDetails = 'Deactivated employment record #EP-'.$EmployerNumber['Id'].' in employment record tab.';
+              }
+              $this->auditBorrowerDetails($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditBorrowerDetails, $BorrowerDetail['BorrowerId']);
+
+            return 1;
+          }
+          else
+          {
+            return 0;
+          }
         }
-      } //DONE
+      }
       else if($input['tableType'] == 'BorrowerCoMaker')
       {
         $BorrowerDetail = $this->db->query("SELECT  BCM.BorrowerComakerId 
                                                   , B.BorrowerId
+                                                  , B.BorrowerNumber
                                                   FROM borrower_has_comaker BCM
                                                     INNER JOIN R_Borrowers B
                                                       ON B.BorrowerId = BCM.BorrowerId
@@ -641,35 +812,49 @@ class borrower_model extends CI_Model
         $ComakerNumber = $this->db->query("SELECT LPAD(".$input['Id'].", 6, 0) as Id")->row_array();
         if($input['updateType'] == 1 || $input['updateType'] == 0) // activate and deactivate Contact Number of Borrower
         {
-          // update status
-            $set = array(
-              'StatusId' => $input['updateType'],
-              'UpdatedBy' => $EmployeeNumber,
-              'DateUpdated' => $DateNow,
-            );
-            $condition = array(
-              'BorrowerComakerId' => $input['Id']
-            );
-            $table = 'borrower_has_comaker';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-          // insert into logs
-            if($input['updateType'] == 1)
-            {
-              $auditBorrower = 'Re-activated co-maker #CM-'.$ComakerNumber['Id'].'.';
-              $auditStaff = 'Re-activated co-maker #CM-'.$ComakerNumber['Id'].' of '.$BorrowerDetail['BorrowerId'].'.';
-            }
-            else if($input['updateType'] == 0)
-            {
-              $auditBorrower = 'Deactivated co-maker #CM-'.$ComakerNumber['Id'].'.';
-              $auditStaff = 'Deactivated co-maker #CM-'.$ComakerNumber['Id'].' of '.$BorrowerDetail['BorrowerId'].'.';
-            }
-            $this->auditBorrower($auditBorrower, $auditStaff, $BorrowerDetail['BorrowerId']);
+          $count = $this->db->query("SELECT  COUNT(*) as ifUsed
+                                                      FROM application_has_comaker
+                                                            WHERE BorrowerCoMakerId = ".$input['Id']."
+                                                            AND StatusId = 1
+          ")->row_array();
+          if($count['ifUsed'] == 0)
+          {
+            // update status
+              $set = array(
+                'StatusId' => $input['updateType'],
+                'UpdatedBy' => $EmployeeNumber,
+                'DateUpdated' => $DateNow,
+              );
+              $condition = array(
+                'BorrowerComakerId' => $input['Id']
+              );
+              $table = 'borrower_has_comaker';
+              $this->maintenance_model->updateFunction1($set, $condition, $table);
+            // admin audits finalss
+              if($input['updateType'] == 1)
+              {
+                $auditLogsManager = 'Re-activated co-maker record #CM-'.$ComakerNumber['Id'].' of borrower #'.$BorrowerDetail['BorrowerNumber'].'.';
+                $auditBorrowerDetails = 'Re-activated co-maker record #CM-'.$ComakerNumber['Id'].' in co-maker tab.';
+              }
+              else if($input['updateType'] == 0)
+              {
+                $auditLogsManager = 'Deactivated co-maker record #CM-'.$ComakerNumber['Id'].' of borrower #'.$BorrowerDetail['BorrowerNumber'].'.';
+                $auditBorrowerDetails = 'Deactivated co-maker record #CM-'.$ComakerNumber['Id'].' in co-maker tab.';
+              }
+              $this->auditBorrowerDetails($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditBorrowerDetails, $BorrowerDetail['BorrowerId']);
+            return 1;
+          }
+          else
+          {
+            return 0;
+          }
         }
-      } //DONE
+      }
       else if($input['tableType'] == 'BorrowerPersonal')
       {
         $BorrowerDetail = $this->db->query("SELECT  BRF.ReferenceId
                                                   , B.BorrowerId
+                                                  , B.BorrowerNumber
                                                   FROM borrower_has_reference BRF
                                                     INNER JOIN R_Borrowers B
                                                       ON B.BorrowerId = BRF.BorrowerId
@@ -689,24 +874,25 @@ class borrower_model extends CI_Model
             );
             $table = 'borrower_has_reference';
             $this->maintenance_model->updateFunction1($set, $condition, $table);
-          // insert into logs
+          // admin audits finalss
             if($input['updateType'] == 1)
             {
-              $auditBorrower = 'Re-activated Personal Reference record #RF-'.$PersonalNumber['Id'];
-              $auditStaff = 'Re-activated Personal Reference record #RF-'.$PersonalNumber['Id'].' of '.$BorrowerDetail['BorrowerId'];
+              $auditLogsManager = 'Re-activated personal reference record #RF-'.$PersonalNumber['Id'].' of borrower #'.$BorrowerDetail['BorrowerNumber'].'.';
+              $auditBorrowerDetails = 'Re-activated personal reference record #RF-'.$PersonalNumber['Id'].' in personal reference tab.';
             }
             else if($input['updateType'] == 0)
             {
-              $auditBorrower = 'Deactivated Personal Reference record #RF-'.$PersonalNumber['Id'].' of '.$BorrowerDetail['BorrowerId'];
-              $auditStaff = 'Deactivated Personal Reference record #RF-'.$PersonalNumber['Id'].'.';
+              $auditLogsManager = 'Deactivated personal reference record #RF-'.$PersonalNumber['Id'].' of borrower #'.$BorrowerDetail['BorrowerNumber'].'.';
+              $auditBorrowerDetails = 'Deactivated personal reference record #RF-'.$PersonalNumber['Id'].' in personal reference tab.';
             }
-            $this->auditBorrower($auditBorrower, $auditStaff, $BorrowerDetail['BorrowerId']);
+            $this->auditBorrowerDetails($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditBorrowerDetails, $BorrowerDetail['BorrowerId']);
         }
-      } //DONE
+      }
       else if($input['tableType'] == 'BorrowerEducation')
       {
         $BorrowerDetail = $this->db->query("SELECT  BEDU.BorrowerEducationId
                                                   , B.BorrowerId
+                                                  , B.BorrowerNumber
                                                   FROM borrower_has_Education BEDU
                                                     INNER JOIN R_Borrowers B
                                                       ON B.BorrowerId = BEDU.BorrowerId
@@ -715,31 +901,44 @@ class borrower_model extends CI_Model
         $EducationNumber = $this->db->query("SELECT LPAD(".$input['Id'].", 6, 0) as Id")->row_array();
         if($input['updateType'] == 1 || $input['updateType'] == 0) // activate and deactivate Contact Number of Borrower
         {
-          // update status
-            $set = array(
-              'StatusId' => $input['updateType'],
-              'UpdatedBy' => $EmployeeNumber,
-              'DateUpdated' => $DateNow,
-            );
-            $condition = array(
-              'BorrowerEducationId' => $input['Id']
-            );
-            $table = 'borrower_has_Education';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-          // insert into logs
-            if($input['updateType'] == 1)
-            {
-              $auditBorrower = 'Re-activated Education Background #ED-'.$EducationNumber['Id'].'.';
-              $auditStaff = 'Re-activated Educational Background #ED-'.$EducationNumber['Id'].'.'.' of '.$BorrowerDetail['BorrowerId'];
-            }
-            else if($input['updateType'] == 0)
-            {
-              $auditBorrower = 'Deactivated Educational Background #ED-'.$EducationNumber['Id'].'.';
-              $auditStaff = 'Deactivated Educational Background #ED-'.$EducationNumber['Id'].' of '.$BorrowerDetail['BorrowerId'];
-            }
-            $this->auditBorrower($auditBorrower, $auditStaff, $BorrowerDetail['BorrowerId']);
+          $count = $this->db->query("SELECT  COUNT(*) as ifUsed
+                                                      FROM application_has_education
+                                                            WHERE BorrowerEducationId = ".$input['Id']."
+                                                            AND StatusId = 1
+          ")->row_array();
+          if($count['ifUsed'] == 0)
+          {
+            // update status
+              $set = array(
+                'StatusId' => $input['updateType'],
+                'UpdatedBy' => $EmployeeNumber,
+                'DateUpdated' => $DateNow,
+              );
+              $condition = array(
+                'BorrowerEducationId' => $input['Id']
+              );
+              $table = 'borrower_has_Education';
+              $this->maintenance_model->updateFunction1($set, $condition, $table);
+            // admin audits finalss
+              if($input['updateType'] == 1)
+              {
+                $auditLogsManager = 'Re-activated educational background #ED-'.$EducationNumber['Id'].' of borrower #'.$BorrowerDetail['BorrowerNumber'].'.';
+                $auditBorrowerDetails = 'Re-activated educational background #ED-'.$EducationNumber['Id'].'  in educational background record tab.';
+              }
+              else if($input['updateType'] == 0)
+              {
+                $auditLogsManager = 'Deactivated educational background #ED-'.$EducationNumber['Id'].'  of borrower #'.$BorrowerDetail['BorrowerNumber'].'.';
+                $auditBorrowerDetails = 'Deactivated educational background #ED-'.$EducationNumber['Id'].'  in educational background record tab.';
+              }
+              $this->auditBorrowerDetails($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditBorrowerDetails, $BorrowerDetail['BorrowerId']);
+            return 1;
+          }
+          else
+          {
+            return 0;
+          }
         }
-      } //DONE
+      }
       else if($input['tableType'] == 'BorrowerUpdate')
       {
         $BorrowerDetail = $this->db->query("SELECT  B.BorrowerNumber
@@ -822,6 +1021,39 @@ class borrower_model extends CI_Model
         $this->maintenance_model->insertFunction($insertAudit, $auditTable);
     }
 
+    function auditBorrowerDetails($auditLogsManager, $auditAffectedEmployee, $ManagerId, $AffectedEmployeeNumber, $auditBorrowerDets ,$borrowerId)
+    {
+      $CreatedBy = $this->session->userdata('EmployeeNumber');
+      $DateNow = date("Y-m-d H:i:s");
+      $insertMainLog = array(
+        'Description'       => $auditLogsManager
+        , 'CreatedBy'       => $CreatedBy
+      );
+      $auditTable1 = 'R_Logs';
+      $this->maintenance_model->insertFunction($insertMainLog, $auditTable1);
+      $insertManagerAudit = array(
+        'Description'         => $auditLogsManager
+        , 'ManagerBranchId'   => $ManagerId
+        , 'CreatedBy'         => $CreatedBy
+      );
+      $auditTable3 = 'manager_has_notifications';
+      $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable3);
+      $insertEmpLog = array(
+        'Description'       => $auditAffectedEmployee
+        , 'EmployeeNumber'  => $AffectedEmployeeNumber
+        , 'CreatedBy'       => $CreatedBy
+      );
+      $auditTable2 = 'employee_has_notifications';
+      $this->maintenance_model->insertFunction($insertEmpLog, $auditTable2);
+      $insertApplicationLog = array(
+        'Description'       => $auditBorrowerDets
+        , 'BorrowerId'      => $borrowerId
+        , 'CreatedBy'       => $CreatedBy
+      );
+      $auditLoanApplicationTable = 'borrower_has_notifications';
+      $this->maintenance_model->insertFunction($insertApplicationLog, $auditLoanApplicationTable);
+    }
+
     function getProvinceAddress($Id)
     {
       $query_string = $this->db->query("SELECT  MAX(A.AddressId) as AddressId
@@ -836,6 +1068,7 @@ class borrower_model extends CI_Model
                                                     ON A.AddressId = BAH.AddressId
                                                   WHERE B.BorrowerId = $Id
                                                   AND A.AddressType = 'Province Address'
+                                                  AND BAH.StatusId = 1
 
       ");
       $data = $query_string->row_array();
@@ -844,7 +1077,7 @@ class borrower_model extends CI_Model
 
     function getCityAddress($Id)
     {
-      $query_string = $this->db->query("SELECT  A.AddressId
+      $query_string = $this->db->query("SELECT  MAX(A.AddressId) as AddressId
                                                 , BAH.AddressType
                                                 , BAH.YearsStayed
                                                 , BAH.MonthsStayed
@@ -856,8 +1089,8 @@ class borrower_model extends CI_Model
                                                   INNER JOIN R_Address A
                                                     ON A.AddressId = BAH.AddressId
                                                   WHERE B.BorrowerId = $Id
-                                                  AND BAH.IsPrimary = 1
                                                   AND A.AddressType = 'City Address'
+                                                  AND BAH.StatusId = 1
 
       ");
       $data = $query_string->row_array();
@@ -911,20 +1144,98 @@ class borrower_model extends CI_Model
     function getSpouseEmployer($Id)
     {
       $query_string = $this->db->query("SELECT DISTINCT SP.SpouseId
-                                                , BEMP.Name
-                                                , POS.PositionId
+                                                , BEMP.EmployerName as Name
+                                                , BEMP.SpousePosition
                                                 , BEMP.TenureYear
                                                 , BEMP.TenureMonth
+                                                , BEMP.BusinessAddress
+                                                , SP.EmailAddress
+                                                , BEMP.TelephoneNumber
+                                                , BEMP.ContactNumber
                                                 , BEMP.BusinessAddress
                                                 FROM R_Spouse SP
                                                   INNER JOIN Borrower_has_Employer BEMP
                                                     ON BEMP.SpouseId = SP.SpouseId
-                                                  INNER JOIN R_Position POS
-                                                    ON POS.PositionId = BEMP.PositionId
                                                   WHERE BEMP.SpouseId = $Id
 
       ");
 
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+
+    function getSpouseCityAddress($Id)
+    {
+      $query_string = $this->db->query("SELECT DISTINCT  MAX(EA.BorrowerAddressHistoryId) as BorrowerAddressHistoryId
+                                                , IsPrimary
+                                                , A.AddressType
+                                                , UPPER(A.HouseNo) as HouseNo
+                                                , UPPER(B.brgyDesc) as brgyDesc
+                                                , UPPER(P.provDesc) as provDesc
+                                                , UPPER(C.cityMunDesc) as cityMunDesc
+                                                , UPPER(R.regDesc) as regDesc
+                                                , EA.YearsStayed
+                                                , EA.MonthsStayed
+                                                , EA.NameOfLandlord
+                                                , EA.StatusId
+                                                , EA.BorrowerId
+                                                , DATE_FORMAT(EA.DateCreated, '%d %b %Y %r') as DateCreated
+                                                , CONCAT('ADD-', LPAD(EA.BorrowerAddressHistoryId, 6, 0)) as rowNumber
+                                                , A.ContactNumber
+                                                , A.Telephone
+                                                FROM borrowerAddressHistory EA
+                                                  INNER JOIN r_address A
+                                                    ON A.AddressId = EA.AddressId
+                                                  INNER JOIN add_barangay B
+                                                    ON B.brgyCode = A.BarangayId
+                                                  INNER JOIN add_province P
+                                                    ON P.provCode = B.provCode
+                                                  INNER JOIN add_city C
+                                                    ON C.citymunCode = B.citymunCode
+                                                  INNER JOIN add_region R 
+                                                    ON R.regCode = B.regCode
+                                                      WHERE EA.SpouseId = ".$Id."
+                                                      AND A.AddressType = 'City Address'
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+
+    function getSpouseProvAddress($Id)
+    {
+      $query_string = $this->db->query("SELECT DISTINCT  MAX(EA.BorrowerAddressHistoryId) as BorrowerAddressHistoryId
+                                                , IsPrimary
+                                                , A.AddressType
+                                                , UPPER(A.HouseNo) as HouseNo
+                                                , UPPER(B.brgyDesc) as brgyDesc
+                                                , UPPER(P.provDesc) as provDesc
+                                                , UPPER(C.cityMunDesc) as cityMunDesc
+                                                , UPPER(R.regDesc) as regDesc
+                                                , EA.YearsStayed
+                                                , EA.MonthsStayed
+                                                , EA.NameOfLandlord
+                                                , EA.StatusId
+                                                , EA.BorrowerId
+                                                , DATE_FORMAT(EA.DateCreated, '%d %b %Y %r') as DateCreated
+                                                , CONCAT('ADD-', LPAD(EA.BorrowerAddressHistoryId, 6, 0)) as rowNumber
+                                                , A.ContactNumber
+                                                , A.Telephone
+                                                FROM borrowerAddressHistory EA
+                                                  INNER JOIN r_address A
+                                                    ON A.AddressId = EA.AddressId
+                                                  INNER JOIN add_barangay B
+                                                    ON B.brgyCode = A.BarangayId
+                                                  INNER JOIN add_province P
+                                                    ON P.provCode = B.provCode
+                                                  INNER JOIN add_city C
+                                                    ON C.citymunCode = B.citymunCode
+                                                  INNER JOIN add_region R 
+                                                    ON R.regCode = B.regCode
+                                                      WHERE EA.SpouseId = ".$Id."
+                                                      AND A.AddressType = 'Province Address'
+      ");
       $data = $query_string->row_array();
       return $data;
     }
@@ -1088,14 +1399,18 @@ class borrower_model extends CI_Model
     {
       $query_string = $this->db->query("SELECT  CONCAT('ED-', LPAD(BEDU.BorrowerEducationId, 6, 0)) as rowNumber
                                                 , BEDU.BorrowerEducationId
-                                                , DATE_FORMAT(BEDU.DateCreated, '%d %b %Y') as DateCreated
+                                                , DATE_FORMAT(BEDU.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                                , BEDU.DateCreated as rawDateCreated
                                                 , BEDU.Level
                                                 , BEDU.SchoolName
+                                                , ED.Name
                                                 , YearGraduated
                                                 , BEDU.StatusId
                                                 FROM Borrower_has_Education BEDU
                                                   INNER JOIN R_Borrowers B
                                                     ON B.BorrowerId = BEDU.BorrowerId
+                                                  INNER JOIN R_Education ED
+                                                    ON ED.EducationId = BEDU.EducationId
                                                       WHERE B.BorrowerId = $Id
       ");
       $data = $query_string->result_array();
@@ -1111,22 +1426,24 @@ class borrower_model extends CI_Model
                                                 , B.ExtName
                                                 , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', EMP.MiddleName, ', ', EMP.ExtName) as CreatedBy
                                                 , B.StatusId
+                                                , BS.Name as StatusDescription
+                                                , BS.statusColor
                                                 , B.Dependents
                                                 , DATE_FORMAT(B.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
                                                 , DATE_FORMAT(B.DateUpdated, '%d %b %Y %h:%i %p') as DateUpdated
                                                 , B.BorrowerId
                                                 , CONCAT(B.LastName, ', ', B.FirstName) as Name 
                                                 FROM r_Borrowers B
-                                                      INNER JOIN r_BorrowerStatus BS
-                                                          ON BS.BorrowerStatusId = B.StatusId
-                                                        INNER JOIN r_employee EMP
-                                                          ON EMP.EmployeeNumber = B.CreatedBy
-                                                        LEFT JOIN R_UserRole R
-                                                          ON R.EmployeeNumber = EMP.EmployeeNumber
-                                                        LEFT JOIN Branch_Has_Employee BHE
-                                                          ON BHE.EmployeeNumber = EMP.EmployeeNumber
-                                                              WHERE EMP.StatusId = 2
-                                                              AND BHE.BranchId = $AssignedBranchId
+                                                  INNER JOIN r_BorrowerStatus BS
+                                                      ON BS.BorrowerStatusId = B.StatusId
+                                                    INNER JOIN r_employee EMP
+                                                      ON EMP.EmployeeNumber = B.CreatedBy
+                                                    LEFT JOIN R_UserRole R
+                                                      ON R.EmployeeNumber = EMP.EmployeeNumber
+                                                    LEFT JOIN Branch_Has_Employee BHE
+                                                      ON BHE.EmployeeNumber = EMP.EmployeeNumber
+                                                          WHERE EMP.StatusId = 2
+                                                          AND BHE.BranchId = $AssignedBranchId
       ");
       $data = $query_string->result_array();
       return $data;
@@ -1195,6 +1512,7 @@ class borrower_model extends CI_Model
                                                 , BN.Description
                                                 , CONCAT(EMP.LastName, ', ', EMP.FirstName) as CreatedBy 
                                                 , DATE_FORMAT(BN.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                                , BN.DateCreated as rawDateCreated
                                                 FROM Borrower_has_notifications BN
                                                   INNER JOIN R_Borrowers B
                                                     ON B.BorrowerId = BN.BorrowerId
@@ -1208,27 +1526,27 @@ class borrower_model extends CI_Model
 
     function getSupportingDocuments($BorrowerId)
     {
-      $query_string = $this->db->query("SELECT  CONCAT('SD-', LPAD(BS.BorrowerIdentificationId, 6, 0)) as rowNumber
-                                                , IC.Name
-                                                , I.Attachment
-                                                , I.IdentificationId
-                                                , I.Description
-                                                , I.IdNumber
-                                                , BS.StatusId
-                                                , BS.BorrowerIdentificationId
-                                                , DATE_FORMAT(BS.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
-                                                , DATE_FORMAT(BS.DateUpdated, '%d %b %Y %h:%i %p') as DateUpdated
-                                                , EMP.FirstName
-                                                , EMP.LastName
-                                                , acronym(EMP.MiddleName) as MiddleInitial
-                                                FROM r_identificationcards I
-                                                    INNER JOIN borrower_has_supportdocuments BS
-                                                        ON BS.IdentificationId = I.IdentificationId
-                                                    INNER JOIN r_employee EMP
-                                                        ON EMP.EmployeeNumber = I.CreatedBy
-                                                    INNER JOIN R_Requirements IC
-                                                        ON IC.RequirementId = I.ID
-                                                            WHERE BS.BorrowerId = $BorrowerId
+$query_string = $this->db->query("SELECT  CONCAT('SD-', LPAD(BS.BorrowerIdentificationId, 6, 0)) as rowNumber
+                                        , R.Name
+                                        , I.Attachment
+                                        , I.IdentificationId
+                                        , I.Description
+                                        , I.IdNumber
+                                        , BS.StatusId
+                                        , BS.BorrowerIdentificationId
+                                        , DATE_FORMAT(BS.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                        , DATE_FORMAT(BS.DateUpdated, '%d %b %Y %h:%i %p') as DateUpdated
+                                        , EMP.FirstName
+                                        , EMP.LastName
+                                        , acronym(EMP.MiddleName) as MiddleInitial
+                                        FROM borrower_has_supportdocuments BS
+                                        INNER JOIN r_identificationcards I
+                                          ON I.IdentificationId = BS.IdentificationId
+                                        INNER JOIN r_requirements R
+                                          ON R.RequirementId = BS.RequirementId
+                                        INNER JOIN r_employee EMP
+                                            ON EMP.EmployeeNumber = BS.CreatedBy
+                                            WHERE BS.BorrowerId = $BorrowerId
       ");
       $data = $query_string->result_array();
       return $data;
@@ -1253,7 +1571,8 @@ class borrower_model extends CI_Model
       $query = $this->db->query("SELECT   Amount
                                           , A.TransactionNumber
                                           , CONCAT('PYM-', LPAD(PM.PaymentMadeId, 6, 0)) as ReferenceNo
-                                          , DATE_FORMAT(PM.DateCreated, '%b %d, %Y %r') as DateCreated
+                                          , DATE_FORMAT(PM.DateCreated, '%d %b, %Y %h:%i %p') as DateCreated
+                                          , PM.DateCreated as rawDateCreated
                                           , DATE_FORMAT(PM.DateCollected, '%b %d, %Y') as DateCollected
                                           , DATE_FORMAT(PM.PaymentDate, '%b %d, %Y') as PaymentDate
                                           , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName) as CreatedBy
@@ -1271,10 +1590,190 @@ class borrower_model extends CI_Model
                                             INNER JOIN R_Employee EMP
                                               ON EMP.EmployeeNumber = PM.CreatedBy
                                                 WHERE A.BorrowerId = $Id
+                                                AND PM.StatusId = 1
       ");
       $data = $query->result_array();
       return $data;
     }
 
+    function countEmailAddress($input)
+    {
+      $query_string = $this->db->query("SELECT  EmailId
+                                                FROM r_emails
+                                                WHERE EmailAddress = '".$input['EmailAddress']."'
+
+      ");
+      $data = $query_string->row_array();
+      if($data['EmailId'] != null)
+      {
+        $query2 = $this->db->query("SELECT  *
+                                            FROM borrower_has_emails
+                                              WHERE EmailId = ".$data['EmailId']."
+                                              AND BorrowerId = '".$input['BorrowerId']."'
+        ");
+        $data2 = $query2->num_rows();
+        return $data2;
+      }
+      else
+      {
+        return 0;
+      }
+    }
+
+    function getPersonalReferences($Id)
+    {
+      $query_string = $this->db->query("SELECT DISTINCT BRF.ReferenceId
+                                                FROM Borrower_has_reference BRF
+                                                  INNER JOIN R_Borrowers B
+                                                    ON B.BorrowerId = BRF.BorrowerId
+                                                  WHERE BRF.BorrowerId = $Id
+                                                  AND BRF.StatusId = 1
+
+      ");
+
+      if($query_string->num_rows() > 0)
+      {
+        $data = $query_string->result_array();
+        return $data;
+      }
+      else
+      {
+        return 0;
+      }
+    }
+
+    function getActiveCoMaker($BorrowerId)
+    {
+      $query_string = $this->db->query("SELECT  DISTINCT BorrowerComakerId
+                                                FROM borrower_has_comaker BC
+                                                  WHERE BorrowerId = $BorrowerId
+                                                  AND BC.StatusId = 1
+      ");
+
+      if($query_string->num_rows() > 0)
+      {
+        $data = $query_string->result_array();
+        return $data;
+      }
+      else
+      {
+        return 0;
+      }
+    }
+
+    function getActiveSpouse($Id)
+    {
+      $query_string = $this->db->query("SELECT  DISTINCT BorrowerSpouseId
+                                                FROM Borrower_has_spouse
+                                                      WHERE BorrowerId = $Id
+                                                      AND StatusId = 1
+
+      ");
+
+      if($query_string->num_rows() > 0)
+      {
+        $data = $query_string->result_array();
+        return $data;
+      }
+      else
+      {
+        return 0;
+      }
+    }
+
+    function getActiveEmployment($Id)
+    {
+      $query_string = $this->db->query("SELECT  DISTINCT EmployerId
+                                                FROM borrower_has_employer                                                  
+                                                  WHERE BorrowerId = $Id
+                                                  AND StatusId = 1
+      ");
+
+      if($query_string->num_rows() > 0)
+      {
+        $data = $query_string->result_array();
+        return $data;
+      }
+      else
+      {
+        return 0;
+      }
+    }
+
+    function getActiveContact($Id)
+    {
+      $query_string = $this->db->query("SELECT  DISTINCT BorrowerContactId
+                                                FROM borrower_has_contactnumbers                                                  
+                                                  WHERE BorrowerId = $Id
+                                                  AND StatusId = 1
+      ");
+
+      if($query_string->num_rows() > 0)
+      {
+        $data = $query_string->result_array();
+        return $data;
+      }
+      else
+      {
+        return 0;
+      }
+    }
+
+    function getActiveAddress($Id)
+    {
+      $query_string = $this->db->query("SELECT  DISTINCT BorrowerAddressHistoryId
+                                                FROM borroweraddresshistory                                                  
+                                                  WHERE BorrowerId = $Id
+                                                  AND StatusId = 1
+      ");
+
+      if($query_string->num_rows() > 0)
+      {
+        $data = $query_string->result_array();
+        return $data;
+      }
+      else
+      {
+        return 0;
+      }
+    }
+
+    function getActiveEmail($Id)
+    {
+      $query_string = $this->db->query("SELECT  DISTINCT BorrowerEmailId
+                                                FROM borrower_has_emails                                                  
+                                                  WHERE BorrowerId = $Id
+                                                  AND StatusId = 1
+      ");
+
+      if($query_string->num_rows() > 0)
+      {
+        $data = $query_string->result_array();
+        return $data;
+      }
+      else
+      {
+        return 0;
+      }
+    }
+
+    function getActiveEducation($Id)
+    {
+      $query_string = $this->db->query("SELECT  DISTINCT BorrowerEducationId
+                                                FROM borrower_has_education                                                  
+                                                  WHERE BorrowerId = $Id
+                                                  AND StatusId = 1
+      ");
+
+      if($query_string->num_rows() > 0)
+      {
+        $data = $query_string->result_array();
+        return $data;
+      }
+      else
+      {
+        return 0;
+      }
+    }
 
 }

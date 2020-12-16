@@ -36,19 +36,71 @@ class maintenance_model extends CI_Model
       return $output;
     }
 
+    function getEducationList($Id)
+    {
+      $query = $this->db->query("SELECT Name
+                                        , EducationId as ID 
+                                        FROM R_Education
+                                          WHERE StatusId = 1
+                                          AND EducationId NOT IN (SELECT EducationId FROM borrower_has_education WHERE StatusId = 1 AND BorrowerId = $Id)
+      ");
+      $output = '<option disabled selected value="">Education Level</option>';
+      foreach ($query->result() as $row)
+      {
+        $output .= '<option value="'.$row->ID.'">'.$row->Name.'</option>';
+      }
+      return $output;
+    }
+
+    function IDCategory2($Id)
+    {
+      $EmployeeNumber = sprintf('%06d', $Id);
+      $query = $this->db->query("SELECT R.Name
+                                        , R.RequirementId as ID 
+                                        FROM r_requirements R
+                                          WHERE R.StatusId = 1
+                                          AND RequirementId NOT IN (SELECT IdentificationId FROM employee_has_identifications WHERE EmployeeNumber = '$EmployeeNumber' AND (StatusId = 1 OR StatusId = 0))
+      ");
+      $output = '<option disabled selected value="">Supporting Documents</option>';
+      foreach ($query->result() as $row)
+      {
+        $output .= '<option value="'.$row->ID.'">'.$row->Name.'</option>';
+      }
+      return $output;
+    }
+
+    function IDCategory3($Id)
+    {
+      $query = $this->db->query("SELECT R.Name
+                                        , R.RequirementId as ID 
+                                        FROM r_requirements R
+                                          WHERE R.StatusId = 1
+                                          AND RequirementId NOT IN (SELECT RequirementId FROM borrower_has_supportdocuments WHERE BorrowerId = '$Id' AND StatusId = 1)
+      ");
+      $output = '<option disabled selected value="">Supporting Documents</option>';
+      foreach ($query->result() as $row)
+      {
+        $output .= '<option value="'.$row->ID.'">'.$row->Name.'</option>';
+      }
+      return $output;
+    }
+
     function getAllUsers()
     {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
       $query_string = $this->db->query("SELECT 	DISTINCT UR.EmployeeNumber
       																					, UR.StatusId
                                                 , IsNew
-                                                , DATE_FORMAT(UR.DateCreated, '%d %b %Y %r') as DateCreated
-                                                , DATE_FORMAT(UR.DateUpdated, '%d %b %Y %r') as DateUpdated
+                                                , DATE_FORMAT(UR.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                , UR.DateCreated as rawDateCreated
+                                                , DATE_FORMAT(UR.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
                                                 , UserRoleId
                                                 , EmployeeId
       																					FROM R_UserRole UR
                                                   INNER JOIN R_Employee EMP
                                                     ON EMP.EmployeeNumber = UR.EmployeeNumber
                                                   WHERE UR.EmployeeNumber != '000000'
+                                                  AND EMP.EmployeeNumber != '$EmployeeNumber'
 			");
       $data = $query_string->result_array();
       return $data;
@@ -71,8 +123,8 @@ class maintenance_model extends CI_Model
                                                 , BNK.AccountNumber
                                                 , BNK.CreatedBy
                                                 , BNK.StatusId
-                                                , DATE_FORMAT(BNK.DateCreated, '%d %b %Y %r') as DateCreated
-                                                , DATE_FORMAT(BNK.DateUpdated, '%d %b %Y %r') as DateUpdated
+                                                , DATE_FORMAT(BNK.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                , DATE_FORMAT(BNK.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
                                                 FROM R_Bank BNK
       ");
       $data = $query_string->result_array();
@@ -221,11 +273,11 @@ class maintenance_model extends CI_Model
                                                 , BRNCH.CreatedBy
                                                 , BRNCH.StatusId
                                                 , BRNCH.LeaseMonthly
-                                                , DATE_FORMAT(BRNCH.DateCreated, '%d %b %Y %r') as DateCreated
-                                                , DATE_FORMAT(BRNCH.DateUpdated, '%d %b %Y %r') as DateUpdated
-                                                , DATE_FORMAT(BRNCH.DateFromLease, '%d %b %Y %r') as DateFrom
-                                                , DATE_FORMAT(BRNCH.DateToLease, '%d %b %Y %r') as DateTo
-                                                FROM R_Branch BRNCH
+                                                , DATE_FORMAT(BRNCH.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                , DATE_FORMAT(BRNCH.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
+                                                , DATE_FORMAT(BRNCH.DateFromLease, '%b %d, %Y') as DateFrom
+                                                , DATE_FORMAT(BRNCH.DateToLease, '%b %d, %Y') as DateTo
+                                                FROM R_Branches BRNCH
       ");
       $data = $query_string->result_array();
       return $data;
@@ -239,8 +291,8 @@ class maintenance_model extends CI_Model
                                                 , L.Description
                                                 , L.CreatedBy
                                                 , L.StatusId
-                                                , DATE_FORMAT(L.DateCreated, '%d %b %Y %r') as DateCreated
-                                                , DATE_FORMAT(L.DateUpdated, '%d %b %Y %r') as DateUpdated
+                                                , DATE_FORMAT(L.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                , DATE_FORMAT(L.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
                                                 FROM R_Loans L
       ");
       $data = $query_string->result_array();
@@ -262,8 +314,8 @@ class maintenance_model extends CI_Model
                                                 , CH.Amount
                                                 , CH.CreatedBy
                                                 , CH.StatusId
-                                                , DATE_FORMAT(CH.DateCreated, '%d %b %Y %r') as DateCreated
-                                                , DATE_FORMAT(CH.DateUpdated, '%d %b %Y %r') as DateUpdated
+                                                , DATE_FORMAT(CH.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                , DATE_FORMAT(CH.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
                                                 FROM R_Charges CH
       ");
       $data = $query_string->result_array();
@@ -278,8 +330,8 @@ class maintenance_model extends CI_Model
                                                 , OCCU.CreatedBy
                                                 , OCCU.StatusId
                                                 , OccupationId
-                                                , DATE_FORMAT(OCCU.DateCreated, '%d %b %Y %r') as DateCreated
-                                                , DATE_FORMAT(OCCU.DateUpdated, '%d %b %Y %r') as DateUpdated
+                                                , DATE_FORMAT(OCCU.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                , DATE_FORMAT(OCCU.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
                                                 FROM R_Occupation OCCU
       ");
       $data = $query_string->result_array();
@@ -293,7 +345,7 @@ class maintenance_model extends CI_Model
                                                 , CONCAT('RC-', LPAD(RC.RepaymentId, 6, 0)) as ReferenceNo 
                                                 , RC.CreatedBy
                                                 , RC.StatusId
-                                                , DATE_FORMAT(RC.DateCreated, '%d %b %Y %r') as DateCreated
+                                                , DATE_FORMAT(RC.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                                 FROM R_RepaymentCycle RC
       ");
       $data = $query_string->result_array();
@@ -307,7 +359,7 @@ class maintenance_model extends CI_Model
                                                 , DB.DisbursementId
                                                 , DB.CreatedBy
                                                 , DB.StatusId
-                                                , DATE_FORMAT(DB.DateCreated, '%d %b %Y %r') as DateCreated
+                                                , DATE_FORMAT(DB.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                                 FROM R_Disbursement DB
       ");
       $data = $query_string->result_array();
@@ -321,8 +373,8 @@ class maintenance_model extends CI_Model
                                                 , OC.Description
                                                 , OC.CreatedBy
                                                 , OC.StatusId
-                                                , DATE_FORMAT(OC.DateCreated, '%d %b %Y %r') as DateCreated
-                                                , DATE_FORMAT(OC.DateUpdated, '%d %b %Y %r') as DateUpdated
+                                                , DATE_FORMAT(OC.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                , DATE_FORMAT(OC.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
                                                 FROM R_OptionalCharges OC
       ");
       $data = $query_string->result_array();
@@ -337,8 +389,8 @@ class maintenance_model extends CI_Model
                                                 , RQ.Description
                                                 , RQ.CreatedBy
                                                 , RQ.StatusId
-                                                , DATE_FORMAT(RQ.DateCreated, '%d %b %Y %r') as DateCreated
-                                                , DATE_FORMAT(RQ.DateUpdated, '%d %b %Y %r') as DateUpdated
+                                                , DATE_FORMAT(RQ.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                , DATE_FORMAT(RQ.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
                                                 FROM R_Requirements RQ
       ");
       $data = $query_string->result_array();
@@ -353,7 +405,7 @@ class maintenance_model extends CI_Model
                                                 , PS.Description
                                                 , PS.CreatedBy
                                                 , PS.StatusId
-                                                , DATE_FORMAT(PS.DateCreated, '%d %b %Y %r') as DateCreated
+                                                , DATE_FORMAT(PS.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                                 FROM R_Position PS
       ");
       $data = $query_string->result_array();
@@ -368,8 +420,8 @@ class maintenance_model extends CI_Model
                                                 , PP.Description
                                                 , PP.CreatedBy
                                                 , PP.StatusId
-                                                , DATE_FORMAT(PP.DateCreated, '%d %b %Y %r') as DateCreated
-                                                , DATE_FORMAT(PP.DateUpdated, '%d %b %Y %r') as DateUpdated
+                                                , DATE_FORMAT(PP.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                , DATE_FORMAT(PP.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
                                                 FROM R_Purpose PP
       ");
       $data = $query_string->result_array();
@@ -384,8 +436,8 @@ class maintenance_model extends CI_Model
                                                 , M.Description
                                                 , M.CreatedBy
                                                 , M.StatusId
-                                                , DATE_FORMAT(M.DateCreated, '%d %b %Y %r') as DateCreated
-                                                , DATE_FORMAT(M.DateUpdated, '%d %b %Y %r') as DateUpdated
+                                                , DATE_FORMAT(M.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                , DATE_FORMAT(M.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
                                                 FROM R_MethodOfPayment M
       ");
       $data = $query_string->result_array();
@@ -400,8 +452,8 @@ class maintenance_model extends CI_Model
                                                 , A.Description
                                                 , A.CreatedBy
                                                 , A.StatusId
-                                                , DATE_FORMAT(A.DateCreated, '%d %b %Y %r') as DateCreated
-                                                , DATE_FORMAT(A.DateUpdated, '%d %b %Y %r') as DateUpdated
+                                                , DATE_FORMAT(A.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                , DATE_FORMAT(A.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
                                                 FROM R_Category A
       ");
       $data = $query_string->result_array();
@@ -434,11 +486,11 @@ class maintenance_model extends CI_Model
                                                 , AM.CreatedBy
                                                 , AM.CriticalLevel
                                                 , C.Name as CategoryName
-                                                , DATE_FORMAT(AM.DateCreated, '%d %b %Y %r') as DateCreated
+                                                , DATE_FORMAT(AM.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                                 FROM R_AssetManagement AM
                                                  INNER JOIN R_Category C
                                                   ON C.CategoryId = AM.CategoryId
-                                                    INNER JOIN R_Branch BRNCH
+                                                    INNER JOIN R_Branches BRNCH
                                                       ON BRNCH.BranchId = AM.BranchId
       ");
       $data = $query_string->result_array();
@@ -453,8 +505,8 @@ class maintenance_model extends CI_Model
                                                 , LS.Description
                                                 , LS.CreatedBy
                                                 , LS.StatusId
-                                                , DATE_FORMAT(LS.DateCreated, '%d %b %Y %r') as DateCreated
-                                                , DATE_FORMAT(LS.DateUpdated, '%d %b %Y %r') as DateUpdated
+                                                , DATE_FORMAT(LS.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                , DATE_FORMAT(LS.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
                                                 FROM R_LoanStatus LS
       ");
       $data = $query_string->result_array();
@@ -464,14 +516,13 @@ class maintenance_model extends CI_Model
     function getAllBorrowerStatus()
     {
       $query_string = $this->db->query("SELECT BS.Name as BorrowerStatus
-                                                , CONCAT('BS-', LPAD(BS.BorrowerStatusId, 6, 0)) as ReferenceNo 
+                                                , CONCAT('BST-', LPAD(BS.BorrowerStatusId, 6, 0)) as ReferenceNo 
                                                 , BorrowerStatusId
-                                                , BS.Description
+                                                , BS.Name
                                                 , BS.CreatedBy
                                                 , BS.StatusId
-                                                , DATE_FORMAT(BS.DateCreated, '%d %b %Y %r') as DateCreated
-                                                , DATE_FORMAT(BS.DateUpdated, '%d %b %Y %r') as DateUpdated
-                                                FROM R_Borrower_has_Status BS
+                                                , DATE_FORMAT(BS.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                FROM r_borrowerStatus BS
       ");
       $data = $query_string->result_array();
       return $data;
@@ -485,8 +536,8 @@ class maintenance_model extends CI_Model
                                                 , I.Description
                                                 , I.CreatedBy
                                                 , I.StatusId
-                                                , DATE_FORMAT(I.DateCreated, '%d %b %Y %r') as DateCreated
-                                                , DATE_FORMAT(I.DateUpdated, '%d %b %Y %r') as DateUpdated
+                                                , DATE_FORMAT(I.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                , DATE_FORMAT(I.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
                                                 FROM R_Industry I
       ");
       $data = $query_string->result_array();
@@ -501,8 +552,8 @@ class maintenance_model extends CI_Model
                                                 , EDU.Description
                                                 , EDU.CreatedBy
                                                 , EDU.StatusId
-                                                , DATE_FORMAT(EDU.DateCreated, '%d %b %Y %r') as DateCreated
-                                                , DATE_FORMAT(EDU.DateUpdated, '%d %b %Y %r') as DateUpdated
+                                                , DATE_FORMAT(EDU.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                , DATE_FORMAT(EDU.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
                                                 FROM R_Education EDU
       ");
       $data = $query_string->result_array();
@@ -516,8 +567,8 @@ class maintenance_model extends CI_Model
                                                 , CapitalId
                                                 , C.CreatedBy
                                                 , C.StatusId
-                                                , DATE_FORMAT(C.DateCreated, '%d %b %Y %r') as DateCreated
-                                                , DATE_FORMAT(C.DateUpdated, '%d %b %Y %r') as DateUpdated
+                                                , DATE_FORMAT(C.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                , DATE_FORMAT(C.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
                                                 FROM R_Capital C
       ");
       $data = $query_string->result_array();
@@ -527,14 +578,16 @@ class maintenance_model extends CI_Model
     function getAllType()
     {
       $query_string = $this->db->query("SELECT ET.Name as ExpenseType
-                                                , CONCAT('ET-', LPAD(ET.ExpenseTypeId, 6, 0)) as ReferenceNo
+                                                , CONCAT('EXT-', LPAD(ET.ExpenseTypeId, 6, 0)) as ReferenceNo
                                                 , ExpenseTypeId
-                                                , ET.CreatedBy
+                                                , CONCAT(FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as CreatedBy
                                                 , ET.Description
                                                 , ET.StatusId
-                                                , DATE_FORMAT(ET.DateCreated, '%d %b %Y %r') as DateCreated
-                                                , DATE_FORMAT(ET.DateUpdated, '%d %b %Y %r') as DateUpdated
+                                                , DATE_FORMAT(ET.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                , DATE_FORMAT(ET.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
                                                 FROM R_ExpenseType ET
+                                                  INNER JOIN R_Employee EMP
+                                                    ON EMP.EmployeeNumber = ET.CreatedBy
       ");
       $data = $query_string->result_array();
       return $data;
@@ -543,19 +596,21 @@ class maintenance_model extends CI_Model
     function getAllExpenses()
     {
       $query_string = $this->db->query("SELECT ET.Name as Expense
-                                                , CONCAT('EX-', LPAD(EX.ExpenseId, 6, 0)) as ReferenceNo
+                                                , CONCAT('EXP-', LPAD(EX.ExpenseId, 6, 0)) as ReferenceNo
                                                 , EX.ExpenseTypeId
                                                 , EX.ExpenseId
-                                                , EX.Amount
-                                                , EX.CreatedBy
+                                                , FORMAT(EX.Amount, 2) as Amount
+                                                , CONCAT(FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as CreatedBy
                                                 , EX.StatusId
                                                 , EX.DateExpense
-                                                , DATE_FORMAT(EX.DateCreated, '%d %b %Y') as DateCreated
-                                                , DATE_FORMAT(EX.DateUpdated, '%d %b %Y') as DateUpdated
-                                                , DATE_FORMAT(EX.DateExpense, '%d %b %Y') as DateExpense
+                                                , DATE_FORMAT(EX.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                , DATE_FORMAT(EX.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
+                                                , DATE_FORMAT(EX.DateExpense, '%b %d, %Y %h:%i %p') as DateExpense
                                                 FROM R_Expense EX
                                                   INNER JOIN R_ExpenseType ET
                                                     ON ET.ExpenseTypeId = EX.ExpenseTypeId
+                                                  INNER JOIN R_Employee EMP
+                                                    ON EMP.EmployeeNumber = EX.CreatedBy
       ");
       $data = $query_string->result_array();
       return $data;
@@ -566,12 +621,14 @@ class maintenance_model extends CI_Model
       $query_string = $this->db->query("SELECT WT.Name as WithdrawalType
                                                 , CONCAT('WT-', LPAD(WT.WithdrawalTypeId, 6, 0)) as ReferenceNo
                                                 , WithdrawalTypeId
-                                                , WT.CreatedBy
                                                 , WT.Description
                                                 , WT.StatusId
-                                                , DATE_FORMAT(WT.DateCreated, '%d %b %Y') as DateCreated
-                                                , DATE_FORMAT(WT.DateUpdated, '%d %b %Y') as DateUpdated
+                                                , DATE_FORMAT(WT.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                , DATE_FORMAT(WT.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
+                                                , CONCAT(FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as CreatedBy
                                                 FROM R_WithdrawalType WT
+                                                  INNER JOIN R_Employee EMP
+                                                    ON EMP.EmployeeNumber = WT.CreatedBy
       ");
       $data = $query_string->result_array();
       return $data;
@@ -583,16 +640,18 @@ class maintenance_model extends CI_Model
                                                 , CONCAT('DEP-', LPAD(W.WithdrawalId, 6, 0)) as ReferenceNo
                                                 , W.WithdrawalTypeId
                                                 , W.WithdrawalId
-                                                , W.Amount
-                                                , W.CreatedBy
+                                                , FORMAT(W.Amount, 2) as Amount
                                                 , W.StatusId
                                                 , W.DateWithdrawal
-                                                , DATE_FORMAT(W.DateCreated, '%d %b %Y') as DateCreated
-                                                , DATE_FORMAT(W.DateUpdated, '%d %b %Y') as DateUpdated
-                                                , DATE_FORMAT(W.DateWithdrawal, '%d %b %Y') as DateWithdrawal
+                                                , DATE_FORMAT(W.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                , DATE_FORMAT(W.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
+                                                , DATE_FORMAT(W.DateWithdrawal, '%b %d, %Y') as DateWithdrawal
+                                                , CONCAT(FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as CreatedBy
                                                 FROM R_Withdrawal W
                                                   INNER JOIN R_WithdrawalType WT
                                                     ON W.WithdrawalTypeId = WT.WithdrawalTypeId
+                                                  INNER JOIN R_Employee EMP
+                                                    ON EMP.EmployeeNumber = W.CreatedBy
       ");
       $data = $query_string->result_array();
       return $data;
@@ -604,8 +663,8 @@ class maintenance_model extends CI_Model
                                                 , B.StatusId
                                                 , B.Sex
                                                 , B.Dependents
-                                                , DATE_FORMAT(B.DateCreated, '%d %b %Y %r') as DateCreated
-                                                , DATE_FORMAT(B.DateUpdated, '%d %b %Y %r') as DateUpdated
+                                                , DATE_FORMAT(B.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                , DATE_FORMAT(B.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
                                                 FROM R_Borrowers B
       ");
       $data = $query_string->result_array();
@@ -616,9 +675,12 @@ class maintenance_model extends CI_Model
     {
       $query_string = $this->db->query("SELECT  LogId
                                                 , LG.Description
-                                                , LG.CreatedBy
-                                                , DATE_FORMAT(LG.DateCreated, '%d %b %Y') as DateCreated
+                                                , CONCAT(FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as CreatedBy
+                                                , DATE_FORMAT(LG.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                , LG.DateCreated as rawDateCreated
                                                 FROM R_Logs LG
+                                                  INNER JOIN R_Employee EMP
+                                                    ON EMP.EmployeeNumber = LG.CreatedBy
       ");
       $data = $query_string->result_array();
       return $data;
@@ -758,7 +820,7 @@ class maintenance_model extends CI_Model
       $EmployeeNumber = $this->session->userdata('EmployeeNumber');
       $query = $this->db->query("SELECT BranchId
                                         , Name
-                                          FROM R_Branch
+                                          FROM R_Branches
                                           WHERE StatusId = 1
                                             ORDER BY Name ASC
       ");
@@ -881,7 +943,7 @@ class maintenance_model extends CI_Model
                                           WHERE StatusId = 1
                                             ORDER BY Name ASC
       ");
-      $output = '<option selected value="">Select Deposit Type</option>';
+      $output = '<option selected disabled value="">Select Deposit Type</option>';
       foreach ($query->result() as $row)
       {
         $output .= '<option data-city="'.$row->Name.'"  value="'.$row->WithdrawalTypeId.'">'.$row->Name.'</option>';
@@ -964,12 +1026,30 @@ class maintenance_model extends CI_Model
                                         , Name
                                           FROM r_borrowerStatus
                                             WHERE StatusId = 1
+                                            AND IsApprovable = 0
+                                            ORDER BY Name ASC
+      ");
+      $output = '<option selected disabled value="">Select Status</option>';
+      foreach ($query->result() as $row)
+      {
+        $output .= '<option value="'.$row->BorrowerStatusId.'">'.$row->Name.'</option>';
+      }
+      return $output;
+    }
+
+    function getEmployeeStatus()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT EmployeeStatusId
+                                        , Name
+                                          FROM Employee_has_status
+                                            WHERE StatusId = 1
                                             ORDER BY Name ASC
       ");
       $output = '<option selected value="">Select Status</option>';
       foreach ($query->result() as $row)
       {
-        $output .= '<option value="'.$row->BorrowerStatusId.'">'.$row->Name.'</option>';
+        $output .= '<option value="'.$row->EmployeeStatusId.'">'.$row->Name.'</option>';
       }
       return $output;
     }
@@ -995,7 +1075,7 @@ class maintenance_model extends CI_Model
       $EmployeeNumber = $this->session->userdata('EmployeeNumber');
       $query = $this->db->query("SELECT BranchId
                                         , Code
-                                          FROM R_Branch
+                                          FROM R_Branches
                                           WHERE BranchId = '".$BranchId."'
                                             ORDER BY Code ASC
       ");
@@ -1193,7 +1273,7 @@ class maintenance_model extends CI_Model
                                           , B.BranchId
                                           , BE.ManagerBranchId
                                           FROM branch_has_employee BE
-                                            INNER JOIN R_Branch B
+                                            INNER JOIN R_Branches B
                                               ON B.BranchId = BE.BranchId
                                             INNER JOIN R_Employee EMP
                                               ON EMP.EmployeeNumber = BE.EmployeeNumber
@@ -1638,6 +1718,30 @@ class maintenance_model extends CI_Model
                                                             AND PM.StatusId = 1
                                                             AND A.StatusId = 1
                                                             GROUP BY DATE_FORMAT(PM.DateCreated, '%Y')
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+
+    function getManagerNotification()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query_string = $this->db->query("SELECT  MN.NotificationId
+                                                , MN.Description
+                                                , MN.Remarks
+                                                , MN.CreatedBy
+                                                , MN.ManagerBranchId
+                                                , CONCAT(FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as CreatedBy
+                                                , DATE_FORMAT(MN.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                , MN.DateCreated as rawDateCreated
+                                                FROM manager_has_notifications MN
+                                                  INNER JOIN branch_has_manager BM
+                                                    ON BM.ManagerBranchId = MN.ManagerBranchId
+                                                  INNER JOIN R_Employee EMP
+                                                    ON EMP.EmployeeNumber = MN.CreatedBy
+                                                  WHERE BM.EmployeeNumber = '$EmployeeNumber'
+                                                  AND BM.StatusId = 1
       ");
       $data = $query_string->result_array();
       return $data;

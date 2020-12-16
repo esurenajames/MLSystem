@@ -491,7 +491,7 @@ class admin_controller extends CI_Controller {
             , 'CreatedBy'              => $EmployeeNumber
             , 'UpdatedBy'              => $EmployeeNumber
           );
-          $insertBranchTable = 'R_Branch';
+          $insertBranchTable = 'R_Branches';
           $this->maintenance_model->insertFunction($insertBranch, $insertBranchTable);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
@@ -542,7 +542,7 @@ class admin_controller extends CI_Controller {
             $condition = array( 
               'BranchId' => $_POST['BranchId']
             );
-            $table = 'R_Branch';
+            $table = 'R_Branches';
             $this->maintenance_model->updateFunction1($set, $condition, $table);
         }
         if($BranchDetail['Code'] != htmlentities($_POST['Code'], ENT_QUOTES))
@@ -562,7 +562,7 @@ class admin_controller extends CI_Controller {
             $condition = array( 
               'BranchId' => $_POST['BranchId']
             );
-            $table = 'R_Branch';
+            $table = 'R_Branches';
             $this->maintenance_model->updateFunction1($set, $condition, $table);
         }
         if($BranchDetail['Description'] != htmlentities($_POST['Description'], ENT_QUOTES))
@@ -582,7 +582,7 @@ class admin_controller extends CI_Controller {
             $condition = array( 
               'BranchId' => $_POST['BranchId']
             );
-            $table = 'R_Branch';
+            $table = 'R_Branches';
             $this->maintenance_model->updateFunction1($set, $condition, $table);
         }
         if($BranchDetail['DateFromLease'] != htmlentities($DateFrom, ENT_QUOTES))
@@ -602,7 +602,7 @@ class admin_controller extends CI_Controller {
             $condition = array( 
               'BranchId' => $_POST['BranchId']
             );
-            $table = 'R_Branch';
+            $table = 'R_Branches';
             $this->maintenance_model->updateFunction1($set, $condition, $table);
         }
         if($BranchDetail['DateToLease'] != htmlentities($DateTo, ENT_QUOTES))
@@ -622,7 +622,7 @@ class admin_controller extends CI_Controller {
             $condition = array( 
               'BranchId' => $_POST['BranchId']
             );
-            $table = 'R_Branch';
+            $table = 'R_Branches';
             $this->maintenance_model->updateFunction1($set, $condition, $table);
         }
         if($BranchDetail['LeaseMonthly'] != htmlentities($_POST['Monthly'], ENT_QUOTES))
@@ -642,7 +642,7 @@ class admin_controller extends CI_Controller {
             $condition = array( 
               'BranchId' => $_POST['BranchId']
             );
-            $table = 'R_Branch';
+            $table = 'R_Branches';
             $this->maintenance_model->updateFunction1($set, $condition, $table);
         }
 
@@ -1849,7 +1849,7 @@ class admin_controller extends CI_Controller {
         // admin audits
           $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
           $itemDetail = $this->maintenance_model->selectSpecific('r_assetmanagement', 'AssetManagementId', $_POST['AssetManagementId']);
-          $branchName = $this->maintenance_model->selectSpecific('R_Branch', 'BranchId', $_POST['BranchId']);
+          $branchName = $this->maintenance_model->selectSpecific('R_Branches', 'BranchId', $_POST['BranchId']);
           $TransactionNumber = 'AM-'.sprintf('%05d', $itemDetail['AssetManagementId']);
           $auditLogsManager = $employeeDetail['Name'] . ' updated assigned branch of '.$TransactionNumber.' from '.$AssetManagementDetail['Name'].' to '.htmlentities($branchName['Name'], ENT_QUOTES).' in asset management.';
           $auditAffectedEmployee = 'Updated assigned branch of '.$TransactionNumber.' from '.$AssetManagementDetail['Name'].' to '.htmlentities($branchName['Name'], ENT_QUOTES).'.';
@@ -3269,7 +3269,7 @@ class admin_controller extends CI_Controller {
     $this->db->truncate('r_borrowers');
     $this->db->truncate('r_borrowerstatus');
     $this->db->truncate('r_borrower_has_status');
-    $this->db->truncate('r_branch');
+    $this->db->truncate('R_Branches');
     $this->db->truncate('r_capital');
     $this->db->truncate('r_category');
     $this->db->truncate('r_charges');
@@ -3374,7 +3374,7 @@ class admin_controller extends CI_Controller {
         'Code' => 'TAY',
         'BranchId' => 1,
       );
-      $auditTableB = 'r_branch';
+      $auditTableB = 'R_Branches';
       $this->maintenance_model->insertFunction($insertDataB, $auditTableB);
     // employee
       $insertDataE = array(

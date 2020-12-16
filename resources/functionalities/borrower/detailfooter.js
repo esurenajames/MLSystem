@@ -8,48 +8,196 @@
 
   function viewSpouse(SpouseId)
   {
-    $.ajax({
-      url: baseUrl + "/borrower_controller/getSpouseDetails",
-      type: "POST",
-      async: false,
-      data: {
-        Id : SpouseId
-      },
-      dataType: "JSON",
-      beforeSend: function(){
-          $('.loading').show();
-      },
-      success: function(data)
-      {
-        $('#displaySpouse').show();
-        $('#borrowerSpouseForm').hide();
+    varDurationStayed = '';
+    // spouse details
+      $.ajax({
+        url: baseUrl + "/borrower_controller/getSpouseDetails",
+        type: "POST",
+        async: false,
+        data: {
+          Id : SpouseId
+        },
+        dataType: "JSON",
+        beforeSend: function(){
+            $('.loading').show();
+        },
+        success: function(data)
+        {
+          $('#displaySpouse').show();
+          $('#borrowerSpouseForm').hide();
 
-        $('#lblSpouseName').html(data['Name']);
-        $('#lblSpouseGender').html(data['Sex']);
-        $('#lblSpouseNationality').html(data['Nationality']);
-        $('#lblSpouseCivil').html(data['CivilStatus']);
-        $('#lblSpouseBirth').html(data['DateOfBirth']);
-        $('#lblSpouseDependents').html(data['Dependents']);
-        $('#lblSpousePlace').html(data['DateOfBirth']);
-        $('#lblSpouseTelephone').html(data['TelephoneNo']);
-        $('#lblSpouseMobile').html(data['MobileNo']);
-        $('#lblSpouseBusinessAddress').html(data['DateOfBirth']);
-      },
+          $('#lblBorrowerSpouse').html('View Spouse Details');
+          $('#lblSpouseName').html(data['Name']);
+          $('#lblSpouseGender').html(data['Sex']);
+          $('#lblSpouseNationality').html(data['Nationality']);
+          $('#lblSpouseCivil').html(data['CivilStatus']);
+          $('#lblSpouseBirth').html(data['DateOfBirth']);
+          $('#lblSpouseDependents').html(data['Dependents']);
+          $('#lblSpousePlace').html(data['DateOfBirth']);
+          $('#lblSpouseTelephone').html(data['TelephoneNo']);
+          $('#lblSpouseMobile').html(data['MobileNo']);
+          $('#lblSpouseBusinessAddress').html(data['DateOfBirth']);
+        },
+        error: function()
+        {
+          setTimeout(function() {
+            swal({
+              title: 'Warning!',
+              text: 'Something went wrong, please contact the administrator or refresh page!',
+              type: 'warning',
+              buttonsStyling: false,
+              confirmButtonClass: 'btn btn-primary'
+            });
+            // location.reload();
+          }, 2000);
+        }
+      });
+    // spouse city address
+      $.ajax({
+        url: baseUrl + "/borrower_controller/getSpouseCityAddress",
+        type: "POST",
+        async: false,
+        data: {
+          Id : SpouseId
+        },
+        dataType: "JSON",
+        beforeSend: function(){
+            $('.loading').show();
+        },
+        success: function(data)
+        {
+          $('#displaySpouse').show();
+          $('#borrowerSpouseForm').hide();
+          $('#lblSpouseCityAddress').html(data['HouseNo'] + ', ' + data['brgyDesc'] + ', ' + data['cityMunDesc'] + ', ' + data['provDesc'] + ', ' + data['regDesc']);
+          if(data['YearsStayed'] != 0 || data['YearsStayed'] != undefined)
+          {
+            $('#lblSpouseStay').html(data['YearsStayed'] + ' years and ' + data['MonthsStayed'] + ' months');
+          }
+          else
+          {
+            $('#lblSpouseStay').html(data['MonthsStayed'] + ' months');
+          }
+          
+          if(data['ContactNumber'] != 0 || data['ContactNumber'] != '')
+          {
+            $('#lblSpouseHomeCelNo').html(data['ContactNumber']);
+          }
+          else
+          {
+            $('#lblSpouseHomeCelNo').html('N/A');
+          }
+          
+          if(data['Telephone'] != 0 || data['Telephone'] != '')
+          {
+            $('#lblSpouseHomeTelNo').html(data['Telephone']);
+          }
+          else
+          {
+            $('#lblSpouseHomeTelNo').html('N/A');
+          }
 
-      error: function()
-      {
-        setTimeout(function() {
-          swal({
-            title: 'Warning!',
-            text: 'Something went wrong, please contact the administrator or refresh page!',
-            type: 'warning',
-            buttonsStyling: false,
-            confirmButtonClass: 'btn btn-primary'
-          });
-          // location.reload();
-        }, 2000);
-      }
-    });
+        },
+        error: function()
+        {
+          setTimeout(function() {
+            swal({
+              title: 'Warning!',
+              text: 'Something went wrong, please contact the administrator or refresh page!',
+              type: 'warning',
+              buttonsStyling: false,
+              confirmButtonClass: 'btn btn-primary'
+            });
+            // location.reload();
+          }, 2000);
+        }
+      });
+    // spouse provincial address
+      $.ajax({
+        url: baseUrl + "/borrower_controller/getSpouseProvAddress",
+        type: "POST",
+        async: false,
+        data: {
+          Id : SpouseId
+        },
+        dataType: "JSON",
+        beforeSend: function(){
+            $('.loading').show();
+        },
+        success: function(data)
+        {
+          $('#lblSpouseProvAddress').html(data['HouseNo'] + ', ' + data['brgyDesc'] + ', ' + data['cityMunDesc'] + ', ' + data['provDesc'] + ', ' + data['regDesc']);
+        },
+        error: function()
+        {
+          setTimeout(function() {
+            swal({
+              title: 'Warning!',
+              text: 'Something went wrong, please contact the administrator or refresh page!',
+              type: 'warning',
+              buttonsStyling: false,
+              confirmButtonClass: 'btn btn-primary'
+            });
+            // location.reload();
+          }, 2000);
+        }
+      });
+    // spouse employer details
+      $.ajax({
+        url: baseUrl + "/borrower_controller/getSpouseEmployer",
+        type: "POST",
+        async: false,
+        data: {
+          Id : SpouseId
+        },
+        dataType: "JSON",
+        beforeSend: function(){
+            $('.loading').show();
+        },
+        success: function(data)
+        {
+          $('#lblSpouseEmployer').html(data['Name']);
+          $('#lblSpousePosition').html(data['SpousePosition']);
+          if(data['TenureYear'] != 0 || data['TenureYear'] != undefined)
+          {
+            $('#lblSpouseTenure').html(data['TenureYear'] + ' years and ' + data['TenureMonth'] + ' months');
+          }
+          else
+          {
+            $('#lblSpouseTenure').html(data['TenureMonth'] + ' months');
+          }
+          $('#lblSpouseEmail').html(data['EmailAddress']);
+          $('#lblSpouseTelNo').html(data['TelephoneNumber']);
+          $('#lblSpouseCelNo').html(data['ContactNumber']);
+          $('#lblBusinessAddress').html(data['BusinessAddress']);
+        },
+        error: function()
+        {
+          setTimeout(function() {
+            swal({
+              title: 'Warning!',
+              text: 'Something went wrong, please contact the administrator or refresh page!',
+              type: 'warning',
+              buttonsStyling: false,
+              confirmButtonClass: 'btn btn-primary'
+            });
+            // location.reload();
+          }, 2000);
+        }
+      });
+  }
+
+  function chkRent()
+  {
+    var radioValue = $("input[name='optionsRadios']:checked").val();
+    if(radioValue == 'Rented'){
+      $('#divRentedDetails').slideDown();
+      $('#txtRentedType').val(1);
+    }
+    else
+    {
+      $('#divRentedDetails').slideUp();
+      $('#txtRentedType').val(0);
+    }
   }
 
   function viewComaker(BorrowerComakerId)
@@ -81,7 +229,8 @@
         $('#lblComakerTelephone').html(data['TelephoneNo']);
         $('#lblComakerBusiness').html(data['Nationality']);
         $('#lblComakerMobile').html(data['MobileNo']);
-        $('#lblComakerMonthly').html(data['MonthlyIncome']);
+        $('#lblComakerMonthly').html(parseInt(Math.ceil(data['MonthlyIncome'])).toLocaleString('en-US', {minimumFractionDigits: 2}));
+        $('#btnSubmitCoMaker').hide();
       },
 
       error: function()
@@ -102,14 +251,15 @@
 
   function AddComaker(BorrowerComakerId)
   {
-        $('#displayComaker').hide();
-        $('#ComakerForm').show();
+    $('#displayComaker').hide();
+    $('#ComakerForm').show();
   }
 
   function getDetail(borrowerId, formType)
   {
     if(formType == 1) // fpr editing of borrower
     {
+      $('#lblBorrowerSpouse').html('Edit Borrower');
       document.getElementById("selectStatusId").required = true;
       $('#divStatus').show();
       $('#divSpouseDetails').hide();
@@ -141,8 +291,8 @@
           $('#selectCivilStatus').val(data['CivilStatusId']).change();
           $('#selectStatusId').val(data['StatusId']).change();
 
-          $('#datepicker').daterangepicker({
-              "startDate": moment(data['RawDateOfBirth']).format('DD MMM YY hh:mm A'),
+          $('#DateOfBirth').daterangepicker({
+              "startDate": moment(data['RawDateOfBirth']).format('DD MMM YY'),
               "singleDatePicker": true,
               "timePicker": false,
               "linkedCalendars": false,
@@ -171,8 +321,197 @@
         }
       });
     }
+    else if(formType == 2) // for viewing of employement record
+    {
+      $('#divEmploymentView').show();
+      $('#divEmploymentForm').hide();
+      $('#btnSubmitEmployer').hide();
+      $.ajax({
+        url: baseUrl + "/borrower_controller/getBorrowerEmployment",
+        type: "POST",
+        async: false,
+        data: {
+          Id : borrowerId
+        },
+        dataType: "JSON",
+        beforeSend: function(){
+            $('.loading').show();
+        },
+        success: function(data)
+        {
+          $('#lblEmploymentType').html(data['EmployerStatus']);
+          $('#lblEmploymentIndustry').html(data['Industry']);
+          $('#lblEmploymentTelNo').html(data['TelephoneNumber']);
+          $('#lblEmploymentEmployer').html(data['EmployerName']);
+          $('#lblEmploymentOccupation').html(data['Position']);
+          $('#lblEmploymentDateHired').html(data['DateHired']);
+          $('#lblEmploymentAddress').html(data['BusinessAddress']);
+
+          if(data['TenureYear'] != 0 || data['TenureYear'] != undefined)
+          {
+            $('#lblEmploymentTenure').html(data['TenureYear'] + ' years and ' + data['TenureMonth'] + ' months');
+          }
+          else
+          {
+            $('#lblEmploymentTenure').html(data['TenureMonth'] + ' months');
+          }
+        },
+        error: function()
+        {
+          setTimeout(function() {
+            swal({
+              title: 'Warning!',
+              text: 'Something went wrong, please contact the administrator or refresh page!',
+              type: 'warning',
+              buttonsStyling: false,
+              confirmButtonClass: 'btn btn-primary'
+            });
+            // location.reload();
+          }, 2000);
+        }
+      });
+    }
+    else if(formType == 3) // for viewing of address record
+    {
+      $('#divAddressView').show();
+      $('#divAddressForm').hide();
+      $('#btnSubmitAddress').hide();
+      // city address
+        $.ajax({
+          url: baseUrl + "/borrower_controller/getBorrowerCityAddress",
+          type: "POST",
+          async: false,
+          data: {
+            Id : borrowerId
+          },
+          dataType: "JSON",
+          beforeSend: function(){
+              $('.loading').show();
+          },
+          success: function(data)
+          {
+            $('#lblAddressType').html(data['AddressType']);
+            $('#lblAddressTypeOfResidence').html(data['Address']);
+            if(data['AddressType'] == 'City Address')
+            {
+              $('#divLengthOfStay').slideDown();
+              $('#divTypeOfResidence').slideDown();
+              if(data['Address'] == 'Rented')
+              {
+                $('#divTypeOfResidenceDets').slideDown();
+                $('#lblAddressLandLord').html(data['NameOfLandlord']);
+                $('#lblAddressTypeOfAddressTelNo').html(data['ContactNumber']);
+              }
+              else
+              {
+                $('#divTypeOfResidenceDets').slideUp();
+                $('#divLengthOfStay').slideDown();
+                $('#divTypeOfResidence').slideDown();
+              }
+            }
+            else
+            {
+              $('#divTypeOfResidenceDets').slideUp();
+              $('#divLengthOfStay').slideUp();
+              $('#divTypeOfResidence').slideUp();
+            }
+
+            $('#lblAddressRecord').html(data['HouseNo'] + ', ' + data['brgyDesc'] + ', ' + data['cityMunDesc'] + ', ' + data['provDesc'] + ', ' + data['regDesc']);
+
+            if(data['YearsStayed'] != 0 || data['YearsStayed'] != undefined)
+            {
+              $('#lblAddressTenure').html(data['YearsStayed'] + ' years and ' + data['MonthsStayed'] + ' months');
+            }
+            else
+            {
+              $('#lblAddressTenure').html(data['MonthsStayed'] + ' months');
+            }
+            
+            if(data['AddressContactNumber'] != 0 || data['AddressContactNumber'] != '')
+            {
+              $('#lblAddressTypeOfAddressTelNo').html(data['AddressContactNumber']);
+            }
+            else
+            {
+              $('#lblAddressTypeOfAddressTelNo').html('N/A');
+            }
+            
+            if(data['ContactNumber'] != 0 || data['ContactNumber'] != '')
+            {
+              $('#lblAddressCelNo').html(data['ContactNumber']);
+            }
+            else
+            {
+              $('#lblAddressCelNo').html('N/A');
+            }
+
+            if(data['IsPrimary'] == 1)
+            {
+              $('#lblPrimary').html('Yes');
+            }
+            else
+            {
+              $('#lblPrimary').html('No');
+            }
+            
+            if(data['Telephone'] != 0 || data['Telephone'] != '')
+            {
+              $('#lblAddressTelNo').html(data['Telephone']);
+            }
+            else
+            {
+              $('#lblAddressTelNo').html('N/A');
+            }
+
+          },
+          error: function()
+          {
+            setTimeout(function() {
+              swal({
+                title: 'Warning!',
+                text: 'Something went wrong, please contact the administrator or refresh page!',
+                type: 'warning',
+                buttonsStyling: false,
+                confirmButtonClass: 'btn btn-primary'
+              });
+              // location.reload();
+            }, 2000);
+          }
+        });
+      // // provincial address
+      //   $.ajax({
+      //     url: baseUrl + "/borrower_controller/getSpouseProvAddress",
+      //     type: "POST",
+      //     async: false,
+      //     data: {
+      //       Id : SpouseId
+      //     },
+      //     dataType: "JSON",
+      //     beforeSend: function(){
+      //         $('.loading').show();
+      //     },
+      //     success: function(data)
+      //     {
+      //       $('#lblSpouseProvAddress').html(data['HouseNo'] + ', ' + data['brgyDesc'] + ', ' + data['cityMunDesc'] + ', ' + data['provDesc'] + ', ' + data['regDesc']);
+      //     },
+      //     error: function()
+      //     {
+      //       setTimeout(function() {
+      //         swal({
+      //           title: 'Warning!',
+      //           text: 'Something went wrong, please contact the administrator or refresh page!',
+      //           type: 'warning',
+      //           buttonsStyling: false,
+      //           confirmButtonClass: 'btn btn-primary'
+      //         });
+      //         // location.reload();
+      //       }, 2000);
+      //     }
+      //   });
+    }
     else // for adding of spouse
     {
+      $('#lblBorrowerSpouse').html('Add Spouse');
       document.getElementById("frmBorrowerDetail").reset();
       $('#txtFormType').val(formType);
       $('#divStatus').hide();
@@ -208,14 +547,27 @@
           },
           success: function(data)
           {
-            location.reload();
-            swal({
-              title: 'Success!',
-              text: 'Successfully updated!',
-              type: 'success',
-              buttonsStyling: false,
-              confirmButtonClass: 'btn btn-primary'
-            });
+            if(data == 1)
+            {
+              location.reload();
+              swal({
+                title: 'Success!',
+                text: 'Successfully updated!',
+                type: 'success',
+                buttonsStyling: false,
+                confirmButtonClass: 'btn btn-primary'
+              });
+            }
+            else
+            {
+              swal({
+                title: 'Info!',
+                text: 'Record is in use, record cannot be updated!',
+                type: 'info',
+                buttonsStyling: false,
+                confirmButtonClass: 'btn btn-primary'
+              });
+            }
           },
           error: function (response) 
           {
@@ -327,11 +679,60 @@
     })
   }
 
-  function requirementList()
+  function changeRegion3(RegionId)
   {
     $.ajax({
-      url: baseUrl + "/borrower_controller/IDCategory",
+      url: baseUrl + "/admin_controller/getProvinces",
       method: "POST",
+      data: { RegionId : RegionId },
+      beforeSend: function(){
+        $('.loading').show();
+      },
+      success: function(data)
+      {
+        $('#selectProvince3').html(data);
+      }
+    })
+  }
+
+  function changeProvince3(ProvinceCode)
+  {
+    $.ajax({
+      url: baseUrl + "/admin_controller/getCities",
+      method: "POST",
+      data: { Id : ProvinceCode },
+      beforeSend: function(){
+        $('.loading').show();
+      },
+      success: function(data)
+      {
+        $('#selectCity3').html(data);
+      }
+    })
+  }
+
+  function changeCity3(CityCode)
+  {
+    $.ajax({
+      url: baseUrl + "/admin_controller/getBarangays",
+      method: "POST",
+      data: { Id : CityCode },
+      beforeSend: function(){
+        $('.loading').show();
+      },
+      success: function(data)
+      {
+        $('#selectBarangay3').html(data);
+      }
+    })
+  }
+
+  function requirementList(ID)
+  {
+    $.ajax({
+      url: baseUrl + "/borrower_controller/IDCategory3",
+      method: "POST",
+      data: { Id :  ID},
       beforeSend: function(){
         $('.loading').show();
       },
@@ -394,7 +795,39 @@
     }
   }
 
+  function addressType(value)
+  {
+    if(value == 'City Address')
+    {
+      $('#divCityAddress').slideDown();
+      $('#divResidenceType').slideDown();
+    }
+    else
+    {
+      $('#divCityAddress').slideUp();
+      $('#divResidenceType').slideUp();
+    }
+  }
+
   $(function () {
+
+    $('#divCityAddress').slideDown();
+
+    $(".frmCheck").on('submit', function (e) {
+      e.preventDefault(); 
+      swal({
+        title: 'Confirm',
+        text: 'Submit Form?',
+        type: 'info',
+        showCancelButton: true,
+        buttonsStyling: false,
+        confirmButtonClass: 'btn btn-success',
+        confirmButtonText: 'Confirm',
+        cancelButtonClass: 'btn btn-secondary'
+      }).then(function(){
+        e.currentTarget.submit();
+      });
+    });
 
     $("#frmInsert").on('submit', function (e) {
       if(varNewPassword = 1 && varStatus == 1 && $('#txtNewPassword').val() == $('#txtConfirmPassword').val() && $('#txtOldPassword').val() != $('#txtNewPassword').val())
@@ -402,7 +835,7 @@
         e.preventDefault(); 
         swal({
           title: 'Confirm',
-          text: 'Are you sure you sure with this password?',
+          text: 'Are you sure with this password?',
           type: 'info',
           showCancelButton: true,
           buttonsStyling: false,
@@ -424,6 +857,7 @@
 
     $('#CoMakerBirthday').daterangepicker({
         "startDate": moment().format('DD MMM YY'),
+        "maxDate": moment().format('DD MMM YY'),
         "singleDatePicker": true,
         "showDropdowns": true,
         "timePicker": false,
@@ -470,8 +904,6 @@
     }, function(start, end, label){
     });
 
-
-
     $.ajax({
       url: baseUrl + "/admin_controller/getRegionList",
       method: "POST",
@@ -482,28 +914,29 @@
       {
         $('#selectRegion').html(data);
         $('#selectRegion2').html(data);
+        $('#selectRegion3').html(data);
       }
     })
 
     $('#example1').DataTable({
       "pageLength": 10,
-      // "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
-      "order": [[0, "desc"]]
+      "aoColumnDefs": [{ "bVisible": false, "aTargets": [4] }],
+      "order": [[4, "desc"]]
     });
 
     $('#dtblCollections').DataTable({
       "pageLength": 10,
-      // "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
-      "order": [[0, "desc"]]
+      "aoColumnDefs": [{ "bVisible": false, "aTargets": [7] }],
+      "order": [[5, "desc"]]
     });
     
     $('#example2').DataTable();
 
     $('#example3').DataTable();
-    $('#example4').DataTable({
+    $('#example10').DataTable({
       "pageLength": 10,
-      // "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
-      "order": [[4, "asc"]]
+      "aoColumnDefs": [{ "bVisible": false, "aTargets": [7] }],
+      "order": [[3, "desc"], [4, "desc"]]
     });
 
     $('#example5').DataTable({
@@ -514,10 +947,47 @@
 
     $('#example6').DataTable();
 
-    $('#example7').DataTable();
+    $('#example7').DataTable({
+      "pageLength": 10,
+      "aoColumnDefs": [{ "bVisible": false, "aTargets": [7] }],
+      "order": [[3, "desc"], [4, "desc"]]
+    });
 
-    $('#example8').DataTable();
+    $('#example8').DataTable({
+      "pageLength": 10,
+      "aoColumnDefs": [{ "bVisible": false, "aTargets": [6] }],
+      "order": [[3, "desc"], [4, "desc"]]
+    });
 
     $('#example9').DataTable();
+
+    $('#modalNewCoMaker').on('hidden.bs.modal', function () {
+      $('#btnSubmitCoMaker').show();
+    })
+
+    $('#modalNewEmployment').on('hidden.bs.modal', function () {
+      document.getElementById("frmEmploymentRecord").reset();
+      $('#divEmploymentView').hide();
+      $('#divEmploymentForm').show();
+      $('#btnSubmitEmployer').show();
+    })
+
+    $('#modalNewAddress').on('hidden.bs.modal', function () {
+      document.getElementById("frmAddressRecord").reset();
+      $('#divAddressView').hide();
+      $('#divAddressForm').show();
+      $('#btnSubmitAddress').show();
+      $('#divResidenceType').show();
+    })
+
+    $('#modalProfilePicture').on('hidden.bs.modal', function () {
+      Webcam.reset();
+      $('#cameraDiv').hide();
+      $('#cameraDivBtn').show();
+      $('#cameraDivBtnOff').hide();
+      $('#btnCameraSave').hide();
+      $('#btnCameraUpload').show();
+      $('#uploadPic').show();
+    })
 
   })

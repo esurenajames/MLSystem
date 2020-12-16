@@ -59,16 +59,21 @@ class borrower_controller extends CI_Controller {
   function BorrowerProcessing()
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $BranchId = $this->session->userdata('BranchId');
     $DateNow = date("Y-m-d H:i:s");
     $employeeDetail = $this->maintenance_model->getCreatorDetails();
+    if($this->uri->segment(4) != null)
+    {
+      $borrowerDetail = $this->borrower_model->getBorrowerDetails($this->uri->segment(4));
+    }
     if($this->uri->segment(3) == 1) // add borrower
     {
       $time = strtotime($_POST['DOB']);
       $newformat = date('Y-m-d', $time);
 
-      if(htmlentities($_POST['BranchId'], ENT_QUOTES) == null)
+      if(htmlentities($BranchId, ENT_QUOTES) == null)
       {
-        $assignedBranch = htmlentities($_POST['BranchId'], ENT_QUOTES);
+        $assignedBranch = htmlentities($BranchId, ENT_QUOTES);
       }
       else
       {
@@ -312,25 +317,9 @@ class borrower_controller extends CI_Controller {
           }
 
         // admin audits
-          $auditquery = $this->borrower_model->getBorrowerDetails($BorrowerId['BorrowerId']);
-          $auditDetail = 'Added '.$auditquery['Name'].' in borrower list.';
-          $insertData = array(
-            'Description' => $auditDetail,
-            'CreatedBy' => $EmployeeNumber,
-            'DateCreated' => $DateNow
-          );
-          $this->maintenance_model->insertAdminLog($insertData);
-
-        // borrower audits
-          $auditBorrower = 'Added in Borrowers list.';
-          $insertAuditBorrower = array(
-            'Description' => $auditBorrower,
-            'BorrowerId' => $BorrowerId['BorrowerId'],
-            'CreatedBy' => $EmployeeNumber,
-            'DateCreated' => $DateNow
-          );
-          $auditTable = 'borrower_has_notifications';
-          $this->maintenance_model->insertFunction($insertAuditBorrower, $auditTable);
+          $auditLogsManager = 'Added '.$generatedBorrowerNumber.' in borrower list';
+          $auditAffectedEmployee = 'Added in Borrowers list.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
 
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
@@ -349,54 +338,36 @@ class borrower_controller extends CI_Controller {
     }
     else if($this->uri->segment(3) == 2) // add reference
     {
-      $data = array(
-        'Name'                        => htmlentities($_POST['Name'], ENT_QUOTES)
-        , 'Address'                   => htmlentities($_POST['Address'], ENT_QUOTES)
-        , 'ContactNumber'             => htmlentities($_POST['ContactNumber'], ENT_QUOTES)
-        , 'BorrowerId'                => htmlentities($this->uri->segment(4), ENT_QUOTES)
-      );
-      $query = $this->borrower_model->countPersonalReference($data);
-      if($query == 0) // not existing
-      {
-        // insert details
-          $insertBorrower = array(
-            'Name'                        => htmlentities($_POST['Name'], ENT_QUOTES)
-            , 'Address'                   => htmlentities($_POST['Address'], ENT_QUOTES)
-            , 'ContactNumber'             => htmlentities($_POST['ContactNumber'], ENT_QUOTES)
-            , 'BorrowerId'                => htmlentities($this->uri->segment(4), ENT_QUOTES)
-            , 'CreatedBy'                 => $EmployeeNumber
-            , 'UpdatedBy'                 => $EmployeeNumber
-          );
-          $insertBorrowerTable = 'borrower_has_reference';
-          $this->maintenance_model->insertFunction($insertBorrower, $insertBorrowerTable);
-        // get generated id
-          $generatedIdData = array(
-            'table'                     => 'borrower_has_reference'
-            , 'column'                  => 'ReferenceId'
-            , 'CreatedBy'               => $EmployeeNumber
-          );
-          $NewId = $this->maintenance_model->getGeneratedId2($generatedIdData);
-        // admin audits
-          $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
-          $TransactionNumber = 'RF-'.sprintf('%05d', $NewId['ReferenceId']);
-          $borrowerNumber = $this->maintenance_model->selectSpecific('R_Borrowers', 'BorrowerId', $this->uri->segment(4));
-          $auditLogsManager = $employeeDetail['Name'] . ' added personal reference #'.$TransactionNumber.' to borrower #'.$borrowerNumber['BorrowerNumber'].'.';
-          $auditBorrowerDetails = 'Added personal reference #'.$TransactionNumber.'.';
-          $this->auditBorrowerDetails($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditBorrowerDetails, $this->uri->segment(4));
-        // notification
-          $this->session->set_flashdata('alertTitle','Success!'); 
-          $this->session->set_flashdata('alertText','Reference successfully added!'); 
-          $this->session->set_flashdata('alertType','success'); 
-          redirect('home/BorrowerDetails/' . htmlentities($this->uri->segment(4), ENT_QUOTES));
-      }
-      else
-      {
-        // notification
-          $this->session->set_flashdata('alertTitle','Warning!'); 
-          $this->session->set_flashdata('alertText','Reference already existing!'); 
-          $this->session->set_flashdata('alertType','warning'); 
-          redirect('home/BorrowerDetails/' . htmlentities($this->uri->segment(4), ENT_QUOTES));
-      }
+      // insert details
+        $insertBorrower = array(
+          'Name'                        => htmlentities($_POST['Name'], ENT_QUOTES)
+          , 'Address'                   => htmlentities($_POST['Address'], ENT_QUOTES)
+          , 'ContactNumber'             => htmlentities($_POST['ContactNumber'], ENT_QUOTES)
+          , 'BorrowerId'                => htmlentities($this->uri->segment(4), ENT_QUOTES)
+          , 'CreatedBy'                 => $EmployeeNumber
+          , 'UpdatedBy'                 => $EmployeeNumber
+        );
+        $insertBorrowerTable = 'borrower_has_reference';
+        $this->maintenance_model->insertFunction($insertBorrower, $insertBorrowerTable);
+      // get generated id
+        $generatedIdData = array(
+          'table'                     => 'borrower_has_reference'
+          , 'column'                  => 'ReferenceId'
+          , 'CreatedBy'               => $EmployeeNumber
+        );
+        $NewId = $this->maintenance_model->getGeneratedId2($generatedIdData);
+      // admin audits
+        $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
+        $TransactionNumber = 'RF-'.sprintf('%05d', $NewId['ReferenceId']);
+        $borrowerNumber = $this->maintenance_model->selectSpecific('R_Borrowers', 'BorrowerId', $this->uri->segment(4));
+        $auditLogsManager = 'Added personal reference #'.$TransactionNumber.' in personal reference tab to borrower #'.$borrowerNumber['BorrowerNumber'].'.';
+        $auditBorrowerDetails = 'Added personal reference #'.$TransactionNumber.' in personal reference tab.';
+        $this->auditBorrowerDetails($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditBorrowerDetails, $this->uri->segment(4));
+      // notification
+        $this->session->set_flashdata('alertTitle','Success!'); 
+        $this->session->set_flashdata('alertText','Reference successfully added!'); 
+        $this->session->set_flashdata('alertType','success'); 
+        redirect('home/BorrowerDetails/' . htmlentities($this->uri->segment(4), ENT_QUOTES));
     }
     else if($this->uri->segment(3) == 3) // add co maker
     {
@@ -431,16 +402,19 @@ class borrower_controller extends CI_Controller {
           );
           $insertBorrowerTable = 'borrower_has_comaker';
           $this->maintenance_model->insertFunction($insertBorrower, $insertBorrowerTable);
-        // admin audits
-          $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
-          $TransactionNumber = 'CM-'.sprintf('%05d', $NewId['BorrowerId']);
-          $borrowerNumber = $this->maintenance_model->selectSpecific('R_Borrowers', 'BorrowerId', $this->uri->segment(4));
-          $auditLogsManager = $employeeDetail['Name'] . ' added co-maker #'.$TransactionNumber.' to borrower #'.$borrowerNumber['BorrowerNumber'].'.';
-          $auditBorrowerDetails = 'Added co-maker #'.$TransactionNumber.'.';
-          $this->auditBorrowerDetails($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditBorrowerDetails, $this->uri->segment(4));
+        // admin audits finalss
+          $getNewId = $this->maintenance_model->selectSpecific('borroweraddresshistory', 'BorrowerId', $this->uri->segment(4));
+          $generatedIdData1 = array(
+            'table'                 => 'borrower_has_comaker'
+            , 'column'              => 'BorrowerCoMakerId'
+          );
+          $newId = $this->maintenance_model->getGeneratedId($generatedIdData1);
 
-          $auditTable = 'borrower_has_notifications';
-          $this->maintenance_model->insertFunction($insertAuditBorrower, $auditTable);
+          $TransactionNumber = 'CM-'.sprintf('%06d', $newId['BorrowerCoMakerId']);
+          $auditLogsManager = 'Added new co-maker #'.$TransactionNumber.' in co-maker tab for borrower #'.$borrowerDetail['BorrowerNumber'].'.';
+          $auditAffectedEmployee = 'Added new co-maker #'.$TransactionNumber.' in co-maker tab for borrower #'.$borrowerDetail['BorrowerNumber'].'.';
+          $auditAffectedTable = 'Added new co-maker #'.$TransactionNumber.' in co-maker tab.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(4), 'borrower_has_notifications', 'BorrowerId');
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Co-maker successfully added!'); 
@@ -531,6 +505,7 @@ class borrower_controller extends CI_Controller {
           $insertData2 = array(
             'BorrowerId'                        => $this->uri->segment(4)
             , 'IdentificationId'                => $NewId['IdentificationId']
+            , 'RequirementId'                   => $_POST['ReqTypeId']
             , 'CreatedBy'                       => $EmployeeNumber
             , 'UpdatedBy'                       => $EmployeeNumber
           );
@@ -544,32 +519,12 @@ class borrower_controller extends CI_Controller {
             , 'CreatedBy'                       => $EmployeeNumber
           );
           $NewId = $this->maintenance_model->getGeneratedId2($getNewId);
-          $rowNumber = $this->db->query("SELECT LPAD(".$NewId['BorrowerIdentificationId'].", 6, 0) as number")->row_array();
+          $TransactionNumber = 'SD-'.sprintf('%06d', $NewId['BorrowerIdentificationId']);
+          $auditLogsManager = 'Added supporting document #' . $TransactionNumber.' for borrower #'.$borrowerDetail['BorrowerNumber'].'.';
+          $auditAffectedEmployee = 'Added supporting document #' . $TransactionNumber.' for borrower #'.$borrowerDetail['BorrowerNumber'].'.';
+          $auditAffectedTable = 'Added supporting document ##' . $TransactionNumber.' in supporting documents tab.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(4), 'borrower_has_notifications', 'BorrowerId');
 
-          $auditMainAndManagerLog = 'Added supporting document #SD-' . $rowNumber['number'].' for borrower #'. $borrowerDetail['BorrowerNumber'];
-          $auditBorrowerLog = 'Added new supporting document #SD-' . $rowNumber['number'];
-
-          $insertAuditBorrower = array(
-            'Description'       => $auditBorrowerLog
-            , 'BorrowerId'      => $this->uri->segment(4)
-            , 'CreatedBy'       => $EmployeeNumber
-          );
-          $insertMainLog = array(
-            'Description'       => $auditMainAndManagerLog
-            , 'CreatedBy'       => $EmployeeNumber
-          );
-          $insertManagerAudit = array(
-            'Description'         => $auditMainAndManagerLog
-            , 'ManagerBranchId'   => $employeeDetail['ManagerBranchId']
-            , 'CreatedBy'         => $EmployeeNumber
-          );
-
-          $auditTable2 = 'R_Logs';
-          $this->maintenance_model->insertFunction($insertMainLog, $auditTable2);
-          $auditTable3 = 'borrower_has_notifications';
-          $this->maintenance_model->insertFunction($insertAuditBorrower, $auditTable3);
-          $auditTable4 = 'manager_has_notifications';
-          $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable4);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Successfully uploaded supporting documents!'); 
@@ -597,6 +552,7 @@ class borrower_controller extends CI_Controller {
           , 'MiddleName'                  => htmlentities($_POST['MiddleName'], ENT_QUOTES)
           , 'LastName'                    => htmlentities($_POST['LastName'], ENT_QUOTES)
           , 'ExtName'                     => htmlentities($_POST['ExtName'], ENT_QUOTES)
+          , 'MotherName'                  => htmlentities($_POST['MotherName'], ENT_QUOTES)
           , 'DateOfBirth'                 => htmlentities($newformat, ENT_QUOTES)
         );
         $query = $this->borrower_model->countBorrower($data);
@@ -605,33 +561,11 @@ class borrower_controller extends CI_Controller {
           // first name
             if($borrowerDetail['FirstName'] != htmlentities($_POST['FirstName'], ENT_QUOTES))
             {
-              // insert into borrower notification
-                $auditBorrower = 'Updated first name from '.$borrowerDetail['FirstName'].' to '.htmlentities($_POST['FirstName'], ENT_QUOTES);
-                $insertEmployeeAudit = array(
-                  'Description' => $auditBorrower,
-                  'CreatedBy'   => $EmployeeNumber,
-                  'BorrowerId'  => $this->uri->segment(4)
-                );
-                $auditEmployeeTable = 'borrower_has_notifications';
-                $this->maintenance_model->insertFunction($insertEmployeeAudit, $auditEmployeeTable);
-              // insert into manager and employee notification
-                $auditStaff = 'Updated first name from '.$borrowerDetail['FirstName'].' to '.htmlentities($_POST['FirstName'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'];
-                // insert into
-                  $insertManagerAudit = array(
-                    'Description'       => $auditStaff,
-                    'CreatedBy'         => $EmployeeNumber,
-                    'ManagerBranchId'   => $employeeDetail['ManagerBranchId']
-                  );
-                  $auditManagerTable = 'manager_has_notifications';
-                  $this->maintenance_model->insertFunction($insertManagerAudit, $auditManagerTable);
-
-                  $insertAudit = array(
-                    'Description'       => $auditStaff,
-                    'CreatedBy'         => $EmployeeNumber,
-                    'EmployeeNumber'    => $EmployeeNumber
-                  );
-                  $auditTable = 'employee_has_notifications';
-                  $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+              // admin audits finalss
+                $auditLogsManager = 'Updated first name from '.$borrowerDetail['FirstName'].' to '.htmlentities($_POST['FirstName'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'];
+                $auditAffectedEmployee = 'Updated first name from '.$borrowerDetail['FirstName'].' to '.htmlentities($_POST['FirstName'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'];
+                $auditAffectedTable = 'Updated first name from '.$borrowerDetail['FirstName'].' to '.htmlentities($_POST['FirstName'], ENT_QUOTES);
+                $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(4), 'borrower_has_notifications', 'BorrowerId');
               // update detail
                 $set = array( 
                   'FirstName' => htmlentities($_POST['FirstName'], ENT_QUOTES)
@@ -646,33 +580,11 @@ class borrower_controller extends CI_Controller {
           // middle name
             if($borrowerDetail['MiddleName'] != htmlentities($_POST['MiddleName'], ENT_QUOTES))
             {
-              // insert into borrower notification
-                $auditBorrower = 'Updated middle name from '.$borrowerDetail['MiddleName'].' to '.htmlentities($_POST['MiddleName'], ENT_QUOTES);
-                $insertEmployeeAudit = array(
-                  'Description' => $auditBorrower,
-                  'CreatedBy'   => $EmployeeNumber,
-                  'BorrowerId'  => $this->uri->segment(4)
-                );
-                $auditEmployeeTable = 'borrower_has_notifications';
-                $this->maintenance_model->insertFunction($insertEmployeeAudit, $auditEmployeeTable);
-              // insert into manager and employee notification
-                $auditStaff = 'Updated middle name from '.$borrowerDetail['MiddleName'].' to '.htmlentities($_POST['MiddleName'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'];
-                // insert into
-                  $insertManagerAudit = array(
-                    'Description'       => $auditStaff,
-                    'CreatedBy'         => $EmployeeNumber,
-                    'ManagerBranchId'   => $employeeDetail['ManagerBranchId']
-                  );
-                  $auditManagerTable = 'manager_has_notifications';
-                  $this->maintenance_model->insertFunction($insertManagerAudit, $auditManagerTable);
-
-                  $insertAudit = array(
-                    'Description'       => $auditStaff,
-                    'CreatedBy'         => $EmployeeNumber,
-                    'EmployeeNumber'    => $EmployeeNumber
-                  );
-                  $auditTable = 'employee_has_notifications';
-                  $this->maintenance_model->insertFunction($insertAudit, $auditTable);
+              // admin audits finalss
+                $auditLogsManager = 'Updated middle name from '.$borrowerDetail['MiddleName'].' to '.htmlentities($_POST['MiddleName'], ENT_QUOTES);
+                $auditAffectedEmployee = 'Updated middle name from '.$borrowerDetail['MiddleName'].' to '.htmlentities($_POST['MiddleName'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'];
+                $auditAffectedTable = 'Updated middle name from '.$borrowerDetail['MiddleName'].' to '.htmlentities($_POST['MiddleName'], ENT_QUOTES);
+                $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(4), 'borrower_has_notifications', 'BorrowerId');
               // update detail
                 $set = array( 
                   'MiddleName' => htmlentities($_POST['MiddleName'], ENT_QUOTES)
@@ -687,9 +599,11 @@ class borrower_controller extends CI_Controller {
           // last name
             if($borrowerDetail['LastName'] != htmlentities($_POST['LastName'], ENT_QUOTES))
             {
-              $auditBorrower = 'Updated last name from '.$borrowerDetail['LastName'].' to '.htmlentities($_POST['LastName'], ENT_QUOTES);
-              $auditStaff = 'Updated last name from '.$borrowerDetail['LastName'].' to '.htmlentities($_POST['LastName'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'];
-              $this->auditBorrower($auditBorrower, $auditStaff, $this->uri->segment(4));
+              // admin audits finalss
+                $auditLogsManager = 'Updated last name from '.$borrowerDetail['LastName'].' to '.htmlentities($_POST['LastName'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'];
+                $auditAffectedEmployee = 'Updated last name from '.$borrowerDetail['LastName'].' to '.htmlentities($_POST['LastName'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'];
+                $auditAffectedTable = 'Updated last name from '.$borrowerDetail['LastName'].' to '.htmlentities($_POST['LastName'], ENT_QUOTES);
+                $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(4), 'borrower_has_notifications', 'BorrowerId');
               // update detail
                 $set = array( 
                   'LastName' => htmlentities($_POST['LastName'], ENT_QUOTES)
@@ -704,9 +618,11 @@ class borrower_controller extends CI_Controller {
           // ext name
             if($borrowerDetail['ExtName'] != htmlentities($_POST['ExtName'], ENT_QUOTES))
             {
-              $auditBorrower = 'Updated extension name from '.$borrowerDetail['ExtName'].' to '.htmlentities($_POST['ExtName'], ENT_QUOTES);
-              $auditStaff = 'Updated extension name from '.$borrowerDetail['ExtName'].' to '.htmlentities($_POST['ExtName'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'];
-              $this->auditBorrower($auditBorrower, $auditStaff, $this->uri->segment(4));
+              // admin audits finalss
+                $auditLogsManager = 'Updated extension name from '.$borrowerDetail['ExtName'].' to '.htmlentities($_POST['ExtName'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'];
+                $auditAffectedEmployee = 'Updated extension name from '.$borrowerDetail['ExtName'].' to '.htmlentities($_POST['ExtName'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'];
+                $auditAffectedTable = 'Updated extension name from '.$borrowerDetail['ExtName'].' to '.htmlentities($_POST['ExtName'], ENT_QUOTES);
+                $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(4), 'borrower_has_notifications', 'BorrowerId');
               // update detail
                 $set = array( 
                   'ExtName' => htmlentities($_POST['ExtName'], ENT_QUOTES)
@@ -726,10 +642,11 @@ class borrower_controller extends CI_Controller {
             $newUpdateData = date('Y-m-d', $convertNewPost);
             if($oldData != $newData)
             {
-              $auditBorrower = 'Updated birth date from '.$oldData.' to '.$newData.'.';
-              $auditStaff = 'Updated birth date from '.$oldData.' to '.$newData.' of borrower #'. $borrowerDetail['BorrowerNumber'].'.';
-              $this->auditBorrower($auditBorrower, $auditStaff, $this->uri->segment(4));
-
+              // admin audits finalss
+                $auditLogsManager = 'Updated birth date from '.$oldData.' to '.$newData.' of borrower #'. $borrowerDetail['BorrowerNumber'].'.';
+                $auditAffectedEmployee = 'Updated birth date from '.$oldData.' to '.$newData.' of borrower #'. $borrowerDetail['BorrowerNumber'].'.';
+                $auditAffectedTable = 'Updated birth date from '.$oldData.' to '.$newData.'.';
+                $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(4), 'borrower_has_notifications', 'BorrowerId');
               // update detail
                 $set = array( 
                   'DateOfBirth' => $newUpdateData
@@ -797,6 +714,7 @@ class borrower_controller extends CI_Controller {
               , 'Nationality'                 => htmlentities($_POST['NationalityId'], ENT_QUOTES)
               , 'CivilStatus'                 => htmlentities($_POST['CivilStatusId'], ENT_QUOTES)
               , 'Dependents'                  => htmlentities($_POST['NoDependents'], ENT_QUOTES)
+              , 'EmailAddress'                => htmlentities($_POST['EmailAddress'], ENT_QUOTES)
               , 'DateOfBirth'                 => htmlentities($newformat, ENT_QUOTES)
               , 'StatusId'                    => 1
               , 'CreatedBy'                   => $EmployeeNumber
@@ -892,30 +810,36 @@ class borrower_controller extends CI_Controller {
               $borrowerCityAddress = $this->borrower_model->getCityAddress($this->uri->segment(4));
               $borrowerProvince = $this->borrower_model->getProvinceAddress($this->uri->segment(4));
               // insert borrower city address
-                $insertCityAddress = array(
-                  'AddressId'                         => $borrowerCityAddress['AddressId']
-                  , 'YearsStayed'                     => $borrowerCityAddress['YearsStayed']
-                  , 'MonthsStayed'                    => $borrowerCityAddress['MonthsStayed']
-                  , 'NameOfLandlord'                  => $borrowerCityAddress['NameOfLandlord']
-                  , 'isPrimary'                       => $borrowerCityAddress['IsPrimary']
-                  , 'AddressType'                     => $borrowerCityAddress['AddressType']
-                  , 'BorrowerId'                      => $this->uri->segment(4)
-                  , 'SpouseId'                        => $SpouseId['SpouseId']
-                  , 'CreatedBy'                       => $EmployeeNumber
-                  , 'UpdatedBy'                       => $EmployeeNumber
-                );
-                $insertCityAddressTable = 'borroweraddresshistory';
-                $this->maintenance_model->insertFunction($insertCityAddress, $insertCityAddressTable);
-              // insert borrower city address
-                $insertCityAddress = array(
-                  'AddressId'                         => $borrowerCityAddress['AddressId']
-                  , 'BorrowerId'                      => $this->uri->segment(4)
-                  , 'SpouseId'                        => $SpouseId['SpouseId']
-                  , 'CreatedBy'                       => $EmployeeNumber
-                  , 'UpdatedBy'                       => $EmployeeNumber
-                );
-                $insertCityAddressTable = 'borroweraddresshistory';
-                $this->maintenance_model->insertFunction($insertCityAddress, $insertCityAddressTable);
+                if($borrowerCityAddress['AddressId'] != null)
+                {
+                  $insertCityAddress = array(
+                    'AddressId'                         => $borrowerCityAddress['AddressId']
+                    , 'YearsStayed'                     => $borrowerCityAddress['YearsStayed']
+                    , 'MonthsStayed'                    => $borrowerCityAddress['MonthsStayed']
+                    , 'NameOfLandlord'                  => $borrowerCityAddress['NameOfLandlord']
+                    , 'isPrimary'                       => $borrowerCityAddress['IsPrimary']
+                    , 'AddressType'                     => $borrowerCityAddress['AddressType']
+                    , 'BorrowerId'                      => $this->uri->segment(4)
+                    , 'SpouseId'                        => $SpouseId['SpouseId']
+                    , 'CreatedBy'                       => $EmployeeNumber
+                    , 'UpdatedBy'                       => $EmployeeNumber
+                  );
+                  $insertCityAddressTable = 'borroweraddresshistory';
+                  $this->maintenance_model->insertFunction($insertCityAddress, $insertCityAddressTable);  
+                }
+                if($borrowerProvince['AddressId'] != null)
+                {
+                  // insert borrower city address
+                    $insertCityAddress2 = array(
+                      'AddressId'                         => $borrowerProvince['AddressId']
+                      , 'BorrowerId'                      => $this->uri->segment(4)
+                      , 'SpouseId'                        => $SpouseId['SpouseId']
+                      , 'CreatedBy'                       => $EmployeeNumber
+                      , 'UpdatedBy'                       => $EmployeeNumber
+                    );
+                    $insertCityAddressTable2 = 'borroweraddresshistory';
+                    $this->maintenance_model->insertFunction($insertCityAddress2, $insertCityAddressTable2);
+                }
             }
             else
             {
@@ -1005,6 +929,22 @@ class borrower_controller extends CI_Controller {
                     $this->maintenance_model->insertFunction($insertDataAddress2, $insertTableAddress2);
                 }
             }
+          // insert employer details
+            $insertData3 = array(
+              'SpouseId'             => $SpouseId['SpouseId']
+              , 'EmployerName'       => htmlentities($_POST['SpouseEmployer'], ENT_QUOTES)
+              , 'SpousePosition'     => htmlentities($_POST['PositionTitle'], ENT_QUOTES)
+              , 'TelephoneNumber'    => htmlentities($_POST['TelephoneNumber'], ENT_QUOTES)
+              , 'TenureYear'         => htmlentities($_POST['TenureYear'], ENT_QUOTES)
+              , 'TenureMonth'        => htmlentities($_POST['TenureMonth'], ENT_QUOTES)
+              , 'BusinessAddress'    => htmlentities($_POST['BusinessAddress'], ENT_QUOTES)
+              , 'TelephoneNumber'    => htmlentities($_POST['TelephoneNumber'], ENT_QUOTES)
+              , 'ContactNumber'      => htmlentities($_POST['ContactNumber'], ENT_QUOTES)
+              , 'CreatedBy'          => $EmployeeNumber
+              , 'UpdatedBy'          => $EmployeeNumber
+            );
+            $insertTable3 = 'borrower_has_employer';
+            $this->maintenance_model->insertFunction($insertData3, $insertTable3);
           // insert borrower spouse
             $insertSpouse = array(
               'BorrowerId'                        => $this->uri->segment(4)
@@ -1019,10 +959,12 @@ class borrower_controller extends CI_Controller {
               , 'column'              => 'EmployerId'
             );
             $employerId = $this->maintenance_model->getGeneratedId($auditData1);
-          // audit
-            $auditquery = $this->borrower_model->getSpouseDetails($SpouseId['SpouseId']);
-            $auditBorrower = 'Added '.$auditquery['Name'].' in spouse list.';
-            $this->auditBorrower($auditBorrower, $auditBorrower, $this->uri->segment(4));
+          // admin audits finalss
+            $TransactionNumber = 'SR-'.sprintf('%06d', $SpouseId['SpouseId']);
+            $auditLogsManager = 'Added spouse #'.$TransactionNumber.' in spouse tab for borrower #'.$borrowerDetail['BorrowerNumber'].'.';
+            $auditAffectedEmployee = 'Added spouse #'.$TransactionNumber.' in spouse tab for borrower #'.$borrowerDetail['BorrowerNumber'].'.';
+            $auditAffectedTable = 'Added spouse #'.$TransactionNumber.' in spouse tab.';
+            $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(4), 'borrower_has_notifications', 'BorrowerId');
           // notification
             $this->session->set_flashdata('alertTitle','Success!'); 
             $this->session->set_flashdata('alertText','Spouse successfully recorded!'); 
@@ -1242,7 +1184,7 @@ class borrower_controller extends CI_Controller {
       {
         // insert details
           $insertBorrower = array(
-            'Level'                        => htmlentities($_POST['EducationLevel'], ENT_QUOTES)
+            'EducationId'                  => htmlentities($_POST['EducationLevel'], ENT_QUOTES)
             , 'SchoolName'                 => htmlentities($_POST['SchoolName'], ENT_QUOTES)
             , 'YearGraduated'              => htmlentities($_POST['EducationYear'], ENT_QUOTES)
             , 'BorrowerId'                 => $this->uri->segment(4)
@@ -1251,21 +1193,19 @@ class borrower_controller extends CI_Controller {
           );
           $insertBorrowerTable = 'borrower_has_Education';
           $this->maintenance_model->insertFunction($insertBorrower, $insertBorrowerTable);
-        // insert into notifications
-          $borrowerDetail = $this->borrower_model->getBorrowerDetails($_POST['BorrowerId']);
+        // admin audits finalss
           $getNewId = array(
             'table'                             => 'borrower_has_Education'
             , 'column'                          => 'BorrowerEducationId'
             , 'CreatedBy'                       => $EmployeeNumber
           );
           $NewId = $this->maintenance_model->getGeneratedId2($getNewId);
+          $borrowerDetail = $this->borrower_model->getBorrowerDetails($_POST['BorrowerId']);
           $rowNumber = $this->db->query("SELECT LPAD(".$NewId['BorrowerEducationId'].", 6, 0) as number")->row_array();
-          $auditMainAndManagerLog = 'Added new education background #EDU-' . $rowNumber['number'].' for borrower #'. $borrowerDetail['BorrowerNumber'];
-          $auditEmpDetail = 'Added new education background #EDU-' . $rowNumber['number'];
-
-          $auditBorrower = 'Added new education background #EDU-' . $rowNumber['number'].'.';
-          $auditStaff = 'Added new education background #EDU-'.$rowNumber['number'].' for borrower #'. $borrowerDetail['BorrowerNumber'];
-          $this->auditBorrower($auditBorrower, $auditStaff, $this->uri->segment(4));
+          $auditLogsManager = 'Added new education background #EDU-' . $rowNumber['number'].' for borrower #'.$borrowerDetail['BorrowerNumber'].'.';
+          $auditAffectedEmployee = 'Added new education background #EDU-' . $rowNumber['number'].' for borrower #'.$borrowerDetail['BorrowerNumber'].'.';
+          $auditAffectedTable = 'Added new education background #EDU-' . $rowNumber['number'].' in education tab.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(4), 'borrower_has_notifications', 'BorrowerId');
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Education successfully added!'); 
@@ -1280,6 +1220,141 @@ class borrower_controller extends CI_Controller {
           $this->session->set_flashdata('alertType','warning'); 
           redirect('home/BorrowerDetails/' . htmlentities($this->uri->segment(4), ENT_QUOTES));
       }
+    }
+    else if($this->uri->segment(3) == 9) // add address
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      // insert into address table
+        $insertDataAddress = array(
+          'HouseNo'                           => htmlentities($_POST['HouseNo'], ENT_QUOTES)
+          , 'AddressType'                     => htmlentities($_POST['AddressType'], ENT_QUOTES)
+          , 'BarangayId'                      => htmlentities($_POST['BarangayId'], ENT_QUOTES)
+          , 'Telephone'                       => $_POST['TelephoneCityAddress']
+          , 'ContactNumber'                   => $_POST['CellphoneCityAdd']
+          , 'CreatedBy'                       => $EmployeeNumber
+        );
+        $insertTableAddress = 'r_address';
+        $this->maintenance_model->insertFunction($insertDataAddress, $insertTableAddress);
+      // get address id
+        $generatedIdData = array(
+          'table'                 => 'r_address'
+          , 'column'              => 'AddressId'
+        );
+        $AddressId = $this->maintenance_model->getGeneratedId($generatedIdData);
+      // Update existing primary address
+        if($_POST['isPrimary'] == 1)
+        {
+          $set = array( 
+            'isPrimary' => 0
+          );
+
+          $condition = array( 
+            'BorrowerId' => $this->uri->segment(4)
+            , 'isPrimary' => 1
+          );
+          $table = 'borroweraddresshistory';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+        }
+      // insert into employee address      
+        $insertDataAddress2 = array(
+          'BorrowerId'                        => $this->uri->segment(4)
+          , 'AddressId'                       => $AddressId['AddressId']
+          , 'IsPrimary'                       => htmlentities($_POST['isPrimary'], ENT_QUOTES)
+          , 'YearsStayed'                     => $_POST['YearsStayed']
+          , 'MonthsStayed'                    => $_POST['MonthsStayed']
+          , 'NameOfLandlord'                  => $_POST['NameOfLandlord']
+          , 'AddressType'                     => htmlentities($_POST['optionsRadios'], ENT_QUOTES) // owned and whatnot
+          , 'ContactNumber'                   => $_POST['LandLordNumber']
+          , 'CreatedBy'                       => $EmployeeNumber
+          , 'UpdatedBy'                       => $EmployeeNumber
+        );
+        $insertTableAddress2 = 'borroweraddresshistory';
+        $this->maintenance_model->insertFunction($insertDataAddress2, $insertTableAddress2);
+
+      // admin audits
+        $getNewId = $this->maintenance_model->selectSpecific('borroweraddresshistory', 'BorrowerId', $this->uri->segment(4));
+        $generatedIdData1 = array(
+          'table'                 => 'borroweraddresshistory'
+          , 'column'              => 'BorrowerAddressHistoryId'
+        );
+        $newId = $this->maintenance_model->getGeneratedId($generatedIdData1);
+
+        $TransactionNumber = 'ADD-'.sprintf('%06d', $newId['BorrowerAddressHistoryId']);
+        $auditLogsManager = 'Added new address #'.$TransactionNumber.' for borrower #'.$borrowerDetail['BorrowerNumber'].'.';
+        $auditAffectedEmployee = 'Added new address #'.$TransactionNumber.' for borrower #'.$borrowerDetail['BorrowerNumber'].'.';
+        $auditAffectedTable = 'Added new address #'.$TransactionNumber.'.';
+        $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(4), 'borrower_has_notifications', 'BorrowerId');
+      // notification
+        $this->session->set_flashdata('alertTitle','Success!'); 
+        $this->session->set_flashdata('alertText','Borrower address successfully recorded!'); 
+        $this->session->set_flashdata('alertType','success'); 
+        redirect('home/BorrowerDetails/'. $this->uri->segment(4));
+    }
+    else if($this->uri->segment(3) == 10) // add email address
+    {
+      $isPrimary = 0;
+      if(isset($_POST['isPrimary']))
+      {
+        $isPrimary = 1;
+      }
+      else
+      {
+        $isPrimary = 0;
+      }
+      $set = array( 
+        'IsPrimary' => 0
+      );
+
+      $condition = array( 
+        'BorrowerId' => $this->uri->segment(4)
+      );
+      $table = 'borrower_has_emails';
+      $this->maintenance_model->updateFunction1($set, $condition, $table);
+
+      $data = array(
+        'EmailAddress'              => htmlentities($_POST['EmailAddress'], ENT_QUOTES)
+        , 'BorrowerId'              => $this->uri->segment(4)
+      );
+      // insert into email
+        $insertEmail1 = array(
+          'EmailAddress'                      => htmlentities($_POST['EmailAddress'], ENT_QUOTES)
+          , 'CreatedBy'                       => $EmployeeNumber
+        );
+        $insertEmailTable1 = 'r_emails';
+        $this->maintenance_model->insertFunction($insertEmail1, $insertEmailTable1);
+      // get email id
+        $generatedIdData1 = array(
+          'table'                         => 'r_emails'
+          , 'column'                      => 'EmailId'
+        );
+        $generatedIdNumber = $this->maintenance_model->getGeneratedId($generatedIdData1);
+      // insert into employee email
+        $insertEmail2 = array(
+          'BorrowerId'                    => $this->uri->segment(4)
+          , 'EmailId'                     => $generatedIdNumber['EmailId']
+          , 'IsPrimary'                   => $isPrimary
+          , 'CreatedBy'                   => $EmployeeNumber
+          , 'UpdatedBy'                   => $EmployeeNumber
+        );
+        $insertEmailTable2 = 'borrower_has_emails';
+        $this->maintenance_model->insertFunction($insertEmail2, $insertEmailTable2);
+      // admin audits finals
+        $generatedIdData1 = array(
+          'table'                 => 'borrower_has_emails'
+          , 'column'              => 'BorrowerEmailId'
+        );
+        $newId = $this->maintenance_model->getGeneratedId($generatedIdData1);
+
+        $TransactionNumber = 'EA-'.sprintf('%06d', $newId['BorrowerCoMakerId']);
+        $auditLogsManager = 'Added new email #'.$TransactionNumber.' for borrower #'.$borrowerDetail['BorrowerNumber'].'.';
+        $auditAffectedEmployee = 'Added new email #'.$TransactionNumber.' for borrower #'.$borrowerDetail['BorrowerNumber'].'.';
+        $auditAffectedTable = 'Added new email #'.$TransactionNumber.' in emails tab.';
+        $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(4), 'borrower_has_notifications', 'BorrowerId');
+      // notification
+        $this->session->set_flashdata('alertTitle','Success!'); 
+        $this->session->set_flashdata('alertText','Email address successfully added!'); 
+        $this->session->set_flashdata('alertType','success'); 
+        redirect('home/BorrowerDetails/'. $this->uri->segment(4));
     }
   }
 
@@ -1367,10 +1442,11 @@ class borrower_controller extends CI_Controller {
         );
         $oldDetail = $this->employee_model->getNameOfCategory($data1);
         $newDetail = $this->employee_model->getNameOfCategory($data2);
-        // insert into borrower notification
-          $auditBorrower = 'Updated salutation from '.$oldDetail['Name'].' to '.$newDetail['Name'].'.';
-          $auditStaff = 'Updated salutation from '.$oldDetail['Name'].' to '.$newDetail['Name'].' of borrower #'. $borrowerDetail['BorrowerNumber'].'.';
-          $this->auditBorrower($auditBorrower, $auditStaff, $this->uri->segment(4));
+        // admin audits finalss
+          $auditLogsManager = 'Updated salutation from '.$oldDetail['Name'].' to '.$newDetail['Name'].' of borrower #'. $borrowerDetail['BorrowerNumber'].'.';
+          $auditAffectedEmployee = 'Updated salutation from '.$oldDetail['Name'].' to '.$newDetail['Name'].' of borrower #'. $borrowerDetail['BorrowerNumber'].'.';
+          $auditAffectedTable = 'Updated salutation from '.$oldDetail['Name'].' to '.$newDetail['Name'].'.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(4), 'borrower_has_notifications', 'BorrowerId');
         // update detail
           $set = array( 
             'Salutation' => htmlentities($_POST['SalutationId'], ENT_QUOTES)
@@ -1398,10 +1474,11 @@ class borrower_controller extends CI_Controller {
         );
         $oldDetail = $this->employee_model->getNameOfCategory($data1);
         $newDetail = $this->employee_model->getNameOfCategory($data2);
-        // insert into borrower notification
-          $auditBorrower = 'Updated gender from '.$oldDetail['Name'].' to '.$newDetail['Name'].'.';
-          $auditStaff = 'Updated gender from '.$oldDetail['Name'].' to '.$newDetail['Name'].' of borrower #'. $borrowerDetail['BorrowerNumber'].'.';
-          $this->auditBorrower($auditBorrower, $auditStaff, $this->uri->segment(4));
+        // admin audits finalss
+          $auditLogsManager = 'Updated gender from '.$oldDetail['Name'].' to '.$newDetail['Name'].' of borrower #'. $borrowerDetail['BorrowerNumber'].'.';
+          $auditAffectedEmployee = 'Updated gender from '.$oldDetail['Name'].' to '.$newDetail['Name'].' of borrower #'. $borrowerDetail['BorrowerNumber'].'.';
+          $auditAffectedTable = 'Updated gender from '.$oldDetail['Name'].' to '.$newDetail['Name'].'.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(4), 'borrower_has_notifications', 'BorrowerId');
         // update detail
           $set = array( 
             'Sex' => htmlentities($_POST['SexId'], ENT_QUOTES)
@@ -1429,10 +1506,11 @@ class borrower_controller extends CI_Controller {
         );
         $oldDetail = $this->employee_model->getNameOfCategory($data1);
         $newDetail = $this->employee_model->getNameOfCategory($data2);
-        // insert into borrower notification
-          $auditBorrower = 'Updated nationality from '.$oldDetail['Name'].' to '.$newDetail['Name'].'.';
-          $auditStaff = 'Updated nationality from '.$oldDetail['Name'].' to '.$newDetail['Name'].' of borrower #'. $borrowerDetail['BorrowerNumber'].'.';
-          $this->auditBorrower($auditBorrower, $auditStaff, $this->uri->segment(4));
+        // admin audits finalss
+          $auditLogsManager = 'Updated nationality from '.$oldDetail['Description'].' to '.$newDetail['Description'].' of borrower #'. $borrowerDetail['BorrowerNumber'].'.';
+          $auditAffectedEmployee = 'Updated nationality from '.$oldDetail['Description'].' to '.$newDetail['Description'].' of borrower #'. $borrowerDetail['BorrowerNumber'].'.';
+          $auditAffectedTable = 'Updated nationality from '.$oldDetail['Description'].' to '.$newDetail['Description'].'.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(4), 'borrower_has_notifications', 'BorrowerId');
         // update detail
           $set = array( 
             'Nationality' => htmlentities($_POST['NationalityId'], ENT_QUOTES)
@@ -1460,10 +1538,11 @@ class borrower_controller extends CI_Controller {
         );
         $oldDetail = $this->employee_model->getNameOfCategory($data1);
         $newDetail = $this->employee_model->getNameOfCategory($data2);
-        // insert into borrower notification
-          $auditBorrower = 'Updated civil status from '.$oldDetail['Name'].' to '.$newDetail['Name'].'.';
-          $auditStaff = 'Updated civil status from '.$oldDetail['Name'].' to '.$newDetail['Name'].' of borrower #'. $borrowerDetail['BorrowerNumber'].'.';
-          $this->auditBorrower($auditBorrower, $auditStaff, $this->uri->segment(4));
+        // admin audits finalss
+          $auditLogsManager = 'Updated civil status from '.$oldDetail['Name'].' to '.$newDetail['Name'].' of borrower #'. $borrowerDetail['BorrowerNumber'].'.';
+          $auditAffectedEmployee = 'Updated civil status from '.$oldDetail['Name'].' to '.$newDetail['Name'].' of borrower #'. $borrowerDetail['BorrowerNumber'].'.';
+          $auditAffectedTable = 'Updated civil status from '.$oldDetail['Name'].' to '.$newDetail['Name'].'.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(4), 'borrower_has_notifications', 'BorrowerId');
         // update detail
           $set = array( 
             'CivilStatus' => htmlentities($_POST['CivilStatusId'], ENT_QUOTES)
@@ -1491,10 +1570,11 @@ class borrower_controller extends CI_Controller {
         );
         $oldDetail = $this->employee_model->getNameOfCategory($data1);
         $newDetail = $this->employee_model->getNameOfCategory($data2);
-        // insert into borrower notification
-          $auditBorrower = 'Updated status from '.$oldDetail['Name'].' to '.$newDetail['Name'].'.';
-          $auditStaff = 'Updated status from '.$oldDetail['Name'].' to '.$newDetail['Name'].' of borrower #'. $borrowerDetail['BorrowerNumber'].'.';
-          $this->auditBorrower($auditBorrower, $auditStaff, $this->uri->segment(4));
+        // admin audits finalss
+          $auditLogsManager = 'Updated status from '.$oldDetail['Name'].' to '.$newDetail['Name'].' of borrower #'. $borrowerDetail['BorrowerNumber'].'.';
+          $auditAffectedEmployee = 'Updated status from '.$oldDetail['Name'].' to '.$newDetail['Name'].' of borrower #'. $borrowerDetail['BorrowerNumber'].'.';
+          $auditAffectedTable = 'Updated status from '.$oldDetail['Name'].' to '.$newDetail['Name'].'.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(4), 'borrower_has_notifications', 'BorrowerId');
         // update detail
           $set = array( 
             'StatusId' => htmlentities($_POST['StatusId'], ENT_QUOTES)
@@ -1509,10 +1589,11 @@ class borrower_controller extends CI_Controller {
     // dependents
       if($borrowerDetail['Dependents'] != htmlentities($_POST['NoDependents'], ENT_QUOTES))
       {
-        // insert into borrower notification
-          $auditBorrower = 'Updated number of dependents from '.$borrowerDetail['Dependents'].' to '.htmlentities($_POST['NoDependents'], ENT_QUOTES);
-          $auditStaff = 'Updated number of dependents from '.$borrowerDetail['Dependents'].' to '.htmlentities($_POST['NoDependents'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'];
-          $this->auditBorrower($auditBorrower, $auditStaff, $this->uri->segment(4));
+        // admin audits finalss
+          $auditLogsManager = 'Updated number of dependents from '.$borrowerDetail['Dependents'].' to '.htmlentities($_POST['NoDependents'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'];
+          $auditAffectedEmployee = 'Updated number of dependents from '.$borrowerDetail['Dependents'].' to '.htmlentities($_POST['NoDependents'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'];
+          $auditAffectedTable = 'Updated number of dependents from '.$borrowerDetail['Dependents'].' to '.htmlentities($_POST['NoDependents'], ENT_QUOTES);
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(4), 'borrower_has_notifications', 'BorrowerId');
         // update detail
           $set = array( 
             'Dependents' => htmlentities($_POST['NoDependents'], ENT_QUOTES)
@@ -1535,12 +1616,25 @@ class borrower_controller extends CI_Controller {
       , 'tableType' => htmlentities($this->input->post('tableType'), ENT_QUOTES)
     );
 
-    $query = $this->borrower_model->updateEmail($input);
+    // $query = $this->borrower_model->updateEmail($input);
+    $output = $this->borrower_model->updateEmail($input);
+    $this->output->set_output(print(json_encode($output)));
+    exit();
   }
 
   function IDCategory()
   {
     echo $this->maintenance_model->IDCategory();
+  }
+
+  function IDCategory2()
+  {
+    echo $this->maintenance_model->IDCategory2();
+  }
+
+  function IDCategory3()
+  {
+    echo $this->maintenance_model->IDCategory3($this->input->post('Id'));
   }
 
   function AddContact()
@@ -1551,52 +1645,34 @@ class borrower_controller extends CI_Controller {
     {
       if($_POST['ContactType'] == 'Mobile') //Mobile Number
       {
-        // pass mo yung data to be used
-        $data = array(
-          'Type'                 => $_POST['']
-          , 'Number'              => $_POST['ContactNumber']
-          , 'BorrowerId'              => $_POST['']
-        );
-        $result = $this->borrower_model->countBorrower($data);
-        if($result == 0)
-        {
-          // contact number
-            $insertContact = array(
-              'PhoneType'                     => 'Mobile'
-              , 'Number'                      => htmlentities($_POST['ContactNumber'], ENT_QUOTES)
-              , 'CreatedBy'                      => $EmployeeNumber
-            );
-            $insertContactTable = 'r_contactnumbers';
-            $this->maintenance_model->insertFunction($insertContact, $insertContactTable);
-          // get generated contactnumber id
-            $generatedIdData = array(
-              'table'                 => 'r_contactnumbers'
-              , 'column'              => 'ContactNumberId'
-            );
-            $ContactNumberId = $this->maintenance_model->getGeneratedId($generatedIdData);
-          // insert into borrower_has_contact
-              $insertContact2 = array(
-              'BorrowerId'                      => $_POST['ContactNumber']
-                , 'ContactNumberId'             => $ContactNumberId['ContactNumberId']
-                , 'CreatedBy'                   => $EmployeeNumber
-                , 'UpdatedBy'                   => $EmployeeNumber
-            );
-            $insertContactTable2 = 'borrower_has_contactnumbers';
-            $this->maintenance_model->insertFunction($insertContact2, $insertContactTable2);
-          // notification
-            $this->session->set_flashdata('alertTitle','Success!'); 
-            $this->session->set_flashdata('alertText','Contact number successfully added!'); 
-            $this->session->set_flashdata('alertType','success'); 
-            redirect('home/borrowerDetails/' . $BorrowerId['BorrowerId']);
-        }
-        else
-        {
-          // notification
-            $this->session->set_flashdata('alertTitle','Warning!'); 
-            $this->session->set_flashdata('alertText','Contact number already existing!'); 
-            $this->session->set_flashdata('alertType','warning'); 
-            redirect('home/borrowers');
-        }
+        // contact number
+          $insertContact = array(
+            'PhoneType'                     => 'Mobile'
+            , 'Number'                      => htmlentities($_POST['ContactNumber'], ENT_QUOTES)
+            , 'CreatedBy'                      => $EmployeeNumber
+          );
+          $insertContactTable = 'r_contactnumbers';
+          $this->maintenance_model->insertFunction($insertContact, $insertContactTable);
+        // get generated contactnumber id
+          $generatedIdData = array(
+            'table'                 => 'r_contactnumbers'
+            , 'column'              => 'ContactNumberId'
+          );
+          $ContactNumberId = $this->maintenance_model->getGeneratedId($generatedIdData);
+        // insert into borrower_has_contact
+            $insertContact2 = array(
+            'BorrowerId'                      => $_POST['ContactNumber']
+              , 'ContactNumberId'             => $ContactNumberId['ContactNumberId']
+              , 'CreatedBy'                   => $EmployeeNumber
+              , 'UpdatedBy'                   => $EmployeeNumber
+          );
+          $insertContactTable2 = 'borrower_has_contactnumbers';
+          $this->maintenance_model->insertFunction($insertContact2, $insertContactTable2);
+        // notification
+          $this->session->set_flashdata('alertTitle','Success!');
+          $this->session->set_flashdata('alertText','Contact number successfully added!'); 
+          $this->session->set_flashdata('alertType','success'); 
+          redirect('home/borrowerDetails/' . $BorrowerId['BorrowerId']);
       }
       else // Telephone Number
       {
@@ -1641,9 +1717,37 @@ class borrower_controller extends CI_Controller {
     exit();
   }
 
+  function getBorrowerEmployment()
+  {
+    $output = $this->borrower_model->getBorrowerEmployment($this->input->post('Id'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getBorrowerCityAddress()
+  {
+    $output = $this->borrower_model->getBorrowerCityAddress($this->input->post('Id'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
   function getSpouseDetails()
   {
     $output = $this->borrower_model->getSpouseDetails($this->input->post('Id'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getSpouseCityAddress()
+  {
+    $output = $this->borrower_model->getSpouseCityAddress($this->input->post('Id'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getSpouseProvAddress()
+  {
+    $output = $this->borrower_model->getSpouseCityAddress($this->input->post('Id'));
     $this->output->set_output(print(json_encode($output)));
     exit();
   }
@@ -1737,6 +1841,39 @@ class borrower_controller extends CI_Controller {
     // Close and output PDF document
       $pdf->Output('Form3.pdf', 'I');
       // $pdf->Output('Form6.pdf', 'D');
+  }
+
+  function auditFunction($auditLogsManager, $auditAffectedEmployee, $ManagerId, $AffectedEmployeeNumber, $auditLoanDets, $ApplicationId, $independentTable, $independentColumn)
+  {
+    $CreatedBy = $this->session->userdata('EmployeeNumber');
+    $DateNow = date("Y-m-d H:i:s");
+    $insertMainLog = array(
+      'Description'       => $auditLogsManager
+      , 'CreatedBy'       => $CreatedBy
+    );
+    $auditTable1 = 'R_Logs';
+    $this->maintenance_model->insertFunction($insertMainLog, $auditTable1);
+    $insertManagerAudit = array(
+      'Description'         => $auditLogsManager
+      , 'ManagerBranchId'   => $ManagerId
+      , 'CreatedBy'         => $CreatedBy
+    );
+    $auditTable3 = 'manager_has_notifications';
+    $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable3);
+    $insertEmpLog = array(
+      'Description'       => $auditAffectedEmployee
+      , 'EmployeeNumber'  => $AffectedEmployeeNumber
+      , 'CreatedBy'       => $CreatedBy
+    );
+    $auditTable2 = 'employee_has_notifications';
+    $this->maintenance_model->insertFunction($insertEmpLog, $auditTable2);
+    $insertApplicationLog = array(
+      'Description'       => $auditLoanDets
+      , ''.$independentColumn.''   => $ApplicationId
+      , 'CreatedBy'       => $CreatedBy
+    );
+    $auditLoanApplicationTable = $independentTable;
+    $this->maintenance_model->insertFunction($insertApplicationLog, $auditLoanApplicationTable);
   }
 
 }

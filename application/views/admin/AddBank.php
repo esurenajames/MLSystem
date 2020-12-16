@@ -20,13 +20,13 @@
             <span aria-hidden="true">&times;</span></button>
           <h4 class="modal-title">Bank Details</h4>
         </div>
-        <form action="<?php echo base_url(); ?>admin_controller/AddBank/" id="frmInsert2" method="post">
+        <form action="<?php echo base_url(); ?>admin_controller/AddBank/" id="frmInsert" method="post">
           <div class="modal-body">
               <div class="row">
                 <div class="col-md-12">
                   <div class="form-group">
-                    <label for="BankName">Name of the Bank</label><br>
-                    <input type="text" class="form-control" id="txtBankName" required="" name="BankName">
+                    <label for="BankName">Name of the Bank <span class="text-red">*</span></label><br>
+                    <input type="text" class="form-control" required="" id="txtBankName" required="" name="BankName">
                     <input type="hidden" class="form-control" id="txtFormType" name="FormType" value="1">
                     <input type="hidden" class="form-control" id="txtBankId" name="BankId">
                   </div>
@@ -62,7 +62,7 @@
           <h3 class="box-title">List of Banks</h3>
         </div>
         <div class="box-body">
-          <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewBank">Add Bank</button>
+          <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewBank">Add Record</button>
           <br>
           <br>
           <form name="ApproverDocForm" method="post" id="ApproverDocForm">
@@ -141,14 +141,27 @@
           },
           success: function(data)
           {
-            refreshPage();
-            swal({
-              title: 'Success!',
-              text: 'Bank successfully updated!',
-              type: 'success',
-              buttonsStyling: false,
-              confirmButtonClass: 'btn btn-primary'
-            });
+            if(data == 1)
+            {
+              refreshPage();
+              swal({
+                title: 'Success!',
+                text: 'Bank successfully updated!',
+                type: 'success',
+                buttonsStyling: false,
+                confirmButtonClass: 'btn btn-primary'
+              });
+            }
+            else
+            {
+              swal({
+                title: 'Info!',
+                text: 'Record is in use, record cannot be updated!',
+                type: 'info',
+                buttonsStyling: false,
+                confirmButtonClass: 'btn btn-primary'
+              });
+            }
           },
           error: function (response) 
           {
@@ -252,6 +265,22 @@
     $('#modalNewBank').on('hide.bs.modal', function () {
       $('#txtFormType').val(1)
     })
+
+    $("#frmInsert").on('submit', function (e) {
+      e.preventDefault(); 
+      swal({
+        title: 'Confirm',
+        text: 'Are you sure you want to submit this form?',
+        type: 'info',
+        showCancelButton: true,
+        buttonsStyling: false,
+        confirmButtonClass: 'btn btn-success',
+        confirmButtonText: 'Confirm',
+        cancelButtonClass: 'btn btn-secondary'
+      }).then(function(){
+        e.currentTarget.submit();
+      });
+    });
 
 
 

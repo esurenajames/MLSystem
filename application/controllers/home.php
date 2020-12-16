@@ -27,17 +27,25 @@ class home extends CI_Controller {
    	if(empty($this->session->userdata("EmployeeNumber")) || $this->session->userdata("logged_in") == 0)
    	{
       $DateNow = date("Y-m-d H:i:s");
-     	$this->session->set_flashdata('logout','Account successfully logged out.'); 
-      $data = array(
-      	'Description' => 'Session timed out.'
-      	, 'DateCreated' => $DateNow
-      	, 'CreatedBy' => $this->session->userdata('EmployeeNumber')
-      );
-      $this->access->audit($data);
-      $loginSession = array(
-        'logged_in' => 0,
-      );
-   		redirect(site_url());
+			if($this->session->userdata('EmployeeNumber') === '')
+			{
+	     	$this->session->set_flashdata('logout','Account successfully logged out.'); 
+	      $data = array(
+	      	'Description' => 'Session timed out.'
+	      	, 'DateCreated' => $DateNow
+	      	, 'CreatedBy' => $this->session->userdata('EmployeeNumber')
+	      );
+	      $this->access->audit($data);
+	      $loginSession = array(
+	        'logged_in' => 0,
+	      );
+	   		redirect(site_url());
+			}
+			else
+			{
+	     	$this->session->set_flashdata('error','Session expired.'); 
+	   		redirect(site_url());
+			}
    	}
 	}
 
@@ -134,7 +142,7 @@ class home extends CI_Controller {
 
 	function AddLoanType()
 	{
-		$sidebar['sidebar'] = 'SystemSetup';
+		$sidebar['sidebar'] = 'Loans';
 		$sidebar['sidebarMenu'] = 'LoanTypes';
 		$header['header'] = 'Loan Types';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
@@ -149,7 +157,7 @@ class home extends CI_Controller {
 
 	function AddConditional()
 	{
-		$sidebar['sidebar'] = "SystemSetup";
+		$sidebar['sidebar'] = "Loans";
 		$sidebar['sidebarMenu'] = 'Conditional';
 		$header['header'] = 'Additional Charges';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
@@ -165,7 +173,7 @@ class home extends CI_Controller {
 
 	function AddOccupation()
 	{
-		$sidebar['sidebar'] = "SystemSetup";
+		$sidebar['sidebar'] = "BorrowerManagement";
 		$sidebar['sidebarMenu'] = 'Occupations';
 		$header['header'] = 'Occupations';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
@@ -197,7 +205,7 @@ class home extends CI_Controller {
 
 	function AddPosition()
 	{
-		$sidebar['sidebar'] = 'SystemSetup';
+		$sidebar['sidebar'] = 'EmployeeManagement';
 		$sidebar['sidebarMenu'] = 'Positions';
 		$header['header'] = 'Positions';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
@@ -229,7 +237,7 @@ class home extends CI_Controller {
 
 	function AddPurpose()
 	{
-		$sidebar['sidebar'] = 'SystemSetup';
+		$sidebar['sidebar'] = 'Loans';
 		$sidebar['sidebarMenu'] = 'Purposes';
 		$header['header'] = 'Purpose';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
@@ -295,7 +303,7 @@ class home extends CI_Controller {
 
 	function AddLoanStatus()
 	{
-		$sidebar['sidebar'] = 'SystemSetup';
+		$sidebar['sidebar'] = 'Loans';
 		$sidebar['sidebarMenu'] = 'LoanStatus';
 		$header['header'] = 'Loan Status';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
@@ -311,7 +319,7 @@ class home extends CI_Controller {
 
 	function AddBorrowerStatus()
 	{
-		$sidebar['sidebar'] = 'SystemSetup';
+		$sidebar['sidebar'] = 'BorrowerManagement';
 		$sidebar['sidebarMenu'] = 'BorrowerStatus';
 		$header['header'] = 'Borrower Status';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
@@ -327,7 +335,7 @@ class home extends CI_Controller {
 
 	function AddIndustry()
 	{
-		$sidebar['sidebar'] = "SystemSetup";
+		$sidebar['sidebar'] = "BorrowerManagement";
 		$sidebar['sidebarMenu'] = "Industries";
 		$header['header'] = 'Industries';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
@@ -343,7 +351,7 @@ class home extends CI_Controller {
 
 	function AddEducation()
 	{
-		$sidebar['sidebar'] = 'SystemSetup';
+		$sidebar['sidebar'] = 'BorrowerManagement';
 		$sidebar['sidebarMenu'] = 'Education';
 		$header['header'] = 'Education Level';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
@@ -359,7 +367,7 @@ class home extends CI_Controller {
 
 	function AddRepaymentCycle()
 	{
-		$sidebar['sidebar'] = 'SystemSetup';
+		$sidebar['sidebar'] = 'Loans';
 		$sidebar['sidebarMenu'] = 'RepaymentCycle';
 		$header['header'] = 'Repayment Cycles';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
@@ -423,7 +431,7 @@ class home extends CI_Controller {
 
 	function AddExpenseType()
 	{
-		$sidebar['sidebar'] = 'SystemSetup';
+		$sidebar['sidebar'] = 'Finance';
 		$sidebar['sidebarMenu'] = 'ExpenseType';
 		$header['header'] = 'Types of Expenses';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
@@ -456,7 +464,7 @@ class home extends CI_Controller {
 
 	function addDepositType()
 	{
-		$sidebar['sidebar'] = 'SystemSetup';
+		$sidebar['sidebar'] = 'Finance';
 		$sidebar['sidebarMenu'] = 'DepositType';
 		$header['header'] = 'Types of Deposit';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
@@ -650,7 +658,7 @@ class home extends CI_Controller {
 	{
 		$Id = $this->uri->segment(3);
 		$sidebar['sidebar'] = 'Loans';
-		$sidebar['sidebarMenu'] = 'Loan Application';
+		$sidebar['sidebarMenu'] = 'View Loans';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$header['header'] = 'Loan Application Detail';
@@ -740,8 +748,8 @@ class home extends CI_Controller {
 	function employeeDetails()
 	{
 		$Id = $this->uri->segment(3);
-		$sidebar['sidebar'] = 2;
-		$sidebar['sidebarMenu'] = 1;
+		$sidebar['sidebar'] = 'EmployeeManagement';
+		$sidebar['sidebarMenu'] = 'EmployeeManagement';
 		$header['header'] = 'Employee Details';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
@@ -755,7 +763,9 @@ class home extends CI_Controller {
 		$data['Ids'] = $this->employee_model->employeeIDs($Id);
 		$data['Audit'] = $this->employee_model->employeeNotification($Id);
 
+		$data['Status'] = $this->maintenance_model->getEmployeeStatus();
 		$data['IDCategory'] = $this->maintenance_model->IDCategory();
+		$data['IDCategory'] = $this->maintenance_model->IDCategory2($Id);
 		$data['Sex'] = $this->maintenance_model->getSex();
 		$data['Nationality'] = $this->maintenance_model->getNationality();
 		$data['CivilStatus'] = $this->maintenance_model->getCivilStatus();
@@ -804,9 +814,9 @@ class home extends CI_Controller {
 	
 	function addUser()
 	{
-		$sidebar['sidebar'] = 'SystemSetup';
+		$sidebar['sidebar'] = 'EmployeeManagement';
 		$sidebar['sidebarMenu'] = 'Users';
-		$header['header'] = 'users';
+		$header['header'] = 'Users';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
@@ -863,8 +873,8 @@ class home extends CI_Controller {
 	function userProfile()
 	{
 		$Id = $this->uri->segment(3);
-		$sidebar['sidebar'] =
-		$sidebar['sidebarMenu'] =
+		$sidebar['sidebar'] = '';
+		$sidebar['sidebarMenu'] = '';
 		$header['header'] = 'User Profile';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
@@ -873,6 +883,7 @@ class home extends CI_Controller {
 		$data['securityQuestions'] = $this->employee_model->getSecurityQuestions();
 		$data['detail'] = $this->employee_model->getEmployeeProfile($Id);
 		$data['Audit'] = $this->employee_model->employeeNotification($Id);
+		$data['Audit2'] = $this->maintenance_model->getManagerNotification($Id);
 		$data['SecQuestion1'] = $this->employee_model->getEmployeeSecurityQuestions($Id, 1);
 		$data['SecQuestion2'] = $this->employee_model->getEmployeeSecurityQuestions($Id, 2);
 		$data['SecQuestion3'] = $this->employee_model->getEmployeeSecurityQuestions($Id, 3);
@@ -934,6 +945,7 @@ class home extends CI_Controller {
 		$data['Spouse'] = $this->borrower_model->getSpouseList($Id);
 		$data['Employment'] = $this->borrower_model->getEmploymentList($Id);
 		$data['Education'] = $this->borrower_model->getEducationList($Id);
+		$data['EducationList'] = $this->maintenance_model->getEducationList($Id);
 
 		$data['EmailAddress'] = $this->borrower_model->getBorrowerEmails($Id);
 		$data['ContactNumber'] = $this->borrower_model->getBorrowerNumber($Id);
@@ -1016,6 +1028,58 @@ class home extends CI_Controller {
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
 		$this->load->view('reports/IncomeStatement', $data);
+	}
+
+	function download($id)
+	{
+  	//load download helper
+    $this->load->helper('download');
+   	$this->load->library('zip');
+  	if($this->uri->segment(3) == 1) // download payment cancellation
+  	{
+	    //get file info from database
+  			$detail = $this->maintenance_model->selectSpecific('application_has_notifications', 'NotificationId', $this->uri->segment(4));
+        // File path
+        $filepath1 = FCPATH.'/uploads/' . $detail['FileName'];
+        // Add file
+        $fileName = 'Attachments.zip';
+        $this->zip->read_file($filepath1, $detail['FileTitle']);
+	      $this->zip->download($fileName);
+  	}
+  	if($this->uri->segment(3) == 2) // download requirements submitted
+  	{
+	    //get file info from database
+  			$detail = $this->loanapplication_model->getSubmittedRequirment($this->uri->segment(4));
+        // File path
+        $filepath1 = FCPATH.'/borrowerarchive/' . $detail['FileName'];
+        // Add file
+        $fileName = 'Attachments.zip';
+        $this->zip->read_file($filepath1, $detail['FileTitle']);
+	      $this->zip->download($fileName);
+  	}
+  	if($this->uri->segment(3) == 3) // download comment attachments
+  	{
+	    //get file info from database
+  			$detail = $this->maintenance_model->selectSpecific('comments_has_attachments', 'CommentId', $this->uri->segment(4));
+        // File path
+        $filepath1 = FCPATH.'/uploads/' . $detail['FileName'];
+        // Add file
+        $fileName = 'Attachments.zip';
+        $this->zip->read_file($filepath1, $detail['Title']);
+	      $this->zip->download($fileName);
+  	}
+  	if($this->uri->segment(3) == 4) // download collateral attachments
+  	{
+	    //get file info from database
+  			$detail = $this->maintenance_model->selectSpecific2('collaterals_has_files', 'CollateralId', $this->uri->segment(4));
+        // File path
+        $filepath1 = FCPATH.'/uploads/' . $detail['FileName'];
+        // Add file
+        $fileName = 'Attachments.zip';
+        $this->zip->read_file($filepath1, $detail['Title']);
+	      $this->zip->download($fileName);
+  	}
+
 	}
 
 }

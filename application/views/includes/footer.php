@@ -33,6 +33,7 @@
 <script src="<?php echo base_url(); ?>resources/bower_components/sweetalert2/dist/sweetalert2.min.js"></script>
 <script src="<?php echo base_url(); ?>resources/bower_components/wizard/jquery.smartWizard.min.js"></script>
 <script src="<?php echo base_url(); ?>resources/plugins/iCheck/icheck.min.js"></script>
+<script src="<?php echo base_url(); ?>resources/webcam.js"></script>
 
 <!-- <script type="text/javascript" src="<?php echo base_url(); ?>resources/plugins/jquery-smartwizard-master/dist/js/jquery.smartWizard.min.js"></script> -->
 <script>
