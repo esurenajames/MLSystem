@@ -123,8 +123,9 @@ class loanapplication_model extends CI_Model
                                       , B.LastName
                                       , B.ExtName
                                       , B.MiddleName
+                                      , B.Birthplace
                                       , BE.BranchId
-                                      , DATE_FORMAT(B.DateOfBirth, '%m-%d-%Y') as ReportDOB
+                                      , DATE_FORMAT(B.DateOfBirth, '%m/%d/%Y') as ReportDOB
                                       , LU.Description as LoanUndertaking
                                       , (SELECT DISTINCT ApproverNumber FROM application_has_approver WHERE ApplicationId = A.ApplicationId AND StatusId = 5 ORDER BY ApplicationApprovalId LIMIT 1) as CurrentApprover
                                       FROM T_Application A
@@ -310,8 +311,8 @@ class loanapplication_model extends CI_Model
                                               FROM borrower_has_employer BHE
                                                 INNER JOIN R_Borrowers B
                                                   ON B.BorrowerId = BHE.BorrowerId
-                                                LEFT JOIN Borrower_Has_Position BHP
-                                                  ON BHP.BorrowerPositionId = BHE.PositionId
+                                                LEFT JOIN r_occupation BHP
+                                                  ON BHP.OccupationId = BHE.PositionId
                                                 LEFT JOIN R_Industry I
                                                   ON I.IndustryId = BHE.IndustryId
                                                     WHERE B.BorrowerId = $Id
@@ -382,7 +383,7 @@ class loanapplication_model extends CI_Model
   function getCoMaker($borrowerId)
   {
     $query_string = $this->db->query("SELECT  BHC.Name
-                                              , DATE_FORMAT(BHC.Birthdate, '%m/%b/%Y') as DateOfBirth
+                                              , DATE_FORMAT(BHC.Birthdate, '%m/%d/%Y') as DateOfBirth
                                               , Employer
                                               , BusinessAddress
                                               , P.Name as PositionName
@@ -393,8 +394,8 @@ class loanapplication_model extends CI_Model
                                               , MobileNo
                                               , MonthlyIncome
                                               FROM borrower_has_comaker BHC
-                                                INNER JOIN R_Position P
-                                                  ON P.PositionId = BHC.PositionId
+                                                INNER JOIN r_occupation P
+                                                  ON P.OccupationId = BHC.PositionId
                                                 WHERE BorrowerId = $borrowerId
                                                 AND BHC.StatusId = 1 
 
@@ -421,8 +422,9 @@ class loanapplication_model extends CI_Model
                                               , DATE_FORMAT(B.DateOfBirth, '%Y-%b-%d') as RawDateOfBirth
                                               , SS.Name as StatusDescription
                                               , B.StatusId
-                                              , DATE_FORMAT(B.DateOfBirth, '%m-%d-%Y') as ReportDOB
+                                              , DATE_FORMAT(B.DateOfBirth, '%m/%d/%Y') as ReportDOB
                                               , E.EmailAddress
+                                              , B.Birthplace
 
                                               , B.MiddleName
                                               , S.SalutationId

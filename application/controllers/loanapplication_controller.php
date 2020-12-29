@@ -3214,6 +3214,7 @@ class loanapplication_controller extends CI_Controller {
           $objPHPExcel->setActiveSheetIndex($index)->setCellValue('E22', $details['PurposeName']);
 
           $objPHPExcel->setActiveSheetIndex($index)->setCellValue('A25', $details['LastName']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('A29', $details['Birthplace']);
           $objPHPExcel->setActiveSheetIndex($index)->setCellValue('C25', $details['FirstName']);
           $objPHPExcel->setActiveSheetIndex($index)->setCellValue('E25', $details['MiddleName']);
           $objPHPExcel->setActiveSheetIndex($index)->setCellValue('G25', $details['ExtName']);
@@ -3303,6 +3304,7 @@ class loanapplication_controller extends CI_Controller {
 
             $objPHPExcel->setActiveSheetIndex($index)->setCellValue('N11', $spouseDetails['Dependents']);
             $objPHPExcel->setActiveSheetIndex($index)->setCellValue('P11', $spouseDetails['EmailAddress']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('H13', $spouseDetails['Birthplace']);
           // spouse address
             $cityAddressSpouse = $this->loanapplication_model->getCityAddressSpouse($spouseId['SpouseId']);
             $objPHPExcel->setActiveSheetIndex($index)->setCellValue('H15', $cityAddressSpouse['HouseNo'] . ' ' . $cityAddressSpouse['BrgyDesc']);

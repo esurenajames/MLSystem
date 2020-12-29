@@ -317,7 +317,7 @@
                 </div>
                 <div class="modal-footer">
                   <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                  <button type="submit" class="btn btn-primary">Submit Reference</button>
+                  <button type="submit" class="btn btn-primary">Submit</button>
                 </div>
               </form>
           </div>
@@ -581,7 +581,7 @@
                     <h5>EMPLOYER DETAILS</h5>
                     <div class="row">
                       <div class="col-md-4">
-                        <label>Present Employer/Business</label><br>
+                        <label>Employer/Business</label><br>
                         <h6 id="lblSpouseEmployer"></h6>
                       </div>
                       <div class="col-md-4">
@@ -742,22 +742,16 @@
                           <input type="number" class="form-control" id="txtDependents" name="NoDependents" required="" placeholder="No. of dependents">
                         </div>
                       </div>
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label>Birthplace</label>
+                          <input type="text" class="form-control" id="txtBirthPlace" name="BirthPlace" required="" placeholder="Birthplace">
+                        </div>
+                      </div>
                     </div>
                     <div id="divSpouseDetails" style="display: none">
                       <!-- EMPLOYER DETAILS -->
                         <div class="row">
-                          <div class="col-md-12">
-                            <div class="form-group">
-                              <label>Date Hired <span class="text-red">*</span></label>
-                              <div class="input-group date">
-                                <div class="input-group-addon">
-                                  <i class="fa fa-calendar"></i>
-                                </div>
-                                <input type="text" placeholder="Date Hired" class="form-control" name="SpouseDateHired" required="" id="dtpSpouseDateHired">
-                              </div>
-                              <!-- /.input group -->
-                            </div>
-                          </div>
                           <div class="col-md-3">
                             <div class="form-group">
                               <label>Present Employer/Business</label>
@@ -780,6 +774,18 @@
                             <div class="form-group">
                               <label>Employment Tenure (Month)</label>
                               <input type="number" class="form-control" id="txtPresentEmployer" name="TenureMonth" placeholder="Employment Tenure (Month)">
+                            </div>
+                          </div>
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label>Date Hired <span class="text-red">*</span></label>
+                              <div class="input-group date">
+                                <div class="input-group-addon">
+                                  <i class="fa fa-calendar"></i>
+                                </div>
+                                <input type="text" placeholder="Date Hired" class="form-control" name="SpouseDateHired" required="" id="dtpSpouseDateHired">
+                              </div>
+                              <!-- /.input group -->
                             </div>
                           </div>
                           <div class="col-md-4">
@@ -1222,6 +1228,9 @@
                   </li>
                   <li class="list-group-item">
                     <b>No. of Dependents</b> <h5 class="pull-right"><?php print_r($detail['Dependents']); ?></h5>
+                  </li>
+                  <li class="list-group-item">
+                    <b>Birthplace</b><br> <?php print_r($detail['Birthplace']); ?>
                   </li>
                 </ul>
 

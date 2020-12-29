@@ -108,6 +108,7 @@ class borrower_controller extends CI_Controller {
             , 'Dependents'                  => htmlentities($_POST['NoDependents'], ENT_QUOTES)
             , 'MotherName'                  => htmlentities($_POST['MotherName'], ENT_QUOTES)
             , 'DateOfBirth'                 => htmlentities($newformat, ENT_QUOTES)
+            , 'BirthPlace'                  => htmlentities($_POST['BirthPlace'], ENT_QUOTES)
             , 'StatusId'                    => 1
             , 'CreatedBy'                   => $EmployeeNumber
             , 'UpdatedBy'                   => $EmployeeNumber
@@ -566,9 +567,9 @@ class borrower_controller extends CI_Controller {
             if($borrowerDetail['FirstName'] != htmlentities($_POST['FirstName'], ENT_QUOTES))
             {
               // admin audits finalss
-                $auditLogsManager = 'Updated first name from '.$borrowerDetail['FirstName'].' to '.htmlentities($_POST['FirstName'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'];
-                $auditAffectedEmployee = 'Updated first name from '.$borrowerDetail['FirstName'].' to '.htmlentities($_POST['FirstName'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'];
-                $auditAffectedTable = 'Updated first name from '.$borrowerDetail['FirstName'].' to '.htmlentities($_POST['FirstName'], ENT_QUOTES);
+                $auditLogsManager = 'Updated first name from '.$borrowerDetail['FirstName'].' to '.htmlentities($_POST['FirstName'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'].'.';
+                $auditAffectedEmployee = 'Updated first name from '.$borrowerDetail['FirstName'].' to '.htmlentities($_POST['FirstName'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'].'.';
+                $auditAffectedTable = 'Updated first name from '.$borrowerDetail['FirstName'].' to '.htmlentities($_POST['FirstName'], ENT_QUOTES).'.';
                 $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(4), 'borrower_has_notifications', 'BorrowerId');
               // update detail
                 $set = array( 
@@ -585,9 +586,9 @@ class borrower_controller extends CI_Controller {
             if($borrowerDetail['MiddleName'] != htmlentities($_POST['MiddleName'], ENT_QUOTES))
             {
               // admin audits finalss
-                $auditLogsManager = 'Updated middle name from '.$borrowerDetail['MiddleName'].' to '.htmlentities($_POST['MiddleName'], ENT_QUOTES);
-                $auditAffectedEmployee = 'Updated middle name from '.$borrowerDetail['MiddleName'].' to '.htmlentities($_POST['MiddleName'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'];
-                $auditAffectedTable = 'Updated middle name from '.$borrowerDetail['MiddleName'].' to '.htmlentities($_POST['MiddleName'], ENT_QUOTES);
+                $auditLogsManager = 'Updated middle name from '.$borrowerDetail['MiddleName'].' to '.htmlentities($_POST['MiddleName'], ENT_QUOTES).'.';
+                $auditAffectedEmployee = 'Updated middle name from '.$borrowerDetail['MiddleName'].' to '.htmlentities($_POST['MiddleName'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'].'.';
+                $auditAffectedTable = 'Updated middle name from '.$borrowerDetail['MiddleName'].' to '.htmlentities($_POST['MiddleName'], ENT_QUOTES).'.';
                 $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(4), 'borrower_has_notifications', 'BorrowerId');
               // update detail
                 $set = array( 
@@ -604,9 +605,9 @@ class borrower_controller extends CI_Controller {
             if($borrowerDetail['LastName'] != htmlentities($_POST['LastName'], ENT_QUOTES))
             {
               // admin audits finalss
-                $auditLogsManager = 'Updated last name from '.$borrowerDetail['LastName'].' to '.htmlentities($_POST['LastName'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'];
-                $auditAffectedEmployee = 'Updated last name from '.$borrowerDetail['LastName'].' to '.htmlentities($_POST['LastName'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'];
-                $auditAffectedTable = 'Updated last name from '.$borrowerDetail['LastName'].' to '.htmlentities($_POST['LastName'], ENT_QUOTES);
+                $auditLogsManager = 'Updated last name from '.$borrowerDetail['LastName'].' to '.htmlentities($_POST['LastName'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'].'.';
+                $auditAffectedEmployee = 'Updated last name from '.$borrowerDetail['LastName'].' to '.htmlentities($_POST['LastName'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'].'.';
+                $auditAffectedTable = 'Updated last name from '.$borrowerDetail['LastName'].' to '.htmlentities($_POST['LastName'], ENT_QUOTES).'.';
                 $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(4), 'borrower_has_notifications', 'BorrowerId');
               // update detail
                 $set = array( 
@@ -623,9 +624,9 @@ class borrower_controller extends CI_Controller {
             if($borrowerDetail['ExtName'] != htmlentities($_POST['ExtName'], ENT_QUOTES))
             {
               // admin audits finalss
-                $auditLogsManager = 'Updated extension name from '.$borrowerDetail['ExtName'].' to '.htmlentities($_POST['ExtName'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'];
-                $auditAffectedEmployee = 'Updated extension name from '.$borrowerDetail['ExtName'].' to '.htmlentities($_POST['ExtName'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'];
-                $auditAffectedTable = 'Updated extension name from '.$borrowerDetail['ExtName'].' to '.htmlentities($_POST['ExtName'], ENT_QUOTES);
+                $auditLogsManager = 'Updated extension name from '.$borrowerDetail['ExtName'].' to '.htmlentities($_POST['ExtName'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'].'.';
+                $auditAffectedEmployee = 'Updated extension name from '.$borrowerDetail['ExtName'].' to '.htmlentities($_POST['ExtName'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'].'.';
+                $auditAffectedTable = 'Updated extension name from '.$borrowerDetail['ExtName'].' to '.htmlentities($_POST['ExtName'], ENT_QUOTES).'.';
                 $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(4), 'borrower_has_notifications', 'BorrowerId');
               // update detail
                 $set = array( 
@@ -719,6 +720,7 @@ class borrower_controller extends CI_Controller {
               , 'CivilStatus'                 => htmlentities($_POST['CivilStatusId'], ENT_QUOTES)
               , 'Dependents'                  => htmlentities($_POST['NoDependents'], ENT_QUOTES)
               , 'EmailAddress'                => htmlentities($_POST['EmailAddress'], ENT_QUOTES)
+              , 'BirthPlace'                  => htmlentities($_POST['BirthPlace'], ENT_QUOTES)
               , 'DateOfBirth'                 => htmlentities($newformat, ENT_QUOTES)
               , 'StatusId'                    => 1
               , 'CreatedBy'                   => $EmployeeNumber
@@ -934,6 +936,8 @@ class borrower_controller extends CI_Controller {
                 }
             }
           // insert employer details
+            $time2 = strtotime($_POST['SpouseDateHired']);
+            $newformat2 = date('Y-m-d', $time2);
             $insertData3 = array(
               'SpouseId'             => $SpouseId['SpouseId']
               , 'EmployerName'       => htmlentities($_POST['SpouseEmployer'], ENT_QUOTES)
@@ -944,6 +948,7 @@ class borrower_controller extends CI_Controller {
               , 'BusinessAddress'    => htmlentities($_POST['BusinessAddress'], ENT_QUOTES)
               , 'TelephoneNumber'    => htmlentities($_POST['TelephoneNumber'], ENT_QUOTES)
               , 'ContactNumber'      => htmlentities($_POST['ContactNumber'], ENT_QUOTES)
+              , 'DateHired'         => htmlentities($newformat2, ENT_QUOTES)
               , 'CreatedBy'          => $EmployeeNumber
               , 'UpdatedBy'          => $EmployeeNumber
             );
@@ -1601,6 +1606,25 @@ class borrower_controller extends CI_Controller {
         // update detail
           $set = array( 
             'Dependents' => htmlentities($_POST['NoDependents'], ENT_QUOTES)
+          );
+
+          $condition = array( 
+            'BorrowerId' => $this->uri->segment(4)
+          );
+          $table = 'R_Borrowers';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+    // birthplace
+      if($borrowerDetail['Birthplace'] != htmlentities($_POST['BirthPlace'], ENT_QUOTES))
+      {
+        // admin audits finalss
+          $auditLogsManager = 'Updated birthplace from '.$borrowerDetail['Birthplace'].' to '.htmlentities($_POST['BirthPlace'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'].'.';
+          $auditAffectedEmployee = 'Updated birthplace from '.$borrowerDetail['Birthplace'].' to '.htmlentities($_POST['BirthPlace'], ENT_QUOTES).' of borrower #'. $borrowerDetail['BorrowerNumber'].'.';
+          $auditAffectedTable = 'Updated birthplace from '.$borrowerDetail['Birthplace'].' to '.htmlentities($_POST['BirthPlace'], ENT_QUOTES).'.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(4), 'borrower_has_notifications', 'BorrowerId');
+        // update detail
+          $set = array( 
+            'Birthplace' => htmlentities($_POST['BirthPlace'], ENT_QUOTES)
           );
 
           $condition = array( 

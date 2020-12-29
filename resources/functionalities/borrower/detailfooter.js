@@ -286,6 +286,7 @@
           $('#txtExtensionName').val(data['ExtName']);
           $('#txtDependents').val(data['Dependents']);
           $('#txtMother').val(data['MotherName']);
+          $('#txtBirthPlace').val(data['Birthplace']);
           $('#selectGender').val(data['SexId']).change();
           $('#selectNationality').val(data['NationalityId']).change();
           $('#selectCivilStatus').val(data['CivilStatusId']).change();

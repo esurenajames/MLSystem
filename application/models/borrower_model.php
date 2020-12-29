@@ -29,8 +29,8 @@ class borrower_model extends CI_Model
                                                 , CAST(Password AS CHAR(10000) CHARACTER SET utf8) as Password
       																					, UR.UserRoleId
       																					, R.Description
-                                                , DATE_FORMAT(UR.DateCreated, '%d %b %Y %r') as DateCreated
-                                                , DATE_FORMAT(UR.DateUpdated, '%d %b %Y %r') as DateUpdated
+                                                , DATE_FORMAT(UR.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                                , DATE_FORMAT(UR.DateUpdated, '%d %b %Y %h:%i %p') as DateUpdated
       																					FROM R_UserRole UR
       																						INNER JOIN R_Role R
       																							ON R.RoleId = UR.RoleId
@@ -176,6 +176,7 @@ class borrower_model extends CI_Model
                                                 , N.NationalityId
                                                 , N.Description as NationalityName
                                                 , C.CivilStatusId
+                                                , B.Birthplace
 
                                                 , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', EMP.MiddleName, ', ', EMP.ExtName) as AddedBy
                                                 , (SELECT E.EmailAddress 
@@ -1296,8 +1297,8 @@ class borrower_model extends CI_Model
                                                 , BCM.StatusId
                                                 , DATE_FORMAT(BCM.Birthdate, '%d %b %Y') as Birthdate
                                                 FROM Borrower_has_Comaker BCM
-                                                  INNER JOIN borrower_has_position POS
-                                                    ON BCM.PositionId = POS.BorrowerPositionId
+                                                  INNER JOIN r_occupation POS
+                                                    ON BCM.PositionId = POS.OccupationId
                                                   WHERE BCM.BorrowerComakerId = $Id
 
       ");
@@ -1329,7 +1330,7 @@ class borrower_model extends CI_Model
       $query_string = $this->db->query("SELECT  CONCAT(S.LastName, ', ', S.FirstName, ' ', S.MiddleName, ', ', S.ExtName) as Name
                                                 , CONCAT('SR-', LPAD(S.SpouseId, 6, 0)) as rowNumber
                                                 , DATE_FORMAT(B.DateOfBirth, '%d %b %Y') as DateOfBirth
-                                                , DATE_FORMAT(B.DateCreated, '%d %b %Y') as DateCreated
+                                                , DATE_FORMAT(B.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
                                                 , BHS.StatusId
                                                 , SX.Name as Sex
                                                 , N.Description as Nationality
@@ -1375,7 +1376,7 @@ class borrower_model extends CI_Model
                                                     ELSE 'Previous Employer'
                                                   END as EmployerStatus
                                                 , DATE_FORMAT(BHE.DateHired, '%d %b %Y') as DateHired
-                                                , DATE_FORMAT(BHE.DateCreated, '%d %b %Y') as DateCreated
+                                                , DATE_FORMAT(BHE.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
                                                 , TenureYear
                                                 , TenureMonth
                                                 , BusinessAddress

@@ -1200,16 +1200,16 @@ class maintenance_model extends CI_Model
     function getBorrowerPosition()
     {
       $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-      $query = $this->db->query("SELECT BorrowerPositionId
+      $query = $this->db->query("SELECT OccupationId
                                         , Name
-                                          FROM borrower_has_position
+                                          FROM R_Occupation
                                             WHERE StatusId = 1
                                             ORDER BY Name ASC
       ");
       $output = '<option selected value="">Select Position</option>';
       foreach ($query->result() as $row)
       {
-        $output .= '<option value="'.$row->BorrowerPositionId.'">'.$row->Name.'</option>';
+        $output .= '<option value="'.$row->OccupationId.'">'.$row->Name.'</option>';
       }
       return $output;
     }
