@@ -1183,13 +1183,14 @@
   		      <div class="row">
   		      	<div class="col-md-2">
                 <?php
-                  if($detail['FileName'] == null)
+                  $ProfilePic = $this->loanapplication_model->getProfilePicture($detail["BorrowerId"]);
+                  if($ProfilePic['FileName'] == null)
                   {
                     echo '<img src="'.base_url().'/borrowerpicture/default.gif" class="profile-user-img img-responsive img-circle" alt="User Image" style="width: 100px">';
                   }
                   else
                   {
-                    echo '<img class="profile-user-img img-responsive img-circle" src="'.base_url().'/borrowerpicture/'. $detail["FileName"].'" class="user-image" alt="User Image">';
+                    echo '<img class="profile-user-img img-responsive img-circle" src="'.base_url().'/borrowerpicture/'. $ProfilePic["FileName"].'" class="user-image" alt="User Image">';
                   }
                 ?>
   		          <center><a target="_blank" href="<?php echo base_url() ?>/home/borrowerdetails/<?php print_r($detail['BorrowerId']) ?>">View</a></center>
@@ -1463,7 +1464,7 @@
                         {
                           $rowNumber = $rowNumber + 1;
                           echo "<tr>";
-                          echo "<td>".$rowNumber."</td>";
+                          echo "<td>".sprintf('%06d', $rowNumber)."</td>";
                           echo "<td>".$value['Description']."</td>";
                           echo "<td>".$value['Remarks']."</td>";
                           if($value['FileName'] != '')
@@ -2127,7 +2128,7 @@
   <div class="pull-right hidden-xs">
     <b>Version</b> 1.0.0
   </div>
-  <strong>Copyright &copy; 2020 <a href="https://adminlte.io">GIA Tech.</a>.</strong> All rights
+  <strong>Copyright &copy; 2020 <a href="#">GIA Tech.</a>.</strong> All rights
   reserved.
 </footer>
 

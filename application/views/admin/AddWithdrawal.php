@@ -14,6 +14,89 @@
   </section>
 
 
+
+  <div class="modal fade" id="modalFilter">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Filter</h4>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Status</label>
+                <select class="form-control" id="Status" required="">
+                  <option value="1">Active</option>
+                  <option value="0">Deactivated</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Deposit Type</label>
+                <select class="form-control select2" style="width: 100%" id="selectDepositType" required="">
+                  <?php 
+                    echo $DepositType;
+                  ?>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Created By</label>
+                <select class="form-control select2" style="width: 100%" id="selectCreatedBy" required="">
+                  <?php 
+                    echo $CreatedBy;
+                  ?>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Deposit Range From</label>
+                <input type="number" min="0" value="0" class="form-control" id="txtDepositFrom" required="">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Deposit Range To</label>
+                <input type="number" min="0" value="0" class="form-control" id="txtDepositTo" required="">
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Date of Deposit From</label>
+                <select class="form-control select2" style="width: 100%" id="dateDepositFrom" required="">
+                  <?php 
+                    echo $DepositDate;
+                  ?>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Date of Deposit To</label>
+                <select class="form-control select2" style="width: 100%" id="dateDepositTo" required="">
+                  <?php 
+                    echo $DepositDate;
+                  ?>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <a onclick="filterPage()" class="btn btn-primary">Submit</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="modal fade" id="modalNewWithdrawal">
     <div class="modal-dialog modal-md">
       <div class="modal-content">
@@ -76,14 +159,17 @@
         <h3 class="box-title">List of Deposits</h3>
       </div>
       <div class="box-body">
-        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewWithdrawal">Add Deposit</button>
+        <div class="pull-right">
+          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalNewWithdrawal">Add Deposit</button>
+          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalFilter">Filter</button>
+        </div>
         <br>
         <br>
         <form name="ApproverDocForm" method="post" id="ApproverDocForm">
           <table id="example1" class="table table-bordered table-hover">
             <thead>
             <tr>
-              <th>#</th>
+              <th>Reference No</th>
               <th>Deposit Type</th>
               <th>Amount</th>
               <th>Date of Deposit</th>
@@ -106,7 +192,7 @@
   <div class="pull-right hidden-xs">
     <b>Version</b> 1.0.0
   </div>
-  <strong>Copyright &copy; 2020 <a href="https://adminlte.io">GIA Tech.</a>.</strong> All rights
+  <strong>Copyright &copy; 2020 <a href="#">GIA Tech.</a>.</strong> All rights
   reserved.
 </footer>
 
@@ -126,6 +212,12 @@
       buttonsStyling: false,
       confirmButtonClass: 'btn btn-primary'
     });
+  }
+
+  function filterPage(){
+    var url = '<?php echo base_url()."datatables_controller/Withdrawals/"; ?>' + $('#Status').val() + '/' + $('#selectDepositType').val() + '/' + $('#selectCreatedBy').val() + '/' + $('#txtDepositFrom').val() + '/' + $('#txtDepositTo').val() + '/' + $('#dateDepositFrom').val() + '/' + $('#dateDepositTo').val();
+    UserTable.ajax.url(url).load();
+    $('#modalFilter').modal('hide');
   }
   
   function confirm(Text, WithdrawalId, updateType)
@@ -221,6 +313,7 @@
   }
 
   $(function () {
+    $('.select2').select2();
     UserTable = $('#example1').DataTable({
       "pageLength": 10,
       "ajax": { url: '<?php echo base_url()."/datatables_controller/Withdrawals/"; ?>', type: 'POST', "dataSrc": "" },

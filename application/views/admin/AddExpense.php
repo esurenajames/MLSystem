@@ -70,33 +70,116 @@
     <!-- /.modal-dialog -->
   </div>
 
+  <div class="modal fade" id="modalFilter">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Filter</h4>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Status</label>
+                <select class="form-control" id="Status" required="">
+                  <option value="1">Active</option>
+                  <option value="0">Deactivated</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Expense Type</label>
+                <select class="form-control select2" style="width: 100%" id="selectExpenseType" required="">
+                  <?php 
+                    echo $ExpenseType;
+                  ?>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Created By</label>
+                <select class="form-control select2" style="width: 100%" id="selectCreatedBy" required="">
+                  <?php 
+                    echo $CreatedBy;
+                  ?>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Expense Range From</label>
+                <input type="number" min="0" value="0" class="form-control" id="txtExpenseFrom" required="">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Expense Range To</label>
+                <input type="number" min="0" value="0" class="form-control" id="txtExpenseTo" required="">
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Date of Expense From</label>
+                <select class="form-control select2" style="width: 100%" id="dateExpenseFrom" required="">
+                  <?php 
+                    echo $ExpenseDate;
+                  ?>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Date of Expense To</label>
+                <select class="form-control select2" style="width: 100%" id="dateExpenseTo" required="">
+                  <?php 
+                    echo $ExpenseDate;
+                  ?>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <a onclick="filterPage()" class="btn btn-primary">Submit</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <section class="content">
     <div class="box">
       <div class="box-header with-border">
         <h3 class="box-title">List of Expenses</h3>
       </div>
       <div class="box-body">
-        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewExpense">Add Expense</button>
+        <div class="pull-right">
+          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalNewExpense">Add Record</button>
+          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalFilter">Filter</button>
+        </div>
         <br>
         <br>
-        <form name="ApproverDocForm" method="post" id="ApproverDocForm">
-          <table id="example1" class="table table-bordered table-hover">
-            <thead>
-            <tr>
-              <th>#</th>
-              <th>Expense Type</th>
-              <th>Amount</th>
-              <th>Date of Expense</th>
-              <th>Date Creation</th>
-              <th>Created By</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            </tbody>
-          </table>
-        </form>
+        <table id="example1" class="table table-bordered table-hover">
+          <thead>
+          <tr>
+            <th>Reference No</th>
+            <th>Expense Type</th>
+            <th>Amount</th>
+            <th>Date of Expense</th>
+            <th>Date Creation</th>
+            <th>Created By</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
       </div>
     </div>
   </section>
@@ -108,7 +191,7 @@
   <div class="pull-right hidden-xs">
     <b>Version</b> 1.0.0
   </div>
-  <strong>Copyright &copy; 2020 <a href="https://adminlte.io">GIA Tech.</a>.</strong> All rights
+  <strong>Copyright &copy; 2020 <a href="#">GIA Tech.</a>.</strong> All rights
   reserved.
 </footer>
 
@@ -220,7 +303,14 @@
     UserTable.ajax.url(url).load();
   }
 
+  function filterPage(){
+    var url = '<?php echo base_url()."datatables_controller/Expenses/"; ?>' + $('#Status').val() + '/' + $('#selectExpenseType').val() + '/' + $('#selectCreatedBy').val() + '/' + $('#txtExpenseFrom').val() + '/' + $('#txtExpenseTo').val() + '/' + $('#dateExpenseFrom').val() + '/' + $('#dateExpenseTo').val();
+    UserTable.ajax.url(url).load();
+    $('#modalFilter').modal('hide');
+  }
+
   $(function () {
+    $('.select2').select2();
     UserTable = $('#example1').DataTable({
       "pageLength": 10,
       "ajax": { url: '<?php echo base_url()."/datatables_controller/Expenses/"; ?>', type: 'POST', "dataSrc": "" },
@@ -287,11 +377,13 @@
 
 
     $('#DateExpense').daterangepicker({
-        "startDate": moment().format('DD MMM YY hh:mm A'),
+        "startDate": moment().format('DD MMM YY'),
+        "minDate": moment().format('DD MMM YY'),
         "singleDatePicker": true,
         "timePicker": false,
         "linkedCalendars": false,
         "showCustomRangeLabel": false,
+        "showDropdowns": true,
         // "maxDate": Start,
         "opens": "up",
         "locale": {

@@ -20,7 +20,7 @@
             <span aria-hidden="true">&times;</span></button>
           <h4 class="modal-title">Asset Details</h4>
         </div>
-        <form action="<?php echo base_url(); ?>admin_controller/AddAssetManagement/" id="frmInsert2" method="post">
+        <form action="<?php echo base_url(); ?>admin_controller/AddAssetManagement/" class="modalReset"  id="frmInsert2" method="post">
           <div class="modal-body">
               <div class="row">
                 <div class="col-md-6">
@@ -132,7 +132,7 @@
             <span aria-hidden="true">&times;</span></button>
           <h4 class="modal-title" id="modalStockTitle"></h4>
         </div>
-        <form action="<?php echo base_url(); ?>admin_controller/AddAssetManagement/" id="frmInsert2" method="post">
+        <form action="<?php echo base_url(); ?>admin_controller/AddAssetManagement/" id="frmInsert2" class="modalReset" method="post">
           <div class="modal-body">
             <div class="row">
               <div class="col-md-6">
@@ -164,13 +164,68 @@
 
     <!-- Main content -->
     <section class="content">
+
+    <div class="modal fade" id="modalFilter">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Filter</h4>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>Status</label>
+                  <select class="form-control" id="selectStatus" required="">
+                    <option value="2">Active</option>
+                    <option value="6">Deactivated</option>
+                    <option value="3">Critical</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>Asset Category</label>
+                  <select class="form-control" id="selectAssetCategory" required="">
+                    <?php 
+                      echo $Category;
+                    ?>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Purchase Range From</label>
+                  <input type="number" class="form-control" min="0" id="txtPurchaseRangeFrom">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Purchase Range To</label>
+                  <input type="number" class="form-control" min="0" id="txtPurchaseRangeTo">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <a onclick="filterPage()" class="btn btn-primary">Submit</a>
+          </div>
+        </div>
+      </div>
+    </div>
       <div class="box">
         <div class="box-header with-border">
           <h3 class="box-title">List of Assets</h3>
         </div>
         <div class="box-body">
           <div class="col-md-12">
-            <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewTangible">Add Asset</button>
+            <div class="pull-right">
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalNewTangible">Add Record</button> 
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalFilter">Filter</button>
+            </div>
             <br>
             <br>
             <table id="example1" class="table table-bordered table-hover" width="100%">
@@ -204,7 +259,7 @@
   <div class="pull-right hidden-xs">
     <b>Version</b> 1.0.0
   </div>
-  <strong>Copyright &copy; 2020 <a href="https://adminlte.io">GIA Tech.</a>.</strong> All rights
+  <strong>Copyright &copy; 2020 <a href="#">GIA Tech.</a>.</strong> All rights
   reserved.
 </footer>
 
@@ -327,6 +382,12 @@
     UserTable.ajax.url(url).load();
   }
 
+  function filterPage(){
+    var url = '<?php echo base_url()."datatables_controller/Assets/"; ?>' + $('#selectStatus').val() + '/' + $('#selectAssetCategory').val() + '/' + $('#txtPurchaseRangeFrom').val() + '/' + $('#txtPurchaseRangeTo').val();
+    UserTable.ajax.url(url).load();
+    $('#modalFilter').modal('hide');
+  }
+
   function stockType(currentStock, stockType, assetId)
   {
     if(stockType == 1)
@@ -394,8 +455,8 @@
                     , { data: "BranchName" }
                     , { data: "Stock" }
                     , {
-                      data: "StatusId", "render": function (data, type, row) {
-                        if(row.CriticalLevel >= row.currentStock)
+                      data: "StocksLevel", "render": function (data, type, row) {
+                        if(row.StocksLevel == 'Critical')
                         {
                           return "<span class='badge bg-orange'>Critical</span>";
                         }

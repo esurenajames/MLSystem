@@ -78,9 +78,9 @@ class LMS extends CI_Controller {
 		{
 
 		}
-		else if($_POST["btnProcess"] == 3) // log out
+		else /*if($_POST["btnProcess"] == 3)*/ // log out
 		{
-			if($this->session->userdata('EmployeeNumber') === '')
+			if($this->session->userdata('EmployeeNumber') === '' || !empty($this->session->userdata('EmployeeNumber')))
 			{
 	     	$this->session->set_flashdata('error','Session expired.'); 
 	   		redirect(site_url());

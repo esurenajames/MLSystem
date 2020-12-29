@@ -888,6 +888,23 @@
     }, function(start, end, label){
     });
 
+    $('#dtpSpouseDateHired').daterangepicker({
+        "startDate": moment().format('DD MMM YY'),
+        "singleDatePicker": true,
+        "showDropdowns": true,
+        "timePicker": false,
+        "linkedCalendars": false,
+        "showCustomRangeLabel": false,
+        "showCustomRangeLabel": false,
+        // "maxDate": Start,
+        "opens": "up",
+        "locale": {
+            format: 'DD MMM YYYY',
+        },
+    }, function(start, end, label){
+    });
+
+
     $('#dtpDateHired').daterangepicker({
       "startDate": moment().format('DD MMM YY'),
       "singleDatePicker": true,
@@ -933,6 +950,8 @@
     $('#example2').DataTable();
 
     $('#example3').DataTable();
+
+    $('#example4').DataTable();
     $('#example10').DataTable({
       "pageLength": 10,
       "aoColumnDefs": [{ "bVisible": false, "aTargets": [7] }],

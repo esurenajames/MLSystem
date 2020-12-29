@@ -144,10 +144,17 @@ class maintenance_model extends CI_Model
 
     function getTotalInterestCollected()
     {
-      $query_string = $this->db->query("SELECT DISTINCT COALESCE(SUM(DISTINCT PM.Amount), 0) as Total
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT DISTINCT COALESCE(SUM(DISTINCT PM.InterestAmount), 0) as Total
                                                 FROM t_paymentsmade PM
+                                                  INNER JOIN t_application A
+                                                    ON A.ApplicationId = PM.ApplicationId
+                                                  INNER JOIN R_Borrowers B
+                                                    ON B.BorrowerId = A.BorrowerId
                                                     WHERE PM.IsInterest = 1
-                                                    AND DATE_FORMAT(DateCreated, '%Y-%m-%d')  = DATE_FORMAT(NOW(), '%Y-%m-%d')
+                                                    AND B.BranchId = $AssignedBranchId
+                                                    AND PM.StatusId = 1
+                                                    AND DATE_FORMAT(PM.DateCreated, '%Y-%m-%d')  = DATE_FORMAT(NOW(), '%Y-%m-%d')
       ");
       $data = $query_string->row_array();
       return $data;
@@ -460,8 +467,35 @@ class maintenance_model extends CI_Model
       return $data;
     }
 
-    function getAllAssets()
+    function getAllAssets($Status, $AssetCategory, $PurchaseRangeFrom, $PurchaseRangeTo)
     {
+      $search = '';
+      if($PurchaseRangeFrom != '' && $PurchaseRangeTo != '')
+      {
+        $search .= " AND PurchaseValue BETWEEN '".$PurchaseRangeFrom."' AND '".$PurchaseRangeTo."'";
+      }
+      if($Status != '')
+      {
+        if($Status == 3)
+        {
+          $search .= "  AND CASE
+                            WHEN AM.StatusId = 2 AND AM.Stock - 1 >= AM.CriticalLevel
+                            THEN 'Active'
+                            WHEN AM.Stock <= AM.CriticalLevel
+                            THEN 'Critical'
+                            ELSE 'Deactivated'
+                            END = 'Critical'";
+        }
+        else
+        {
+          $search .= " AND AM.StatusId = " . $Status;
+        }
+      }
+      if($AssetCategory != '')
+      {
+        $search .= " AND AM.CategoryId = " . $AssetCategory;
+      }
+      $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT FORMAT(PurchaseValue, 2) PurchaseValue 
                                                 , AssetManagementId
                                                 , ReplacementValue
@@ -473,6 +507,13 @@ class maintenance_model extends CI_Model
                                                     ELSE 'Intangible'
                                                   END as Type
                                                 , AM.Description
+                                                , CASE
+                                                  WHEN AM.StatusId = 2 AND AM.Stock - 1 >= AM.CriticalLevel
+                                                  THEN 'Active'
+                                                  WHEN AM.Stock <= AM.CriticalLevel
+                                                  THEN 'Critical'
+                                                  ELSE 'Deactivated'
+                                                  END as StocksLevel
                                                 , CONCAT (FORMAT(AM.Stock, 0), '/' , FORMAT(AM.CriticalLevel, 0)) as Stock
                                                 , AM.Stock as currentStock
                                                 , AM.Name as AssetName
@@ -492,6 +533,8 @@ class maintenance_model extends CI_Model
                                                   ON C.CategoryId = AM.CategoryId
                                                     INNER JOIN R_Branches BRNCH
                                                       ON BRNCH.BranchId = AM.BranchId
+                                                      WHERE BRNCH.BranchId = $AssignedBranchId
+                                                      ".$search."
       ");
       $data = $query_string->result_array();
       return $data;
@@ -593,8 +636,30 @@ class maintenance_model extends CI_Model
       return $data;
     }
 
-    function getAllExpenses()
+    function getAllExpenses($Status, $ExpenseType, $CreatedBy, $ExpenseFrom, $ExpenseTo, $dateExpenseFrom, $dateExpenseTo)
     {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $search = '';
+      if($dateExpenseFrom != '' && $dateExpenseTo != '')
+      {
+        $search .= " AND DATE_FORMAT(EX.DateExpense, '%b-%d-%Y') BETWEEN '".$dateExpenseFrom."' AND '".$dateExpenseTo."'";
+      }
+      if($Status != '')
+      {
+        $search .= " AND EX.StatusId = " . $Status;
+      }
+      if($ExpenseType != '')
+      {
+        $search .= " AND EX.ExpenseTypeId = " . $ExpenseType;
+      }
+      if($CreatedBy != '')
+      {
+        $search .= " AND EX.CreatedBy = " . $CreatedBy;
+      }
+      if($ExpenseFrom != '' && $ExpenseTo != '')
+      {
+        $search .= " AND EX.Amount BETWEEN '".$ExpenseFrom."' AND '".$ExpenseTo."'";
+      }
       $query_string = $this->db->query("SELECT ET.Name as Expense
                                                 , CONCAT('EXP-', LPAD(EX.ExpenseId, 6, 0)) as ReferenceNo
                                                 , EX.ExpenseTypeId
@@ -605,12 +670,14 @@ class maintenance_model extends CI_Model
                                                 , EX.DateExpense
                                                 , DATE_FORMAT(EX.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                                 , DATE_FORMAT(EX.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
-                                                , DATE_FORMAT(EX.DateExpense, '%b %d, %Y %h:%i %p') as DateExpense
+                                                , DATE_FORMAT(EX.DateExpense, '%b %d, %Y') as DateExpense
                                                 FROM R_Expense EX
                                                   INNER JOIN R_ExpenseType ET
                                                     ON ET.ExpenseTypeId = EX.ExpenseTypeId
                                                   INNER JOIN R_Employee EMP
                                                     ON EMP.EmployeeNumber = EX.CreatedBy
+                                                    WHERE EX.BranchId = $AssignedBranchId
+                                                    ".$search."
       ");
       $data = $query_string->result_array();
       return $data;
@@ -634,8 +701,30 @@ class maintenance_model extends CI_Model
       return $data;
     }
 
-    function getAllWithdrawals()
+    function getAllWithdrawals($Status, $DepositType, $CreatedBy, $DepositFrom, $DepositTo, $dateDepositFrom, $dateDepositTo)
     {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $search = '';
+      if($dateDepositFrom != '' && $dateDepositTo != '')
+      {
+        $search .= " AND DATE_FORMAT(W.DateWithdrawal, '%b-%d-%Y') BETWEEN '".$dateDepositFrom."' AND '".$dateDepositTo."'";
+      }
+      if($Status != '')
+      {
+        $search .= " AND W.StatusId = " . $Status;
+      }
+      if($DepositType != '')
+      {
+        $search .= " AND W.WithdrawalTypeId = " . $DepositType;
+      }
+      if($CreatedBy != '')
+      {
+        $search .= " AND W.CreatedBy = " . $CreatedBy;
+      }
+      if($DepositFrom != '' && $DepositTo != '')
+      {
+        $search .= " AND W.Amount BETWEEN '".$DepositFrom."' AND '".$DepositTo."'";
+      }
       $query_string = $this->db->query("SELECT WT.Name as Withdrawal
                                                 , CONCAT('DEP-', LPAD(W.WithdrawalId, 6, 0)) as ReferenceNo
                                                 , W.WithdrawalTypeId
@@ -652,6 +741,8 @@ class maintenance_model extends CI_Model
                                                     ON W.WithdrawalTypeId = WT.WithdrawalTypeId
                                                   INNER JOIN R_Employee EMP
                                                     ON EMP.EmployeeNumber = W.CreatedBy
+                                                    WHERE W.BranchId = $AssignedBranchId
+                                                    ".$search."
       ");
       $data = $query_string->result_array();
       return $data;
@@ -909,10 +1000,97 @@ class maintenance_model extends CI_Model
                                           WHERE StatusId = 1
                                             ORDER BY Name ASC
       ");
-      $output = '<option selected value="">Select Expense Type</option>';
+      $output = '<option selected disabled value="">Select Expense Type</option>';
       foreach ($query->result() as $row)
       {
         $output .= '<option data-city="'.$row->Name.'"  value="'.$row->ExpenseTypeId.'">'.$row->Name.'</option>';
+      }
+      return $output;
+    }
+
+    function getExpenseType2()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT ExpenseTypeId
+                                        , Name
+                                          FROM R_ExpenseType
+                                          WHERE StatusId = 1
+                                            ORDER BY Name ASC
+      ");
+      $output = '';
+      foreach ($query->result() as $row)
+      {
+        $output .= '<option data-city="'.$row->Name.'"  value="'.$row->ExpenseTypeId.'">'.$row->Name.'</option>';
+      }
+      return $output;
+    }
+
+    function getExpenseCreatedBy()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT DISTINCT CONCAT(EMP.LastName, ', ', EMP.FirstName) as Name
+                                        , EMP.EmployeeNumber
+                                        FROM R_Employee EMP
+                                          INNER JOIN R_Expense E
+                                            ON E.CreatedBy = EMP.EmployeeNumber
+      ");
+      $output = '';
+      foreach ($query->result() as $row)
+      {
+        $output .= '<option value="'.$row->EmployeeNumber.'">'.$row->Name.'</option>';
+      }
+      return $output;
+    }
+
+    function getDepositCreatedBy()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT DISTINCT CONCAT(EMP.LastName, ', ', EMP.FirstName) as Name
+                                        , EMP.EmployeeNumber
+                                        FROM R_Employee EMP
+                                          INNER JOIN R_Withdrawal E
+                                            ON E.CreatedBy = EMP.EmployeeNumber
+      ");
+      $output = '';
+      foreach ($query->result() as $row)
+      {
+        $output .= '<option value="'.$row->EmployeeNumber.'">'.$row->Name.'</option>';
+      }
+      return $output;
+    }
+
+    function getExpenseDate()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT DISTINCT DATE_FORMAT(E.DateExpense, '%b %d, %Y') as DateExpense
+                                        , DATE_FORMAT(E.DateExpense, '%b-%d-%Y') as varDate
+                                        FROM R_Employee EMP
+                                          INNER JOIN R_Expense E
+                                            ON E.CreatedBy = EMP.EmployeeNumber
+                                            ORDER BY E.DateExpense
+      ");
+      $output = '';
+      foreach ($query->result() as $row)
+      {
+        $output .= '<option value="'.$row->varDate.'">'.$row->DateExpense.'</option>';
+      }
+      return $output;
+    }
+
+    function getDepositDate()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT DISTINCT DATE_FORMAT(E.DateWithdrawal, '%b %d, %Y') as DateExpense
+                                        , DATE_FORMAT(E.DateWithdrawal, '%b-%d-%Y') as varDate
+                                        FROM R_Employee EMP
+                                          INNER JOIN R_Withdrawal E
+                                            ON E.CreatedBy = EMP.EmployeeNumber
+                                            ORDER BY E.DateWithdrawal
+      ");
+      $output = '';
+      foreach ($query->result() as $row)
+      {
+        $output .= '<option value="'.$row->varDate.'">'.$row->DateExpense.'</option>';
       }
       return $output;
     }
@@ -947,6 +1125,23 @@ class maintenance_model extends CI_Model
       foreach ($query->result() as $row)
       {
         $output .= '<option data-city="'.$row->Name.'"  value="'.$row->WithdrawalTypeId.'">'.$row->Name.'</option>';
+      }
+      return $output;
+    }
+
+    function getWithdrawalType2()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT WithdrawalTypeId
+                                        , Name
+                                          FROM R_WithdrawalType
+                                          WHERE StatusId = 1
+                                            ORDER BY Name ASC
+      ");
+      $output = '';
+      foreach ($query->result() as $row)
+      {
+        $output .= '<option value="'.$row->WithdrawalTypeId.'">'.$row->Name.'</option>';
       }
       return $output;
     }
@@ -1029,7 +1224,7 @@ class maintenance_model extends CI_Model
                                             AND IsApprovable = 0
                                             ORDER BY Name ASC
       ");
-      $output = '<option selected disabled value="">Select Status</option>';
+      $output = '';
       foreach ($query->result() as $row)
       {
         $output .= '<option value="'.$row->BorrowerStatusId.'">'.$row->Name.'</option>';
@@ -1114,7 +1309,8 @@ class maintenance_model extends CI_Model
                                           AND BR.StatusId = 1
                                           AND EMP.StatusId = 2
                                           AND EMP.EmployeeNumber != '000000'
-                                          ORDER BY BR.EmployeeNumber ASC");
+                                          ORDER BY BR.EmployeeNumber ASC
+      ");
       $output = '<option selected value="">Select Employee to Assign Asset</option>';
       foreach ($query->result() as $row)
       {
@@ -1401,10 +1597,10 @@ class maintenance_model extends CI_Model
                                           FROM application_has_status
                                             WHERE StatusId = 1
       ");
-      $output = '<option selected disabled value="">Select Loan Status</option>';
+      $output = '';
       foreach ($query->result() as $row)
       {
-        $output .= '<option data-city="'.$row->Name.'"  value="'.$row->LoanStatusId.'" data-city="'.$row->IsApprovable.'">'.$row->Name.'</option>';
+        $output .= '<option  value="'.$row->LoanStatusId.'"">'.$row->Name.'</option>';
       }
       return $output;
     }
@@ -1448,9 +1644,19 @@ class maintenance_model extends CI_Model
         $data = $query_string->result_array();
         return $data;
       }
+      function getMonthFilter($table)
+      {
+        $query_string = $this->db->query("SELECT  DISTINCT DATE_FORMAT(DateCreated, '%M') as Month
+                                                  FROM $table
+                                                    WHERE StatusId != 0
+                                                    GROUP BY DATE_FORMAT(DateCreated, '%M')
+        ");
+        $data = $query_string->result_array();
+        return $data;
+      }
 
     /*AGE*/
-    function getAge()
+    function getAge($Year)
     {
       $query_string = $this->db->query("SELECT  DISTINCT CASE
                                                   WHEN YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 18 AND 24
@@ -1467,9 +1673,12 @@ class maintenance_model extends CI_Model
                                                     THEN '56-65 years old'
                                                   WHEN YEAR(CURDATE()) - YEAR(DateOfBirth) > 65
                                                     THEN 'Above 65 years old'
+                                                  WHEN YEAR(CURDATE()) - YEAR(DateOfBirth) < 18
+                                                    THEN 'Below 18'
                                                 END as AgeBracket
                                                 , COUNT(YEAR(CURDATE()) - YEAR(DateOfBirth)) as TotalAge
                                                     FROM r_borrowers
+                                                      WHERE DATE_FORMAT(DateCreated, '%Y') = '$Year'
                                                       GROUP BY AgeBracket
       ");
       $data = $query_string->result_array();
@@ -1745,5 +1954,75 @@ class maintenance_model extends CI_Model
       ");
       $data = $query_string->result_array();
       return $data;
+    }
+
+    // MONTHLY REPORT COLLECTION
+    function getMonthlyCollection($Year)
+    {
+      $query_string = $this->db->query("SELECT  COALESCE(SUM(Amount), 0) as Total
+                                                , DATE_FORMAT(DateCreated, '%M') as Month
+                                                FROM t_paymentsmade
+                                                    WHERE DATE_FORMAT(DateCreated, '%Y') = '$Year'
+                                                    AND StatusId = 1
+                                                    AND Amount > 0
+                                                    GROUP BY DATE_FORMAT(DateCreated, '%M')
+                                                    ORDER BY DATE_FORMAT(DateCreated, '%m') ASC
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    // MONTHLY REPORT DISBURSEMENT
+    function getMonthlyDisbursement($Year)
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  COALESCE(SUM(Amount), 0) as Total
+                                                , DATE_FORMAT(AHD.DateCreated, '%M') as Month
+                                                FROM Application_has_Disbursement AHD
+                                                    INNER JOIN t_application A
+                                                      ON A.ApplicationId = AHD.ApplicationId
+                                                    INNER JOIN R_Borrowers B
+                                                      ON B.BorrowerId = A.BorrowerId
+                                                      WHERE B.BranchId = $AssignedBranchId
+                                                      AND DATE_FORMAT(AHD.DateCreated, '%Y') = '$Year'
+                                                      AND AHD.StatusId = 1
+                                                      AND A.StatusId = 1
+                                                      GROUP BY DATE_FORMAT(AHD.DateCreated, '%M')
+                                                      ORDER BY DATE_FORMAT(AHD.DateCreated, '%m') ASC
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    // MONTHLY REPORT INTEREST
+    function getMonthlyInterest($Year)
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT DISTINCT COALESCE(SUM(DISTINCT PM.InterestAmount), 0) as Total
+                                                , DATE_FORMAT(PM.DateCreated, '%M') as Month
+                                                FROM t_paymentsmade PM
+                                                  INNER JOIN t_application A
+                                                    ON A.ApplicationId = PM.ApplicationId
+                                                  INNER JOIN R_Borrowers B
+                                                    ON B.BorrowerId = A.BorrowerId
+                                                    WHERE B.BranchId = $AssignedBranchId
+                                                    AND PM.IsInterest = 1
+                                                    AND DATE_FORMAT(PM.DateCreated, '%Y') = '$Year'
+                                                    AND PM.StatusId = 1
+                                                    GROUP BY DATE_FORMAT(PM.DateCreated, '%M')
+                                                    ORDER BY DATE_FORMAT(PM.DateCreated, '%m') ASC
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getReferenceId($column, $table, $desc, $condition)
+    {
+      $query = $this->db->query("SELECT ".$column." as Id
+                                        FROM ".$table."
+                                        WHERE ".$condition." = LTRIM(RTRIM('".$desc."'))
+      ");
+      $result = $query->row_array();
+      return $result;
     }
 }

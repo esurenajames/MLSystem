@@ -27,6 +27,9 @@ class borrower_controller extends CI_Controller {
 		$this->load->model('admin_model');
     $this->load->model('borrower_model');
     $this->load->library('Pdf');
+    $this->load->library('session');
+    $this->load->library('excel');
+    $this->load->helper('url');
 
    	if(empty($this->session->userdata("EmployeeNumber")) || $this->session->userdata("logged_in") == 0)
    	{
@@ -317,9 +320,10 @@ class borrower_controller extends CI_Controller {
           }
 
         // admin audits
-          $auditLogsManager = 'Added '.$generatedBorrowerNumber.' in borrower list';
-          $auditAffectedEmployee = 'Added in Borrowers list.';
-          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
+          $auditLogsManager = 'Added new borrower #'.$generatedBorrowerNumber.' in borrower module.';
+          $auditAffectedEmployee = 'Added new borrower #'.$generatedBorrowerNumber.' in borrower module.';
+          $auditAffectedTable = 'Added in borrower list.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $BorrowerId['BorrowerId'], 'borrower_has_notifications', 'BorrowerId');
 
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
@@ -1709,6 +1713,16 @@ class borrower_controller extends CI_Controller {
     echo json_encode($result);
   }
 
+  function filterBorrower()
+  {
+    $result = $this->borrower_model->filterBorrower($this->uri->segment(3));
+    foreach($result as $key=>$row)
+    {
+      $result[$key]['TotalLoans'] = $this->borrower_model->getTotalLoans($row['BorrowerId']);
+    }
+    echo json_encode($result);
+  }
+
 
   function getBorrowerDetails()
   {
@@ -1874,6 +1888,116 @@ class borrower_controller extends CI_Controller {
     );
     $auditLoanApplicationTable = $independentTable;
     $this->maintenance_model->insertFunction($insertApplicationLog, $auditLoanApplicationTable);
+  }
+
+  public function uploadForm3Excel()
+  {
+    if(isset($_FILES["form3UploadExcel"]["name"]))
+    {
+      $path = $_FILES["form3UploadExcel"]["tmp_name"];
+      $obj = PHPExcel_IOFactory::load($path);
+
+      $EmployeeData = array();
+      $consolidatedDamagedItem = array();
+
+      $dateCreated = date('Y-m-d H:i:s');
+      $createdBy = $this->session->userdata('EmployeeNumber');
+
+      $execution_time_limit = 300;
+      set_time_limit($execution_time_limit);
+
+      $highestRow = 0;
+
+      foreach($obj->getWorksheetIterator() as $worksheet)
+      {
+        $sheetName = $worksheet->getTitle();
+        $highestRow = $worksheet->getHighestDataRow();
+        $highestCol = $worksheet->getHighestDataColumn();
+
+        $title = $worksheet->getCellByColumnAndRow(0, 1)->getValue(); // CELL A1
+        $rowCount = 0;
+
+        if($sheetName == 'DATA')
+        {
+          for($row = 2; $row <= $highestRow; $row++)
+          {
+            $Salutation = $worksheet->getCellByColumnandRow(0, $row)->getValue();
+            $LastName = $worksheet->getCellByColumnandRow(1, $row)->getValue();
+            $FirstName = $worksheet->getCellByColumnandRow(2, $row)->getValue();
+            $ExtName = $worksheet->getCellByColumnandRow(3, $row)->getValue();
+            $MiddleName = $worksheet->getCellByColumnandRow(4, $row)->getValue();
+            $MotherName = $worksheet->getCellByColumnandRow(5, $row)->getValue();
+            $Gender = $worksheet->getCellByColumnandRow(6, $row)->getValue();
+            $Nationality = $worksheet->getCellByColumnandRow(7, $row)->getValue();
+            $CivilStatus = $worksheet->getCellByColumnandRow(8, $row)->getValue();
+            $DOB = $worksheet->getCellByColumnandRow(9, $row)->getValue();
+            $Dependents = $worksheet->getCellByColumnandRow(10, $row)->getValue();
+            $Branch = $worksheet->getCellByColumnandRow(11, $row)->getValue();
+
+            $SalutationId = $this->maintenance_model->getReferenceId('SalutationId', 'R_Salutation', $Salutation, 'Name');
+            $GenderId = $this->maintenance_model->getReferenceId('SexId', 'r_sex', $Gender, 'Name');
+            $CivilStatusId = $this->maintenance_model->getReferenceId('CivilStatusId', 'r_civilstatus', $CivilStatus, 'Name');
+            $NationalityId = $this->maintenance_model->getReferenceId('NationalityId', 'r_nationality', $Nationality, 'Description');
+            $BranchId = $this->maintenance_model->getReferenceId('BranchId', 'r_branches', $Branch, 'Name');
+            $branchCode = $this->maintenance_model->selectSpecific('r_branches', 'BranchId', $BranchId['Id']);
+
+            $time = strtotime($DOB);
+            $DateOfB = date('Y-m-d', $time);
+              // employee
+                $data = array(
+                  'Salutation'    => $SalutationId['Id'],
+                  'LastName'      => $LastName,
+                  'FirstName'     => $FirstName,
+                  'ExtName'       => $ExtName,
+                  'MiddleName'    => $MiddleName,
+                  'Sex'           => $GenderId['Id'],
+                  'Nationality'   => $NationalityId['Id'],
+                  'CivilStatus'   => $CivilStatusId['Id'],
+                  'DateOfBirth'   => $DateOfB,
+                  'StatusId'      => 1,
+                  'DateCreated'   => $dateCreated,
+                  'CreatedBy'     => $createdBy,
+                  'BranchId'      => $BranchId['Id'],
+                  'Dependents'    => $Dependents,
+                  'MotherName'    => $MotherName
+                );
+                $table = 'R_Borrowers';
+                $this->maintenance_model->insertFunction($data, $table);
+              // get employee generated id
+                $auditData1 = array(
+                  'table'                 => 'R_Borrowers'
+                  , 'column'              => 'BorrowerId'
+                );
+                $BorrowerId = $this->maintenance_model->getGeneratedId($auditData1);
+                $BorrowerNumber = $branchCode['Code'] . '-' . sprintf('%06d', $BorrowerId['BorrowerId']);
+              // update employee numbers
+                $set = array( 
+                  'BorrowerNumber' => $BorrowerNumber
+                );
+
+                $condition = array( 
+                  'BorrowerId' => $BorrowerId['BorrowerId']
+                );
+                $table = 'R_Borrowers';
+                $this->maintenance_model->updateFunction1($set, $condition, $table);
+
+              // admin audits finalss
+                $auditLogsManager = 'Added borrower #'.$BorrowerNumber . ' to borrower list.';
+                $auditAffectedEmployee = 'Added borrower #'.$BorrowerNumber . ' to borrower list.';
+                $auditAffectedTable = 'Added to borrower list.';
+                $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $createdBy, $auditAffectedTable, $BorrowerId['BorrowerId'], 'borrower_has_notifications', 'BorrowerId');
+              $rowCount = $rowCount + 1;
+          } // END FOR LOOP
+
+          echo "Employee Records successfully saved! " . $rowCount . " records inserted.";
+        }
+
+      } // END FOREACH
+    }
+    else
+    {
+      echo "File not set";
+    }
   }
 
 }

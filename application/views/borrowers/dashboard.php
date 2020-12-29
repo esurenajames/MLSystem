@@ -117,16 +117,16 @@
                   </div>
                   <div class="col-md-4">
                     <div class="form-group">
-                        <div class="form-group">
-                          <label>Date of Birth <span class="text-red">*</span></label>
-                          <div class="input-group date">
-                            <div class="input-group-addon">
-                              <i class="fa fa-calendar"></i>
-                            </div>
-                            <input type="text" class="form-control" name="DOB" required="" id="datepicker">
+                      <div class="form-group">
+                        <label>Date of Birth <span class="text-red">*</span></label>
+                        <div class="input-group date">
+                          <div class="input-group-addon">
+                            <i class="fa fa-calendar"></i>
                           </div>
-                          <!-- /.input group -->
+                          <input type="text" class="form-control" name="DOB" required="" id="datepicker">
                         </div>
+                        <!-- /.input group -->
+                      </div>
                     </div>
                   </div>
                   <div class="col-md-4">
@@ -300,31 +300,33 @@
               <span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title">Import Borrower</h4>
           </div>
-            <div class="modal-body">
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="txtHouseNo">Excel Attachment <span class="text-red">*</span></label>
-                    <input type="file" name="Attachment[]" required="" id="Attachment" accept=".xlsx, .xls, .doc, .docx, .pdf, .jpeg, .jpg, .png">
+            <form role="form" id="upload_form3" method="post" enctype="multipart/form-data">
+              <div class="modal-body">
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="txtHouseNo">Excel Attachment <span class="text-red">*</span></label>
+                      <input type="file" id="form3UploadExcel" name="form3UploadExcel" accept=".xls, .xlsx" required>
+                    </div>
                   </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>Download Format <span class="text-red">*</span></label><br>
-                    <a class="btn btn-sm btn-success" href="<?php echo base_url();?>/borrowerUpload/borrowerUpload.xls" title="Download">Download</a>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>Download Format <span class="text-red">*</span></label><br>
+                      <a class="btn btn-sm btn-success" href="<?php echo base_url();?>/employeeUpload/BorrowerUpload.xlsx" title="Download">Download</a>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-primary">Submit</button>
-            </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Submit</button>
+              </div>
+            </form>
         </div>
       </div>
     </div>
 
-    <div class="modal fade" id="modalReport">
+    <!-- <div class="modal fade" id="modalReport">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
@@ -403,6 +405,49 @@
           </form>
         </div>
       </div>
+    </div> -->
+
+    <div class="modal fade" id="modalFilter">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Filter Borrowers</h4>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <!-- <div class="col-md-12">
+                <div class="form-group">
+                  <div class="form-group">
+                    <label>Date Created <span class="text-red">*</span></label>
+                    <div class="input-group date">
+                      <div class="input-group-addon">
+                        <i class="fa fa-calendar"></i>
+                      </div>
+                      <input type="text" class="form-control" name="DateCreated" required="" id="dateCreated">
+                    </div>
+                  </div>
+                </div>
+              </div> -->
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>Status</label>
+                  <select class="form-control" id="borrowerStatus" required="">
+                    <?php 
+                      echo $Status;
+                    ?>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <a onclick="filterPage()" class="btn btn-primary">Submit</a>
+          </div>
+        </div>
+      </div>
     </div>
 
     <section class="content">
@@ -412,9 +457,10 @@
         </div>
         <div class="box-body">
           <div class="pull-right">
-            <a href="<?php echo base_url(); ?>loanapplication_controller/generateReport/4" class="btn btn-primary btn-md" >Generate Report</a>
+            <!-- <a href="<?php echo base_url(); ?>loanapplication_controller/generateReport/4" class="btn btn-primary btn-md" >Generate Report</a> -->
             <button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#modalNewRecord">Add Borrower</button>
             <button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#modalImport2">Import Borrower</button>
+            <a data-toggle="modal" data-target="#modalFilter" class="btn btn-primary btn-md" >Filter</a>
           </div>
           <br>
           <br>
@@ -456,7 +502,7 @@
   <div class="pull-right hidden-xs">
     <b>Version</b> 1.0.0
   </div>
-  <strong>Copyright &copy; 2020 <a href="https://adminlte.io">GIA Tech.</a>.</strong> All rights
+  <strong>Copyright &copy; 2020 <a href="#">GIA Tech.</a>.</strong> All rights
   reserved.
 </footer>
 
@@ -541,22 +587,89 @@
     UserTable.ajax.url(url).load();
   }
 
+  function filterPage(){
+    var url = '<?php echo base_url()."borrower_controller/filterBorrower/"; ?>' + $('#borrowerStatus').val();
+    UserTable.ajax.url(url).load();
+    $('#modalFilter').modal('hide');
+  }
+
   $('#datepicker').daterangepicker({
-        "startDate": moment().format('DD MMM YY hh:mm A'),
-        "singleDatePicker": true,
-        "showDropdowns": true,
-        "timePicker": false,
-        "linkedCalendars": false,
-        "showCustomRangeLabel": false,
-        // "maxDate": Start,
-        "opens": "up",
-        "locale": {
-            format: 'DD MMM YYYY',
-        },
-    }, function(start, end, label){
-    });
+    "startDate": moment().format('DD MMM YY hh:mm A'),
+    "singleDatePicker": true,
+    "showDropdowns": true,
+    "timePicker": false,
+    "linkedCalendars": false,
+    "showCustomRangeLabel": false,
+    // "maxDate": Start,
+    "opens": "up",
+    "locale": {
+        format: 'DD MMM YYYY',
+    },
+  }, function(start, end, label){
+  });
 
+  $('#dateCreated').daterangepicker({
+    "startDate": moment().format('DD MMM YY'),
+    "maxDate": moment().format('DD MMM YY'),
+    "singleDatePicker": true,
+    "showDropdowns": true,
+    "timePicker": false,
+    "linkedCalendars": false,
+    "showCustomRangeLabel": false,
+    // "maxDate": Start,
+    "opens": "up",
+    "locale": {
+        format: 'DD MMM YYYY',
+    },
+  }, function(start, end, label){
+  });
 
+  $('#upload_form3').on('submit', function(event){
+    event.preventDefault();
+    $.ajax({
+      url: "<?php echo base_url(); ?>borrower_controller/uploadForm3Excel",
+      method: "POST",
+      data: new FormData(this),
+      contentType: false,
+      cache: false,
+      processData: false,
+      success: function(data){
+        if(data != "Error inserting to Consolidated Damaged Item" || data != "File not set")
+        {
+          swal({
+            title: 'Success!',
+            text: data,
+            type: 'success',
+            buttonsStyling: false,
+            confirmButtonClass: 'btn btn-primary'
+          });
+          $('#upload_form3').each(function(){
+            this.reset();
+          });
+          location.reload();
+        }
+        else
+        {
+          swal({
+            title: 'Error!',
+            text: 'Unable to import data.',
+            type: 'error',
+            buttonsStyling: false,
+            confirmButtonClass: 'btn btn-primary'
+          });
+        }
+      },
+      error: function(data){
+        swal({
+          title: 'Error!',
+          text: 'Unable to import data. Please make sure all required fields are filled out or uploading file is valid.',
+          type: 'error',
+          buttonsStyling: false,
+          confirmButtonClass: 'btn btn-primary'
+        });
+      }
+    }); // AJAX END
+  });
 
   UserTable = $('#example1').DataTable({
       "pageLength": 10,

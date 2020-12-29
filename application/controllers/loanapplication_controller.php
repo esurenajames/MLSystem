@@ -442,7 +442,7 @@ class loanapplication_controller extends CI_Controller {
       $this->session->set_flashdata('alertText','Successfully submitted loan application!'); 
       $this->session->set_flashdata('alertType','success'); 
     
-    // redirect('home/loandetail/' . $generatedId['ApplicationId']);
+    redirect('home/loandetail/' . $generatedId['ApplicationId']);
   }
 
   function restructureLoan()
@@ -2772,58 +2772,57 @@ class loanapplication_controller extends CI_Controller {
         ';
             foreach($_POST['columnNames'] as $column) 
             {
-                if($column == 'Loan Date')
-                {
-                  $html .= '<th><strong>'.$column.'</strong></th>';
-                }
-                if($column == 'Application No.')
-                {
-                  $html .= '<th><strong>'.$column.'</strong></th>';
-                }
-                if($column == 'Borrower Name')
-                {
-                  $html .= '<th><strong>'.$column.'</strong></th>';
-                }
-                if($column == 'Principal Per Collection')
-                {
-                  $html .= '<th><strong>'.$column.'</strong></th>';
-                }
-                if($column == 'Interest Per Collection')
-                {
-                  $html .= '<th><strong>'.$column.'</strong></th>';
-                }
-                if($column == 'Other Collections')
-                {
-                  $html .= '<th><strong>'.$column.'</strong></th>';
-                }
-                if($column == 'Repayment Date')
-                {
-                  $html .= '<th><strong>'.$column.'</strong></th>';
-                }
-                if($column == 'Change')
-                {
-                  $html .= '<th><strong>'.$column.'</strong></th>';
-                }
-                if($column == 'Penalty')
-                {
-                  $html .= '<th><strong>'.$column.'</strong></th>';
-                }
-                if($column == 'Amount Paid')
-                {
-                  $html .= '<th><strong>'.$column.'</strong></th>';
-                }
-                if($column == 'Collected By')
-                {
-                  $html .= '<th><strong>'.$column.'</strong></th>';
-                }
-                if($column == 'Collection Date')
-                {
-                  $html .= '<th><strong>'.$column.'</strong></th>';
-                }
-                if($column == 'Creation Date')
-                {
-                  $html .= '<th><strong>'.$column.'</strong></th>';
-                }
+              if($column == 'Loan Date')
+              {
+              }
+              if($column == 'Application No.')
+              {
+                $html .= '<th><strong>'.$column.'</strong></th>';
+              }
+              if($column == 'Borrower Name')
+              {
+                $html .= '<th><strong>'.$column.'</strong></th>';
+              }
+              if($column == 'Principal Per Collection')
+              {
+                $html .= '<th><strong>'.$column.'</strong></th>';
+              }
+              if($column == 'Interest Per Collection')
+              {
+                $html .= '<th><strong>'.$column.'</strong></th>';
+              }
+              if($column == 'Other Collections')
+              {
+                $html .= '<th><strong>'.$column.'</strong></th>';
+              }
+              if($column == 'Repayment Date')
+              {
+                $html .= '<th><strong>'.$column.'</strong></th>';
+              }
+              if($column == 'Change')
+              {
+                $html .= '<th><strong>'.$column.'</strong></th>';
+              }
+              if($column == 'Penalty')
+              {
+                $html .= '<th><strong>'.$column.'</strong></th>';
+              }
+              if($column == 'Amount Paid')
+              {
+                $html .= '<th><strong>'.$column.'</strong></th>';
+              }
+              if($column == 'Collected By')
+              {
+                $html .= '<th><strong>'.$column.'</strong></th>';
+              }
+              if($column == 'Collection Date')
+              {
+                $html .= '<th><strong>'.$column.'</strong></th>';
+              }
+              if($column == 'Creation Date')
+              {
+                $html .= '<th><strong>'.$column.'</strong></th>';
+              }
             }
             $html .='
           </tr>
@@ -3231,26 +3230,52 @@ class loanapplication_controller extends CI_Controller {
           $objPHPExcel->setActiveSheetIndex($index)->setCellValue('F32', $cityAddress['MonthsStayed']);
           $objPHPExcel->setActiveSheetIndex($index)->setCellValue('E34', $cityAddress['Telephone']);
           $objPHPExcel->setActiveSheetIndex($index)->setCellValue('C34', $cityAddress['ContactNumber']);
-          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('C34', $cityAddress['AddressType'] . ' ' . $cityAddress['NameOfLandlord']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('C35', $cityAddress['AddressType'] . ' : ' . $cityAddress['NameOfLandlord']);
 
-          $provAddress = $this->loanapplication_model->getProvinceAddress($details['BorrowerId']);
-          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('C31', $provAddress['HouseNo'] . ' ' . $provAddress['BrgyDesc']);
+          $provBorrowerAddress = $this->loanapplication_model->getProvinceAddress($details['BorrowerId']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('C31', $provBorrowerAddress['HouseNo'] . ' ' . $provBorrowerAddress['BrgyDesc']);
 
+        // present employer
           $presentEmployer = $this->loanapplication_model->getEmployer($details['BorrowerId'], 1);
-          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('A38', $presentEmployer['EmployerName']);
-          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('D38', $presentEmployer['BusinessAddress']);
-          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('A41', $presentEmployer['Position']);
-          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('C41', $presentEmployer['DateHired']);
-          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('E41', $presentEmployer['TelephoneNumber']);
-          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('G41', $presentEmployer['TenureYear'] . 'yr ' . $presentEmployer['TenureMonth'] . ' mts');
+          if(isset($presentEmployer['EmployerName']))
+          {
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('A38', $presentEmployer['EmployerName']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('D38', $presentEmployer['BusinessAddress']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('A41', $presentEmployer['Position']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('C41', $presentEmployer['DateHired']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('E41', $presentEmployer['TelephoneNumber']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('G41', $presentEmployer['TenureYear'] . 'yr ' . $presentEmployer['TenureMonth'] . ' mts');
+          }
+          else
+          {
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('A38', 'N/A');
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('D38', 'N/A');
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('A41', 'N/A');
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('C41', 'N/A');
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('E41', 'N/A');
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('G41', 'N/A');
+          }
 
+        // previous employer
           $prevEmployer = $this->loanapplication_model->getEmployer($details['BorrowerId'], 2);
-          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('A43', $prevEmployer['EmployerName']);
-          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('D43', $prevEmployer['BusinessAddress']);
-          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('A46', $prevEmployer['Position']);
-          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('C46', $prevEmployer['DateHired']);
-          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('E46', $prevEmployer['TelephoneNumber']);
-          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('G46', $prevEmployer['TenureYear'] . 'yr ' . $prevEmployer['TenureMonth'] . ' mts');
+          if(isset($prevEmployer['EmployerName']))
+          {
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('A43', $prevEmployer['EmployerName']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('D43', $prevEmployer['BusinessAddress']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('A46', $prevEmployer['Position']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('C46', $prevEmployer['DateHired']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('E46', $prevEmployer['TelephoneNumber']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('G46', $prevEmployer['TenureYear'] . 'yr ' . $prevEmployer['TenureMonth'] . ' mts');
+          }
+          else
+          {
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('A43', 'N/A');
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('D43', 'N/A');
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('A46', 'N/A');
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('C46', 'N/A');
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('E46', 'N/A');
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('G46', 'N/A');
+          }
 
         // Personal References
           $personalRef = $this->loanapplication_model->getReferences($details['BorrowerId']);
@@ -3286,7 +3311,24 @@ class loanapplication_controller extends CI_Controller {
             $objPHPExcel->setActiveSheetIndex($index)->setCellValue('O18', $cityAddressSpouse['Telephone']);
 
             $provAddress = $this->loanapplication_model->getProvinceAddressSpouse($spouseId['SpouseId']);
-            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('C31', $provAddress['HouseNo'] . ' ' . $provAddress['BrgyDesc']);
+            if(isset($provAddress['HouseNo']))
+            {
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('K15', $provAddress['HouseNo'] . ' ' . $provAddress['BrgyDesc']);
+            }
+            else
+            {
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('K15', 'N/A');
+            }
+
+
+            // present employer
+              $presentSpouseEmployer = $this->loanapplication_model->getSpouseEmployer($spouseId['SpouseId'], 1);
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('H20', $presentSpouseEmployer['EmployerName']);
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('K20', $presentSpouseEmployer['BusinessAddress']);
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('H23', $presentSpouseEmployer['Position']);
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('L23', $presentSpouseEmployer['DateHired']);
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('O23', $presentSpouseEmployer['TelephoneNumber']);
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('Q23', $presentSpouseEmployer['TenureYear'] . 'yr ' . $presentSpouseEmployer['TenureMonth'] . ' mts');
           }
           else
           {            
@@ -3306,7 +3348,13 @@ class loanapplication_controller extends CI_Controller {
               $objPHPExcel->setActiveSheetIndex($index)->setCellValue('P16', 'N/A');
               $objPHPExcel->setActiveSheetIndex($index)->setCellValue('O18', 'N/A');
 
-              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('C31', 'N/A');
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('K15', 'N/A');
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('H20', 'N/A');
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('K20', 'N/A');
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('H23', 'N/A');
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('L23', 'N/A');
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('O23', 'N/A');
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('Q23', 'N/A');
           }
 
         // net income
@@ -3324,43 +3372,64 @@ class loanapplication_controller extends CI_Controller {
           $totalObligation = $this->loanapplication_model->getHouseholdMoney($this->uri->segment(4), 'application_has_monthlyobligation');
           $objPHPExcel->setActiveSheetIndex($index)->setCellValue('L29', number_format($totalObligation['Total'], 2));
 
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('L30', floatval($details['BorrowerMonthlyIncome']) + floatval($details['SpouseMonthlyIncome']) + floatval($totalIncome['Total']) - (floatval($totalObligation['Total']) + floatval($totalExpense['Total'])));
+
         // co maker
           $comaker = $this->loanapplication_model->getCoMaker($details['BorrowerId']);
-          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('H33', $comaker['Name']);
-          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('L33', $comaker['DateOfBirth']);
-          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('O33', $comaker['PositionName']);
-          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('H35', $comaker['Employer']);
-          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('L35', $comaker['TenureYear'] . 'yr ' . $comaker['TenureMonth'].' mts');
-          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('O35', $comaker['TelephoneNo']);
-          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('H37', $comaker['BusinessAddress']);
-          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('O37', number_format($comaker['MonthlyIncome']));
-          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('H40', $comaker['LoanUndertaking']);
+          if(isset($comaker['Name']))
+          {
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('H33', $comaker['Name']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('L33', $comaker['DateOfBirth']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('O33', $comaker['PositionName']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('H35', $comaker['Employer']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('L35', $comaker['TenureYear'] . 'yr ' . $comaker['TenureMonth'].' mts');
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('O35', $comaker['TelephoneNo']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('H37', $comaker['BusinessAddress']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue('O37', number_format($comaker['MonthlyIncome']));
+          }
+          else
+          {            
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('H33', 'N/A');
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('L33', 'N/A');
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('O33', 'N/A');
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('H35', 'N/A');
+
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('L35', 'N/A');
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('O35', 'N/A');
+
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('H37', 'N/A');
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue('O37', 'N/A');
+          }
+
+        // loan undertaking
+          $LoanUndertaking = $this->maintenance_model->selectSpecific('r_loanundertaking', 'StatusId', 1);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('H40', $LoanUndertaking['Description']);
 
         // Requierements
           $requirements = $this->loanapplication_model->getRequirementReport($this->uri->segment(4));
-          $rowsss = 3;
-          foreach ($requirements as $rows)
+          $reqRow = 3;
+          foreach ($requirements as $reqRowData)
           {
-            if($rowsss < 10)
+            if($reqRow < 10)
             {
-              $objPHPExcel->setActiveSheetIndex($index)->setCellValue("R$rowss", $rows['Name']);
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue("R$reqRow", $reqRowData['Name']);
             }
             else
             {
-              $objPHPExcel->setActiveSheetIndex($index)->setCellValue("X$rowss", $rows['Name']);
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue("X$reqRow", $reqRowData['Name']);
             }
-            $rowsss++;
+            $reqRow++;
           }
 
         // approvers
           $approvers = $this->loanapplication_model->getApproversReport($this->uri->segment(4));
-          $rowsss = 13;
+          $approverRow = 13;
           foreach ($approvers as $rows2)
           {
-            $objPHPExcel->setActiveSheetIndex($index)->setCellValue("R$rowss", $rows2['Description']);
-            $objPHPExcel->setActiveSheetIndex($index)->setCellValue("W$rowss", $rows2['DateUpdated']);
-            $objPHPExcel->setActiveSheetIndex($index)->setCellValue("Y$rowss", $rows2['ProcessedBy']);
-            $rowsss++;
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue("R$approverRow", $rows2['Description']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue("W$approverRow", $rows2['DateUpdated']);
+            $objPHPExcel->setActiveSheetIndex($index)->setCellValue("Y$approverRow", $rows2['ProcessedBy']);
+            $approverRow++;
           }
 
 
@@ -3405,7 +3474,7 @@ class loanapplication_controller extends CI_Controller {
         <br>
         <br>
         ';
-          $years = $this->loanapplication_model->getYearFilter('r_borrowers');
+          $years = $this->loanapplication_model->getYearFilter2('r_borrowers', $_POST['YearFrom'], $_POST['YearTo']);
           $totalColumns = count($years) + 1;
           $blankColumns = count($years) + 2;
           // for ($i=0; $i < count($years); $i++) { 
@@ -3663,7 +3732,7 @@ class loanapplication_controller extends CI_Controller {
         <br>
         <br>
         ';
-          $years = $this->loanapplication_model->getLoansYear();
+          $years = $this->loanapplication_model->getLoansYear2($_POST['YearFrom'], $_POST['YearTo']);
           $totalColumns = count($years) + 1;
           $blankColumns = count($years) + 2;
           // for ($i=0; $i < count($years); $i++) { 
@@ -3787,8 +3856,8 @@ class loanapplication_controller extends CI_Controller {
       $pdf->writeHTML($html, true, false, true, false, '');
 
       // Close and output PDF document
-      $pdf->Output('Borrower Data.pdf', 'I');
-      // $pdf->Output('Borrower Data.pdf', 'D');
+      // $pdf->Output('Borrower Data.pdf', 'I');
+      $pdf->Output('Loans Extended.pdf', 'D');
     }
     if($this->uri->segment(3) == 6) // financial health
     {
@@ -3816,12 +3885,12 @@ class loanapplication_controller extends CI_Controller {
         }
         </style>
 
-        <p>Historical Data on Loans Extended by the Company<br><small>'.$branchName['Name'].' Branch</small></p>
+        <p>Financial Health by the Company<br><small>'.$branchName['Name'].' Branch</small></p>
 
         <br>
         <br>
         ';
-          $years = $this->loanapplication_model->getLoansYear();
+          $years = $this->loanapplication_model->getLoansYear2($_POST['YearFrom'], $_POST['YearTo']);
           $totalColumns = count($years) + 1;
           $blankColumns = count($years) + 2;
           // for ($i=0; $i < count($years); $i++) { 
@@ -3901,8 +3970,8 @@ class loanapplication_controller extends CI_Controller {
       $pdf->writeHTML($html, true, false, true, false, '');
 
       // Close and output PDF document
-      $pdf->Output('Borrower Data.pdf', 'I');
-      // $pdf->Output('Loan Extended by Company.pdf', 'D');
+      // $pdf->Output('Borrower Data.pdf', 'I');
+      $pdf->Output('Financial Health.pdf', 'D');
     }
     if($this->uri->segment(3) == 7) // income statement
     {

@@ -84,6 +84,10 @@ class home extends CI_Controller {
 		$data['MaritalYear'] = $this->maintenance_model->getYearFilter('r_borrowers');
 		$data['LoanYear'] = $this->maintenance_model->getYearFilter('T_Application');
 		$data['TenorYear'] = $this->maintenance_model->getYearFilter('T_Application');
+		$data['collectionMonth'] = $this->maintenance_model->getYearFilter('T_PaymentsMade');
+		$data['disbursementYear'] = $this->maintenance_model->getYearFilter('Application_has_Disbursement');
+		$data['interestPaid'] = $this->maintenance_model->getYearFilter('T_PaymentsMade');
+		// $data['collectionMonth'] = $this->maintenance_model->getMonthFilter('T_PaymentsMade');
 		// $data['LoanYear'] = $this->maintenance_model->getYearFilter('T_Application');
 
 		// FOR PIE CHARTS
@@ -104,6 +108,13 @@ class home extends CI_Controller {
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['securityQuestions'] = $this->employee_model->getSecurityQuestions();
+
+		$data['Status'] = $this->maintenance_model->getLoanStatus();
+		$data['borrowerList'] = $this->loanapplication_model->getBorrowerLoanList();
+		$data['LoanType'] = $this->loanapplication_model->getLoanTypesList();
+		$data['ApplicationList'] = $this->loanapplication_model->getLoanApplications();
+		$data['CollectedBy'] = $this->loanapplication_model->getCollectedBy();
+		$data['CollectionDate'] = $this->loanapplication_model->getCollectionDate();
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
 		$this->load->view('admin/collection', $data);
@@ -269,14 +280,15 @@ class home extends CI_Controller {
 
 	function AddCategory()
 	{
-		$sidebar['sidebar'] = 'SystemSetup';
-		$sidebar['sidebarMenu'] = 'Categories';
+		$sidebar['sidebar'] = 'Asset Management';
+		$sidebar['sidebarMenu'] = 'AssetCategories';
 		$header['header'] = 'Asset Categories';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['access'] = $this->sidebar_model->getAccess();
+		$data['Category'] = $this->loanapplication_model->getAssetCategory();
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
@@ -454,8 +466,11 @@ class home extends CI_Controller {
 		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['ExpenseType'] = $this->maintenance_model->getExpenseType();
 		$data['access'] = $this->sidebar_model->getAccess();
+
+		$data['ExpenseType'] = $this->maintenance_model->getExpenseType2();
+		$data['CreatedBy'] = $this->maintenance_model->getExpenseCreatedBy();
+		$data['ExpenseDate'] = $this->maintenance_model->getExpenseDate();
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
@@ -490,6 +505,10 @@ class home extends CI_Controller {
 		$data['WithdrawalType'] = $this->maintenance_model->getWithdrawalType();
 		$data['access'] = $this->sidebar_model->getAccess();
 
+		$data['DepositType'] = $this->maintenance_model->getWithdrawalType2();
+		$data['CreatedBy'] = $this->maintenance_model->getDepositCreatedBy();
+		$data['DepositDate'] = $this->maintenance_model->getDepositDate();
+
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
 		$this->load->view('admin/AddWithdrawal', $data);
@@ -505,6 +524,9 @@ class home extends CI_Controller {
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['access'] = $this->sidebar_model->getAccess();
+		$data['Status'] = $this->maintenance_model->getLoanStatus();
+		$data['borrowerList'] = $this->loanapplication_model->getBorrowerLoanList();
+		$data['LoanType'] = $this->loanapplication_model->getLoanTypesList();
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
@@ -909,6 +931,7 @@ class home extends CI_Controller {
 		$data['Branch'] = $this->maintenance_model->getBranches();
 		$data['Position'] = $this->maintenance_model->getPosition();
 		$data['Roles'] = $this->maintenance_model->getRoles();
+		$data['Status'] = $this->maintenance_model->getBorrowerStatus();
 
 		
 		$data['ageYear'] = $this->maintenance_model->getYearFilter('r_borrowers');
@@ -1028,6 +1051,60 @@ class home extends CI_Controller {
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
 		$this->load->view('reports/IncomeStatement', $data);
+	}
+
+	function generateDemographics()
+	{
+		$Id = $this->uri->segment(3);
+		$sidebar['sidebar'] = 'Reports';
+		$sidebar['sidebarMenu'] = 'Demographics Report';
+		$header['header'] = 'Generate Demographics Report';
+		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
+		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['Year'] = $this->maintenance_model->getYearFilter('r_borrowers');
+
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('reports/demographics', $data);
+	}
+
+	function generateLoansExtended()
+	{
+		$Id = $this->uri->segment(3);
+		$sidebar['sidebar'] = 'Reports';
+		$sidebar['sidebarMenu'] = 'Loans Extended Report';
+		$header['header'] = 'Generate Loans Extended Report';
+		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
+		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['Year'] = $this->maintenance_model->getYearFilter('T_Application');
+
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('reports/loansExtended', $data);
+	}
+
+	function generateFinancialHealth()
+	{
+		$Id = $this->uri->segment(3);
+		$sidebar['sidebar'] = 'Reports';
+		$sidebar['sidebarMenu'] = 'Financial Health Report';
+		$header['header'] = 'Generate Financial Health Report';
+		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
+		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['Year'] = $this->maintenance_model->getYearFilter('T_Application');
+
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('reports/financialhealth', $data);
 	}
 
 	function download($id)

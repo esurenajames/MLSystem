@@ -995,14 +995,18 @@ class employee_model extends CI_Model
 
     function getEmployeeList()
     {
-      $query_string = $this->db->query("SELECT  CONCAT(LastName, ', ', FirstName, ' ', ExtName) as Name
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  CONCAT(LastName, ', ', FirstName, ' | ', EMP.EmployeeNumber) as Name
                                                 , EMP.EmployeeNumber
                                                 , EMP.EmployeeId
                                                 , P.Name as PositionName
                                                 FROM r_Employee EMP
                                                   INNER JOIN R_Position P
                                                     ON P.PositionId = EMP.PositionId
+                                                  INNER JOIN Branch_has_Employee BHE
+                                                    ON BHE.EmployeeNumber = EMP.EmployeeNumber
                                                   WHERE EMP.StatusId = 2
+                                                  AND BHE.BranchId = $AssignedBranchId
       ");
       $data = $query_string->result_array();
       return $data;

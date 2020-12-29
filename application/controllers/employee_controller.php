@@ -24,6 +24,9 @@ class employee_controller extends CI_Controller {
 		$this->load->model('maintenance_model');
 		$this->load->model('access');
 		$this->load->model('employee_model');
+    $this->load->library('session');
+    $this->load->library('excel');
+    $this->load->helper('url');
 
    	if(empty($this->session->userdata("EmployeeNumber")) || $this->session->userdata("logged_in") == 0)
    	{
@@ -1690,6 +1693,207 @@ class employee_controller extends CI_Controller {
       );
       $auditLoanApplicationTable = $independentTable;
       $this->maintenance_model->insertFunction($insertApplicationLog, $auditLoanApplicationTable);
+    }
+  }
+
+  public function uploadForm3Excel()
+  {
+    if(isset($_FILES["form3UploadExcel"]["name"]))
+    {
+      $path = $_FILES["form3UploadExcel"]["tmp_name"];
+      $obj = PHPExcel_IOFactory::load($path);
+
+      $EmployeeData = array();
+      $consolidatedDamagedItem = array();
+
+      $dateCreated = date('Y-m-d H:i:s');
+      $createdBy = $this->session->userdata('EmployeeNumber');
+
+      $execution_time_limit = 300;
+      set_time_limit($execution_time_limit);
+
+      $highestRow = 0;
+
+      foreach($obj->getWorksheetIterator() as $worksheet)
+      {
+        $sheetName = $worksheet->getTitle();
+        $highestRow = $worksheet->getHighestDataRow();
+        $highestCol = $worksheet->getHighestDataColumn();
+
+        $title = $worksheet->getCellByColumnAndRow(0, 1)->getValue(); // CELL A1
+        $rowCount = 0;
+
+        if($sheetName == 'DATA')
+        {
+          for($row = 2; $row <= $highestRow; $row++)
+          {
+            $Salutation = $worksheet->getCellByColumnandRow(0, $row)->getValue();
+            $LastName = $worksheet->getCellByColumnandRow(1, $row)->getValue();
+            $FirstName = $worksheet->getCellByColumnandRow(2, $row)->getValue();
+            $ExtName = $worksheet->getCellByColumnandRow(3, $row)->getValue();
+            $MiddleName = $worksheet->getCellByColumnandRow(4, $row)->getValue();
+            $Gender = $worksheet->getCellByColumnandRow(5, $row)->getValue();
+            $Nationality = $worksheet->getCellByColumnandRow(6, $row)->getValue();
+            $CivilStatus = $worksheet->getCellByColumnandRow(7, $row)->getValue();
+            $DOB = $worksheet->getCellByColumnandRow(8, $row)->getValue();
+            $DH = $worksheet->getCellByColumnandRow(9, $row)->getValue();
+            $Position = $worksheet->getCellByColumnandRow(10, $row)->getValue();
+            $EmpType = $worksheet->getCellByColumnandRow(11, $row)->getValue();
+            $Manager = $worksheet->getCellByColumnandRow(12, $row)->getValue();
+            $Branch = $worksheet->getCellByColumnandRow(13, $row)->getValue();
+
+            $SalutationId = $this->maintenance_model->getReferenceId('SalutationId', 'R_Salutation', $Salutation, 'Name');
+            $GenderId = $this->maintenance_model->getReferenceId('SexId', 'r_sex', $Gender, 'Name');
+            $CivilStatusId = $this->maintenance_model->getReferenceId('CivilStatusId', 'r_civilstatus', $CivilStatus, 'Name');
+            $NationalityId = $this->maintenance_model->getReferenceId('NationalityId', 'r_nationality', $Nationality, 'Description');
+            $PositionId = $this->maintenance_model->getReferenceId('PositionId', 'r_position', $Position, 'Name');
+            $BranchId = $this->maintenance_model->getReferenceId('BranchId', 'r_branches', $Branch, 'Name');
+
+            $time = strtotime($DOB);
+            $DateOfB = date('Y-m-d', $time);
+            $time2 = strtotime($DH);
+            $DateH = date('Y-m-d', $time2);
+
+            if($EmpType == 'EMPLOYEE') // get manager id
+            {
+              $ManagerId = $this->maintenance_model->getReferenceId('ManagerBranchId', 'branch_has_manager', $Manager, 'EmployeeNumber');
+
+              // employee
+                $data = array(
+                  'Salutation'    => $SalutationId['Id'],
+                  'LastName'      => $LastName,
+                  'FirstName'     => $FirstName,
+                  'ExtName'       => $ExtName,
+                  'MiddleName'    => $MiddleName,
+                  'Sex'           => $GenderId['Id'],
+                  'Nationality'   => $NationalityId['Id'],
+                  'CivilStatus'   => $CivilStatusId['Id'],
+                  'DateOfBirth'   => $DateOfB,
+                  'DateHired'     => $DateH,
+                  'PositionId'    => $PositionId['Id'],
+                  'StatusId'      => 2,
+                  'DateCreated'   => $dateCreated,
+                  'CreatedBy'     => $createdBy,
+                  'ManagerId'     => $ManagerId['Id'],
+                );
+                $table = 'R_Employee';
+                $this->maintenance_model->insertFunction($data, $table);
+              // get employee generated id
+                $auditData1 = array(
+                  'table'                 => 'R_Employee'
+                  , 'column'              => 'EmployeeId'
+                );
+                $EmployeeId = $this->maintenance_model->getGeneratedId($auditData1);
+                $EmployeeNumber = sprintf('%06d', $EmployeeId['EmployeeId']);
+              // update employee numbers
+                $set = array( 
+                  'EmployeeNumber' => $EmployeeNumber
+                );
+
+                $condition = array( 
+                  'EmployeeId' => $EmployeeId['EmployeeId']
+                );
+                $table = 'R_Employee';
+                $this->maintenance_model->updateFunction1($set, $condition, $table);
+
+              // employee
+                $data = array(
+                  'EmployeeNumber'    => $EmployeeNumber,
+                  'BranchId'      => $BranchId['Id'],
+                  'StatusId'      => 1,
+                  'DateCreated'   => $dateCreated,
+                  'CreatedBy'     => $createdBy,
+                  'ManagerBranchId'     => $ManagerId['Id'],
+                );
+                $table = 'branch_has_employee';
+                $this->maintenance_model->insertFunction($data, $table);
+              // admin audits finalss
+                $auditLogsManager = 'Added employee #'. $EmployeeNumber . ' in employee list.';
+                $auditAffectedEmployee = 'Added to employee list.';
+                $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
+
+              $rowCount = $rowCount + 1;
+            }
+            else if($EmpType == 'MANAGER') // insert into manager table
+            {
+              // employee
+                $data = array(
+                  'Salutation'    => $SalutationId['Id'],
+                  'LastName'      => $LastName,
+                  'FirstName'     => $FirstName,
+                  'ExtName'       => $ExtName,
+                  'MiddleName'    => $MiddleName,
+                  'Sex'           => $GenderId['Id'],
+                  'Nationality'   => $NationalityId['Id'],
+                  'CivilStatus'   => $CivilStatusId['Id'],
+                  'DateOfBirth'   => $DateOfB,
+                  'DateHired'     => $DateH,
+                  'PositionId'    => $PositionId['Id'],
+                  'StatusId'      => 2,
+                  'DateCreated'   => $dateCreated,
+                  'CreatedBy'     => $createdBy,
+                );
+                $table = 'R_Employee';
+                $this->maintenance_model->insertFunction($data, $table);
+
+                // get employee generated id
+                  $auditData1 = array(
+                    'table'                 => 'R_Employee'
+                    , 'column'              => 'EmployeeId'
+                  );
+                  $EmployeeId = $this->maintenance_model->getGeneratedId($auditData1);
+                  $EmployeeNumber = sprintf('%06d', $EmployeeId['EmployeeId']);
+                // update employee numbers
+                  $set = array( 
+                    'EmployeeNumber' => $EmployeeNumber
+                  );
+
+                  $condition = array( 
+                    'EmployeeId' => $EmployeeId['EmployeeId']
+                  );
+                  $table = 'R_Employee';
+                  $this->maintenance_model->updateFunction1($set, $condition, $table);
+                // insert into branch manager
+                  $data2 = array(
+                    'EmployeeNumber'    => $SalutationId['Id'],
+                    'BranchId'          => $LastName,
+                    'StatusId'          => 1,
+                    'DateCreated'       => $dateCreated,
+                    'CreatedBy'         => $createdBy,
+                  );
+                  $table2 = 'branch_has_manager';
+                  $this->maintenance_model->insertFunction($data2, $table2);
+                  $auditData2 = array(
+                    'table'                 => 'branch_has_manager'
+                    , 'column'              => 'ManagerBranchId'
+                  );
+                  $NewManagerId = $this->maintenance_model->getGeneratedId($auditData2);
+                // update manager id of manager
+                  $set2 = array( 
+                    'ManagerId' => $NewManagerId['ManagerBranchId']
+                  );
+
+                  $condition2 = array( 
+                    'EmployeeId' => $EmployeeId['EmployeeId']
+                  );
+                  $table2 = 'R_Employee';
+                  $this->maintenance_model->updateFunction1($set2, $condition2, $table2);
+                // admin audits finalss
+                  $auditLogsManager = 'Added employee #'. $EmployeeNumber;
+                  $auditAffectedEmployee = 'Added to employee list.';
+                  $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
+                $rowCount = $rowCount + 1;
+            }
+          } // END FOR LOOP
+
+          echo "Employee Records successfully saved! " . $rowCount . " records inserted.";
+        }
+
+      } // END FOREACH
+    }
+    else
+    {
+      echo "File not set";
     }
   }
 

@@ -10,6 +10,75 @@
       </ol>
 
       </section>
+        <div class="modal fade" id="modalFilter">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Filter</h4>
+              </div>
+              <div class="modal-body">
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label>Application #</label><br>
+                      <select class="form-control select2" style="width: 100%" id="ApplicationId" required="">
+                        <?php 
+                          echo $ApplicationList;
+                        ?>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label>Loan Type</label>
+                      <select class="form-control select2" style="width: 100%"  id="LoanId" required="">
+                        <?php 
+                          echo $LoanType;
+                        ?>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label>Collected By</label>
+                      <select class="form-control select2" style="width: 100%"  id="CollectedBy" required="">
+                        <?php 
+                          echo $CollectedBy;
+                        ?>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>Collection Date From</label>
+                      <select class="form-control select2" style="width: 100%"  id="dateFrom" required="">
+                        <?php 
+                          echo $CollectionDate;
+                        ?>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>Collection Date To</label>
+                      <select class="form-control select2" style="width: 100%"  id="dateTo" required="">
+                        <?php 
+                          echo $CollectionDate;
+                        ?>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <a onclick="filterPage()" class="btn btn-primary">Submit</a>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="modal fade" id="modalReport">
           <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -62,8 +131,8 @@
             <h3 class="box-title">Collection</h3>
           </div>
           <div class="box-body">
-            <div class="pull-right">
-              <a class="btn btn-primary" data-toggle="modal" data-target="#modalReport">Generate Report</a>
+            <div class="pull-right">            
+              <a data-toggle="modal" data-target="#modalFilter" class="btn btn-primary btn-md" >Filter</a>
             </div>
             <br>
             <br>
@@ -75,8 +144,8 @@
                   <th>Borrower Name</th>
                   <th>Loan Amount</th>
                   <th>Amount Paid</th>
-                  <th>Date Creation</th>
                   <th>Collection Date</th>
+                  <th>Date Creation</th>
                   <th>Collected By</th>
                   <th>Action</th>
                 </tr>
@@ -104,7 +173,7 @@
   <div class="pull-right hidden-xs">
     <b>Version</b> 1.0.0
   </div>
-  <strong>Copyright &copy; 2020 <a href="https://adminlte.io">GIA Tech.</a>.</strong> All rights
+  <strong>Copyright &copy; 2020 <a href="#">GIA Tech.</a>.</strong> All rights
   reserved.
 </footer>
 
@@ -126,7 +195,16 @@
     });
   }
 
+
+  function filterPage(){
+    var url = '<?php echo base_url()."datatables_controller/Collection/"; ?>' + $('#ApplicationId').val() + '/' + $('#LoanId').val() + '/' + $('#CollectedBy').val() + '/' + $('#dateFrom').val() + '/' + $('#dateTo').val();
+    UserTable.ajax.url(url).load();
+    $('#modalFilter').modal('hide');
+  }
+
   $(function () {
+
+    $('.select2').select2();
     UserTable = $('#example1').DataTable({
       "pageLength": 10,
       "ajax": { url: '<?php echo base_url()."/datatables_controller/Collection/"; ?>', type: 'POST', "dataSrc": "" },
@@ -135,7 +213,7 @@
                     { data: "LoanAmount" },
                     { data: "AmountPaid" }, 
                     { data: "PaymentDate" }, 
-                    { data: "dateCreated" }, 
+                    { data: "DateCreated" }, 
                     { data: "CollectedBy" }, 
                     {
                       data: "ApplicationId", "render": function (data, type, row) {

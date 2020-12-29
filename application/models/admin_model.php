@@ -1205,12 +1205,12 @@ class admin_model extends CI_Model
           $this->maintenance_model->updateFunction1($set, $condition, $table);
 
         // admin audits finalss
-          if($input['updateType'] == 1)
+          if($input['updateType'] == 2)
           {
             $auditLogsManager = 'Re-activated asset #' .$Detail['ReferenceNo']. ' at the asset management module'; // main log
             $auditAffectedEmployee = 'Re-activated asset #' .$Detail['ReferenceNo']. ' at the asset management module'; // main log
           }
-          else if($input['updateType'] == 0)
+          else if($input['updateType'] == 6)
           {
             $auditLogsManager = 'Deactivated asset #' .$Detail['ReferenceNo']. ' at the asset management module'; // main log
             $auditAffectedEmployee = 'Deactivated asset #' .$Detail['ReferenceNo']. ' at the asset management module'; // main log

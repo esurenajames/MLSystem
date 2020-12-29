@@ -4,7 +4,7 @@
   <!-- Content Header (Page header) -->
   <section class="content-header">
     <h1>
-      Loan Collection
+      Expense Report
     </h1>
     <ol class="breadcrumb">
       <li><a href="#" class="active"><i class="fa fa-dashboard"></i> Dashboard</a></li>
@@ -103,7 +103,7 @@
   <div class="pull-right hidden-xs">
     <b>Version</b> 1.0.0
   </div>
-  <strong>Copyright &copy; 2020 <a href="https://adminlte.io">GIA Tech.</a>.</strong> All rights
+  <strong>Copyright &copy; 2020 <a href="#">GIA Tech.</a>.</strong> All rights
   reserved.
 </footer>
 

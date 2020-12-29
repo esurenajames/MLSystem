@@ -142,7 +142,7 @@
               <div class="icon">
                 <i class="fa fa-tachometer"></i>
               </div>
-              <a href="<?php echo base_url(); ?>/home/AddInitialCapital" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+              <a href="<?php echo base_url(); ?>home/AddInitialCapital" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
             </div>
           </div>
         <?php } ?>
@@ -156,7 +156,7 @@
               <div class="icon">
                 <i class="fa fa-money"></i>
               </div>
-              <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+              <a href="<?php echo base_url(); ?>home/collectionManagement" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
             </div>
           </div>
         <?php } ?>
@@ -170,7 +170,7 @@
               <div class="icon">
                 <i class="ion ion-stats-bars"></i>
               </div>
-              <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+              <a href="<?php echo base_url(); ?>home/collectionManagement" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
             </div>
           </div>
         <?php } ?>
@@ -213,7 +213,7 @@
               <div class="icon">
                 <i class="fa fa-calendar-check-o"></i>
               </div>
-              <a href="<?php echo base_url(); ?>/home/AddExpense" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+              <a href="<?php echo base_url(); ?>home/ViewLoans" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
             </div>
           </div>
         <?php } ?>
@@ -228,7 +228,7 @@
               <div class="icon">
                 <i class="fa fa-list-alt"></i>
               </div>
-              <a href="<?php echo base_url(); ?>/home/ViewLoans" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+              <a href="<?php echo base_url(); ?>home/ViewLoans" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
             </div>
           </div>
         <?php } ?>
@@ -242,7 +242,7 @@
               <div class="icon">
                 <i class="ion ion-person-add"></i>
               </div>
-              <a href="<?php echo base_url(); ?>/home/borrowers" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+              <a href="<?php echo base_url(); ?>home/borrowers" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
             </div>
           </div>
         <?php } ?>
@@ -255,9 +255,9 @@
                 <p>Total Employees</p>
               </div>
               <div class="icon">
-                <i class="fa fa-list-alt"></i>
+                <i class="fa fa-users"></i>
               </div>
-              <a href="<?php echo base_url(); ?>/home/addEmployees" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+              <a href="<?php echo base_url(); ?>home/addEmployees" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
             </div>
           </div>
         <?php } ?>
@@ -270,9 +270,9 @@
                 <p>Total Users</p>
               </div>
               <div class="icon">
-                <i class="fa fa-list-alt"></i>
+                <i class="fa fa-street-view"></i>
               </div>
-              <a href="<?php echo base_url(); ?>/home/addUser" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+              <a href="<?php echo base_url(); ?>home/addUser" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
             </div>
           </div>
         <?php } ?>
@@ -296,31 +296,117 @@
         <!-- </div>
       </div> -->
 
-      <?php if(in_array('49', $subModule)) { ?>
+
+      <?php if(in_array('50', $subModule)) { ?>
         <div class="box box-primary">
           <div class="box-header with-border">
-            <h3 class="box-title">DEMOGRAPHICS</h3>
+            <h3 class="box-title">Monthly Reports</h3>
             <div class="box-tools pull-right">
-              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+              </button>
             </div>
           </div>
           <div class="box-body">
+
             <div class="nav-tabs-custom">
               <ul class="nav nav-tabs">
-                <!-- <li class="active"><a href="#tabLoanApplications" data-toggle="tab">Loan Applications</a></li> -->
-                <li class="active"><a href="#tabAge" data-toggle="tab" title="Age">Age</a></li>
-                <li><a href="#tabEd" data-toggle="tab" title="Education" onclick="selectEducationFilter(0)">Education</a></li>
-                <li><a href="#tabGE" data-toggle="tab" title="Gender" onclick="selectGenderFilter(0)">Gender</a></li>
-                <li><a href="#tabOC" data-toggle="tab" title="Occupation" onclick="selectOccupationFilter(0)">Occupation</a></li>
-                <li><a href="#tabIL" data-toggle="tab" title="Income Level" onclick="selectIncomeFilter(0)">Income Level</a></li>
-                <li><a href="#tabMS" data-toggle="tab" title="Marital Status" onclick="selectMaritalFilter(0)">Marital Status</a></li>
+                <li class="active"><a href="#tabM1" data-toggle="tab">Collections</a></li>
+                <li><a href="#tabM2" data-toggle="tab">Disbursements</a></li>
+                <!-- <li><a href="#tabM3" data-toggle="tab">Loans</a></li> -->
+                <li><a href="#tabM3" data-toggle="tab">Interest Collected</a></li>
+                <!-- <li><a href="#tabLoanType" data-toggle="tab" title="TYPE OF LOANS" onclick="selectGenderFilter(0)">TYPE OF LOANS</a></li>
+                <li><a href="#tabLoanTotalAmount" data-toggle="tab" title="TOTAL LOAN AMOUNT" onclick="selectOccupationFilter(0)">TOTAL LOAN AMOUNT</a></li>
+                <li><a href="#tabTotalTenors" data-toggle="tab" title="TENORS" onclick="selectTotalTenors(0)">TENORS</a></li>
+                <li><a href="#tabTotalInterest" data-toggle="tab" title="INTEREST RATES" onclick="getTotalInterest()">INTEREST RATES</a></li> -->
               </ul>
               <div class="tab-content">
-                <div class="active tab-pane" id="tabAge">
+                <div class="active tab-pane" id="tabM1">
+                  <h5>Collections</h5>
+                  <div class="pull-left">
+                    <label>Report Type</label>
+                    <select class="form-control" id="selectCollectionReport" onchange="changeCollectionReport(this.value)">
+                      <option selected="">Bar Graph</option>
+                      <option>Pie Chart</option>
+                      <option>Line Graph</option>
+                    </select>
+                  </div>
+                  <div class="pull-right">
+                    <select class="form-control" id="selectColectionYear" onchange="CollectionMonthFilter(this.value)">
+                      <?php 
+                        foreach ($collectionMonth as $value) 
+                        {
+                          $selected = (date("M") == $value['Year']) ? 'selected' : '';
+                          echo '<option '.$selected.'>'.$value['Year'].'</option>';
+                        }
+                      ?>
+                    </select>
+                  </div>
+                  <div class="chart">
+                    <div id="divM1Chart">
+                    </div>
+                  </div>
+                </div>
+                <div class="tab-pane" id="tabM2">
+                  <h5>Collections</h5>
+                  <div class="pull-left">
+                    <label>Report Type</label>
+                    <select class="form-control" id="selectDisbursementReport" onchange="changeDisbursementReport(this.value)">
+                      <option selected="">Bar Graph</option>
+                      <option>Pie Chart</option>
+                      <option>Line Graph</option>
+                    </select>
+                  </div>
+                  <div class="pull-right">
+                    <select class="form-control" id="selectDisbursementYear" onchange="changeDisbursementReport()">
+                      <?php 
+                        foreach ($disbursementYear as $value) 
+                        {
+                          $selected = (date("M") == $value['Year']) ? 'selected' : '';
+                          echo '<option '.$selected.'>'.$value['Year'].'</option>';
+                        }
+                      ?>
+                    </select>
+                  </div>
+                  <div class="chart">
+                    <div id="divM2Chart">
+                    </div>
+                  </div>
+                </div>
+                <div class="tab-pane" id="tabM3">
+                  <h5>Interest Collected</h5>
+                  <div class="pull-left">
+                    <label>Report Type</label>
+                    <select class="form-control" id="selectInterest" onchange="changeInterestReport(this.value)">
+                      <option selected="">Bar Graph</option>
+                      <option>Pie Chart</option>
+                      <option>Line Graph</option>
+                    </select>
+                  </div>
+                  <div class="pull-right">
+                    <select class="form-control" id="interestYear" onchange="changeInterestReport()">
+                      <?php 
+                        foreach ($interestPaid as $value) 
+                        {
+                          $selected = (date("M") == $value['Year']) ? 'selected' : '';
+                          echo '<option '.$selected.'>'.$value['Year'].'</option>';
+                        }
+                      ?>
+                    </select>
+                  </div>
+                  <br>
+                  <br>
+                  <br>
+                  <br>
+                  <div class="chart">
+                    <div id="divM3Chart">
+                    </div>
+                  </div>
+                </div>
+                <!-- <div class="tab-pane" id="tabM4">
                   <h5>AGE</h5>
                   <div class="pull-left">
                     <label>Report Type</label>
-                    <select class="form-control" onchange="changeAgeReport(this.value)">
+                    <select class="form-control" id="selectAgeReport" onchange="changeAgeReport(this.value)">
                       <option selected="">Bar Graph</option>
                       <option>Pie Chart</option>
                       <option>Line Graph</option>
@@ -341,131 +427,8 @@
                     <div id="divBarChart">
                     </div>
                   </div>
-                </div>
-                <div class="tab-pane" id="tabEd">
-                  <h5>EDUCATION</h5>
-                  <div class="pull-right">
-                    <select class="form-control" onchange="selectEducationFilter(this.value)" id="yearEducation">
-                      <?php 
-                        foreach ($educationYear as $value) 
-                        {
-                          $selected = (date("Y") == $value['Year']) ? 'selected' : '';
-                          echo '<option '.$selected.'>'.$value['Year'].'</option>';
-                        }
-                      ?>
-                    </select>
-                  </div>
-                  <br>
-                  <hr>
-                  <div class="chart">
-                    <canvas id="chartEducation" style="height:300px"></canvas>
-                  </div>
-                </div>
-                <div class="tab-pane" id="tabGE">
-                  <h5>GENDER</h5>
-                  <div class="pull-right">
-                    <select class="form-control" id="selectGenderYear" onchange="selectGenderFilter(this.value)">
-                      <?php 
-                        foreach ($genderYear as $value) 
-                        {
-                          $selected = (date("Y") == $value['Year']) ? 'selected' : '';
-                          echo '<option '.$selected.'>'.$value['Year'].'</option>';
-                        }
-                      ?>
-                    </select>
-                  </div>
-                  <br>
-                  <hr>
-                  <div class="chart">
-                    <canvas id="chartGender" style="height:230px"></canvas>
-                  </div>
-                </div>
-                <div class="tab-pane" id="tabOC">
-                  <h5>OCCUPATION</h5>
-                  <div class="pull-right">
-                    <select class="form-control" id="selectGenderYear" onchange="selectOccupationFilter(this.value)">
-                      <?php 
-                        foreach ($occupationYear as $value) 
-                        {
-                          $selected = (date("Y") == $value['Year']) ? 'selected' : '';
-                          echo '<option '.$selected.'>'.$value['Year'].'</option>';
-                        }
-                      ?>
-                    </select>
-                  </div>
-                  <br>
-                  <hr>
-                  <div class="chart">
-                    <canvas id="chartOccupation" style="height:50%"></canvas>
-                  </div>
-                </div>
-                <div class="tab-pane" id="tabIL">
-                  <h5>INCOME LEVEL</h5>
-                  <div class="pull-right">
-                    <select class="form-control" id="selectGenderYear" onchange="selectIncomeFilter(this.value)">
-                      <?php 
-                        foreach ($IncomeYear as $value) 
-                        {
-                          $selected = (date("Y") == $value['Year']) ? 'selected' : '';
-                          echo '<option '.$selected.'>'.$value['Year'].'</option>';
-                        }
-                      ?>
-                    </select>
-                  </div>
-                  <br>
-                  <hr>
-                  <div class="chart">
-                    <canvas id="chartIncome" style="height:250px"></canvas>
-                  </div>
-                </div>
-                <div class="tab-pane" id="tabMS">
-                  <h5>MARITAL STATUS</h5>
-                  <div class="pull-right">
-                    <select class="form-control" onchange="selectMaritalFilter(this.value)">
-                      <?php 
-                        foreach ($MaritalYear as $value) 
-                        {
-                          $selected = (date("Y") == $value['Year']) ? 'selected' : '';
-                          echo '<option '.$selected.'>'.$value['Year'].'</option>';
-                        }
-                      ?>
-                    </select>
-                  </div>
-                  <br>
-                  <hr>
-                  <div class="chart">
-                    <canvas id="chartMarital" style="height:250px"></canvas>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      <?php } ?>
-
-      <?php if(in_array('50', $subModule)) { ?>
-        <div class="box box-primary">
-          <div class="box-header with-border">
-            <h3 class="box-title">HISTORICAL DATA ON LOANS EXTENDED BY THE COMPANY</h3>
-            <div class="box-tools pull-right">
-              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-              </button>
-            </div>
-          </div>
-          <div class="box-body">
-
-            <div class="nav-tabs-custom">
-              <ul class="nav nav-tabs">
-                <!-- <li class="active"><a href="#tabLoanApplications" data-toggle="tab">Loan Applications</a></li> -->
-                <li class="active"><a href="#tabBorrower" data-toggle="tab" title="TOTAL NUMBER OF BORROWERS">TOTAL NUMBER OF BORROWERS</a></li>
-                <li><a href="#tabLoanTotal" data-toggle="tab" title="TOTAL NUMBER OF LOANS" onclick="selectEducationFilter(0)">TOTAL NUMBER OF LOANS</a></li>
-                <li><a href="#tabLoanType" data-toggle="tab" title="TYPE OF LOANS" onclick="selectGenderFilter(0)">TYPE OF LOANS</a></li>
-                <li><a href="#tabLoanTotalAmount" data-toggle="tab" title="TOTAL LOAN AMOUNT" onclick="selectOccupationFilter(0)">TOTAL LOAN AMOUNT</a></li>
-                <li><a href="#tabTotalTenors" data-toggle="tab" title="TENORS" onclick="selectTotalTenors(0)">TENORS</a></li>
-                <li><a href="#tabTotalInterest" data-toggle="tab" title="INTEREST RATES" onclick="getTotalInterest()">INTEREST RATES</a></li>
-              </ul>
-              <div class="tab-content">
-                <div class="active tab-pane" id="tabBorrower">
+                </div> -->
+                <!-- <div class="active tab-pane" id="tabBorrower">
                   <h5>TOTAL NUMBER OF BORROWERS</h5>
                   <div class="chart">
                     <canvas id="lineChart" style="height:250px"></canvas>
@@ -528,7 +491,7 @@
                     <div id="divChartInterestRate">
                     </div>
                   </div>
-                </div>
+                </div> -->
               </div>
             </div>
 
@@ -551,6 +514,188 @@
             </div> 
             <hr> -->
 
+          </div>
+        </div>
+      <?php } ?>
+
+      <?php if(in_array('49', $subModule)) { ?>
+        <div class="box box-primary">
+          <div class="box-header with-border">
+            <h3 class="box-title">Yearly Reports</h3>
+            <div class="box-tools pull-right">
+              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+            </div>
+          </div>
+          <div class="box-body">
+            <div class="nav-tabs-custom">
+              <ul class="nav nav-tabs">
+                <!-- <li class="active"><a href="#tabLoanApplications" data-toggle="tab">Loan Applications</a></li> -->
+                <li class="active"><a href="#tabAge" data-toggle="tab" title="Age">Age</a></li>
+                <li><a href="#tabEd" data-toggle="tab" title="Education" onclick="selectEducationFilter(0)">Education</a></li>
+                <li><a href="#tabGE" data-toggle="tab" title="Gender" onclick="selectGenderFilter(0)">Gender</a></li>
+                <li><a href="#tabOC" data-toggle="tab" title="Occupation" onclick="selectOccupationFilter(0)">Occupation</a></li>
+                <li><a href="#tabIL" data-toggle="tab" title="Income Level" onclick="selectIncomeFilter(0)">Income Level</a></li>
+                <!-- <li><a href="#tabMS" data-toggle="tab" title="Marital Status" onclick="selectMaritalFilter(0)">Marital Status</a></li> -->
+              </ul>
+              <div class="tab-content">
+                <div class="active tab-pane" id="tabAge">
+                  <h5>AGE</h5>
+                  <div class="pull-left">
+                    <label>Report Type</label>
+                    <select class="form-control" id="selectAgeReport" onchange="changeAgeReport(this.value)">
+                      <option selected="">Bar Graph</option>
+                      <option>Pie Chart</option>
+                      <option>Line Graph</option>
+                    </select>
+                  </div>
+                  <div class="pull-right">
+                    <select class="form-control" id="yearAge" onchange="selectAgeFilter(this.value)">
+                      <?php 
+                        foreach ($ageYear as $value) 
+                        {
+                          $selected = (date("Y") == $value['Year']) ? 'selected' : '';
+                          echo '<option '.$selected.'>'.$value['Year'].'</option>';
+                        }
+                      ?>
+                    </select>
+                  </div>
+                  <div class="chart">
+                    <div id="divBarChart">
+                    </div>
+                  </div>
+                </div>
+                <div class="tab-pane" id="tabEd">
+                  <h5>EDUCATION</h5>
+                  <div class="pull-left">
+                    <label>Report Type</label>
+                    <select class="form-control" id="selectEducationReport" onchange="changeEducationReport(this.value)">
+                      <option selected="">Bar Graph</option>
+                      <option>Pie Chart</option>
+                    </select>
+                  </div>
+                  <div class="pull-right">
+                    <select class="form-control" onchange="selectEducationFilter(this.value)" id="yearEducation">
+                      <?php 
+                        foreach ($educationYear as $value) 
+                        {
+                          $selected = (date("Y") == $value['Year']) ? 'selected' : '';
+                          echo '<option '.$selected.'>'.$value['Year'].'</option>';
+                        }
+                      ?>
+                    </select>
+                  </div>
+                  <br>
+                  <br>
+                  <br>
+                  <hr>
+                  <div class="chart" id="educationChart">
+                    <canvas id="chartEducation" style="height:300px"></canvas>
+                  </div>
+                </div>
+                <div class="tab-pane" id="tabGE">
+                  <h5>GENDER</h5>
+                  <div class="pull-left">
+                    <label>Report Type</label>
+                    <select class="form-control" id="selectGenderReport" onchange="changeGenderReport(this.value)">
+                      <option selected="">Bar Graph</option>
+                      <option>Pie Chart</option>
+                    </select>
+                  </div>
+                  <div class="pull-right">
+                    <select class="form-control" id="selectGenderYear" onchange="selectGenderFilter(this.value)">
+                      <?php 
+                        foreach ($genderYear as $value) 
+                        {
+                          $selected = (date("Y") == $value['Year']) ? 'selected' : '';
+                          echo '<option '.$selected.'>'.$value['Year'].'</option>';
+                        }
+                      ?>
+                    </select>
+                  </div>
+                  <br>
+                  <br>
+                  <br>
+                  <hr>
+                  <div class="chart" id="divGenderChart">
+                    <canvas id="chartGender" style="height:230px"></canvas>
+                  </div>
+                </div>
+                <div class="tab-pane" id="tabOC">
+                  <h5>OCCUPATION</h5>
+                  <div class="pull-left">
+                    <label>Report Type</label>
+                    <select class="form-control" id="selectOccupationReport" onchange="changeOccupationReport(this.value)">
+                      <option selected="">Bar Graph</option>
+                      <option>Pie Chart</option>
+                    </select>
+                  </div>
+                  <div class="pull-right">
+                    <select class="form-control" id="selectOccupationYear" onchange="selectOccupationFilter(this.value)">
+                      <?php 
+                        foreach ($occupationYear as $value) 
+                        {
+                          $selected = (date("Y") == $value['Year']) ? 'selected' : '';
+                          echo '<option '.$selected.'>'.$value['Year'].'</option>';
+                        }
+                      ?>
+                    </select>
+                  </div>
+                  <br>
+                  <br>
+                  <br>
+                  <hr>
+                  <div class="chart" id="divOccupationChart">
+                    <canvas id="chartOccupation" style="height:50%"></canvas>
+                  </div>
+                </div>
+                <div class="tab-pane" id="tabIL">
+                  <h5>INCOME LEVEL</h5>
+                  <div class="pull-left">
+                    <label>Report Type</label>
+                    <select class="form-control" id="selectIncomeReport" onchange="changeIncomeReport(this.value)">
+                      <option selected="">Bar Graph</option>
+                      <option>Pie Chart</option>
+                    </select>
+                  </div>
+                  <div class="pull-right">
+                    <select class="form-control" id="selectIncomeYear" onchange="selectIncomeFilter(this.value)">
+                      <?php 
+                        foreach ($IncomeYear as $value) 
+                        {
+                          $selected = (date("Y") == $value['Year']) ? 'selected' : '';
+                          echo '<option '.$selected.'>'.$value['Year'].'</option>';
+                        }
+                      ?>
+                    </select>
+                  </div>
+                  <br>
+                  <br>
+                  <br>
+                  <hr>
+                  <div class="chart" id="divIncomeChart">
+                  </div>
+                </div>
+                <!-- <div class="tab-pane" id="tabMS">
+                  <h5>MARITAL STATUS</h5>
+                  <div class="pull-right">
+                    <select class="form-control" onchange="selectMaritalFilter(this.value)">
+                      <?php 
+                        foreach ($MaritalYear as $value) 
+                        {
+                          $selected = (date("Y") == $value['Year']) ? 'selected' : '';
+                          echo '<option '.$selected.'>'.$value['Year'].'</option>';
+                        }
+                      ?>
+                    </select>
+                  </div>
+                  <br>
+                  <hr>
+                  <div class="chart">
+                    <canvas id="chartMarital" style="height:250px"></canvas>
+                  </div>
+                </div> -->
+              </div>
+            </div>
           </div>
         </div>
       <?php } ?>
@@ -589,7 +734,7 @@
   <div class="pull-right hidden-xs">
     <b>Version</b> 1.0.0
   </div>
-  <strong>Copyright &copy; 2020 <a href="https://adminlte.io">GIA Tech.</a>.</strong> All rights
+  <strong>Copyright &copy; 2020 <a href="#">GIA Tech.</a>.</strong> All rights
   reserved.
 </footer>
 
@@ -609,17 +754,1778 @@
   }
 
 // for report types 
-  function changeAgeReport(value)
+  function changeAgeReport(reportType)
   {
-    if(value == 'Bar Graph')
+    if($('#yearAge').val() == varCurrentYear)
+    {
+      value = varCurrentYear;
+    }
+    else
+    {
+      value = value;
+    }
+
+    if(reportType == 'Bar Graph')
     {
       selectAgeFilter($('#yearAge').val());
     }
-    else if(value == 'Pie Graph')
+    else if(reportType == 'Line Graph')
     {
-      alert('sdad')
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getAgePopulation",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : value
+        },
+        success: function(data) {var bracket = [];
+          var age = [];
+
+          for(var i in data) {
+            bracket.push("Age " + data[i].AgeBracket);
+            age.push(data[i].TotalAge);
+          }
+
+          var chartdata = {
+            labels: bracket,
+            datasets : [
+              {
+                label: 'Age Bracket',
+                fillColor           : 'rgb(54, 145, 236)',
+                strokeColor         : 'rgb(26, 114, 203)',
+                pointColor          : 'rgba(210, 214, 222, 1)',
+                data: age
+              }
+            ]
+          };
+          $('#divBarChart').html('');
+          $('#divBarChart').html('<canvas id="barChart" style="height:230px"></canvas>');
+          // var barChartCanvas                   = $('#barChart').get(0).getContext('2d')
+          // var barChart                         = new Chart(barChartCanvas)
+          // var barChartData                     = chartdata
+          
+
+          var areaChartOptions = {
+            //Boolean - If we should show the scale at all
+            showScale               : true,
+            //Boolean - Whether grid lines are shown across the chart
+            scaleShowGridLines      : false,
+            //String - Colour of the grid lines
+            scaleGridLineColor      : 'rgb(89, 97, 247)',
+            //Number - Width of the grid lines
+            scaleGridLineWidth      : 1,
+            //Boolean - Whether to show horizontal lines (except X axis)
+            scaleShowHorizontalLines: true,
+            //Boolean - Whether to show vertical lines (except Y axis)
+            scaleShowVerticalLines  : true,
+            //Boolean - Whether the line is curved between points
+            bezierCurve             : true,
+            //Number - Tension of the bezier curve between points
+            bezierCurveTension      : 0.3,
+            //Boolean - Whether to show a dot for each point
+            pointDot                : false,
+            //Number - Radius of each point dot in pixels
+            pointDotRadius          : 4,
+            //Number - Pixel width of point dot stroke
+            pointDotStrokeWidth     : 1,
+            //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
+            pointHitDetectionRadius : 20,
+            //Boolean - Whether to show a stroke for datasets
+            datasetStroke           : true,
+            //Number - Pixel width of dataset stroke
+            datasetStrokeWidth      : 2,
+            //Boolean - Whether to fill the dataset with a color
+            datasetFill             : true,
+            //Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+            maintainAspectRatio     : true,
+            //Boolean - whether to make the chart responsive to window resizing
+            responsive              : true
+          }
+
+          // barChartOptions.datasetFill = false
+          // barChart.Line(barChartData, barChartOptions)
+
+          var lineChartCanvas          = $('#barChart').get(0).getContext('2d')
+          var lineChart                = new Chart(lineChartCanvas)
+          var lineChartOptions         = areaChartOptions
+          lineChartOptions.datasetFill = false
+          lineChart.Line(chartdata, lineChartOptions)
+        },
+        error: function(data) {
+          console.log(data);
+        }
+      });
+    }
+    else if(reportType == 'Pie Chart')
+    {
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getAgePopulation",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : value
+        },
+        success: function(data) {
+          var bracket = [];
+          // var age = [];
+
+          // for(var i in data) {
+          //   bracket.push(data[i].Level + ' : ' + data[i].TotalBorrower);
+          //   age.push(data[i].TotalBorrower);
+          // }
+
+          $('#divBarChart').html('');
+          $('#divBarChart').html('<canvas id="barChart" style="height:230px"></canvas>');
+          var pieChartCanvas = $("#barChart").get(0).getContext("2d");
+          var pieChart = new Chart(pieChartCanvas);
+          var PieData = [];
+
+          data.forEach(function(e) {
+              var random_color = '#' + Math.floor(Math.random() * 16777215).toString(16);
+              bracket.push({
+                  value: e.TotalAge,
+                  color: random_color,
+                  highlight: random_color,
+                  label: e.AgeBracket
+              });
+          });
+
+          // var chartdata = {
+          //   labels: bracket,
+          //   datasets : [
+          //     {
+          //       label: 'Age Population',
+          //       fillColor           : 'rgb(54, 145, 236)',
+          //       strokeColor         : 'rgb(26, 114, 203)',
+          //       pointColor          : 'rgba(210, 214, 222, 1)',
+          //       data: age
+          //     }
+          //   ]
+          // };
+
+          // var barChartCanvas                   = $('#chartEducation').get(0).getContext('2d')
+          // var barChart                         = new Chart(barChartCanvas)
+          // var barChartData                     = chartdata
+          var pieOptions = {
+              //Boolean - Whether we should show a stroke on each segment
+              segmentShowStroke: true,
+              //String - The colour of each segment stroke
+              segmentStrokeColor: "#fff",
+              //Number - The width of each segment stroke
+              segmentStrokeWidth: 2,
+              //Number - The percentage of the chart that we cut out of the middle
+              percentageInnerCutout: 0, // This is 0 for Pie charts
+              //Number - Amount of animation steps
+              animationSteps: 100,
+              //String - Animation easing effect
+              // animationEasing: "easeOutBounce",
+              //Boolean - Whether we animate the rotation of the Doughnut
+              animateRotate: true,
+              //Boolean - Whether we animate scaling the Doughnut from the centre
+              animateScale: false,
+              //Boolean - whether to make the chart responsive to window resizing
+              responsive: true,
+              // Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+              maintainAspectRatio: true,
+              //String - A legend template
+              legendTemplate: "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>"
+          };
+
+          // barChartOptions.datasetFill = false
+
+          // $('#educationChart').html('');
+          // $('#educationChart').html('<canvas id="chartEducation" style="height:230px"></canvas>');
+          pieChart.Doughnut(bracket, pieOptions);
+          
+          // barChart.Bar(chartdata, areaChartOptions)  
+        },
+        error: function(data) {
+          console.log(data);
+        }
+      });
     }
   }
+
+  function changeEducationReport(reportValue)
+  {
+    if(reportValue == 'Bar Graph')
+    {
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getEducationPopulation",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : $('#yearEducation').val()
+        },
+        success: function(data) {
+          var bracket = [];
+          var age = [];
+
+          for(var i in data) {
+            bracket.push(data[i].Level + ' : ' + data[i].TotalBorrower);
+            age.push(data[i].TotalBorrower);
+          }
+
+          var chartdata = {
+            labels: bracket,
+            datasets : [
+              {
+                label: 'Occupation Population',
+                fillColor           : 'rgb(54, 145, 236)',
+                strokeColor         : 'rgb(26, 114, 203)',
+                pointColor          : 'rgba(210, 214, 222, 1)',
+                data: age
+              }
+            ]
+          };
+
+          $('#educationChart').html('');
+          $('#educationChart').html('<canvas id="chartEducation" style="height:230px"></canvas>');
+          var barChartCanvas                   = $('#chartEducation').get(0).getContext('2d')
+          var barChart                         = new Chart(barChartCanvas)
+          var barChartData                     = chartdata
+          var barChartOptions                  = {
+            //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
+            scaleBeginAtZero        : true,
+            //Boolean - Whether grid lines are shown across the chart
+            scaleShowGridLines      : true,
+            //String - Colour of the grid lines
+            scaleGridLineColor      : 'rgba(0,0,0,.05)',
+            //Number - Width of the grid lines
+            scaleGridLineWidth      : 1,
+            //Boolean - Whether to show horizontal lines (except X axis)
+            scaleShowHorizontalLines: true,
+            //Boolean - Whether to show vertical lines (except Y axis)
+            scaleShowVerticalLines  : true,
+            //Boolean - If there is a stroke on each bar
+            barShowStroke           : true,
+            //Number - Pixel width of the bar stroke
+            barStrokeWidth          : 2,
+            //Number - Spacing between each of the X value sets
+            barValueSpacing         : 5,
+            //Number - Spacing between data sets within X values
+            barDatasetSpacing       : 1,
+            //Boolean - whether to make the chart responsive
+            responsive              : true,
+            maintainAspectRatio     : true,
+          }
+
+          barChartOptions.datasetFill = false
+          barChart.Bar(barChartData, barChartOptions)
+        },
+        error: function(data) {
+          console.log(data);
+        }
+      });
+    }
+    else if(reportValue == 'Pie Chart')
+    {
+      var PieData = [];
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getEducationPopulation",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : $('#yearEducation').val()
+        },
+        success: function(data) {
+          var bracket = [];
+          // var age = [];
+
+          // for(var i in data) {
+          //   bracket.push(data[i].Level + ' : ' + data[i].TotalBorrower);
+          //   age.push(data[i].TotalBorrower);
+          // }
+
+          $('#educationChart').html('');
+          $('#educationChart').html('<canvas id="chartEducation" style="height:230px"></canvas>');
+          var pieChartCanvas = $("#chartEducation").get(0).getContext("2d");
+          var pieChart = new Chart(pieChartCanvas);
+          var PieData = [];
+
+          data.forEach(function(e) {
+              var random_color = '#' + Math.floor(Math.random() * 16777215).toString(16);
+              bracket.push({
+                  value: e.TotalBorrower,
+                  color: random_color,
+                  highlight: random_color,
+                  label: e.Level
+              });
+          });
+
+          // var chartdata = {
+          //   labels: bracket,
+          //   datasets : [
+          //     {
+          //       label: 'Age Population',
+          //       fillColor           : 'rgb(54, 145, 236)',
+          //       strokeColor         : 'rgb(26, 114, 203)',
+          //       pointColor          : 'rgba(210, 214, 222, 1)',
+          //       data: age
+          //     }
+          //   ]
+          // };
+
+          // var barChartCanvas                   = $('#chartEducation').get(0).getContext('2d')
+          // var barChart                         = new Chart(barChartCanvas)
+          // var barChartData                     = chartdata
+          var pieOptions = {
+              //Boolean - Whether we should show a stroke on each segment
+              segmentShowStroke: true,
+              //String - The colour of each segment stroke
+              segmentStrokeColor: "#fff",
+              //Number - The width of each segment stroke
+              segmentStrokeWidth: 2,
+              //Number - The percentage of the chart that we cut out of the middle
+              percentageInnerCutout: 0, // This is 0 for Pie charts
+              //Number - Amount of animation steps
+              animationSteps: 100,
+              //String - Animation easing effect
+              // animationEasing: "easeOutBounce",
+              //Boolean - Whether we animate the rotation of the Doughnut
+              animateRotate: true,
+              //Boolean - Whether we animate scaling the Doughnut from the centre
+              animateScale: false,
+              //Boolean - whether to make the chart responsive to window resizing
+              responsive: true,
+              // Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+              maintainAspectRatio: true,
+              //String - A legend template
+              legendTemplate: "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>"
+          };
+
+          // barChartOptions.datasetFill = false
+
+          // $('#educationChart').html('');
+          // $('#educationChart').html('<canvas id="chartEducation" style="height:230px"></canvas>');
+          pieChart.Doughnut(bracket, pieOptions);
+          
+          // barChart.Bar(chartdata, areaChartOptions)  
+        },
+        error: function(data) {
+          console.log(data);
+        }
+      });
+    }
+  }
+
+  function changeGenderReport(reportValue)
+  {
+    if(reportValue == 'Bar Graph')
+    {
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getGenderPopulation",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : $('#selectGenderYear').val()
+        },
+        success: function(data) {
+          var bracket = [];
+          var age = [];
+
+          for(var i in data) {
+            bracket.push(data[i].name);
+            age.push(data[i].TotalGender);
+          }
+
+          var chartdata = {
+            labels: bracket,
+            datasets : [
+              {
+                label: 'Gender',
+                fillColor           : 'rgb(54, 145, 236)',
+                strokeColor         : 'rgb(26, 114, 203)',
+                pointColor          : 'rgba(210, 214, 222, 1)',
+                data: age
+              }
+            ]
+          };
+
+          $('#divGenderChart').html('');
+          $('#divGenderChart').html('<canvas id="chartGender" style="height:230px"></canvas>');
+          var barChartCanvas                   = $('#chartGender').get(0).getContext('2d')
+          var barChart                         = new Chart(barChartCanvas)
+          var barChartData                     = chartdata
+          var barChartOptions                  = {
+            //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
+            scaleBeginAtZero        : true,
+            //Boolean - Whether grid lines are shown across the chart
+            scaleShowGridLines      : true,
+            //String - Colour of the grid lines
+            scaleGridLineColor      : 'rgba(0,0,0,.05)',
+            //Number - Width of the grid lines
+            scaleGridLineWidth      : 1,
+            //Boolean - Whether to show horizontal lines (except X axis)
+            scaleShowHorizontalLines: true,
+            //Boolean - Whether to show vertical lines (except Y axis)
+            scaleShowVerticalLines  : true,
+            //Boolean - If there is a stroke on each bar
+            barShowStroke           : true,
+            //Number - Pixel width of the bar stroke
+            barStrokeWidth          : 2,
+            //Number - Spacing between each of the X value sets
+            barValueSpacing         : 5,
+            //Number - Spacing between data sets within X values
+            barDatasetSpacing       : 1,
+            //Boolean - whether to make the chart responsive
+            responsive              : true,
+            maintainAspectRatio     : true
+          }
+
+          barChartOptions.datasetFill = false
+          barChart.Bar(barChartData, barChartOptions)
+        },
+        error: function(data) {
+          console.log(data);
+        }
+      });
+    }
+    else if(reportValue == 'Pie Chart')
+    {
+      var PieData = [];
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getGenderPopulation",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : $('#selectGenderYear').val()
+        },
+        success: function(data) {
+          var bracket = [];
+          $('#divGenderChart').html('');
+          $('#divGenderChart').html('<canvas id="chartGender" style="height:230px"></canvas>');
+          var pieChartCanvas = $("#chartGender").get(0).getContext("2d");
+          var pieChart = new Chart(pieChartCanvas);
+          var PieData = [];
+
+          data.forEach(function(e) {
+              var random_color = '#' + Math.floor(Math.random() * 16777215).toString(16);
+              bracket.push({
+                  value: e.TotalGender,
+                  color: random_color,
+                  highlight: random_color,
+                  label: e.name
+              });
+          });
+
+          // var chartdata = {
+          //   labels: bracket,
+          //   datasets : [
+          //     {
+          //       label: 'Age Population',
+          //       fillColor           : 'rgb(54, 145, 236)',
+          //       strokeColor         : 'rgb(26, 114, 203)',
+          //       pointColor          : 'rgba(210, 214, 222, 1)',
+          //       data: age
+          //     }
+          //   ]
+          // };
+
+          // var barChartCanvas                   = $('#chartEducation').get(0).getContext('2d')
+          // var barChart                         = new Chart(barChartCanvas)
+          // var barChartData                     = chartdata
+          var pieOptions = {
+              //Boolean - Whether we should show a stroke on each segment
+              segmentShowStroke: true,
+              //String - The colour of each segment stroke
+              segmentStrokeColor: "#fff",
+              //Number - The width of each segment stroke
+              segmentStrokeWidth: 2,
+              //Number - The percentage of the chart that we cut out of the middle
+              percentageInnerCutout: 0, // This is 0 for Pie charts
+              //Number - Amount of animation steps
+              animationSteps: 100,
+              //String - Animation easing effect
+              // animationEasing: "easeOutBounce",
+              //Boolean - Whether we animate the rotation of the Doughnut
+              animateRotate: true,
+              //Boolean - Whether we animate scaling the Doughnut from the centre
+              animateScale: false,
+              //Boolean - whether to make the chart responsive to window resizing
+              responsive: true,
+              // Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+              maintainAspectRatio: true,
+              //String - A legend template
+              legendTemplate: "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>"
+          };
+
+          // barChartOptions.datasetFill = false
+
+          // $('#educationChart').html('');
+          // $('#educationChart').html('<canvas id="chartEducation" style="height:230px"></canvas>');
+          pieChart.Doughnut(bracket, pieOptions);
+        },
+        error: function(data) {
+          console.log(data);
+        }
+      });
+    }
+  }
+
+  function changeOccupationReport(reportValue)
+  {
+    if(reportValue == 'Bar Graph')
+    {
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getOccupationPopulation",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : $('#selectOccupationYear').val()
+        },
+        success: function(data) {
+          var bracket = [];
+          var age = [];
+
+          for(var i in data) {
+            bracket.push(data[i].Occupation);
+            age.push(data[i].TotalBorrowers);
+          }
+
+          var chartdata = {
+            labels: bracket,
+            datasets : [
+              {
+                label: 'Occupation',
+                fillColor           : 'rgb(54, 145, 236)',
+                strokeColor         : 'rgb(26, 114, 203)',
+                pointColor          : 'rgba(210, 214, 222, 1)',
+                data: age
+              }
+            ]
+          };
+
+          $('#divOccupationChart').html('');
+          $('#divOccupationChart').html('<canvas id="chartOccupation" style="height:50%"></canvas>');
+          var barChartCanvas                   = $('#chartOccupation').get(0).getContext('2d')
+          var barChart                         = new Chart(barChartCanvas)
+          var barChartData                     = chartdata
+          var barChartOptions                  = {
+            //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
+            scaleBeginAtZero        : true,
+            //Boolean - Whether grid lines are shown across the chart
+            scaleShowGridLines      : true,
+            //String - Colour of the grid lines
+            scaleGridLineColor      : 'rgba(0,0,0,.05)',
+            //Number - Width of the grid lines
+            scaleGridLineWidth      : 1,
+            //Boolean - Whether to show horizontal lines (except X axis)
+            scaleShowHorizontalLines: true,
+            //Boolean - Whether to show vertical lines (except Y axis)
+            scaleShowVerticalLines  : true,
+            //Boolean - If there is a stroke on each bar
+            barShowStroke           : true,
+            //Number - Pixel width of the bar stroke
+            barStrokeWidth          : 2,
+            //Number - Spacing between each of the X value sets
+            barValueSpacing         : 5,
+            //Number - Spacing between data sets within X values
+            barDatasetSpacing       : 1,
+            //Boolean - whether to make the chart responsive
+            responsive              : true,
+            maintainAspectRatio     : true
+          }
+
+          barChartOptions.datasetFill = false
+          barChart.Bar(barChartData, barChartOptions)
+        },
+        error: function(data) {
+          console.log(data);
+        }
+      });
+    }
+    else if(reportValue == 'Pie Chart')
+    {
+      var PieData = [];
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getOccupationPopulation",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : $('#selectGenderYear').val()
+        },
+        success: function(data) {
+          var bracket = [];
+          $('#divOccupationChart').html('');
+          $('#divOccupationChart').html('<canvas id="chartOccupation" style="height:230px"></canvas>');
+          var pieChartCanvas = $("#chartOccupation").get(0).getContext("2d");
+          var pieChart = new Chart(pieChartCanvas);
+          var PieData = [];
+
+          data.forEach(function(e) {
+              var random_color = '#' + Math.floor(Math.random() * 16777215).toString(16);
+              bracket.push({
+                value: e.TotalBorrowers,
+                color: random_color,
+                highlight: random_color,
+                label: e.Occupation
+              });
+          });
+
+          // var chartdata = {
+          //   labels: bracket,
+          //   datasets : [
+          //     {
+          //       label: 'Age Population',
+          //       fillColor           : 'rgb(54, 145, 236)',
+          //       strokeColor         : 'rgb(26, 114, 203)',
+          //       pointColor          : 'rgba(210, 214, 222, 1)',
+          //       data: age
+          //     }
+          //   ]
+          // };
+
+          // var barChartCanvas                   = $('#chartEducation').get(0).getContext('2d')
+          // var barChart                         = new Chart(barChartCanvas)
+          // var barChartData                     = chartdata
+          var pieOptions = {
+              //Boolean - Whether we should show a stroke on each segment
+              segmentShowStroke: true,
+              //String - The colour of each segment stroke
+              segmentStrokeColor: "#fff",
+              //Number - The width of each segment stroke
+              segmentStrokeWidth: 2,
+              //Number - The percentage of the chart that we cut out of the middle
+              percentageInnerCutout: 0, // This is 0 for Pie charts
+              //Number - Amount of animation steps
+              animationSteps: 100,
+              //String - Animation easing effect
+              // animationEasing: "easeOutBounce",
+              //Boolean - Whether we animate the rotation of the Doughnut
+              animateRotate: true,
+              //Boolean - Whether we animate scaling the Doughnut from the centre
+              animateScale: false,
+              //Boolean - whether to make the chart responsive to window resizing
+              responsive: true,
+              // Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+              maintainAspectRatio: true,
+              //String - A legend template
+              legendTemplate: "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>"
+          };
+
+          // barChartOptions.datasetFill = false
+
+          // $('#educationChart').html('');
+          // $('#educationChart').html('<canvas id="chartEducation" style="height:230px"></canvas>');
+          pieChart.Doughnut(bracket, pieOptions);
+        },
+        error: function(data) {
+          console.log(data);
+        }
+      });
+    }
+  }
+
+  function changeIncomeReport(reportValue)
+  {
+    $('#divIncomeChart').html('');
+    $('#divIncomeChart').html('<canvas id="chartIncome" style="height:230px"></canvas>');
+    if(reportValue == 'Bar Graph')
+    {
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getIncomeLevelPopulation",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : $('#selectIncomeYear').val()
+        },
+        success: function(data) {
+          var bracket = [];
+          var age = [];
+
+          for(var i in data) {
+            bracket.push(data[i].IncomeLevel);
+            age.push(data[i].TotalBorrowers);
+          }
+
+          var chartdata = {
+            labels: bracket,
+            datasets : [
+              {
+                label: 'Income Level',
+                fillColor           : 'rgb(54, 145, 236)',
+                strokeColor         : 'rgb(26, 114, 203)',
+                pointColor          : 'rgba(210, 214, 222, 1)',
+                data: age
+              }
+            ]
+          };
+
+          var barChartCanvas                   = $('#chartIncome').get(0).getContext('2d')
+          var barChart                         = new Chart(barChartCanvas)
+          var barChartData                     = chartdata
+          var barChartOptions                  = {
+            //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
+            scaleBeginAtZero        : true,
+            //Boolean - Whether grid lines are shown across the chart
+            scaleShowGridLines      : true,
+            //String - Colour of the grid lines
+            scaleGridLineColor      : 'rgba(0,0,0,.05)',
+            //Number - Width of the grid lines
+            scaleGridLineWidth      : 1,
+            //Boolean - Whether to show horizontal lines (except X axis)
+            scaleShowHorizontalLines: true,
+            //Boolean - Whether to show vertical lines (except Y axis)
+            scaleShowVerticalLines  : true,
+            //Boolean - If there is a stroke on each bar
+            barShowStroke           : true,
+            //Number - Pixel width of the bar stroke
+            barStrokeWidth          : 2,
+            //Number - Spacing between each of the X value sets
+            barValueSpacing         : 5,
+            //Number - Spacing between data sets within X values
+            barDatasetSpacing       : 1,
+            //Boolean - whether to make the chart responsive
+            responsive              : true,
+            maintainAspectRatio     : true
+          }
+
+          barChartOptions.datasetFill = false
+          barChart.Bar(barChartData, barChartOptions)
+        },
+        error: function(data) {
+          console.log(data);
+        }
+      });
+    }
+    else if(reportValue == 'Pie Chart')
+    {
+      var PieData = [];
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getIncomeLevelPopulation",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : $('#selectIncomeYear').val()
+        },
+        success: function(data) {
+          var bracket = [];
+          var pieChartCanvas = $("#chartIncome").get(0).getContext("2d");
+          var pieChart = new Chart(pieChartCanvas);
+          var PieData = [];
+
+          data.forEach(function(e) {
+              var random_color = '#' + Math.floor(Math.random() * 16777215).toString(16);
+              bracket.push({
+                value: e.TotalBorrowers,
+                color: random_color,
+                highlight: random_color,
+                label: e.IncomeLevel
+              });
+          });
+
+          // var chartdata = {
+          //   labels: bracket,
+          //   datasets : [
+          //     {
+          //       label: 'Age Population',
+          //       fillColor           : 'rgb(54, 145, 236)',
+          //       strokeColor         : 'rgb(26, 114, 203)',
+          //       pointColor          : 'rgba(210, 214, 222, 1)',
+          //       data: age
+          //     }
+          //   ]
+          // };
+
+          // var barChartCanvas                   = $('#chartEducation').get(0).getContext('2d')
+          // var barChart                         = new Chart(barChartCanvas)
+          // var barChartData                     = chartdata
+          var pieOptions = {
+              //Boolean - Whether we should show a stroke on each segment
+              segmentShowStroke: true,
+              //String - The colour of each segment stroke
+              segmentStrokeColor: "#fff",
+              //Number - The width of each segment stroke
+              segmentStrokeWidth: 2,
+              //Number - The percentage of the chart that we cut out of the middle
+              percentageInnerCutout: 0, // This is 0 for Pie charts
+              //Number - Amount of animation steps
+              animationSteps: 100,
+              //String - Animation easing effect
+              // animationEasing: "easeOutBounce",
+              //Boolean - Whether we animate the rotation of the Doughnut
+              animateRotate: true,
+              //Boolean - Whether we animate scaling the Doughnut from the centre
+              animateScale: false,
+              //Boolean - whether to make the chart responsive to window resizing
+              responsive: true,
+              // Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+              maintainAspectRatio: true,
+              //String - A legend template
+              legendTemplate: "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>"
+          };
+
+          // barChartOptions.datasetFill = false
+
+          // $('#educationChart').html('');
+          // $('#educationChart').html('<canvas id="chartEducation" style="height:230px"></canvas>');
+          pieChart.Doughnut(bracket, pieOptions);
+        },
+        error: function(data) {
+          console.log(data);
+        }
+      });
+    }
+  }
+
+  function changeCollectionReport(reportValue)
+  {
+    $('#divM1Chart').html('');
+    $('#divM1Chart').html('<canvas id="M1Chart" style="height:230px"></canvas>');
+    if(reportValue == 'Line Graph')
+    {
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getMonthlyCollection",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : $('#selectColectionYear').val()
+        },
+        success: function(data) {
+          var bracket = [];
+          var age = [];
+
+          for(var i in data) {
+            bracket.push(data[i].Month);
+            age.push(data[i].Total);
+          }
+
+          var chartdata = {
+            labels: bracket,
+            datasets : [
+              {
+                label: 'Age Bracket',
+                fillColor           : 'rgb(54, 145, 236)',
+                strokeColor         : 'rgb(26, 114, 203)',
+                pointColor          : 'rgba(210, 214, 222, 1)',
+                data: age
+              }
+            ]
+          };          
+
+          var areaChartOptions = {
+            //Boolean - If we should show the scale at all
+            showScale               : true,
+            //Boolean - Whether grid lines are shown across the chart
+            scaleShowGridLines      : false,
+            //String - Colour of the grid lines
+            scaleGridLineColor      : 'rgb(89, 97, 247)',
+            //Number - Width of the grid lines
+            scaleGridLineWidth      : 1,
+            //Boolean - Whether to show horizontal lines (except X axis)
+            scaleShowHorizontalLines: true,
+            //Boolean - Whether to show vertical lines (except Y axis)
+            scaleShowVerticalLines  : true,
+            //Boolean - Whether the line is curved between points
+            bezierCurve             : true,
+            //Number - Tension of the bezier curve between points
+            bezierCurveTension      : 0.3,
+            //Boolean - Whether to show a dot for each point
+            pointDot                : false,
+            //Number - Radius of each point dot in pixels
+            pointDotRadius          : 4,
+            //Number - Pixel width of point dot stroke
+            pointDotStrokeWidth     : 1,
+            //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
+            pointHitDetectionRadius : 20,
+            //Boolean - Whether to show a stroke for datasets
+            datasetStroke           : true,
+            //Number - Pixel width of dataset stroke
+            datasetStrokeWidth      : 2,
+            //Boolean - Whether to fill the dataset with a color
+            datasetFill             : true,
+            //Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+            maintainAspectRatio     : true,
+            //Boolean - whether to make the chart responsive to window resizing
+            responsive              : true
+          }
+
+          // barChartOptions.datasetFill = false
+          // barChart.Line(barChartData, barChartOptions)
+
+          var lineChartCanvas          = $('#M1Chart').get(0).getContext('2d')
+          var lineChart                = new Chart(lineChartCanvas)
+          var lineChartOptions         = areaChartOptions
+          lineChartOptions.datasetFill = false
+          lineChart.Line(chartdata, lineChartOptions)
+        },
+        error: function(data) {
+          console.log(data);
+        }
+      });
+    }
+    else if(reportValue == 'Pie Chart')
+    {
+      var PieData = [];
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getMonthlyCollection",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : $('#selectColectionYear').val()
+        },
+        success: function(data) {
+          var bracket = [];
+          var pieChartCanvas = $("#M1Chart").get(0).getContext("2d");
+          var pieChart = new Chart(pieChartCanvas);
+          var PieData = [];
+
+          data.forEach(function(e) {
+              var random_color = '#' + Math.floor(Math.random() * 16777215).toString(16);
+              bracket.push({
+                value: e.Total,
+                color: random_color,
+                highlight: random_color,
+                label: e.Month
+              });
+          });
+
+          // var chartdata = {
+          //   labels: bracket,
+          //   datasets : [
+          //     {
+          //       label: 'Age Population',
+          //       fillColor           : 'rgb(54, 145, 236)',
+          //       strokeColor         : 'rgb(26, 114, 203)',
+          //       pointColor          : 'rgba(210, 214, 222, 1)',
+          //       data: age
+          //     }
+          //   ]
+          // };
+
+          // var barChartCanvas                   = $('#chartEducation').get(0).getContext('2d')
+          // var barChart                         = new Chart(barChartCanvas)
+          // var barChartData                     = chartdata
+          var pieOptions = {
+              //Boolean - Whether we should show a stroke on each segment
+              segmentShowStroke: true,
+              //String - The colour of each segment stroke
+              segmentStrokeColor: "#fff",
+              //Number - The width of each segment stroke
+              segmentStrokeWidth: 2,
+              //Number - The percentage of the chart that we cut out of the middle
+              percentageInnerCutout: 0, // This is 0 for Pie charts
+              //Number - Amount of animation steps
+              animationSteps: 100,
+              //String - Animation easing effect
+              // animationEasing: "easeOutBounce",
+              //Boolean - Whether we animate the rotation of the Doughnut
+              animateRotate: true,
+              //Boolean - Whether we animate scaling the Doughnut from the centre
+              animateScale: false,
+              //Boolean - whether to make the chart responsive to window resizing
+              responsive: true,
+              // Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+              maintainAspectRatio: true,
+              //String - A legend template
+              legendTemplate: "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>"
+          };
+
+          // barChartOptions.datasetFill = false
+
+          // $('#educationChart').html('');
+          // $('#educationChart').html('<canvas id="chartEducation" style="height:230px"></canvas>');
+          pieChart.Doughnut(bracket, pieOptions);
+        },
+        error: function(data) {
+          console.log(data);
+        }
+      });
+    }
+    if(reportValue == 'Bar Graph')
+    {
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getMonthlyCollection",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : $('#selectColectionYear').val()
+        },
+        success: function(data) {
+          var bracket = [];
+          var age = [];
+
+          for(var i in data) {
+            bracket.push(data[i].Month);
+            age.push(data[i].Total);
+          }
+
+          var chartdata = {
+            labels: bracket,
+            datasets : [
+              {
+                label: 'Income Level',
+                fillColor           : 'rgb(54, 145, 236)',
+                strokeColor         : 'rgb(26, 114, 203)',
+                pointColor          : 'rgba(210, 214, 222, 1)',
+                data: age
+              }
+            ]
+          };
+
+          var barChartCanvas                   = $('#M1Chart').get(0).getContext('2d')
+          var barChart                         = new Chart(barChartCanvas)
+          var barChartData                     = chartdata
+          var barChartOptions                  = {
+            //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
+            scaleBeginAtZero        : true,
+            //Boolean - Whether grid lines are shown across the chart
+            scaleShowGridLines      : true,
+            //String - Colour of the grid lines
+            scaleGridLineColor      : 'rgba(0,0,0,.05)',
+            //Number - Width of the grid lines
+            scaleGridLineWidth      : 1,
+            //Boolean - Whether to show horizontal lines (except X axis)
+            scaleShowHorizontalLines: true,
+            //Boolean - Whether to show vertical lines (except Y axis)
+            scaleShowVerticalLines  : true,
+            //Boolean - If there is a stroke on each bar
+            barShowStroke           : true,
+            //Number - Pixel width of the bar stroke
+            barStrokeWidth          : 2,
+            //Number - Spacing between each of the X value sets
+            barValueSpacing         : 5,
+            //Number - Spacing between data sets within X values
+            barDatasetSpacing       : 1,
+            //Boolean - whether to make the chart responsive
+            responsive              : true,
+            maintainAspectRatio     : true
+          }
+
+          barChartOptions.datasetFill = false
+          barChart.Bar(barChartData, barChartOptions)
+        },
+        error: function(data) {
+          console.log(data);
+        }
+      });
+    }
+  }
+
+  function changeDisbursementReport(reportValue)
+  {
+    $('#divM2Chart').html('');
+    $('#divM2Chart').html('<canvas id="M2Chart" style="height:230px"></canvas>');
+    if(reportValue == 'Line Graph')
+    {
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getMonthlyDisbursement",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : $('#selectDisbursementYear').val()
+        },
+        success: function(data) {
+          var bracket = [];
+          var age = [];
+
+          for(var i in data) {
+            bracket.push(data[i].Month);
+            age.push(data[i].Total);
+          }
+
+          var chartdata = {
+            labels: bracket,
+            datasets : [
+              {
+                label: 'Age Bracket',
+                fillColor           : 'rgb(54, 145, 236)',
+                strokeColor         : 'rgb(26, 114, 203)',
+                pointColor          : 'rgba(210, 214, 222, 1)',
+                data: age
+              }
+            ]
+          };          
+
+          var areaChartOptions = {
+            //Boolean - If we should show the scale at all
+            showScale               : true,
+            //Boolean - Whether grid lines are shown across the chart
+            scaleShowGridLines      : false,
+            //String - Colour of the grid lines
+            scaleGridLineColor      : 'rgb(89, 97, 247)',
+            //Number - Width of the grid lines
+            scaleGridLineWidth      : 1,
+            //Boolean - Whether to show horizontal lines (except X axis)
+            scaleShowHorizontalLines: true,
+            //Boolean - Whether to show vertical lines (except Y axis)
+            scaleShowVerticalLines  : true,
+            //Boolean - Whether the line is curved between points
+            bezierCurve             : true,
+            //Number - Tension of the bezier curve between points
+            bezierCurveTension      : 0.3,
+            //Boolean - Whether to show a dot for each point
+            pointDot                : false,
+            //Number - Radius of each point dot in pixels
+            pointDotRadius          : 4,
+            //Number - Pixel width of point dot stroke
+            pointDotStrokeWidth     : 1,
+            //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
+            pointHitDetectionRadius : 20,
+            //Boolean - Whether to show a stroke for datasets
+            datasetStroke           : true,
+            //Number - Pixel width of dataset stroke
+            datasetStrokeWidth      : 2,
+            //Boolean - Whether to fill the dataset with a color
+            datasetFill             : true,
+            //Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+            maintainAspectRatio     : true,
+            //Boolean - whether to make the chart responsive to window resizing
+            responsive              : true
+          }
+
+          // barChartOptions.datasetFill = false
+          // barChart.Line(barChartData, barChartOptions)
+
+          var lineChartCanvas          = $('#M2Chart').get(0).getContext('2d')
+          var lineChart                = new Chart(lineChartCanvas)
+          var lineChartOptions         = areaChartOptions
+          lineChartOptions.datasetFill = false
+          lineChart.Line(chartdata, lineChartOptions)
+        },
+        error: function(data) {
+          console.log(data);
+        }
+      });
+    }
+    else if(reportValue == 'Pie Chart')
+    {
+      var PieData = [];
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getMonthlyDisbursement",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : $('#selectDisbursementYear').val()
+        },
+        success: function(data) {
+          var bracket = [];
+          var pieChartCanvas = $("#M2Chart").get(0).getContext("2d");
+          var pieChart = new Chart(pieChartCanvas);
+          var PieData = [];
+
+          data.forEach(function(e) {
+              var random_color = '#' + Math.floor(Math.random() * 16777215).toString(16);
+              bracket.push({
+                value: e.Total,
+                color: random_color,
+                highlight: random_color,
+                label: e.Month
+              });
+          });
+
+          // var chartdata = {
+          //   labels: bracket,
+          //   datasets : [
+          //     {
+          //       label: 'Age Population',
+          //       fillColor           : 'rgb(54, 145, 236)',
+          //       strokeColor         : 'rgb(26, 114, 203)',
+          //       pointColor          : 'rgba(210, 214, 222, 1)',
+          //       data: age
+          //     }
+          //   ]
+          // };
+
+          // var barChartCanvas                   = $('#chartEducation').get(0).getContext('2d')
+          // var barChart                         = new Chart(barChartCanvas)
+          // var barChartData                     = chartdata
+          var pieOptions = {
+              //Boolean - Whether we should show a stroke on each segment
+              segmentShowStroke: true,
+              //String - The colour of each segment stroke
+              segmentStrokeColor: "#fff",
+              //Number - The width of each segment stroke
+              segmentStrokeWidth: 2,
+              //Number - The percentage of the chart that we cut out of the middle
+              percentageInnerCutout: 0, // This is 0 for Pie charts
+              //Number - Amount of animation steps
+              animationSteps: 100,
+              //String - Animation easing effect
+              // animationEasing: "easeOutBounce",
+              //Boolean - Whether we animate the rotation of the Doughnut
+              animateRotate: true,
+              //Boolean - Whether we animate scaling the Doughnut from the centre
+              animateScale: false,
+              //Boolean - whether to make the chart responsive to window resizing
+              responsive: true,
+              // Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+              maintainAspectRatio: true,
+              //String - A legend template
+              legendTemplate: "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>"
+          };
+
+          // barChartOptions.datasetFill = false
+
+          // $('#educationChart').html('');
+          // $('#educationChart').html('<canvas id="chartEducation" style="height:230px"></canvas>');
+          pieChart.Doughnut(bracket, pieOptions);
+        },
+        error: function(data) {
+          console.log(data);
+        }
+      });
+    }
+    if(reportValue == 'Bar Graph')
+    {
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getMonthlyDisbursement",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : $('#selectDisbursementYear').val()
+        },
+        success: function(data) {
+          var bracket = [];
+          var age = [];
+
+          for(var i in data) {
+            bracket.push(data[i].Month);
+            age.push(data[i].Total);
+          }
+
+          var chartdata = {
+            labels: bracket,
+            datasets : [
+              {
+                label: 'Income Level',
+                fillColor           : 'rgb(54, 145, 236)',
+                strokeColor         : 'rgb(26, 114, 203)',
+                pointColor          : 'rgba(210, 214, 222, 1)',
+                data: age
+              }
+            ]
+          };
+
+          var barChartCanvas                   = $('#M2Chart').get(0).getContext('2d')
+          var barChart                         = new Chart(barChartCanvas)
+          var barChartData                     = chartdata
+          var barChartOptions                  = {
+            //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
+            scaleBeginAtZero        : true,
+            //Boolean - Whether grid lines are shown across the chart
+            scaleShowGridLines      : true,
+            //String - Colour of the grid lines
+            scaleGridLineColor      : 'rgba(0,0,0,.05)',
+            //Number - Width of the grid lines
+            scaleGridLineWidth      : 1,
+            //Boolean - Whether to show horizontal lines (except X axis)
+            scaleShowHorizontalLines: true,
+            //Boolean - Whether to show vertical lines (except Y axis)
+            scaleShowVerticalLines  : true,
+            //Boolean - If there is a stroke on each bar
+            barShowStroke           : true,
+            //Number - Pixel width of the bar stroke
+            barStrokeWidth          : 2,
+            //Number - Spacing between each of the X value sets
+            barValueSpacing         : 5,
+            //Number - Spacing between data sets within X values
+            barDatasetSpacing       : 1,
+            //Boolean - whether to make the chart responsive
+            responsive              : true,
+            maintainAspectRatio     : true
+          }
+
+          barChartOptions.datasetFill = false
+          barChart.Bar(barChartData, barChartOptions)
+        },
+        error: function(data) {
+          console.log(data);
+        }
+      });
+    }
+  }
+
+  function changeInterestReport(reportValue)
+  {
+    $('#divM3Chart').html('');
+    $('#divM3Chart').html('<canvas id="M3Chart" style="height:230px"></canvas>');
+    if(reportValue == 'Line Graph')
+    {
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getMonthlyInterest",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : $('#selectIncomeYear').val()
+        },
+        success: function(data) {
+          var bracket = [];
+          var age = [];
+
+          for(var i in data) {
+            bracket.push(data[i].Month);
+            age.push(data[i].Total);
+          }
+
+          var chartdata = {
+            labels: bracket,
+            datasets : [
+              {
+                label: 'Age Bracket',
+                fillColor           : 'rgb(54, 145, 236)',
+                strokeColor         : 'rgb(26, 114, 203)',
+                pointColor          : 'rgba(210, 214, 222, 1)',
+                data: age
+              }
+            ]
+          };          
+
+          var areaChartOptions = {
+            //Boolean - If we should show the scale at all
+            showScale               : true,
+            //Boolean - Whether grid lines are shown across the chart
+            scaleShowGridLines      : false,
+            //String - Colour of the grid lines
+            scaleGridLineColor      : 'rgb(89, 97, 247)',
+            //Number - Width of the grid lines
+            scaleGridLineWidth      : 1,
+            //Boolean - Whether to show horizontal lines (except X axis)
+            scaleShowHorizontalLines: true,
+            //Boolean - Whether to show vertical lines (except Y axis)
+            scaleShowVerticalLines  : true,
+            //Boolean - Whether the line is curved between points
+            bezierCurve             : true,
+            //Number - Tension of the bezier curve between points
+            bezierCurveTension      : 0.3,
+            //Boolean - Whether to show a dot for each point
+            pointDot                : false,
+            //Number - Radius of each point dot in pixels
+            pointDotRadius          : 4,
+            //Number - Pixel width of point dot stroke
+            pointDotStrokeWidth     : 1,
+            //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
+            pointHitDetectionRadius : 20,
+            //Boolean - Whether to show a stroke for datasets
+            datasetStroke           : true,
+            //Number - Pixel width of dataset stroke
+            datasetStrokeWidth      : 2,
+            //Boolean - Whether to fill the dataset with a color
+            datasetFill             : true,
+            //Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+            maintainAspectRatio     : true,
+            //Boolean - whether to make the chart responsive to window resizing
+            responsive              : true
+          }
+
+          // barChartOptions.datasetFill = false
+          // barChart.Line(barChartData, barChartOptions)
+
+          var lineChartCanvas          = $('#M3Chart').get(0).getContext('2d')
+          var lineChart                = new Chart(lineChartCanvas)
+          var lineChartOptions         = areaChartOptions
+          lineChartOptions.datasetFill = false
+          lineChart.Line(chartdata, lineChartOptions)
+        },
+        error: function(data) {
+          console.log(data);
+        }
+      });
+    }
+    else if(reportValue == 'Pie Chart')
+    {
+      var PieData = [];
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getMonthlyInterest",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : $('#selectIncomeYear').val()
+        },
+        success: function(data) {
+          var bracket = [];
+          var pieChartCanvas = $("#M3Chart").get(0).getContext("2d");
+          var pieChart = new Chart(pieChartCanvas);
+          var PieData = [];
+
+          data.forEach(function(e) {
+              var random_color = '#' + Math.floor(Math.random() * 16777215).toString(16);
+              bracket.push({
+                value: e.Total,
+                color: random_color,
+                highlight: random_color,
+                label: e.Month
+              });
+          });
+
+          // var chartdata = {
+          //   labels: bracket,
+          //   datasets : [
+          //     {
+          //       label: 'Age Population',
+          //       fillColor           : 'rgb(54, 145, 236)',
+          //       strokeColor         : 'rgb(26, 114, 203)',
+          //       pointColor          : 'rgba(210, 214, 222, 1)',
+          //       data: age
+          //     }
+          //   ]
+          // };
+
+          // var barChartCanvas                   = $('#chartEducation').get(0).getContext('2d')
+          // var barChart                         = new Chart(barChartCanvas)
+          // var barChartData                     = chartdata
+          var pieOptions = {
+              //Boolean - Whether we should show a stroke on each segment
+              segmentShowStroke: true,
+              //String - The colour of each segment stroke
+              segmentStrokeColor: "#fff",
+              //Number - The width of each segment stroke
+              segmentStrokeWidth: 2,
+              //Number - The percentage of the chart that we cut out of the middle
+              percentageInnerCutout: 0, // This is 0 for Pie charts
+              //Number - Amount of animation steps
+              animationSteps: 100,
+              //String - Animation easing effect
+              // animationEasing: "easeOutBounce",
+              //Boolean - Whether we animate the rotation of the Doughnut
+              animateRotate: true,
+              //Boolean - Whether we animate scaling the Doughnut from the centre
+              animateScale: false,
+              //Boolean - whether to make the chart responsive to window resizing
+              responsive: true,
+              // Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+              maintainAspectRatio: true,
+              //String - A legend template
+              legendTemplate: "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>"
+          };
+
+          // barChartOptions.datasetFill = false
+
+          // $('#educationChart').html('');
+          // $('#educationChart').html('<canvas id="chartEducation" style="height:230px"></canvas>');
+          pieChart.Doughnut(bracket, pieOptions);
+        },
+        error: function(data) {
+          console.log(data);
+        }
+      });
+    }
+    if(reportValue == 'Bar Graph')
+    {
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getMonthlyInterest",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : $('#selectIncomeYear').val()
+        },
+        success: function(data) {
+          var bracket = [];
+          var age = [];
+
+          for(var i in data) {
+            bracket.push(data[i].Month);
+            age.push(data[i].Total);
+          }
+
+          var chartdata = {
+            labels: bracket,
+            datasets : [
+              {
+                label: 'Income Level',
+                fillColor           : 'rgb(54, 145, 236)',
+                strokeColor         : 'rgb(26, 114, 203)',
+                pointColor          : 'rgba(210, 214, 222, 1)',
+                data: age
+              }
+            ]
+          };
+
+          var barChartCanvas                   = $('#M3Chart').get(0).getContext('2d')
+          var barChart                         = new Chart(barChartCanvas)
+          var barChartData                     = chartdata
+          var barChartOptions                  = {
+            //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
+            scaleBeginAtZero        : true,
+            //Boolean - Whether grid lines are shown across the chart
+            scaleShowGridLines      : true,
+            //String - Colour of the grid lines
+            scaleGridLineColor      : 'rgba(0,0,0,.05)',
+            //Number - Width of the grid lines
+            scaleGridLineWidth      : 1,
+            //Boolean - Whether to show horizontal lines (except X axis)
+            scaleShowHorizontalLines: true,
+            //Boolean - Whether to show vertical lines (except Y axis)
+            scaleShowVerticalLines  : true,
+            //Boolean - If there is a stroke on each bar
+            barShowStroke           : true,
+            //Number - Pixel width of the bar stroke
+            barStrokeWidth          : 2,
+            //Number - Spacing between each of the X value sets
+            barValueSpacing         : 5,
+            //Number - Spacing between data sets within X values
+            barDatasetSpacing       : 1,
+            //Boolean - whether to make the chart responsive
+            responsive              : true,
+            maintainAspectRatio     : true
+          }
+
+          barChartOptions.datasetFill = false
+          barChart.Bar(barChartData, barChartOptions)
+        },
+        error: function(data) {
+          console.log(data);
+        }
+      });
+    }
+  }
+
+  // function changeLoansReport(reportValue)
+  // {
+  //   $('#divM3Chart').html('');
+  //   $('#divM3Chart').html('<canvas id="M3Chart" style="height:230px"></canvas>');
+  //   if(reportValue == 'Line Graph')
+  //   {
+  //     $.ajax({
+  //       url: "<?php echo base_url(); ?>admin_controller/getMonthlyDisbursement",
+  //       type: "POST",
+  //       async: false,
+  //       dataType: "JSON",
+  //       data : {
+  //         yearFilter : $('#selectDisbursementYear').val()
+  //       },
+  //       success: function(data) {
+  //         var bracket = [];
+  //         var age = [];
+
+  //         for(var i in data) {
+  //           bracket.push(data[i].Month);
+  //           age.push(data[i].Total);
+  //         }
+
+  //         var chartdata = {
+  //           labels: bracket,
+  //           datasets : [
+  //             {
+  //               label: 'Age Bracket',
+  //               fillColor           : 'rgb(54, 145, 236)',
+  //               strokeColor         : 'rgb(26, 114, 203)',
+  //               pointColor          : 'rgba(210, 214, 222, 1)',
+  //               data: age
+  //             }
+  //           ]
+  //         };          
+
+  //         var areaChartOptions = {
+  //           //Boolean - If we should show the scale at all
+  //           showScale               : true,
+  //           //Boolean - Whether grid lines are shown across the chart
+  //           scaleShowGridLines      : false,
+  //           //String - Colour of the grid lines
+  //           scaleGridLineColor      : 'rgb(89, 97, 247)',
+  //           //Number - Width of the grid lines
+  //           scaleGridLineWidth      : 1,
+  //           //Boolean - Whether to show horizontal lines (except X axis)
+  //           scaleShowHorizontalLines: true,
+  //           //Boolean - Whether to show vertical lines (except Y axis)
+  //           scaleShowVerticalLines  : true,
+  //           //Boolean - Whether the line is curved between points
+  //           bezierCurve             : true,
+  //           //Number - Tension of the bezier curve between points
+  //           bezierCurveTension      : 0.3,
+  //           //Boolean - Whether to show a dot for each point
+  //           pointDot                : false,
+  //           //Number - Radius of each point dot in pixels
+  //           pointDotRadius          : 4,
+  //           //Number - Pixel width of point dot stroke
+  //           pointDotStrokeWidth     : 1,
+  //           //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
+  //           pointHitDetectionRadius : 20,
+  //           //Boolean - Whether to show a stroke for datasets
+  //           datasetStroke           : true,
+  //           //Number - Pixel width of dataset stroke
+  //           datasetStrokeWidth      : 2,
+  //           //Boolean - Whether to fill the dataset with a color
+  //           datasetFill             : true,
+  //           //Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+  //           maintainAspectRatio     : true,
+  //           //Boolean - whether to make the chart responsive to window resizing
+  //           responsive              : true
+  //         }
+
+  //         // barChartOptions.datasetFill = false
+  //         // barChart.Line(barChartData, barChartOptions)
+
+  //         var lineChartCanvas          = $('#M2Chart').get(0).getContext('2d')
+  //         var lineChart                = new Chart(lineChartCanvas)
+  //         var lineChartOptions         = areaChartOptions
+  //         lineChartOptions.datasetFill = false
+  //         lineChart.Line(chartdata, lineChartOptions)
+  //       },
+  //       error: function(data) {
+  //         console.log(data);
+  //       }
+  //     });
+  //   }
+  //   else if(reportValue == 'Pie Chart')
+  //   {
+  //     var PieData = [];
+  //     $.ajax({
+  //       url: "<?php echo base_url(); ?>admin_controller/getMonthlyDisbursement",
+  //       type: "POST",
+  //       async: false,
+  //       dataType: "JSON",
+  //       data : {
+  //         yearFilter : $('#selectDisbursementYear').val()
+  //       },
+  //       success: function(data) {
+  //         var bracket = [];
+  //         var pieChartCanvas = $("#M2Chart").get(0).getContext("2d");
+  //         var pieChart = new Chart(pieChartCanvas);
+  //         var PieData = [];
+
+  //         data.forEach(function(e) {
+  //             var random_color = '#' + Math.floor(Math.random() * 16777215).toString(16);
+  //             bracket.push({
+  //               value: e.Total,
+  //               color: random_color,
+  //               highlight: random_color,
+  //               label: e.Month
+  //             });
+  //         });
+
+  //         // var chartdata = {
+  //         //   labels: bracket,
+  //         //   datasets : [
+  //         //     {
+  //         //       label: 'Age Population',
+  //         //       fillColor           : 'rgb(54, 145, 236)',
+  //         //       strokeColor         : 'rgb(26, 114, 203)',
+  //         //       pointColor          : 'rgba(210, 214, 222, 1)',
+  //         //       data: age
+  //         //     }
+  //         //   ]
+  //         // };
+
+  //         // var barChartCanvas                   = $('#chartEducation').get(0).getContext('2d')
+  //         // var barChart                         = new Chart(barChartCanvas)
+  //         // var barChartData                     = chartdata
+  //         var pieOptions = {
+  //             //Boolean - Whether we should show a stroke on each segment
+  //             segmentShowStroke: true,
+  //             //String - The colour of each segment stroke
+  //             segmentStrokeColor: "#fff",
+  //             //Number - The width of each segment stroke
+  //             segmentStrokeWidth: 2,
+  //             //Number - The percentage of the chart that we cut out of the middle
+  //             percentageInnerCutout: 0, // This is 0 for Pie charts
+  //             //Number - Amount of animation steps
+  //             animationSteps: 100,
+  //             //String - Animation easing effect
+  //             // animationEasing: "easeOutBounce",
+  //             //Boolean - Whether we animate the rotation of the Doughnut
+  //             animateRotate: true,
+  //             //Boolean - Whether we animate scaling the Doughnut from the centre
+  //             animateScale: false,
+  //             //Boolean - whether to make the chart responsive to window resizing
+  //             responsive: true,
+  //             // Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+  //             maintainAspectRatio: true,
+  //             //String - A legend template
+  //             legendTemplate: "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>"
+  //         };
+
+  //         // barChartOptions.datasetFill = false
+
+  //         // $('#educationChart').html('');
+  //         // $('#educationChart').html('<canvas id="chartEducation" style="height:230px"></canvas>');
+  //         pieChart.Doughnut(bracket, pieOptions);
+  //       },
+  //       error: function(data) {
+  //         console.log(data);
+  //       }
+  //     });
+  //   }
+  //   if(reportValue == 'Bar Graph')
+  //   {
+  //     $.ajax({
+  //       url: "<?php echo base_url(); ?>admin_controller/getLoanType",
+  //       type: "POST",
+  //       async: false,
+  //       dataType: "JSON",
+  //       data : {
+  //         yearFilter : $('#loanYear').val()
+  //       },
+  //       success: function(data) {
+  //         var bracket = [];
+  //         var age = [];
+
+  //         for(var i in data) {
+  //           bracket.push(data[i].Name);
+  //           age.push(data[i].Total);
+  //         }
+
+  //         var chartdata = {
+  //           labels: bracket,
+  //           datasets : [
+  //             {
+  //               label: 'Marital Status',
+  //               fillColor           : 'rgb(54, 145, 236)',
+  //               strokeColor         : 'rgb(26, 114, 203)',
+  //               pointColor          : 'rgba(210, 214, 222, 1)',
+  //               data: age
+  //             }
+  //           ]
+  //         };
+
+  //         var barChartCanvas                   = $('#M3Chart').get(0).getContext('2d')
+  //         var barChart                         = new Chart(barChartCanvas)
+  //         var barChartData                     = chartdata
+  //         var barChartOptions                  = {
+  //           //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
+  //           scaleBeginAtZero        : true,
+  //           //Boolean - Whether grid lines are shown across the chart
+  //           scaleShowGridLines      : true,
+  //           //String - Colour of the grid lines
+  //           scaleGridLineColor      : 'rgba(0,0,0,.05)',
+  //           //Number - Width of the grid lines
+  //           scaleGridLineWidth      : 1,
+  //           //Boolean - Whether to show horizontal lines (except X axis)
+  //           scaleShowHorizontalLines: true,
+  //           //Boolean - Whether to show vertical lines (except Y axis)
+  //           scaleShowVerticalLines  : true,
+  //           //Boolean - If there is a stroke on each bar
+  //           barShowStroke           : true,
+  //           //Number - Pixel width of the bar stroke
+  //           barStrokeWidth          : 2,
+  //           //Number - Spacing between each of the X value sets
+  //           barValueSpacing         : 5,
+  //           //Number - Spacing between data sets within X values
+  //           barDatasetSpacing       : 1,
+  //           //Boolean - whether to make the chart responsive
+  //           responsive              : true,
+  //           maintainAspectRatio     : true
+  //         }
+
+  //         barChartOptions.datasetFill = false
+  //         barChart.Bar(barChartData, barChartOptions)
+  //       },
+  //       error: function(data) {
+  //         console.log(data);
+  //       }
+  //     });
+  //   }
+  // }
 
 // for password
   var varStatus = 0;
@@ -750,70 +2656,263 @@
 
   function selectAgeFilter(value)
   {
-    $.ajax({
-      url: "<?php echo base_url(); ?>admin_controller/getAgePopulation",
-      type: "POST",
-      async: false,
-      dataType: "JSON",
-      success: function(data) {
-        var bracket = [];
-        var age = [];
+    if(value == 0)
+    {
+      value = varCurrentYear;
+    }
+    else
+    {
+      value = value;
+    }
 
-        for(var i in data) {
-          bracket.push("Age " + data[i].AgeBracket);
-          age.push(data[i].TotalAge);
+    if($('#selectAgeReport').val() == 'Bar Graph')
+    {
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getAgePopulation",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : value
+        },
+        success: function(data) {
+          var bracket = [];
+          var age = [];
+
+          for(var i in data) {
+            bracket.push("Age " + data[i].AgeBracket);
+            age.push(data[i].TotalAge);
+          }
+
+          var chartdata = {
+            labels: bracket,
+            datasets : [
+              {
+                label: 'Age Bracket',
+                fillColor           : 'rgb(54, 145, 236)',
+                strokeColor         : 'rgb(26, 114, 203)',
+                pointColor          : 'rgba(210, 214, 222, 1)',
+                data: age
+              }
+            ]
+          };
+          $('#divBarChart').html('');
+          $('#divBarChart').html('<canvas id="barChart" style="height:230px"></canvas>');
+          var barChartCanvas                   = $('#barChart').get(0).getContext('2d')
+          var barChart                         = new Chart(barChartCanvas)
+          var barChartData                     = chartdata
+          var barChartOptions                  = {
+            //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
+            scaleBeginAtZero        : true,
+            //Boolean - Whether grid lines are shown across the chart
+            scaleShowGridLines      : true,
+            //String - Colour of the grid lines
+            scaleGridLineColor      : 'rgba(0,0,0,.05)',
+            //Number - Width of the grid lines
+            scaleGridLineWidth      : 1,
+            //Boolean - Whether to show horizontal lines (except X axis)
+            scaleShowHorizontalLines: true,
+            //Boolean - Whether to show vertical lines (except Y axis)
+            scaleShowVerticalLines  : true,
+            //Boolean - If there is a stroke on each bar
+            barShowStroke           : true,
+            //Number - Pixel width of the bar stroke
+            barStrokeWidth          : 2,
+            //Number - Spacing between each of the X value sets
+            barValueSpacing         : 5,
+            //Number - Spacing between data sets within X values
+            barDatasetSpacing       : 1,
+            //Boolean - whether to make the chart responsive
+            responsive              : true,
+            maintainAspectRatio     : true
+          }
+
+          barChartOptions.datasetFill = false
+          barChart.Bar(barChartData, barChartOptions)
+        },
+        error: function(data) {
+          console.log(data);
         }
+      });
+    }
+    else if($('#selectAgeReport').val() == 'Line Graph')
+    {
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getAgePopulation",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : value
+        },
+        success: function(data) {
+          var bracket = [];
+          var age = [];
 
-        var chartdata = {
-          labels: bracket,
-          datasets : [
-            {
-              label: 'Age Bracket',
-              fillColor           : 'rgb(54, 145, 236)',
-              strokeColor         : 'rgb(26, 114, 203)',
-              pointColor          : 'rgba(210, 214, 222, 1)',
-              data: age
-            }
-          ]
-        };
-        $('#divBarChart').html('');
-        $('#divBarChart').html('<canvas id="barChart" style="height:230px"></canvas>');
-        var barChartCanvas                   = $('#barChart').get(0).getContext('2d')
-        var barChart                         = new Chart(barChartCanvas)
-        var barChartData                     = chartdata
-        var barChartOptions                  = {
-          //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
-          scaleBeginAtZero        : true,
-          //Boolean - Whether grid lines are shown across the chart
-          scaleShowGridLines      : true,
-          //String - Colour of the grid lines
-          scaleGridLineColor      : 'rgba(0,0,0,.05)',
-          //Number - Width of the grid lines
-          scaleGridLineWidth      : 1,
-          //Boolean - Whether to show horizontal lines (except X axis)
-          scaleShowHorizontalLines: true,
-          //Boolean - Whether to show vertical lines (except Y axis)
-          scaleShowVerticalLines  : true,
-          //Boolean - If there is a stroke on each bar
-          barShowStroke           : true,
-          //Number - Pixel width of the bar stroke
-          barStrokeWidth          : 2,
-          //Number - Spacing between each of the X value sets
-          barValueSpacing         : 5,
-          //Number - Spacing between data sets within X values
-          barDatasetSpacing       : 1,
-          //Boolean - whether to make the chart responsive
-          responsive              : true,
-          maintainAspectRatio     : true
+          for(var i in data) {
+            bracket.push("Age " + data[i].AgeBracket);
+            age.push(data[i].TotalAge);
+          }
+
+          var chartdata = {
+            labels: bracket,
+            datasets : [
+              {
+                label: 'Age Bracket',
+                fillColor           : 'rgb(54, 145, 236)',
+                strokeColor         : 'rgb(26, 114, 203)',
+                pointColor          : 'rgba(210, 214, 222, 1)',
+                data: age
+              }
+            ]
+          };
+          $('#divBarChart').html('');
+          $('#divBarChart').html('<canvas id="barChart" style="height:230px"></canvas>');
+          // var barChartCanvas                   = $('#barChart').get(0).getContext('2d')
+          // var barChart                         = new Chart(barChartCanvas)
+          // var barChartData                     = chartdata
+          
+
+          var areaChartOptions = {
+            //Boolean - If we should show the scale at all
+            showScale               : true,
+            //Boolean - Whether grid lines are shown across the chart
+            scaleShowGridLines      : false,
+            //String - Colour of the grid lines
+            scaleGridLineColor      : 'rgb(89, 97, 247)',
+            //Number - Width of the grid lines
+            scaleGridLineWidth      : 1,
+            //Boolean - Whether to show horizontal lines (except X axis)
+            scaleShowHorizontalLines: true,
+            //Boolean - Whether to show vertical lines (except Y axis)
+            scaleShowVerticalLines  : true,
+            //Boolean - Whether the line is curved between points
+            bezierCurve             : true,
+            //Number - Tension of the bezier curve between points
+            bezierCurveTension      : 0.3,
+            //Boolean - Whether to show a dot for each point
+            pointDot                : false,
+            //Number - Radius of each point dot in pixels
+            pointDotRadius          : 4,
+            //Number - Pixel width of point dot stroke
+            pointDotStrokeWidth     : 1,
+            //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
+            pointHitDetectionRadius : 20,
+            //Boolean - Whether to show a stroke for datasets
+            datasetStroke           : true,
+            //Number - Pixel width of dataset stroke
+            datasetStrokeWidth      : 2,
+            //Boolean - Whether to fill the dataset with a color
+            datasetFill             : true,
+            //Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+            maintainAspectRatio     : true,
+            //Boolean - whether to make the chart responsive to window resizing
+            responsive              : true
+          }
+
+          // barChartOptions.datasetFill = false
+          // barChart.Line(barChartData, barChartOptions)
+
+          var lineChartCanvas          = $('#barChart').get(0).getContext('2d')
+          var lineChart                = new Chart(lineChartCanvas)
+          var lineChartOptions         = areaChartOptions
+          lineChartOptions.datasetFill = false
+          lineChart.Line(chartdata, lineChartOptions)
+        },
+        error: function(data) {
+          console.log(data);
         }
+      });
+    }
+    else if($('#selectAgeReport').val() == 'Pie Chart')
+    {
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getAgePopulation",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : value
+        },
+        success: function(data) {
+          var bracket = [];
+          // var age = [];
 
-        barChartOptions.datasetFill = false
-        barChart.Bar(barChartData, barChartOptions)
-      },
-      error: function(data) {
-        console.log(data);
-      }
-    });
+          // for(var i in data) {
+          //   bracket.push(data[i].Level + ' : ' + data[i].TotalBorrower);
+          //   age.push(data[i].TotalBorrower);
+          // }
+
+          $('#divBarChart').html('');
+          $('#divBarChart').html('<canvas id="barChart" style="height:230px"></canvas>');
+          var pieChartCanvas = $("#barChart").get(0).getContext("2d");
+          var pieChart = new Chart(pieChartCanvas);
+          var PieData = [];
+
+          data.forEach(function(e) {
+              var random_color = '#' + Math.floor(Math.random() * 16777215).toString(16);
+              bracket.push({
+                  value: e.TotalAge,
+                  color: random_color,
+                  highlight: random_color,
+                  label: e.AgeBracket
+              });
+          });
+
+          // var chartdata = {
+          //   labels: bracket,
+          //   datasets : [
+          //     {
+          //       label: 'Age Population',
+          //       fillColor           : 'rgb(54, 145, 236)',
+          //       strokeColor         : 'rgb(26, 114, 203)',
+          //       pointColor          : 'rgba(210, 214, 222, 1)',
+          //       data: age
+          //     }
+          //   ]
+          // };
+
+          // var barChartCanvas                   = $('#chartEducation').get(0).getContext('2d')
+          // var barChart                         = new Chart(barChartCanvas)
+          // var barChartData                     = chartdata
+          var pieOptions = {
+              //Boolean - Whether we should show a stroke on each segment
+              segmentShowStroke: true,
+              //String - The colour of each segment stroke
+              segmentStrokeColor: "#fff",
+              //Number - The width of each segment stroke
+              segmentStrokeWidth: 2,
+              //Number - The percentage of the chart that we cut out of the middle
+              percentageInnerCutout: 0, // This is 0 for Pie charts
+              //Number - Amount of animation steps
+              animationSteps: 100,
+              //String - Animation easing effect
+              // animationEasing: "easeOutBounce",
+              //Boolean - Whether we animate the rotation of the Doughnut
+              animateRotate: true,
+              //Boolean - Whether we animate scaling the Doughnut from the centre
+              animateScale: false,
+              //Boolean - whether to make the chart responsive to window resizing
+              responsive: true,
+              // Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+              maintainAspectRatio: true,
+              //String - A legend template
+              legendTemplate: "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>"
+          };
+
+          // barChartOptions.datasetFill = false
+
+          // $('#educationChart').html('');
+          // $('#educationChart').html('<canvas id="chartEducation" style="height:230px"></canvas>');
+          pieChart.Doughnut(bracket, pieOptions);
+          
+          // barChart.Bar(chartdata, areaChartOptions)  
+        },
+        error: function(data) {
+          console.log(data);
+        }
+      });
+    }
   }
 
   function selectEducationFilter(value)
@@ -826,72 +2925,166 @@
     {
       value = value;
     }
-    $.ajax({
-      url: "<?php echo base_url(); ?>admin_controller/getEducationPopulation",
-      type: "POST",
-      async: false,
-      dataType: "JSON",
-      data : {
-        yearFilter : value
-      },
-      success: function(data) {
-        var bracket = [];
-        var age = [];
 
-        for(var i in data) {
-          bracket.push(data[i].Level + ' : ' + data[i].TotalBorrower);
-          age.push(data[i].TotalBorrower);
+    if($('#selectEducationReport').val() == 'Bar Graph')
+    {
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getEducationPopulation",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : value
+        },
+        success: function(data) {
+          var bracket = [];
+          var age = [];
+
+          for(var i in data) {
+            bracket.push(data[i].Level + ' : ' + data[i].TotalBorrower);
+            age.push(data[i].TotalBorrower);
+          }
+
+          var chartdata = {
+            labels: bracket,
+            datasets : [
+              {
+                label: 'Occupation Population',
+                fillColor           : 'rgb(54, 145, 236)',
+                strokeColor         : 'rgb(26, 114, 203)',
+                pointColor          : 'rgba(210, 214, 222, 1)',
+                data: age
+              }
+            ]
+          };
+
+          var barChartCanvas                   = $('#chartEducation').get(0).getContext('2d')
+          var barChart                         = new Chart(barChartCanvas)
+          var barChartData                     = chartdata
+          var barChartOptions                  = {
+            //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
+            scaleBeginAtZero        : true,
+            //Boolean - Whether grid lines are shown across the chart
+            scaleShowGridLines      : true,
+            //String - Colour of the grid lines
+            scaleGridLineColor      : 'rgba(0,0,0,.05)',
+            //Number - Width of the grid lines
+            scaleGridLineWidth      : 1,
+            //Boolean - Whether to show horizontal lines (except X axis)
+            scaleShowHorizontalLines: true,
+            //Boolean - Whether to show vertical lines (except Y axis)
+            scaleShowVerticalLines  : true,
+            //Boolean - If there is a stroke on each bar
+            barShowStroke           : true,
+            //Number - Pixel width of the bar stroke
+            barStrokeWidth          : 2,
+            //Number - Spacing between each of the X value sets
+            barValueSpacing         : 5,
+            //Number - Spacing between data sets within X values
+            barDatasetSpacing       : 1,
+            //Boolean - whether to make the chart responsive
+            responsive              : true,
+            maintainAspectRatio     : true,
+          }
+
+          barChartOptions.datasetFill = false
+          barChart.Bar(barChartData, barChartOptions)
+        },
+        error: function(data) {
+          console.log(data);
         }
+      });
+    }
+    else if($('#selectEducationReport').val() == 'Pie Chart')
+    {
+      var PieData = [];
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getEducationPopulation",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : value
+        },
+        success: function(data) {
+          var bracket = [];
+          // var age = [];
 
-        var chartdata = {
-          labels: bracket,
-          datasets : [
-            {
-              label: 'Occupation Population',
-              fillColor           : 'rgb(54, 145, 236)',
-              strokeColor         : 'rgb(26, 114, 203)',
-              pointColor          : 'rgba(210, 214, 222, 1)',
-              data: age
-            }
-          ]
-        };
+          // for(var i in data) {
+          //   bracket.push(data[i].Level + ' : ' + data[i].TotalBorrower);
+          //   age.push(data[i].TotalBorrower);
+          // }
 
-        var barChartCanvas                   = $('#chartEducation').get(0).getContext('2d')
-        var barChart                         = new Chart(barChartCanvas)
-        var barChartData                     = chartdata
-        var barChartOptions                  = {
-          //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
-          scaleBeginAtZero        : true,
-          //Boolean - Whether grid lines are shown across the chart
-          scaleShowGridLines      : true,
-          //String - Colour of the grid lines
-          scaleGridLineColor      : 'rgba(0,0,0,.05)',
-          //Number - Width of the grid lines
-          scaleGridLineWidth      : 1,
-          //Boolean - Whether to show horizontal lines (except X axis)
-          scaleShowHorizontalLines: true,
-          //Boolean - Whether to show vertical lines (except Y axis)
-          scaleShowVerticalLines  : true,
-          //Boolean - If there is a stroke on each bar
-          barShowStroke           : true,
-          //Number - Pixel width of the bar stroke
-          barStrokeWidth          : 2,
-          //Number - Spacing between each of the X value sets
-          barValueSpacing         : 5,
-          //Number - Spacing between data sets within X values
-          barDatasetSpacing       : 1,
-          //Boolean - whether to make the chart responsive
-          responsive              : true,
-          maintainAspectRatio     : true,
+          $('#educationChart').html('');
+          $('#educationChart').html('<canvas id="chartEducation" style="height:230px"></canvas>');
+          var pieChartCanvas = $("#chartEducation").get(0).getContext("2d");
+          var pieChart = new Chart(pieChartCanvas);
+          var PieData = [];
+
+          data.forEach(function(e) {
+              var random_color = '#' + Math.floor(Math.random() * 16777215).toString(16);
+              bracket.push({
+                  value: e.TotalBorrower,
+                  color: random_color,
+                  highlight: random_color,
+                  label: e.Level
+              });
+          });
+
+          // var chartdata = {
+          //   labels: bracket,
+          //   datasets : [
+          //     {
+          //       label: 'Age Population',
+          //       fillColor           : 'rgb(54, 145, 236)',
+          //       strokeColor         : 'rgb(26, 114, 203)',
+          //       pointColor          : 'rgba(210, 214, 222, 1)',
+          //       data: age
+          //     }
+          //   ]
+          // };
+
+          // var barChartCanvas                   = $('#chartEducation').get(0).getContext('2d')
+          // var barChart                         = new Chart(barChartCanvas)
+          // var barChartData                     = chartdata
+          var pieOptions = {
+              //Boolean - Whether we should show a stroke on each segment
+              segmentShowStroke: true,
+              //String - The colour of each segment stroke
+              segmentStrokeColor: "#fff",
+              //Number - The width of each segment stroke
+              segmentStrokeWidth: 2,
+              //Number - The percentage of the chart that we cut out of the middle
+              percentageInnerCutout: 0, // This is 0 for Pie charts
+              //Number - Amount of animation steps
+              animationSteps: 100,
+              //String - Animation easing effect
+              // animationEasing: "easeOutBounce",
+              //Boolean - Whether we animate the rotation of the Doughnut
+              animateRotate: true,
+              //Boolean - Whether we animate scaling the Doughnut from the centre
+              animateScale: false,
+              //Boolean - whether to make the chart responsive to window resizing
+              responsive: true,
+              // Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+              maintainAspectRatio: true,
+              //String - A legend template
+              legendTemplate: "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>"
+          };
+
+          // barChartOptions.datasetFill = false
+
+          // $('#educationChart').html('');
+          // $('#educationChart').html('<canvas id="chartEducation" style="height:230px"></canvas>');
+          pieChart.Doughnut(bracket, pieOptions);
+          
+          // barChart.Bar(chartdata, areaChartOptions)  
+        },
+        error: function(data) {
+          console.log(data);
         }
-
-        barChartOptions.datasetFill = false
-        barChart.Bar(barChartData, barChartOptions)
-      },
-      error: function(data) {
-        console.log(data);
-      }
-    });
+      });
+    }
   }
 
   function selectGenderFilter(value)
@@ -905,72 +3098,158 @@
       value = value;
     }
 
-    $.ajax({
-      url: "<?php echo base_url(); ?>admin_controller/getGenderPopulation",
-      type: "POST",
-      async: false,
-      dataType: "JSON",
-      data : {
-        yearFilter : value
-      },
-      success: function(data) {
-        var bracket = [];
-        var age = [];
+    if($('#selectGenderReport').val() == 'Bar Graph')
+    {
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getGenderPopulation",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : value
+        },
+        success: function(data) {
+          var bracket = [];
+          var age = [];
 
-        for(var i in data) {
-          bracket.push(data[i].name);
-          age.push(data[i].TotalGender);
+          for(var i in data) {
+            bracket.push(data[i].name);
+            age.push(data[i].TotalGender);
+          }
+
+          var chartdata = {
+            labels: bracket,
+            datasets : [
+              {
+                label: 'Gender',
+                fillColor           : 'rgb(54, 145, 236)',
+                strokeColor         : 'rgb(26, 114, 203)',
+                pointColor          : 'rgba(210, 214, 222, 1)',
+                data: age
+              }
+            ]
+          };
+
+          $('#divGenderChart').html('');
+          $('#divGenderChart').html('<canvas id="chartGender" style="height:230px"></canvas>');
+          var barChartCanvas                   = $('#chartGender').get(0).getContext('2d')
+          var barChart                         = new Chart(barChartCanvas)
+          var barChartData                     = chartdata
+          var barChartOptions                  = {
+            //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
+            scaleBeginAtZero        : true,
+            //Boolean - Whether grid lines are shown across the chart
+            scaleShowGridLines      : true,
+            //String - Colour of the grid lines
+            scaleGridLineColor      : 'rgba(0,0,0,.05)',
+            //Number - Width of the grid lines
+            scaleGridLineWidth      : 1,
+            //Boolean - Whether to show horizontal lines (except X axis)
+            scaleShowHorizontalLines: true,
+            //Boolean - Whether to show vertical lines (except Y axis)
+            scaleShowVerticalLines  : true,
+            //Boolean - If there is a stroke on each bar
+            barShowStroke           : true,
+            //Number - Pixel width of the bar stroke
+            barStrokeWidth          : 2,
+            //Number - Spacing between each of the X value sets
+            barValueSpacing         : 5,
+            //Number - Spacing between data sets within X values
+            barDatasetSpacing       : 1,
+            //Boolean - whether to make the chart responsive
+            responsive              : true,
+            maintainAspectRatio     : true
+          }
+
+          barChartOptions.datasetFill = false
+          barChart.Bar(barChartData, barChartOptions)
+        },
+        error: function(data) {
+          console.log(data);
         }
+      });
+    }
+    else if($('#selectGenderReport').val() == 'Pie Chart')
+    {
+      var PieData = [];
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getGenderPopulation",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : $('#selectGenderYear').val()
+        },
+        success: function(data) {
+          var bracket = [];
+          $('#divGenderChart').html('');
+          $('#divGenderChart').html('<canvas id="chartGender" style="height:230px"></canvas>');
+          var pieChartCanvas = $("#chartGender").get(0).getContext("2d");
+          var pieChart = new Chart(pieChartCanvas);
+          var PieData = [];
 
-        var chartdata = {
-          labels: bracket,
-          datasets : [
-            {
-              label: 'Gender',
-              fillColor           : 'rgb(54, 145, 236)',
-              strokeColor         : 'rgb(26, 114, 203)',
-              pointColor          : 'rgba(210, 214, 222, 1)',
-              data: age
-            }
-          ]
-        };
+          data.forEach(function(e) {
+              var random_color = '#' + Math.floor(Math.random() * 16777215).toString(16);
+              bracket.push({
+                  value: e.TotalGender,
+                  color: random_color,
+                  highlight: random_color,
+                  label: e.name
+              });
+          });
 
-        var barChartCanvas                   = $('#chartGender').get(0).getContext('2d')
-        var barChart                         = new Chart(barChartCanvas)
-        var barChartData                     = chartdata
-        var barChartOptions                  = {
-          //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
-          scaleBeginAtZero        : true,
-          //Boolean - Whether grid lines are shown across the chart
-          scaleShowGridLines      : true,
-          //String - Colour of the grid lines
-          scaleGridLineColor      : 'rgba(0,0,0,.05)',
-          //Number - Width of the grid lines
-          scaleGridLineWidth      : 1,
-          //Boolean - Whether to show horizontal lines (except X axis)
-          scaleShowHorizontalLines: true,
-          //Boolean - Whether to show vertical lines (except Y axis)
-          scaleShowVerticalLines  : true,
-          //Boolean - If there is a stroke on each bar
-          barShowStroke           : true,
-          //Number - Pixel width of the bar stroke
-          barStrokeWidth          : 2,
-          //Number - Spacing between each of the X value sets
-          barValueSpacing         : 5,
-          //Number - Spacing between data sets within X values
-          barDatasetSpacing       : 1,
-          //Boolean - whether to make the chart responsive
-          responsive              : true,
-          maintainAspectRatio     : true
+          // var chartdata = {
+          //   labels: bracket,
+          //   datasets : [
+          //     {
+          //       label: 'Age Population',
+          //       fillColor           : 'rgb(54, 145, 236)',
+          //       strokeColor         : 'rgb(26, 114, 203)',
+          //       pointColor          : 'rgba(210, 214, 222, 1)',
+          //       data: age
+          //     }
+          //   ]
+          // };
+
+          // var barChartCanvas                   = $('#chartEducation').get(0).getContext('2d')
+          // var barChart                         = new Chart(barChartCanvas)
+          // var barChartData                     = chartdata
+          var pieOptions = {
+              //Boolean - Whether we should show a stroke on each segment
+              segmentShowStroke: true,
+              //String - The colour of each segment stroke
+              segmentStrokeColor: "#fff",
+              //Number - The width of each segment stroke
+              segmentStrokeWidth: 2,
+              //Number - The percentage of the chart that we cut out of the middle
+              percentageInnerCutout: 0, // This is 0 for Pie charts
+              //Number - Amount of animation steps
+              animationSteps: 100,
+              //String - Animation easing effect
+              // animationEasing: "easeOutBounce",
+              //Boolean - Whether we animate the rotation of the Doughnut
+              animateRotate: true,
+              //Boolean - Whether we animate scaling the Doughnut from the centre
+              animateScale: false,
+              //Boolean - whether to make the chart responsive to window resizing
+              responsive: true,
+              // Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+              maintainAspectRatio: true,
+              //String - A legend template
+              legendTemplate: "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>"
+          };
+
+          // barChartOptions.datasetFill = false
+
+          // $('#educationChart').html('');
+          // $('#educationChart').html('<canvas id="chartEducation" style="height:230px"></canvas>');
+          pieChart.Doughnut(bracket, pieOptions);
+        },
+        error: function(data) {
+          console.log(data);
         }
-
-        barChartOptions.datasetFill = false
-        barChart.Bar(barChartData, barChartOptions)
-      },
-      error: function(data) {
-        console.log(data);
-      }
-    });
+      });
+    }
   }
 
   function selectOccupationFilter(value)
@@ -983,229 +3262,376 @@
     {
       value = value;
     }
-    $.ajax({
-      url: "<?php echo base_url(); ?>admin_controller/getOccupationPopulation",
-      type: "POST",
-      async: false,
-      dataType: "JSON",
-      data : {
-        yearFilter : value
-      },
-      success: function(data) {
-        var bracket = [];
-        var age = [];
+    
+    if($('#selectOccupationReport').val() == 'Bar Graph')
+    {
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getOccupationPopulation",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : $('#selectOccupationYear').val()
+        },
+        success: function(data) {
+          var bracket = [];
+          var age = [];
 
-        for(var i in data) {
-          bracket.push(data[i].Occupation);
-          age.push(data[i].TotalBorrowers);
+          for(var i in data) {
+            bracket.push(data[i].Occupation);
+            age.push(data[i].TotalBorrowers);
+          }
+
+          var chartdata = {
+            labels: bracket,
+            datasets : [
+              {
+                label: 'Occupation',
+                fillColor           : 'rgb(54, 145, 236)',
+                strokeColor         : 'rgb(26, 114, 203)',
+                pointColor          : 'rgba(210, 214, 222, 1)',
+                data: age
+              }
+            ]
+          };
+
+          $('#divOccupationChart').html('');
+          $('#divOccupationChart').html('<canvas id="chartOccupation" style="height:50%"></canvas>');
+          var barChartCanvas                   = $('#chartOccupation').get(0).getContext('2d')
+          var barChart                         = new Chart(barChartCanvas)
+          var barChartData                     = chartdata
+          var barChartOptions                  = {
+            //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
+            scaleBeginAtZero        : true,
+            //Boolean - Whether grid lines are shown across the chart
+            scaleShowGridLines      : true,
+            //String - Colour of the grid lines
+            scaleGridLineColor      : 'rgba(0,0,0,.05)',
+            //Number - Width of the grid lines
+            scaleGridLineWidth      : 1,
+            //Boolean - Whether to show horizontal lines (except X axis)
+            scaleShowHorizontalLines: true,
+            //Boolean - Whether to show vertical lines (except Y axis)
+            scaleShowVerticalLines  : true,
+            //Boolean - If there is a stroke on each bar
+            barShowStroke           : true,
+            //Number - Pixel width of the bar stroke
+            barStrokeWidth          : 2,
+            //Number - Spacing between each of the X value sets
+            barValueSpacing         : 5,
+            //Number - Spacing between data sets within X values
+            barDatasetSpacing       : 1,
+            //Boolean - whether to make the chart responsive
+            responsive              : true,
+            maintainAspectRatio     : true
+          }
+
+          barChartOptions.datasetFill = false
+          barChart.Bar(barChartData, barChartOptions)
+        },
+        error: function(data) {
+          console.log(data);
         }
+      });
+    }
+    else if($('#selectOccupationReport').val() == 'Pie Chart')
+    {
+      var PieData = [];
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getOccupationPopulation",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : $('#selectGenderYear').val()
+        },
+        success: function(data) {
+          var bracket = [];
+          $('#divOccupationChart').html('');
+          $('#divOccupationChart').html('<canvas id="chartOccupation" style="height:230px"></canvas>');
+          var pieChartCanvas = $("#chartOccupation").get(0).getContext("2d");
+          var pieChart = new Chart(pieChartCanvas);
+          var PieData = [];
 
-        var chartdata = {
-          labels: bracket,
-          datasets : [
-            {
-              label: 'Occupation',
-              fillColor           : 'rgb(54, 145, 236)',
-              strokeColor         : 'rgb(26, 114, 203)',
-              pointColor          : 'rgba(210, 214, 222, 1)',
-              data: age
-            }
-          ]
-        };
+          data.forEach(function(e) {
+              var random_color = '#' + Math.floor(Math.random() * 16777215).toString(16);
+              bracket.push({
+                  value: e.TotalGender,
+                  color: random_color,
+                  highlight: random_color,
+                  label: e.name
+              });
+          });
 
-        var barChartCanvas                   = $('#chartOccupation').get(0).getContext('2d')
-        var barChart                         = new Chart(barChartCanvas)
-        var barChartData                     = chartdata
-        var barChartOptions                  = {
-          //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
-          scaleBeginAtZero        : true,
-          //Boolean - Whether grid lines are shown across the chart
-          scaleShowGridLines      : true,
-          //String - Colour of the grid lines
-          scaleGridLineColor      : 'rgba(0,0,0,.05)',
-          //Number - Width of the grid lines
-          scaleGridLineWidth      : 1,
-          //Boolean - Whether to show horizontal lines (except X axis)
-          scaleShowHorizontalLines: true,
-          //Boolean - Whether to show vertical lines (except Y axis)
-          scaleShowVerticalLines  : true,
-          //Boolean - If there is a stroke on each bar
-          barShowStroke           : true,
-          //Number - Pixel width of the bar stroke
-          barStrokeWidth          : 2,
-          //Number - Spacing between each of the X value sets
-          barValueSpacing         : 5,
-          //Number - Spacing between data sets within X values
-          barDatasetSpacing       : 1,
-          //Boolean - whether to make the chart responsive
-          responsive              : true,
-          maintainAspectRatio     : true
+          // var chartdata = {
+          //   labels: bracket,
+          //   datasets : [
+          //     {
+          //       label: 'Age Population',
+          //       fillColor           : 'rgb(54, 145, 236)',
+          //       strokeColor         : 'rgb(26, 114, 203)',
+          //       pointColor          : 'rgba(210, 214, 222, 1)',
+          //       data: age
+          //     }
+          //   ]
+          // };
+
+          // var barChartCanvas                   = $('#chartEducation').get(0).getContext('2d')
+          // var barChart                         = new Chart(barChartCanvas)
+          // var barChartData                     = chartdata
+          var pieOptions = {
+              //Boolean - Whether we should show a stroke on each segment
+              segmentShowStroke: true,
+              //String - The colour of each segment stroke
+              segmentStrokeColor: "#fff",
+              //Number - The width of each segment stroke
+              segmentStrokeWidth: 2,
+              //Number - The percentage of the chart that we cut out of the middle
+              percentageInnerCutout: 0, // This is 0 for Pie charts
+              //Number - Amount of animation steps
+              animationSteps: 100,
+              //String - Animation easing effect
+              // animationEasing: "easeOutBounce",
+              //Boolean - Whether we animate the rotation of the Doughnut
+              animateRotate: true,
+              //Boolean - Whether we animate scaling the Doughnut from the centre
+              animateScale: false,
+              //Boolean - whether to make the chart responsive to window resizing
+              responsive: true,
+              // Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+              maintainAspectRatio: true,
+              //String - A legend template
+              legendTemplate: "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>"
+          };
+
+          // barChartOptions.datasetFill = false
+
+          // $('#educationChart').html('');
+          // $('#educationChart').html('<canvas id="chartEducation" style="height:230px"></canvas>');
+          pieChart.Doughnut(bracket, pieOptions);
+        },
+        error: function(data) {
+          console.log(data);
         }
-
-        barChartOptions.datasetFill = false
-        barChart.Bar(barChartData, barChartOptions)
-      },
-      error: function(data) {
-        console.log(data);
-      }
-    });
+      });
+    }
   }
 
   function selectIncomeFilter(value)
   {
-    if(value == 0)
+    $('#divIncomeChart').html('');
+    $('#divIncomeChart').html('<canvas id="chartIncome" style="height:230px"></canvas>');
+    if($('#selectIncomeReport').val() == 'Bar Graph')
     {
-      value = varCurrentYear;
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getIncomeLevelPopulation",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : $('#selectIncomeYear').val()
+        },
+        success: function(data) {
+          var bracket = [];
+          var age = [];
+
+          for(var i in data) {
+            bracket.push(data[i].IncomeLevel);
+            age.push(data[i].TotalBorrowers);
+          }
+
+          var chartdata = {
+            labels: bracket,
+            datasets : [
+              {
+                label: 'Income Level',
+                fillColor           : 'rgb(54, 145, 236)',
+                strokeColor         : 'rgb(26, 114, 203)',
+                pointColor          : 'rgba(210, 214, 222, 1)',
+                data: age
+              }
+            ]
+          };
+
+          var barChartCanvas                   = $('#chartIncome').get(0).getContext('2d')
+          var barChart                         = new Chart(barChartCanvas)
+          var barChartData                     = chartdata
+          var barChartOptions                  = {
+            //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
+            scaleBeginAtZero        : true,
+            //Boolean - Whether grid lines are shown across the chart
+            scaleShowGridLines      : true,
+            //String - Colour of the grid lines
+            scaleGridLineColor      : 'rgba(0,0,0,.05)',
+            //Number - Width of the grid lines
+            scaleGridLineWidth      : 1,
+            //Boolean - Whether to show horizontal lines (except X axis)
+            scaleShowHorizontalLines: true,
+            //Boolean - Whether to show vertical lines (except Y axis)
+            scaleShowVerticalLines  : true,
+            //Boolean - If there is a stroke on each bar
+            barShowStroke           : true,
+            //Number - Pixel width of the bar stroke
+            barStrokeWidth          : 2,
+            //Number - Spacing between each of the X value sets
+            barValueSpacing         : 5,
+            //Number - Spacing between data sets within X values
+            barDatasetSpacing       : 1,
+            //Boolean - whether to make the chart responsive
+            responsive              : true,
+            maintainAspectRatio     : true
+          }
+
+          barChartOptions.datasetFill = false
+          barChart.Bar(barChartData, barChartOptions)
+        },
+        error: function(data) {
+          console.log(data);
+        }
+      });
     }
-    else
+    else if($('#selectIncomeReport').val() == 'Pie Chart')
     {
-      value = value;
+      var PieData = [];
+      $.ajax({
+        url: "<?php echo base_url(); ?>admin_controller/getIncomeLevelPopulation",
+        type: "POST",
+        async: false,
+        dataType: "JSON",
+        data : {
+          yearFilter : $('#selectIncomeYear').val()
+        },
+        success: function(data) {
+          var bracket = [];
+          var pieChartCanvas = $("#chartIncome").get(0).getContext("2d");
+          var pieChart = new Chart(pieChartCanvas);
+          var PieData = [];
+
+          data.forEach(function(e) {
+              var random_color = '#' + Math.floor(Math.random() * 16777215).toString(16);
+              bracket.push({
+                value: e.TotalBorrowers,
+                color: random_color,
+                highlight: random_color,
+                label: e.IncomeLevel
+              });
+          });
+
+          var pieOptions = {
+              //Boolean - Whether we should show a stroke on each segment
+              segmentShowStroke: true,
+              //String - The colour of each segment stroke
+              segmentStrokeColor: "#fff",
+              //Number - The width of each segment stroke
+              segmentStrokeWidth: 2,
+              //Number - The percentage of the chart that we cut out of the middle
+              percentageInnerCutout: 0, // This is 0 for Pie charts
+              //Number - Amount of animation steps
+              animationSteps: 100,
+              //String - Animation easing effect
+              // animationEasing: "easeOutBounce",
+              //Boolean - Whether we animate the rotation of the Doughnut
+              animateRotate: true,
+              //Boolean - Whether we animate scaling the Doughnut from the centre
+              animateScale: false,
+              //Boolean - whether to make the chart responsive to window resizing
+              responsive: true,
+              // Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+              maintainAspectRatio: true,
+              //String - A legend template
+              legendTemplate: "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>"
+          };
+
+          // barChartOptions.datasetFill = false
+
+          // $('#educationChart').html('');
+          // $('#educationChart').html('<canvas id="chartEducation" style="height:230px"></canvas>');
+          pieChart.Doughnut(bracket, pieOptions);
+        },
+        error: function(data) {
+          console.log(data);
+        }
+      });
     }
-    $.ajax({
-      url: "<?php echo base_url(); ?>admin_controller/getIncomeLevelPopulation",
-      type: "POST",
-      async: false,
-      dataType: "JSON",
-      data : {
-        yearFilter : value
-      },
-      success: function(data) {
-        var bracket = [];
-        var age = [];
-
-        for(var i in data) {
-          bracket.push(data[i].IncomeLevel);
-          age.push(data[i].TotalBorrowers);
-        }
-
-        var chartdata = {
-          labels: bracket,
-          datasets : [
-            {
-              label: 'Income Level',
-              fillColor           : 'rgb(54, 145, 236)',
-              strokeColor         : 'rgb(26, 114, 203)',
-              pointColor          : 'rgba(210, 214, 222, 1)',
-              data: age
-            }
-          ]
-        };
-
-        var barChartCanvas                   = $('#chartIncome').get(0).getContext('2d')
-        var barChart                         = new Chart(barChartCanvas)
-        var barChartData                     = chartdata
-        var barChartOptions                  = {
-          //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
-          scaleBeginAtZero        : true,
-          //Boolean - Whether grid lines are shown across the chart
-          scaleShowGridLines      : true,
-          //String - Colour of the grid lines
-          scaleGridLineColor      : 'rgba(0,0,0,.05)',
-          //Number - Width of the grid lines
-          scaleGridLineWidth      : 1,
-          //Boolean - Whether to show horizontal lines (except X axis)
-          scaleShowHorizontalLines: true,
-          //Boolean - Whether to show vertical lines (except Y axis)
-          scaleShowVerticalLines  : true,
-          //Boolean - If there is a stroke on each bar
-          barShowStroke           : true,
-          //Number - Pixel width of the bar stroke
-          barStrokeWidth          : 2,
-          //Number - Spacing between each of the X value sets
-          barValueSpacing         : 5,
-          //Number - Spacing between data sets within X values
-          barDatasetSpacing       : 1,
-          //Boolean - whether to make the chart responsive
-          responsive              : true,
-          maintainAspectRatio     : true
-        }
-
-        barChartOptions.datasetFill = false
-        barChart.Bar(barChartData, barChartOptions)
-      },
-      error: function(data) {
-        console.log(data);
-      }
-    });
   }
 
-  function selectMaritalFilter(value)
-  {
-    if(value == 0)
-    {
-      value = varCurrentYear;
-    }
-    else
-    {
-      value = value;
-    }
-    $.ajax({
-      url: "<?php echo base_url(); ?>admin_controller/getMaritalStatusPopulation",
-      type: "POST",
-      async: false,
-      dataType: "JSON",
-      data : {
-        yearFilter : value
-      },
-      success: function(data) {
-        var bracket = [];
-        var age = [];
+  // function selectMaritalFilter(value)
+  // {
+  //   if(value == 0)
+  //   {
+  //     value = varCurrentYear;
+  //   }
+  //   else
+  //   {
+  //     value = value;
+  //   }
+  //   $.ajax({
+  //     url: "<?php echo base_url(); ?>admin_controller/getMaritalStatusPopulation",
+  //     type: "POST",
+  //     async: false,
+  //     dataType: "JSON",
+  //     data : {
+  //       yearFilter : value
+  //     },
+  //     success: function(data) {
+  //       var bracket = [];
+  //       var age = [];
 
-        for(var i in data) {
-          bracket.push(data[i].Name);
-          age.push(data[i].TotalBorrowers);
-        }
+  //       for(var i in data) {
+  //         bracket.push(data[i].Name);
+  //         age.push(data[i].TotalBorrowers);
+  //       }
 
-        var chartdata = {
-          labels: bracket,
-          datasets : [
-            {
-              label: 'Marital Status',
-              fillColor           : 'rgb(54, 145, 236)',
-              strokeColor         : 'rgb(26, 114, 203)',
-              pointColor          : 'rgba(210, 214, 222, 1)',
-              data: age
-            }
-          ]
-        };
+  //       var chartdata = {
+  //         labels: bracket,
+  //         datasets : [
+  //           {
+  //             label: 'Marital Status',
+  //             fillColor           : 'rgb(54, 145, 236)',
+  //             strokeColor         : 'rgb(26, 114, 203)',
+  //             pointColor          : 'rgba(210, 214, 222, 1)',
+  //             data: age
+  //           }
+  //         ]
+  //       };
 
-        var barChartCanvas                   = $('#chartMarital').get(0).getContext('2d')
-        var barChart                         = new Chart(barChartCanvas)
-        var barChartData                     = chartdata
-        var barChartOptions                  = {
-          //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
-          scaleBeginAtZero        : true,
-          //Boolean - Whether grid lines are shown across the chart
-          scaleShowGridLines      : true,
-          //String - Colour of the grid lines
-          scaleGridLineColor      : 'rgba(0,0,0,.05)',
-          //Number - Width of the grid lines
-          scaleGridLineWidth      : 1,
-          //Boolean - Whether to show horizontal lines (except X axis)
-          scaleShowHorizontalLines: true,
-          //Boolean - Whether to show vertical lines (except Y axis)
-          scaleShowVerticalLines  : true,
-          //Boolean - If there is a stroke on each bar
-          barShowStroke           : true,
-          //Number - Pixel width of the bar stroke
-          barStrokeWidth          : 2,
-          //Number - Spacing between each of the X value sets
-          barValueSpacing         : 5,
-          //Number - Spacing between data sets within X values
-          barDatasetSpacing       : 1,
-          //Boolean - whether to make the chart responsive
-          responsive              : true,
-          maintainAspectRatio     : true
-        }
+  //       var barChartCanvas                   = $('#chartMarital').get(0).getContext('2d')
+  //       var barChart                         = new Chart(barChartCanvas)
+  //       var barChartData                     = chartdata
+  //       var barChartOptions                  = {
+  //         //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
+  //         scaleBeginAtZero        : true,
+  //         //Boolean - Whether grid lines are shown across the chart
+  //         scaleShowGridLines      : true,
+  //         //String - Colour of the grid lines
+  //         scaleGridLineColor      : 'rgba(0,0,0,.05)',
+  //         //Number - Width of the grid lines
+  //         scaleGridLineWidth      : 1,
+  //         //Boolean - Whether to show horizontal lines (except X axis)
+  //         scaleShowHorizontalLines: true,
+  //         //Boolean - Whether to show vertical lines (except Y axis)
+  //         scaleShowVerticalLines  : true,
+  //         //Boolean - If there is a stroke on each bar
+  //         barShowStroke           : true,
+  //         //Number - Pixel width of the bar stroke
+  //         barStrokeWidth          : 2,
+  //         //Number - Spacing between each of the X value sets
+  //         barValueSpacing         : 5,
+  //         //Number - Spacing between data sets within X values
+  //         barDatasetSpacing       : 1,
+  //         //Boolean - whether to make the chart responsive
+  //         responsive              : true,
+  //         maintainAspectRatio     : true
+  //       }
 
-        barChartOptions.datasetFill = false
-        barChart.Bar(barChartData, barChartOptions)
-      },
-      error: function(data) {
-        console.log(data);
-      }
-    });
-  }
+  //       barChartOptions.datasetFill = false
+  //       barChart.Bar(barChartData, barChartOptions)
+  //     },
+  //     error: function(data) {
+  //       console.log(data);
+  //     }
+  //   });
+  // }
 
   function selectLoanTypes(value)
   {
@@ -1529,7 +3955,10 @@
   $(function () {
     // selectPieChartAge();
     var d = new Date();
-    selectLoanTypes(d.getFullYear());
+    changeCollectionReport('Bar Graph');
+    changeDisbursementReport('Bar Graph');
+    changeInterestReport('Bar Graph');
+    // selectLoanTypes(d.getFullYear());
     changeAgeReport('Bar Graph');
     UserTable = $('#example1').DataTable({
       "pageLength": 10,
@@ -1607,243 +4036,243 @@
     });
     $('#modalNewPassword').modal('show')
 
-    // TOTAL NUMBER OF BORROWERS
-      $.ajax({
-        url: "<?php echo base_url(); ?>admin_controller/getTotalBorrowers",
-        type: "POST",
-        async: false,
-        dataType: "JSON",
-        success: function(data) {
-          var userid = [];
-          var facebook_follower = [];
+    // // TOTAL NUMBER OF BORROWERS
+    //   $.ajax({
+    //     url: "<?php echo base_url(); ?>admin_controller/getTotalBorrowers",
+    //     type: "POST",
+    //     async: false,
+    //     dataType: "JSON",
+    //     success: function(data) {
+    //       var userid = [];
+    //       var facebook_follower = [];
 
-          for(var i in data) {
-            userid.push(data[i].DateCreated);
-            facebook_follower.push(data[i].TotalBorrowers);
-          }
-
-
-          var chartdata = {
-            labels: userid,
-            datasets: [
-              {
-                fill: false,
-                lineTension: 0.1,
-                fillColor           : 'rgba(210, 214, 222, 1)',
-                strokeColor         : 'rgba(210, 214, 222, 1)',
-                pointColor          : 'rgba(210, 214, 222, 1)',
-                pointStrokeColor    : '#c1c7d1',
-                pointHighlightFill  : '#fff',
-                pointHighlightStroke: 'rgba(220,220,220,1)',
-                data: facebook_follower
-              }
-            ]
-          };
-
-          var areaChartOptionssss = {
-            //Boolean - If we should show the scale at all
-            showScale               : true,
-            //Boolean - Whether grid lines are shown across the chart
-            scaleShowGridLines      : false,
-            //String - Colour of the grid lines
-            scaleGridLineColor      : 'rgba(0,0,0,.05)',
-            //Number - Width of the grid lines
-            scaleGridLineWidth      : 1,
-            //Boolean - Whether to show horizontal lines (except X axis)
-            scaleShowHorizontalLines: true,
-            //Boolean - Whether to show vertical lines (except Y axis)
-            scaleShowVerticalLines  : true,
-            //Boolean - Whether the line is curved between points
-            bezierCurve             : true,
-            //Number - Tension of the bezier curve between points
-            bezierCurveTension      : 0.3,
-            //Boolean - Whether to show a dot for each point
-            pointDot                : false,
-            //Number - Radius of each point dot in pixels
-            pointDotRadius          : 4,
-            //Number - Pixel width of point dot stroke
-            pointDotStrokeWidth     : 1,
-            //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
-            pointHitDetectionRadius : 20,
-            //Boolean - Whether to show a stroke for datasets
-            datasetStroke           : true,
-            //Number - Pixel width of dataset stroke
-            datasetStrokeWidth      : 2,
-            //Boolean - Whether to fill the dataset with a color
-            datasetFill             : true,
-            //String - A legend template
-            legendTemplate          : '<ul class="<%=name.toLowerCase()%>-legend"><% for (var i=0; i<datasets.length; i++){%><li><span style="background-color:<%=datasets[i].lineColor%>"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>',
-            //Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
-            maintainAspectRatio     : true,
-            //Boolean - whether to make the chart responsive to window resizing
-            responsive              : true
-          }
-
-          var lineChartCanvas          = $('#lineChart').get(0).getContext('2d')
-          var lineChart                = new Chart(lineChartCanvas)
-          var lineChartOptions         = areaChartOptionssss
-          lineChartOptions.datasetFill = false
-          lineChart.Line(chartdata, lineChartOptions)
-        },
-        error: function(data) {
-          console.log(data);
-        }
-      });
-    // TOTAL LOANS
-      $.ajax({
-        url: "<?php echo base_url(); ?>admin_controller/getTotalLoans",
-        type: "POST",
-        async: false,
-        dataType: "JSON",
-        success: function(data) {
-          var userid = [];
-          var facebook_follower = [];
-
-          for(var i in data) {
-            userid.push(data[i].DateCreated);
-            facebook_follower.push(data[i].Total);
-          }
+    //       for(var i in data) {
+    //         userid.push(data[i].DateCreated);
+    //         facebook_follower.push(data[i].TotalBorrowers);
+    //       }
 
 
-          var chartdata = {
-            labels: userid,
-            datasets: [
-              {
-                fill: false,
-                lineTension: 0.1,
-                backgroundColor: "rgba(59, 89, 152, 0.75)",
-                data: facebook_follower
-              }
-            ]
-          };
+    //       var chartdata = {
+    //         labels: userid,
+    //         datasets: [
+    //           {
+    //             fill: false,
+    //             lineTension: 0.1,
+    //             fillColor           : 'rgba(210, 214, 222, 1)',
+    //             strokeColor         : 'rgba(210, 214, 222, 1)',
+    //             pointColor          : 'rgba(210, 214, 222, 1)',
+    //             pointStrokeColor    : '#c1c7d1',
+    //             pointHighlightFill  : '#fff',
+    //             pointHighlightStroke: 'rgba(220,220,220,1)',
+    //             data: facebook_follower
+    //           }
+    //         ]
+    //       };
 
-          var areaChartOptions = {
-            //Boolean - If we should show the scale at all
-            showScale               : true,
-            //Boolean - Whether grid lines are shown across the chart
-            scaleShowGridLines      : false,
-            //String - Colour of the grid lines
-            scaleGridLineColor      : 'rgba(0,0,0,.05)',
-            //Number - Width of the grid lines
-            scaleGridLineWidth      : 1,
-            //Boolean - Whether to show horizontal lines (except X axis)
-            scaleShowHorizontalLines: true,
-            //Boolean - Whether to show vertical lines (except Y axis)
-            scaleShowVerticalLines  : true,
-            //Boolean - Whether the line is curved between points
-            bezierCurve             : true,
-            //Number - Tension of the bezier curve between points
-            bezierCurveTension      : 0.3,
-            //Boolean - Whether to show a dot for each point
-            pointDot                : false,
-            //Number - Radius of each point dot in pixels
-            pointDotRadius          : 4,
-            //Number - Pixel width of point dot stroke
-            pointDotStrokeWidth     : 1,
-            //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
-            pointHitDetectionRadius : 20,
-            //Boolean - Whether to show a stroke for datasets
-            datasetStroke           : true,
-            //Number - Pixel width of dataset stroke
-            datasetStrokeWidth      : 2,
-            //Boolean - Whether to fill the dataset with a color
-            datasetFill             : true,
-            //String - A legend template
-            legendTemplate          : '<ul class="<%=name.toLowerCase()%>-legend"><% for (var i=0; i<datasets.length; i++){%><li><span style="background-color:<%=datasets[i].lineColor%>"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>',
-            //Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
-            maintainAspectRatio     : true,
-            //Boolean - whether to make the chart responsive to window resizing
-            responsive              : true
-          }
+    //       var areaChartOptionssss = {
+    //         //Boolean - If we should show the scale at all
+    //         showScale               : true,
+    //         //Boolean - Whether grid lines are shown across the chart
+    //         scaleShowGridLines      : false,
+    //         //String - Colour of the grid lines
+    //         scaleGridLineColor      : 'rgba(0,0,0,.05)',
+    //         //Number - Width of the grid lines
+    //         scaleGridLineWidth      : 1,
+    //         //Boolean - Whether to show horizontal lines (except X axis)
+    //         scaleShowHorizontalLines: true,
+    //         //Boolean - Whether to show vertical lines (except Y axis)
+    //         scaleShowVerticalLines  : true,
+    //         //Boolean - Whether the line is curved between points
+    //         bezierCurve             : true,
+    //         //Number - Tension of the bezier curve between points
+    //         bezierCurveTension      : 0.3,
+    //         //Boolean - Whether to show a dot for each point
+    //         pointDot                : false,
+    //         //Number - Radius of each point dot in pixels
+    //         pointDotRadius          : 4,
+    //         //Number - Pixel width of point dot stroke
+    //         pointDotStrokeWidth     : 1,
+    //         //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
+    //         pointHitDetectionRadius : 20,
+    //         //Boolean - Whether to show a stroke for datasets
+    //         datasetStroke           : true,
+    //         //Number - Pixel width of dataset stroke
+    //         datasetStrokeWidth      : 2,
+    //         //Boolean - Whether to fill the dataset with a color
+    //         datasetFill             : true,
+    //         //String - A legend template
+    //         legendTemplate          : '<ul class="<%=name.toLowerCase()%>-legend"><% for (var i=0; i<datasets.length; i++){%><li><span style="background-color:<%=datasets[i].lineColor%>"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>',
+    //         //Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+    //         maintainAspectRatio     : true,
+    //         //Boolean - whether to make the chart responsive to window resizing
+    //         responsive              : true
+    //       }
 
-          var lineChartCanvas          = $('#lineChartTotalLoan').get(0).getContext('2d')
-          var lineChart                = new Chart(lineChartCanvas)
-          var lineChartOptions         = areaChartOptions
-          lineChartOptions.datasetFill = false
-          lineChart.Line(chartdata, lineChartOptions)
-        },
-        error: function(data) {
-          console.log(data);
-        }
-      });
-    // TOTAL LOAN AMOUNT
-      $.ajax({
-        url: "<?php echo base_url(); ?>admin_controller/getTotalLoanAmount",
-        type: "POST",
-        async: false,
-        dataType: "JSON",
-        success: function(data) {
-          var userid = [];
-          var facebook_follower = [];
-          var total_label = [];
+    //       var lineChartCanvas          = $('#lineChart').get(0).getContext('2d')
+    //       var lineChart                = new Chart(lineChartCanvas)
+    //       var lineChartOptions         = areaChartOptionssss
+    //       lineChartOptions.datasetFill = false
+    //       lineChart.Line(chartdata, lineChartOptions)
+    //     },
+    //     error: function(data) {
+    //       console.log(data);
+    //     }
+    //   });
+    // // TOTAL LOANS
+    //   $.ajax({
+    //     url: "<?php echo base_url(); ?>admin_controller/getTotalLoans",
+    //     type: "POST",
+    //     async: false,
+    //     dataType: "JSON",
+    //     success: function(data) {
+    //       var userid = [];
+    //       var facebook_follower = [];
 
-          for(var i in data) {
-            userid.push(data[i].DateCreated);
-            facebook_follower.push(data[i].Total);
-          }
+    //       for(var i in data) {
+    //         userid.push(data[i].DateCreated);
+    //         facebook_follower.push(data[i].Total);
+    //       }
 
 
-          var chartdata = {
-            labels: userid,
-            datasets: [
-              {
-                fill: false,
-                lineTension: 0.1,
-                backgroundColor: "rgba(59, 89, 152, 0.75)",
-                data: facebook_follower
-              }
-            ]
-          };
+    //       var chartdata = {
+    //         labels: userid,
+    //         datasets: [
+    //           {
+    //             fill: false,
+    //             lineTension: 0.1,
+    //             backgroundColor: "rgba(59, 89, 152, 0.75)",
+    //             data: facebook_follower
+    //           }
+    //         ]
+    //       };
 
-          var areaChartOptions = {
-            //Boolean - If we should show the scale at all
-            showScale               : true,
-            //Boolean - Whether grid lines are shown across the chart
-            scaleShowGridLines      : false,
-            //String - Colour of the grid lines
-            scaleGridLineColor      : 'rgba(0,0,0,.05)',
-            //Number - Width of the grid lines
-            scaleGridLineWidth      : 1,
-            //Boolean - Whether to show horizontal lines (except X axis)
-            scaleShowHorizontalLines: true,
-            //Boolean - Whether to show vertical lines (except Y axis)
-            scaleShowVerticalLines  : true,
-            //Boolean - Whether the line is curved between points
-            bezierCurve             : true,
-            //Number - Tension of the bezier curve between points
-            bezierCurveTension      : 0.3,
-            //Boolean - Whether to show a dot for each point
-            pointDot                : false,
-            //Number - Radius of each point dot in pixels
-            pointDotRadius          : 4,
-            //Number - Pixel width of point dot stroke
-            pointDotStrokeWidth     : 1,
-            //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
-            pointHitDetectionRadius : 20,
-            //Boolean - Whether to show a stroke for datasets
-            datasetStroke           : true,
-            //Number - Pixel width of dataset stroke
-            datasetStrokeWidth      : 2,
-            //Boolean - Whether to fill the dataset with a color
-            datasetFill             : true,
-            //String - A legend template
-            legendTemplate          : '<ul class="<%=name.toLowerCase()%>-legend"><% for (var i=0; i<datasets.length; i++){%><li><span style="background-color:<%=datasets[i].lineColor%>"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>',
-            //Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
-            maintainAspectRatio     : true,
-            //Boolean - whether to make the chart responsive to window resizing
-            responsive              : true
-          }
+    //       var areaChartOptions = {
+    //         //Boolean - If we should show the scale at all
+    //         showScale               : true,
+    //         //Boolean - Whether grid lines are shown across the chart
+    //         scaleShowGridLines      : false,
+    //         //String - Colour of the grid lines
+    //         scaleGridLineColor      : 'rgba(0,0,0,.05)',
+    //         //Number - Width of the grid lines
+    //         scaleGridLineWidth      : 1,
+    //         //Boolean - Whether to show horizontal lines (except X axis)
+    //         scaleShowHorizontalLines: true,
+    //         //Boolean - Whether to show vertical lines (except Y axis)
+    //         scaleShowVerticalLines  : true,
+    //         //Boolean - Whether the line is curved between points
+    //         bezierCurve             : true,
+    //         //Number - Tension of the bezier curve between points
+    //         bezierCurveTension      : 0.3,
+    //         //Boolean - Whether to show a dot for each point
+    //         pointDot                : false,
+    //         //Number - Radius of each point dot in pixels
+    //         pointDotRadius          : 4,
+    //         //Number - Pixel width of point dot stroke
+    //         pointDotStrokeWidth     : 1,
+    //         //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
+    //         pointHitDetectionRadius : 20,
+    //         //Boolean - Whether to show a stroke for datasets
+    //         datasetStroke           : true,
+    //         //Number - Pixel width of dataset stroke
+    //         datasetStrokeWidth      : 2,
+    //         //Boolean - Whether to fill the dataset with a color
+    //         datasetFill             : true,
+    //         //String - A legend template
+    //         legendTemplate          : '<ul class="<%=name.toLowerCase()%>-legend"><% for (var i=0; i<datasets.length; i++){%><li><span style="background-color:<%=datasets[i].lineColor%>"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>',
+    //         //Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+    //         maintainAspectRatio     : true,
+    //         //Boolean - whether to make the chart responsive to window resizing
+    //         responsive              : true
+    //       }
 
-          var lineChartCanvas          = $('#lineTotalLoanAmount').get(0).getContext('2d')
-          var lineChart                = new Chart(lineChartCanvas)
-          var lineChartOptions         = areaChartOptions
-          lineChartOptions.datasetFill = false
-          lineChart.Line(chartdata, lineChartOptions)
-        },
-        error: function(data) {
-          console.log(data);
-        }
-      });
+    //       var lineChartCanvas          = $('#lineChartTotalLoan').get(0).getContext('2d')
+    //       var lineChart                = new Chart(lineChartCanvas)
+    //       var lineChartOptions         = areaChartOptions
+    //       lineChartOptions.datasetFill = false
+    //       lineChart.Line(chartdata, lineChartOptions)
+    //     },
+    //     error: function(data) {
+    //       console.log(data);
+    //     }
+    //   });
+    // // TOTAL LOAN AMOUNT
+    //   $.ajax({
+    //     url: "<?php echo base_url(); ?>admin_controller/getTotalLoanAmount",
+    //     type: "POST",
+    //     async: false,
+    //     dataType: "JSON",
+    //     success: function(data) {
+    //       var userid = [];
+    //       var facebook_follower = [];
+    //       var total_label = [];
+
+    //       for(var i in data) {
+    //         userid.push(data[i].DateCreated);
+    //         facebook_follower.push(data[i].Total);
+    //       }
+
+
+    //       var chartdata = {
+    //         labels: userid,
+    //         datasets: [
+    //           {
+    //             fill: false,
+    //             lineTension: 0.1,
+    //             backgroundColor: "rgba(59, 89, 152, 0.75)",
+    //             data: facebook_follower
+    //           }
+    //         ]
+    //       };
+
+    //       var areaChartOptions = {
+    //         //Boolean - If we should show the scale at all
+    //         showScale               : true,
+    //         //Boolean - Whether grid lines are shown across the chart
+    //         scaleShowGridLines      : false,
+    //         //String - Colour of the grid lines
+    //         scaleGridLineColor      : 'rgba(0,0,0,.05)',
+    //         //Number - Width of the grid lines
+    //         scaleGridLineWidth      : 1,
+    //         //Boolean - Whether to show horizontal lines (except X axis)
+    //         scaleShowHorizontalLines: true,
+    //         //Boolean - Whether to show vertical lines (except Y axis)
+    //         scaleShowVerticalLines  : true,
+    //         //Boolean - Whether the line is curved between points
+    //         bezierCurve             : true,
+    //         //Number - Tension of the bezier curve between points
+    //         bezierCurveTension      : 0.3,
+    //         //Boolean - Whether to show a dot for each point
+    //         pointDot                : false,
+    //         //Number - Radius of each point dot in pixels
+    //         pointDotRadius          : 4,
+    //         //Number - Pixel width of point dot stroke
+    //         pointDotStrokeWidth     : 1,
+    //         //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
+    //         pointHitDetectionRadius : 20,
+    //         //Boolean - Whether to show a stroke for datasets
+    //         datasetStroke           : true,
+    //         //Number - Pixel width of dataset stroke
+    //         datasetStrokeWidth      : 2,
+    //         //Boolean - Whether to fill the dataset with a color
+    //         datasetFill             : true,
+    //         //String - A legend template
+    //         legendTemplate          : '<ul class="<%=name.toLowerCase()%>-legend"><% for (var i=0; i<datasets.length; i++){%><li><span style="background-color:<%=datasets[i].lineColor%>"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>',
+    //         //Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+    //         maintainAspectRatio     : true,
+    //         //Boolean - whether to make the chart responsive to window resizing
+    //         responsive              : true
+    //       }
+
+    //       var lineChartCanvas          = $('#lineTotalLoanAmount').get(0).getContext('2d')
+    //       var lineChart                = new Chart(lineChartCanvas)
+    //       var lineChartOptions         = areaChartOptions
+    //       lineChartOptions.datasetFill = false
+    //       lineChart.Line(chartdata, lineChartOptions)
+    //     },
+    //     error: function(data) {
+    //       console.log(data);
+    //     }
+    //   });
     
     // Create the chart
       var brands = {}, brandsData = [], versions = {}, drilldownSeries = [];

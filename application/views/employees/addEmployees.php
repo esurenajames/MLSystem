@@ -289,26 +289,28 @@
                 <span aria-hidden="true">&times;</span></button>
               <h4 class="modal-title">Import Employees</h4>
             </div>
-              <div class="modal-body">
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label for="txtHouseNo">Excel Attachment <span class="text-red">*</span></label>
-                      <input type="file" name="Attachment[]" required="" id="Attachment" accept=".xlsx, .xls, .doc, .docx, .pdf, .jpeg, .jpg, .png">
+              <form role="form" id="upload_form3" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="txtHouseNo">Excel Attachment <span class="text-red">*</span></label>
+                        <input type="file" id="form3UploadExcel" name="form3UploadExcel" accept=".xls, .xlsx" required>
+                      </div>
                     </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label>Download Format <span class="text-red">*</span></label><br>
-                      <a class="btn btn-sm btn-success" href="<?php echo base_url();?>/employeeUpload/EmployeeUpload.xls" title="Download">Download</a>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Download Format <span class="text-red">*</span></label><br>
+                        <a class="btn btn-sm btn-success" href="<?php echo base_url();?>/employeeUpload/EmployeeUpload.xlsx" title="Download">Download</a>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary">Submit</button>
-              </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+              </form>
           </div>
         </div>
       </div>
@@ -567,6 +569,53 @@
   }
 
   $(function () {
+
+  $('#upload_form3').on('submit', function(event){
+    event.preventDefault();
+    $.ajax({
+      url: "<?php echo base_url(); ?>employee_controller/uploadForm3Excel",
+      method: "POST",
+      data: new FormData(this),
+      contentType: false,
+      cache: false,
+      processData: false,
+      success: function(data){
+        if(data != "Error inserting to Consolidated Damaged Item" || data != "File not set")
+        {
+          swal({
+            title: 'Success!',
+            text: data,
+            type: 'success',
+            buttonsStyling: false,
+            confirmButtonClass: 'btn btn-primary'
+          });
+          $('#upload_form3').each(function(){
+            this.reset();
+          });
+          location.reload();
+        }
+        else
+        {
+          swal({
+            title: 'Error!',
+            text: 'Unable to import data.',
+            type: 'error',
+            buttonsStyling: false,
+            confirmButtonClass: 'btn btn-primary'
+          });
+        }
+      },
+      error: function(data){
+        swal({
+          title: 'Error!',
+          text: 'Unable to import data. Please make sure all required fields are filled out or uploading file is valid.',
+          type: 'error',
+          buttonsStyling: false,
+          confirmButtonClass: 'btn btn-primary'
+        });
+      }
+    }); // AJAX END
+  });
 
     $('#DivEmployee').hide();
     $('.select2').select2();

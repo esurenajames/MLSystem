@@ -720,16 +720,14 @@
                       </div>
                       <div class="col-md-4">
                         <div class="form-group">
-                          <div class="form-group">
-                            <label>Date of Birth <span class="text-red">*</span></label>
-                            <div class="input-group date">
-                              <div class="input-group-addon">
-                                <i class="fa fa-calendar"></i>
-                              </div>
-                              <input type="text" placeholder="Date of Birth" class="form-control" name="DateOfBirth" required="" id="DateOfBirth">
+                          <label>Date of Birth <span class="text-red">*</span></label>
+                          <div class="input-group date">
+                            <div class="input-group-addon">
+                              <i class="fa fa-calendar"></i>
                             </div>
-                            <!-- /.input group -->
+                            <input type="text" placeholder="Date of Birth" class="form-control" name="DateOfBirth" required="" id="DateOfBirth">
                           </div>
+                          <!-- /.input group -->
                         </div>
                       </div>
                       <div class="col-md-4">
@@ -748,6 +746,18 @@
                     <div id="divSpouseDetails" style="display: none">
                       <!-- EMPLOYER DETAILS -->
                         <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label>Date Hired <span class="text-red">*</span></label>
+                              <div class="input-group date">
+                                <div class="input-group-addon">
+                                  <i class="fa fa-calendar"></i>
+                                </div>
+                                <input type="text" placeholder="Date Hired" class="form-control" name="SpouseDateHired" required="" id="dtpSpouseDateHired">
+                              </div>
+                              <!-- /.input group -->
+                            </div>
+                          </div>
                           <div class="col-md-3">
                             <div class="form-group">
                               <label>Present Employer/Business</label>
@@ -1202,7 +1212,7 @@
                     <b>Birthdate</b> <h5 class="pull-right"><?php print_r($detail['DateOfBirth']); ?></h5>
                   </li>
                   <li class="list-group-item">
-                    <b>Date Added</b> <h5 class="pull-right"><?php print_r($detail['DateAdded']); ?></h5>
+                    <b>Date Added</b> <h5 class="pull-right"><small><?php print_r($detail['DateAdded']); ?></small></h5>
                   </li>
                   <li class="list-group-item">
                     <b>Civil Status</b> <h5 class="pull-right"><?php print_r($detail['CivilStatus']); ?></h5>
@@ -1366,7 +1376,7 @@
                     </div>
                     <div class="tab-pane" id="tabSpouseInfo">
                       <h4>SPOUSE INFORMATION</h4>
-                      <button type="button" class="btn btn-primary pull-right" data-toggle="modal" onclick="getDetail(<?php print_r($detail['BorrowerId']); ?>, 2)" data-target="#modalBorrowerDetails">Add Record</button>
+                      <button type="button" class="btn btn-primary pull-right" data-toggle="modal" onclick="getDetail(<?php print_r($detail['BorrowerId']); ?>, 4)" data-target="#modalBorrowerDetails">Add Record</button>
                       <br>
                       <br>
                       <br>
@@ -1476,7 +1486,7 @@
   <div class="pull-right hidden-xs">
     <b>Version</b> 1.0.0
   </div>
-  <strong>Copyright &copy; 2020 <a href="https://adminlte.io">GIA Tech.</a>.</strong> All rights
+  <strong>Copyright &copy; 2020 <a href="#">GIA Tech.</a>.</strong> All rights
   reserved.
 </footer>
 

@@ -1442,8 +1442,41 @@ class borrower_model extends CI_Model
                                                       ON R.EmployeeNumber = EMP.EmployeeNumber
                                                     LEFT JOIN Branch_Has_Employee BHE
                                                       ON BHE.EmployeeNumber = EMP.EmployeeNumber
-                                                          WHERE EMP.StatusId = 2
-                                                          AND BHE.BranchId = $AssignedBranchId
+                                                      WHERE EMP.StatusId = 2
+                                                      AND BHE.BranchId = $AssignedBranchId
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function filterBorrower($StatusID)
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT DISTINCT B.FirstName
+                                                , acronym (B.MiddleName) as MI
+                                                , B.LastName
+                                                , B.ExtName
+                                                , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', EMP.MiddleName, ', ', EMP.ExtName) as CreatedBy
+                                                , B.StatusId
+                                                , BS.Name as StatusDescription
+                                                , BS.statusColor
+                                                , B.Dependents
+                                                , DATE_FORMAT(B.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                                , DATE_FORMAT(B.DateUpdated, '%d %b %Y %h:%i %p') as DateUpdated
+                                                , B.BorrowerId
+                                                , CONCAT(B.LastName, ', ', B.FirstName) as Name 
+                                                FROM r_Borrowers B
+                                                  INNER JOIN r_BorrowerStatus BS
+                                                      ON BS.BorrowerStatusId = B.StatusId
+                                                    INNER JOIN r_employee EMP
+                                                      ON EMP.EmployeeNumber = B.CreatedBy
+                                                    LEFT JOIN R_UserRole R
+                                                      ON R.EmployeeNumber = EMP.EmployeeNumber
+                                                    LEFT JOIN Branch_Has_Employee BHE
+                                                      ON BHE.EmployeeNumber = EMP.EmployeeNumber
+                                                      WHERE EMP.StatusId = 2
+                                                      AND BHE.BranchId = $AssignedBranchId
+                                                      AND B.StatusId = $StatusID
       ");
       $data = $query_string->result_array();
       return $data;

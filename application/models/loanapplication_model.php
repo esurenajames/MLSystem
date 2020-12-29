@@ -12,8 +12,7 @@ class loanapplication_model extends CI_Model
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $AssignedBranchId = $this->session->userdata('BranchId');
-    $query = $this->db->query("SELECT BHP.FileName
-                                      , CONCAT(BS.Name, ' ', B.FirstName, ' ', B.MiddleName, ' ', B.LastName, ', ', B.ExtName) as Name
+    $query = $this->db->query("SELECT CONCAT(BS.Name, ' ', B.FirstName, ' ', B.MiddleName, ' ', B.LastName, ', ', B.ExtName) as Name
                                       , B.BorrowerNumber
                                       , DATE_FORMAT(B.DateOfBirth, '%b %d, %Y') as DOB
                                       , TIMESTAMPDIFF(YEAR, B.DateOfBirth, CURDATE()) as Age
@@ -141,8 +140,6 @@ class loanapplication_model extends CI_Model
                                           ON B.BorrowerId = A.BorrowerId
                                         INNER JOIN r_civilstatus C
                                           ON C.CivilStatusId = B.CivilStatus
-                                        LEFT JOIN Borrower_Has_Picture BHP
-                                          ON BHP.BorrowerId = B.BorrowerId
                                         LEFT JOIN R_Salutation BS
                                           ON BS.SalutationId = B.Salutation
                                         LEFT JOIN R_Employee EMP
@@ -169,20 +166,27 @@ class loanapplication_model extends CI_Model
                                         -- AND BHE.StatusId = 1
                                         -- AND BHC.IsPrimary = 1
                                         -- AND BHC.StatusId = 1
-                                        AND BHP.StatusId = 1
     ");
 
     $data = $query->row_array();
     return $data;
   }
 
+  function getProfilePicture($ID)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $query_string = $this->db->query("SELECT  FileName
+                                              FROM Borrower_Has_Picture
+                                                WHERE BorrowerId = $ID
+                                                AND StatusId = 1
+    ");
+    $data = $query_string->row_array();
+    return $data;
+  }
+
   function getProvinceAddress($Id)
   {
     $query_string = $this->db->query("SELECT  MAX(A.AddressId) as AddressId
-                                              , BAH.AddressType
-                                              , BAH.YearsStayed
-                                              , BAH.MonthsStayed
-                                              , BAH.NameOfLandlord
                                               , A.HouseNo
                                               , BA.BrgyDesc
                                               FROM R_Borrowers B
@@ -318,6 +322,37 @@ class loanapplication_model extends CI_Model
     return $data;
   }
 
+  function getSpouseEmployer($Id, $status)
+  {
+    $query_string = $this->db->query("SELECT  EmployerName
+                                              , SpousePosition as Position
+                                              , I.Name as Industry
+                                              , CASE
+                                                  WHEN EmployerStatus = 1
+                                                  THEN 'Present Employer'
+                                                  ELSE 'Previous Employer'
+                                                END as EmployerStatus
+                                              , DATE_FORMAT(BHE.DateHired, '%d %b %Y') as DateHired
+                                              , TenureYear
+                                              , TenureMonth
+                                              , BusinessAddress
+                                              , TelephoneNumber
+                                              , EmployerId
+                                              , BHE.StatusId
+                                              FROM borrower_has_employer BHE
+                                                INNER JOIN r_spouse B
+                                                  ON B.SpouseId = BHE.SpouseId
+                                                LEFT JOIN Borrower_Has_Position BHP
+                                                  ON BHP.BorrowerPositionId = BHE.PositionId
+                                                LEFT JOIN R_Industry I
+                                                  ON I.IndustryId = BHE.IndustryId
+                                                    WHERE B.SpouseId = $Id
+                                                    AND BHE.StatusId = 1
+    ");
+    $data = $query_string->row_array();
+    return $data;
+  }
+
   function getReferences($BorrowerId)
   {
     $query_string = $this->db->query("SELECT  Name
@@ -337,7 +372,7 @@ class loanapplication_model extends CI_Model
   {
     $query_string = $this->db->query("SELECT  COALESCE(SUM(Amount) ,0) as Total
                                               FROM $tableName
-                                                    WHERE StatusId = 1
+                                                    WHERE StatusId = 2
                                                       AND ApplicationId = $AppId
     ");
     $data = $query_string->row_array();
@@ -361,6 +396,7 @@ class loanapplication_model extends CI_Model
                                                 INNER JOIN R_Position P
                                                   ON P.PositionId = BHC.PositionId
                                                 WHERE BorrowerId = $borrowerId
+                                                AND BHC.StatusId = 1 
 
     ");
     $data = $query_string->row_array();
@@ -573,6 +609,134 @@ class loanapplication_model extends CI_Model
     return $data;
   }
 
+  function getBorrowerLoanList()
+  {
+    $AssignedBranchId = $this->session->userdata('BranchId');
+    $query = $this->db->query("SELECT DISTINCT  CONCAT(FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as Name
+                                        , B.BorrowerId
+                                        FROM R_Borrowers B
+                                          INNER JOIN T_Application A
+                                            ON A.BorrowerId = B.BorrowerId
+                                          WHERE B.StatusId = 1
+                                          AND B.BranchId = $AssignedBranchId
+    ");
+
+    $output = '';
+    foreach ($query->result() as $row)
+    {
+      $output .= '<option value="'.$row->BorrowerId.'">'.$row->Name.'</option>';
+    }
+    return $output;
+  }
+
+  function getLoanTypesList()
+  {
+    $AssignedBranchId = $this->session->userdata('BranchId');
+    $query = $this->db->query("SELECT DISTINCT L.LoanId
+                                        , L.Name
+                                          FROM R_Loans L
+                                            INNER JOIN T_Application A
+                                              ON A.LoanId = L.LoanId
+                                            INNER JOIN Branch_has_Employee BE
+                                              ON BE.EmployeeNumber = A.CreatedBy
+                                          WHERE L.StatusId = 1
+                                          AND BE.BranchId = $AssignedBranchId 
+                                            ORDER BY L.Name ASC
+    ");
+
+
+    $output = '';
+    foreach ($query->result() as $row)
+    {
+      $output .= '<option value="'.$row->LoanId.'">'.$row->Name. '</option>';
+    }
+    return $output;
+  }
+
+  function getLoanApplications()
+  {
+    $AssignedBranchId = $this->session->userdata('BranchId');
+    $query = $this->db->query("SELECT DISTINCT A.ApplicationId
+                                      , A.TransactionNumber
+                                      , CONCAT(B.FirstName, ' ', B.MiddleName, ' ', B.LastName) as Name
+                                      FROM T_Application A
+                                        INNER JOIN t_paymentsmade PM
+                                          ON A.ApplicationId = PM.ApplicationId
+                                        INNER JOIN R_Borrowers B
+                                          ON B.BorrowerId = A.BorrowerId
+                                            WHERE PM.StatusId = 1
+    ");
+
+
+    $output = '';
+    foreach ($query->result() as $row)
+    {
+      $output .= '<option value="'.$row->ApplicationId.'">'.$row->TransactionNumber. ' | '.$row->Name. '</option>';
+    }
+    return $output;
+  }
+
+  function getCollectedBy()
+  {
+    $AssignedBranchId = $this->session->userdata('BranchId');
+    $query = $this->db->query("SELECT DISTINCT EMP.EmployeeNumber
+                                      , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName) as Name
+                                      FROM t_paymentsmade PM
+                                        INNER JOIN R_Employee EMP
+                                          ON EMP.EmployeeNumber = PM.CreatedBy
+                                            WHERE PM.StatusId = 1
+    ");
+
+
+    $output = '';
+    foreach ($query->result() as $row)
+    {
+      $output .= '<option value="'.$row->EmployeeNumber.'">'.$row->Name. ' | '.$row->EmployeeNumber.'</option>';
+    }
+    return $output;
+  }
+
+  function getAssetCategory()
+  {
+    $AssignedBranchId = $this->session->userdata('BranchId');
+    $query = $this->db->query("SELECT   C.CategoryId
+                                      , C.Name
+                                      FROM r_assetmanagement AM
+                                            INNER JOIN r_category C
+                                                ON C.CategoryId = AM.CategoryId
+                                                  WHERE C.StatusId = 1
+    ");
+
+
+    $output = '';
+    foreach ($query->result() as $row)
+    {
+      $output .= '<option value="'.$row->CategoryId.'">'.$row->Name. '</option>';
+    }
+    return $output;
+  }
+
+  function getCollectionDate()
+  {
+    $AssignedBranchId = $this->session->userdata('BranchId');
+    $query = $this->db->query("SELECT DISTINCT DATE_FORMAT(PM.DateCollected, '%b %d, %Y') as CollectedDate
+                                      , DATE_FORMAT(PM.DateCollected, '%b-%d-%Y') as varDate
+                                      FROM t_paymentsmade PM
+                                        INNER JOIN R_Employee EMP
+                                          ON EMP.EmployeeNumber = PM.CreatedBy
+                                            WHERE PM.StatusId = 1
+                                            GROUP BY DateCollected
+    ");
+
+
+    $output = '';
+    foreach ($query->result() as $row)
+    {
+      $output .= '<option value="'.$row->varDate.'">'.$row->CollectedDate. '</option>';
+    }
+    return $output;
+  }
+
   function getChargeList($Id)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
@@ -628,7 +792,7 @@ class loanapplication_model extends CI_Model
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $query = $this->db->query("SELECT CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName) as Name
                                       , S.Description
-                                      , DATE_FORMAT(AHA.DateUpdated, '%b %d, %Y') as DateUpdated
+                                      , DATE_FORMAT(AHA.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
                                       , CONCAT(EMP2.FirstName, ' ', EMP2.MiddleName, ' ', EMP2.LastName) as ProcessedBy
                                       FROM application_has_approver AHA
                                         INNER JOIN r_status S
@@ -636,7 +800,7 @@ class loanapplication_model extends CI_Model
                                         INNER JOIN r_employee EMP
                                           ON EMP.EmployeeNumber = AHA.ApproverNumber
                                         LEFT JOIN r_employee EMP2
-                                          ON EMP2.EmployeeNumber = AHA.ApprovedBy
+                                          ON EMP2.EmployeeNumber = AHA.ApproverNumber
                                         WHERE ApplicationId = $Id
                                         AND 
                                         (
@@ -645,6 +809,8 @@ class loanapplication_model extends CI_Model
                                             AHA.StatusId = 4
                                             OR
                                             AHA.StatusId = 5
+                                            OR
+                                            AHA.StatusId = 1
                                         )
     ");
 
@@ -788,7 +954,7 @@ class loanapplication_model extends CI_Model
                                               , AHI.Amount
                                               , AHI.InterestType
                                               , RC.Type
-                                              , DATE_FORMAT(A.DateApproved, '%b %d, %Y') as DateApproved
+                                              , DATE_FORMAT(A.DateApproved, '%b %d, %Y  %h:%i %p') as DateApproved
                                               , LS.Name as StatusDescription
                                               , A.StatusId
                                               , A.ApplicationId
@@ -834,6 +1000,96 @@ class loanapplication_model extends CI_Model
     return $data;
   }
 
+  function filterLoans($loanStatus, $borrowerId, $LoanId)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $AssignedBranchId = $this->session->userdata('BranchId');
+
+    $search = '';
+    if($loanStatus != null || $loanStatus != '')
+    {
+      $search .= ' AND A.StatusId = ' . $loanStatus;
+    }
+    if($borrowerId != null || $borrowerId != '')
+    {
+      $search .= ' AND A.BorrowerId = ' . $borrowerId;
+    }
+    if($LoanId != null || $LoanId != '')
+    {
+      $search .= ' AND A.LoanId = ' . $LoanId;
+    }
+
+    $query_string = $this->db->query("SELECT  A.TransactionNumber
+                                              , L.Name as LoanName
+                                              , CONCAT(B.FirstName, ' ', B.MiddleName, ' ', B.LastName, ', ', B.ExtName) as BorrowerName
+                                              , FORMAT(A.PrincipalAmount, 2) PrincipalAmount
+                                              , CASE
+                                                  WHEN AHI.InterestType = 'Percentage'
+                                                  THEN CONCAT(AHI.Amount, '% /', AHI.Frequency)
+                                                  ELSE CONCAT('Php ', AHI.Amount, ' ', AHI.Frequency)
+                                                END as InterestRate
+                                              , CASE
+                                                  WHEN AHI.InterestType = 'Percentage'
+                                                  THEN AHI.Amount/100 * PrincipalAmount
+                                                  ELSE PrincipalAmount + AHI.Amount
+                                                END as TotalInterest
+                                              , A.CreatedBy
+                                              , AHI.Amount
+                                              , A.PrincipalAmount as RawPrincipalAmount
+                                              , A.TermNo as TermNo
+                                              , A.TermType
+                                              , A.RepaymentNo
+                                              , RC.Type
+                                              , AHI.Amount
+                                              , AHI.InterestType
+                                              , RC.Type
+                                              , DATE_FORMAT(A.DateApproved, '%b %d, %Y %h:%i %p') as DateApproved
+                                              , LS.Name as StatusDescription
+                                              , A.StatusId
+                                              , A.ApplicationId
+                                              , LS.IsApprovable
+                                              , LS.StatusColor
+                                              , (SELECT COUNT(*) 
+                                                    FROM application_has_approver
+                                                      WHERE ApplicationId = A.ApplicationId
+                                                      AND 
+                                                    (
+                                                          StatusId = 1
+                                                          OR
+                                                          StatusId = 2
+                                                      )
+                                              ) as ProcessedApprovers
+                                              , (SELECT COUNT(*) 
+                                                    FROM application_has_approver
+                                                      WHERE ApplicationId = A.ApplicationId
+                                                      AND StatusId != 6
+                                              ) as TotalApprovers
+                                              , (SELECT MAX(DATE_FORMAT(DateCreated, '%b %d, %Y'))
+                                                        FROM t_paymentsmade
+                                                          WHERE ApplicationId = A.ApplicationId
+                                              ) as LastPayment
+                                              FROM T_Application A
+                                                INNER JOIN R_Loans L 
+                                                  ON L.LoanId = A.LoanId
+                                                INNER JOIN R_Borrowers B
+                                                  ON B.BorrowerId = A.BorrowerId
+                                                INNER JOIN Application_has_interests AHI
+                                                  ON AHI.ApplicationId = A.ApplicationId
+                                                INNER JOIN Application_Has_Status LS
+                                                  ON A.StatusId = LS.LoanStatusId
+                                                LEFT JOIN R_RepaymentCycle RC
+                                                  ON RC.RepaymentId = A.RepaymentId
+                                                LEFT JOIN R_Employee EMP
+                                                  ON EMP.EmployeeNumber = A.CreatedBy
+                                                LEFT JOIN Branch_has_Employee BE
+                                                  ON BE.EmployeeNumber = EMP.EmployeeNumber
+                                                    WHERE BE.BranchId = $AssignedBranchId
+                                                    ".$search."
+    ");
+    $data = $query_string->result_array();
+    return $data;
+  }
+
   function displayBorrowerLoans($Id)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
@@ -861,7 +1117,7 @@ class loanapplication_model extends CI_Model
                                               , AHI.Amount
                                               , AHI.InterestType
                                               , RC.Type
-                                              , DATE_FORMAT(A.DateApproved, '%b %d, %Y') as DateApproved
+                                              , DATE_FORMAT(A.DateApproved, '%b %d, %Y %h:%i %p') as DateApproved
                                               , LS.Name as StatusDescription
                                               , A.StatusId
                                               , A.ApplicationId
@@ -923,7 +1179,7 @@ class loanapplication_model extends CI_Model
                                               , AHI.Amount
                                               , AHI.InterestType
                                               , RC.Type
-                                              , DATE_FORMAT(A.DateApproved, '%b %d, %Y') as DateApproved
+                                              , DATE_FORMAT(A.DateApproved, '%b %d, %Y %h:%i %p') as DateApproved
                                               , LS.Name as StatusDescription
                                               , A.StatusId
                                               , A.ApplicationId
@@ -1000,9 +1256,26 @@ class loanapplication_model extends CI_Model
     return $data;
   }
 
-  function getCollectionsManagement($dateFrom, $dateTo)
+  function getCollectionsManagement($ApplicationId, $LoanId, $CollectedBy, $dateFrom, $dateTo)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $search = '';
+    if($dateFrom != '' && $dateTo != '')
+    {
+      $search .= " AND DATE_FORMAT(PM.DateCollected, '%b-%d-%Y') BETWEEN '".$dateFrom."' AND '".$dateTo."'";
+    }
+    if($ApplicationId != '')
+    {
+      $search .= " AND A.ApplicationId = " . $ApplicationId;
+    }
+    if($LoanId != '')
+    {
+      $search .= " AND A.LoanId = " . $LoanId;
+    }
+    if($CollectedBy != '')
+    {
+      $search .= " AND PM.CreatedBy = '" . $CollectedBy."'";
+    }
     $query_string = $this->db->query("SELECT  CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName) as CollectedBy
                                               , TransactionNumber
                                               , CONCAT(B.FirstName, ' ', B.MiddleName, ' ', B.LastName) as BorrowerName
@@ -1032,6 +1305,7 @@ class loanapplication_model extends CI_Model
                                                     ON BNK.BankId = PM.ChangeId
                                                     WHERE A.StatusId = 1
                                                     AND PM.StatusId = 1
+                                                    ".$search."
                                                     ORDER BY PM.DateCollected DESC
     ");
     $data = $query_string->result_array();
@@ -2317,15 +2591,47 @@ class loanapplication_model extends CI_Model
       return $data;
     }
 
+    function getYearFilter2($table, $YearFrom, $YearTo)
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  DISTINCT DATE_FORMAT(DateCreated, '%Y') as Year
+                                                FROM R_Borrowers
+                                                  WHERE BranchId = $AssignedBranchId
+                                                  AND DATE_FORMAT(DateCreated, '%Y') BETWEEN  '$YearFrom' AND '$YearTo'
+                                                  GROUP BY DATE_FORMAT(DateCreated, '%Y')
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
     function getLoansYear()
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
-      $query_string = $this->db->query("SELECT  DISTINCT DATE_FORMAT(BE.DateCreated, '%Y') as Year
-                                                FROM R_Employee EMP
+      $query_string = $this->db->query("SELECT  DISTINCT DATE_FORMAT(A.DateCreated, '%Y') as Year
+                                                FROM T_Application A
+                                                  INNER JOIN R_Employee EMP
+                                                    ON EMP.EmployeeNumber = A.CreatedBy
                                                   INNER JOIN Branch_has_Employee BE
                                                     ON BE.EmployeeNumber = EMP.EmployeeNumber
                                                   WHERE BE.BranchId = $AssignedBranchId
                                                   GROUP BY DATE_FORMAT(BE.DateCreated, '%Y')
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getLoansYear2($YearFrom, $YearTo)
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  DISTINCT DATE_FORMAT(A.DateCreated, '%Y') as Year
+                                                FROM T_Application A
+                                                  INNER JOIN R_Employee EMP
+                                                    ON EMP.EmployeeNumber = A.CreatedBy
+                                                  INNER JOIN Branch_has_Employee BE
+                                                    ON BE.EmployeeNumber = EMP.EmployeeNumber
+                                                  WHERE BE.BranchId = $AssignedBranchId
+                                                  AND DATE_FORMAT(A.DateCreated, '%Y') BETWEEN  '$YearFrom' AND '$YearTo'
+                                                  GROUP BY DATE_FORMAT(A.DateCreated, '%Y')
       ");
       $data = $query_string->result_array();
       return $data;

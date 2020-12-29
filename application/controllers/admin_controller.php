@@ -1640,7 +1640,7 @@ class admin_controller extends CI_Controller {
           $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
           $itemDetail = $this->maintenance_model->selectSpecific('r_assetmanagement', 'AssetManagementId', $_POST['AssetManagementId']);
           $TransactionNumber = 'AM-'.sprintf('%05d', $itemDetail['AssetManagementId']);
-          $auditLogsManager = $employeeDetail['Name'] . ' added asset '.htmlentities($_POST['AssetName'], ENT_QUOTES).' in asset management.';
+          $auditLogsManager = 'Added asset #'.htmlentities($_POST['AssetName'], ENT_QUOTES).' in asset management.';
           $auditAffectedEmployee = 'added asset '.htmlentities($_POST['AssetName'], ENT_QUOTES).'.';
           $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
         // notification
@@ -1661,14 +1661,14 @@ class admin_controller extends CI_Controller {
     else if($_POST['FormType'] == 2) // Edit Asset Details 
     {
       $AssetManagementDetail = $this->admin_model->getAssetManagementDetails($_POST['AssetManagementId']);
-      if($AssetManagementDetail['Name'] != htmlentities($_POST['AssetName'], ENT_QUOTES))
+      if($AssetManagementDetail['AssetName'] != htmlentities($_POST['AssetName'], ENT_QUOTES))
       {
         // admin audits
           $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
           $itemDetail = $this->maintenance_model->selectSpecific('r_assetmanagement', 'AssetManagementId', $_POST['AssetManagementId']);
           $TransactionNumber = 'AM-'.sprintf('%05d', $itemDetail['AssetManagementId']);
-          $auditLogsManager = $employeeDetail['Name'] . ' updated asset name of '.$TransactionNumber.' from '.$AssetManagementDetail['PurchaseValue'].' to '.htmlentities($_POST['AssetName'], ENT_QUOTES).' in asset management.';
-          $auditAffectedEmployee = 'Updated asset name of '.$TransactionNumber.' from '.$AssetManagementDetail['PurchaseValue'].' to '.htmlentities($_POST['AssetName'], ENT_QUOTES).'.';
+          $auditLogsManager = 'Updated asset name of asset #'.$TransactionNumber.' from '.$AssetManagementDetail['AssetName'].' to '.htmlentities($_POST['AssetName'], ENT_QUOTES).' in asset management.';
+          $auditAffectedEmployee = 'Updated asset name of asset #'.$TransactionNumber.' from '.$AssetManagementDetail['AssetName'].' to '.htmlentities($_POST['AssetName'], ENT_QUOTES).'.';
           $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
         // update function
           $set = array( 
@@ -1686,8 +1686,8 @@ class admin_controller extends CI_Controller {
           $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
           $itemDetail = $this->maintenance_model->selectSpecific('r_assetmanagement', 'AssetManagementId', $_POST['AssetManagementId']);
           $TransactionNumber = 'AM-'.sprintf('%05d', $itemDetail['AssetManagementId']);
-          $auditLogsManager = $employeeDetail['Name'] . ' updated purchase value of '.$TransactionNumber.' from '.$AssetManagementDetail['PurchaseValue'].' to '.htmlentities($_POST['PurchasePrice'], ENT_QUOTES).' in asset management.';
-          $auditAffectedEmployee = 'Updated purchase value of '.$TransactionNumber.' from '.$AssetManagementDetail['PurchaseValue'].' to '.htmlentities($_POST['PurchasePrice'], ENT_QUOTES).'.';
+          $auditLogsManager = 'Updated purchase value of asset #'.$TransactionNumber.' from '.$AssetManagementDetail['PurchaseValue'].' to '.htmlentities($_POST['PurchasePrice'], ENT_QUOTES).' in asset management.';
+          $auditAffectedEmployee = 'Updated purchase value of asset #'.$TransactionNumber.' from '.$AssetManagementDetail['PurchaseValue'].' to '.htmlentities($_POST['PurchasePrice'], ENT_QUOTES).'.';
           $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
         // update function
           $set = array( 
@@ -1705,8 +1705,8 @@ class admin_controller extends CI_Controller {
           $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
           $itemDetail = $this->maintenance_model->selectSpecific('r_assetmanagement', 'AssetManagementId', $_POST['AssetManagementId']);
           $TransactionNumber = 'AM-'.sprintf('%05d', $itemDetail['AssetManagementId']);
-          $auditLogsManager = $employeeDetail['Name'] . ' updated type of asset of '.$TransactionNumber.' from '.$AssetManagementDetail['Type'].' to '.htmlentities($_POST['AssetType'], ENT_QUOTES).' in asset management.';
-          $auditAffectedEmployee = 'Updated type of asset of '.$TransactionNumber.' from '.$AssetManagementDetail['Type'].' to '.htmlentities($_POST['AssetType'], ENT_QUOTES).'.';
+          $auditLogsManager = 'Updated type of asset of asset #'.$TransactionNumber.' from '.$AssetManagementDetail['Type'].' to '.htmlentities($_POST['AssetType'], ENT_QUOTES).' in asset management.';
+          $auditAffectedEmployee = 'Updated type of asset of asset #'.$TransactionNumber.' from '.$AssetManagementDetail['Type'].' to '.htmlentities($_POST['AssetType'], ENT_QUOTES).'.';
           $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
         // update function
           $set = array( 
@@ -1724,8 +1724,8 @@ class admin_controller extends CI_Controller {
           $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
           $itemDetail = $this->maintenance_model->selectSpecific('r_assetmanagement', 'AssetManagementId', $_POST['AssetManagementId']);
           $TransactionNumber = 'AM-'.sprintf('%05d', $itemDetail['AssetManagementId']);
-          $auditLogsManager = $employeeDetail['Name'] . ' updated asset category of '.$TransactionNumber.' from '.$AssetManagementDetail['CategoryId'].' to '.htmlentities($_POST['CategoryId'], ENT_QUOTES).' in asset management.';
-          $auditAffectedEmployee = 'Updated asset category of '.$TransactionNumber.' from '.$AssetManagementDetail['CategoryId'].' to '.htmlentities($_POST['CategoryId'], ENT_QUOTES).'.';
+          $auditLogsManager = 'Updated asset category of asset #'.$TransactionNumber.' from '.$AssetManagementDetail['CategoryId'].' to '.htmlentities($_POST['CategoryId'], ENT_QUOTES).' in asset management.';
+          $auditAffectedEmployee = 'Updated asset category of asset #'.$TransactionNumber.' from '.$AssetManagementDetail['CategoryId'].' to '.htmlentities($_POST['CategoryId'], ENT_QUOTES).'.';
           $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
         // update function
           $set = array( 
@@ -1743,8 +1743,8 @@ class admin_controller extends CI_Controller {
           $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
           $itemDetail = $this->maintenance_model->selectSpecific('r_assetmanagement', 'AssetManagementId', $_POST['AssetManagementId']);
           $TransactionNumber = 'AM-'.sprintf('%05d', $itemDetail['AssetManagementId']);
-          $auditLogsManager = $employeeDetail['Name'] . ' updated replacement value of '.$TransactionNumber.' from '.$AssetManagementDetail['ReplacementValue'].' to '.htmlentities($_POST['ReplacementValue'], ENT_QUOTES).' in asset management.';
-          $auditAffectedEmployee = 'Updated replacement value of '.$TransactionNumber.' from '.$AssetManagementDetail['ReplacementValue'].' to '.htmlentities($_POST['ReplacementValue'], ENT_QUOTES).'.';
+          $auditLogsManager = 'Updated replacement value of asset #'.$TransactionNumber.' from '.$AssetManagementDetail['ReplacementValue'].' to '.htmlentities($_POST['ReplacementValue'], ENT_QUOTES).' in asset management.';
+          $auditAffectedEmployee = 'Updated replacement value of asset #'.$TransactionNumber.' from '.$AssetManagementDetail['ReplacementValue'].' to '.htmlentities($_POST['ReplacementValue'], ENT_QUOTES).'.';
           $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
         // update function
           $set = array( 
@@ -1762,8 +1762,8 @@ class admin_controller extends CI_Controller {
           $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
           $itemDetail = $this->maintenance_model->selectSpecific('r_assetmanagement', 'AssetManagementId', $_POST['AssetManagementId']);
           $TransactionNumber = 'AM-'.sprintf('%05d', $itemDetail['AssetManagementId']);
-          $auditLogsManager = $employeeDetail['Name'] . ' updated serial number of '.$TransactionNumber.' from '.$AssetManagementDetail['SerialNumber'].' to '.htmlentities($_POST['SerialNumber'], ENT_QUOTES).' in asset management.';
-          $auditAffectedEmployee = 'Updated serial number of '.$TransactionNumber.' from '.$AssetManagementDetail['SerialNumber'].' to '.htmlentities($_POST['SerialNumber'], ENT_QUOTES).'.';
+          $auditLogsManager = 'Updated serial number of asset #'.$TransactionNumber.' from '.$AssetManagementDetail['SerialNumber'].' to '.htmlentities($_POST['SerialNumber'], ENT_QUOTES).' in asset management.';
+          $auditAffectedEmployee = 'Updated serial number of asset #'.$TransactionNumber.' from '.$AssetManagementDetail['SerialNumber'].' to '.htmlentities($_POST['SerialNumber'], ENT_QUOTES).'.';
           $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
         // update function
           $set = array( 
@@ -1781,8 +1781,8 @@ class admin_controller extends CI_Controller {
           $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
           $itemDetail = $this->maintenance_model->selectSpecific('r_assetmanagement', 'AssetManagementId', $_POST['AssetManagementId']);
           $TransactionNumber = 'AM-'.sprintf('%05d', $itemDetail['AssetManagementId']);
-          $auditLogsManager = $employeeDetail['Name'] . ' updated vendor of '.$TransactionNumber.' from '.$AssetManagementDetail['BoughtFrom'].' to '.htmlentities($_POST['BoughtFrom'], ENT_QUOTES).' in asset management.';
-          $auditAffectedEmployee = 'Updated vendor of '.$TransactionNumber.' from '.$AssetManagementDetail['BoughtFrom'].' to '.htmlentities($_POST['BoughtFrom'], ENT_QUOTES).'.';
+          $auditLogsManager = 'Updated vendor of asset #'.$TransactionNumber.' from '.$AssetManagementDetail['BoughtFrom'].' to '.htmlentities($_POST['BoughtFrom'], ENT_QUOTES).' in asset management.';
+          $auditAffectedEmployee = 'Updated vendor of asset #'.$TransactionNumber.' from '.$AssetManagementDetail['BoughtFrom'].' to '.htmlentities($_POST['BoughtFrom'], ENT_QUOTES).'.';
           $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
         // update function
           $set = array( 
@@ -1800,8 +1800,8 @@ class admin_controller extends CI_Controller {
           $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
           $itemDetail = $this->maintenance_model->selectSpecific('r_assetmanagement', 'AssetManagementId', $_POST['AssetManagementId']);
           $TransactionNumber = 'AM-'.sprintf('%05d', $itemDetail['AssetManagementId']);
-          $auditLogsManager = $employeeDetail['Name'] . ' updated critical level of '.$TransactionNumber.' from '.$AssetManagementDetail['CriticalLevel'].' to '.htmlentities($_POST['CriticalLevel'], ENT_QUOTES).' in asset management.';
-          $auditAffectedEmployee = 'Updated critical level of '.$TransactionNumber.' from '.$AssetManagementDetail['CriticalLevel'].' to '.htmlentities($_POST['CriticalLevel'], ENT_QUOTES).'.';
+          $auditLogsManager = 'Updated critical level of asset #'.$TransactionNumber.' from '.$AssetManagementDetail['CriticalLevel'].' to '.htmlentities($_POST['CriticalLevel'], ENT_QUOTES).' in asset management.';
+          $auditAffectedEmployee = 'Updated critical level of asset #'.$TransactionNumber.' from '.$AssetManagementDetail['CriticalLevel'].' to '.htmlentities($_POST['CriticalLevel'], ENT_QUOTES).'.';
           $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
         // update function
           $set = array( 
@@ -1820,8 +1820,8 @@ class admin_controller extends CI_Controller {
           $itemDetail = $this->maintenance_model->selectSpecific('r_assetmanagement', 'AssetManagementId', $_POST['AssetManagementId']);
           $branchName = $this->maintenance_model->selectSpecific('R_Branches', 'BranchId', $_POST['BranchId']);
           $TransactionNumber = 'AM-'.sprintf('%05d', $itemDetail['AssetManagementId']);
-          $auditLogsManager = $employeeDetail['Name'] . ' updated assigned branch of '.$TransactionNumber.' from '.$AssetManagementDetail['Name'].' to '.htmlentities($branchName['Name'], ENT_QUOTES).' in asset management.';
-          $auditAffectedEmployee = 'Updated assigned branch of '.$TransactionNumber.' from '.$AssetManagementDetail['Name'].' to '.htmlentities($branchName['Name'], ENT_QUOTES).'.';
+          $auditLogsManager = 'Updated assigned branch of asset #'.$TransactionNumber.' from '.$AssetManagementDetail['Name'].' to '.htmlentities($branchName['Name'], ENT_QUOTES).' in asset management.';
+          $auditAffectedEmployee = 'Updated assigned branch of asset #'.$TransactionNumber.' from '.$AssetManagementDetail['Name'].' to '.htmlentities($branchName['Name'], ENT_QUOTES).'.';
           $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
         // update function
           $set = array( 
@@ -1840,8 +1840,8 @@ class admin_controller extends CI_Controller {
           $fromEmployee = $this->employee_model->getEmployeeProfile($AssetManagementDetail['AssignedTo']);
           $toEmployee = $this->employee_model->getEmployeeProfile($_POST['AssignedTo']);
           $TransactionNumber = 'AM-'.sprintf('%05d', $itemDetail['AssetManagementId']);
-          $auditLogsManager = $employeeDetail['Name'] . ' updated assigned employee to '.$TransactionNumber.' from '.$fromEmployee['Name'].' to '.htmlentities($toEmployee['Name'], ENT_QUOTES).' in asset management.';
-          $auditAffectedEmployee = 'Updated assigned employee to '.$TransactionNumber.' from '.$fromEmployee['Name'].' to '.htmlentities($toEmployee['Name'], ENT_QUOTES).'.';
+          $auditLogsManager = 'Updated assigned employee to asset #'.$TransactionNumber.' from '.$fromEmployee['Name'].' to '.htmlentities($toEmployee['Name'], ENT_QUOTES).' in asset management.';
+          $auditAffectedEmployee = 'Updated assigned employee to asset #'.$TransactionNumber.' from '.$fromEmployee['Name'].' to '.htmlentities($toEmployee['Name'], ENT_QUOTES).'.';
           $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
         // update function
           $set = array( 
@@ -1859,8 +1859,8 @@ class admin_controller extends CI_Controller {
           $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
           $itemDetail = $this->maintenance_model->selectSpecific('r_assetmanagement', 'AssetManagementId', $_POST['AssetManagementId']);
           $TransactionNumber = 'AM-'.sprintf('%05d', $itemDetail['AssetManagementId']);
-          $auditLogsManager = $employeeDetail['Name'] . ' updated description of '.$TransactionNumber.' from '.$AssetManagementDetail['Description'].' to '.htmlentities($_POST['Description'], ENT_QUOTES).' in asset management.';
-          $auditAffectedEmployee = 'Updated serial number of '.$TransactionNumber.' from '.$AssetManagementDetail['Description'].' to '.htmlentities($_POST['Description'], ENT_QUOTES).'.';
+          $auditLogsManager = 'Updated description of asset #'.$TransactionNumber.' from '.$AssetManagementDetail['Description'].' to '.htmlentities($_POST['Description'], ENT_QUOTES).' in asset management.';
+          $auditAffectedEmployee = 'Updated serial number of asset #'.$TransactionNumber.' from '.$AssetManagementDetail['Description'].' to '.htmlentities($_POST['Description'], ENT_QUOTES).'.';
           $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
         // update function
           $set = array( 
@@ -1888,16 +1888,16 @@ class admin_controller extends CI_Controller {
       {
         $newStock = htmlentities($_POST['stockNo'], ENT_QUOTES) + $currentStock['Stock'];
         // admin audits
-          $auditLogsManager = $employeeDetail['Name'] . ' added '.$_POST['stockNo'].' to stock #'.$TransactionNumber.' in asset management.';
-          $auditAffectedEmployee = 'Added '.$_POST['stockNo'].' from '.$TransactionNumber.'.';
+          $auditLogsManager = 'Added '.$_POST['stockNo'].' to asset #'.$TransactionNumber.' in asset management module.';
+          $auditAffectedEmployee = 'Added '.$_POST['stockNo'].' to asset #'.$TransactionNumber.' in asset management module.';
           $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
       }
       else
       {
         $newStock = $currentStock['Stock'] - htmlentities($_POST['stockNo'], ENT_QUOTES);
         // admin audits
-          $auditLogsManager = $employeeDetail['Name'] . ' removed '.$_POST['stockNo'].' from stock #'.$TransactionNumber.' in asset management.';
-          $auditAffectedEmployee = 'Removed '.$_POST['stockNo'].' from '.$TransactionNumber.'.';
+          $auditLogsManager = 'Removed '.$_POST['stockNo'].' from asset #'.$TransactionNumber.' in asset management module.';
+          $auditAffectedEmployee = 'Removed '.$_POST['stockNo'].' from asset #'.$TransactionNumber.' in asset management module.';
           $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
       }
 
@@ -3480,7 +3480,7 @@ class admin_controller extends CI_Controller {
 
   function getAgePopulation()
   {
-    $output = $this->maintenance_model->getAge();
+    $output = $this->maintenance_model->getAge($this->input->post('yearFilter'));
     $this->output->set_output(print(json_encode($output)));
     exit();
   }
@@ -3509,6 +3509,27 @@ class admin_controller extends CI_Controller {
   function getIncomeLevelPopulation()
   {
     $output = $this->maintenance_model->getIncomeLevelPopulation($this->input->post('yearFilter'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getMonthlyCollection()
+  {
+    $output = $this->maintenance_model->getMonthlyCollection($this->input->post('yearFilter'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getMonthlyDisbursement()
+  {
+    $output = $this->maintenance_model->getMonthlyDisbursement($this->input->post('yearFilter'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getMonthlyInterest()
+  {
+    $output = $this->maintenance_model->getMonthlyInterest($this->input->post('yearFilter'));
     $this->output->set_output(print(json_encode($output)));
     exit();
   }

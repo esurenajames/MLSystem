@@ -32,10 +32,38 @@
 
         <li <?php if($sidebar == 'Dashboard' && $sidebarMenu == 'Dashboard'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/Dashboard"><i class="fa fa-dashboard"></i> Dashboard</a></li>
 
+        <?php if(in_array('1', $access)) { ?>
+          <li <?php if($sidebar == 'BorrowerManagement'){echo 'class="treeview active"';} else {echo 'class="treeview"';}?>>
+            <a href="#">
+              <i class="fa fa-users"></i> <span>Borrower Management</span>
+              <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+              </span>
+            </a>
+            <ul class="treeview-menu">
+              <?php if(in_array('1', $subModule)) { ?>
+                <li <?php if($sidebar == 'BorrowerManagement' && $sidebarMenu == 'BorrowerManagement'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/borrowers"><i class="fa fa-circle-o"></i>Borrowers</a></li>
+              <?php } ?>
+              <?php if(in_array('26', $subModule)) { ?>
+                <li <?php if($sidebar == 'BorrowerManagement' && $sidebarMenu == 'Industries'){echo 'class="active"';}?> ><a href="<?php echo base_url();?>home/AddIndustry"><i class="fa fa-circle-o"></i>Industries</a></li>
+              <?php } ?>
+              <?php if(in_array('27', $subModule)) { ?>
+                <li <?php if($sidebar == 'BorrowerManagement' && $sidebarMenu == 'Occupations'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddOccupation"><i class="fa fa-circle-o"></i>Occupations</a></li>
+              <?php } ?>
+              <?php if(in_array('34', $subModule)) { ?>
+                <li <?php if($sidebar == 'BorrowerManagement' && $sidebarMenu == 'Education'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddEducation"><i class="fa fa-circle-o"></i>Education Levels</a></li>
+              <?php } ?>
+              <?php if(in_array('42', $subModule)) { ?>
+                <li <?php if($sidebar == 'BorrowerManagement' && $sidebarMenu == 'BorrowerStatus'){echo 'class="active"';}?> ><a href="<?php echo base_url();?>home/AddBorrowerStatus"><i class="fa fa-circle-o"></i>Borrower's Status</a></li>
+              <?php } ?>
+            </ul>
+          </li>
+        <?php } ?>
+
         <?php if(in_array('3', $access)) { ?>
           <li <?php if($sidebar == 'Loans'){echo 'class="treeview active"';} else {echo 'class="treeview"';}?>>
             <a href="#">
-              <i class="fa fa-file-text"></i> <span>Loan Management</span>
+              <i class="fa fa-file-text"></i> Loan Management
               <span class="pull-right-container">
                 <i class="fa fa-angle-left pull-right"></i>
               </span>
@@ -70,11 +98,28 @@
           </li>
         <?php } ?>
 
-        <?php if(in_array('7', $access)) { ?>
-          <li <?php if($sidebar == 'Asset Management' && $sidebarMenu == 'Asset Management'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddAssetManagement"><i class="fa fa-archive"></i> Asset Management</a></li>
-        <?php } ?>
+
         <?php if(in_array('2', $access)) { ?>
           <li <?php if($sidebar == 'Collection Management' && $sidebarMenu == 'Collection Management'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/collectionManagement"><i class="fa fa-bank"></i> Collection Management</a></li>
+        <?php } ?>
+
+        <?php if(in_array('7', $access)) { ?>
+          <li <?php if($sidebar == 'Asset Management'){echo 'class="treeview active"';} else {echo 'class="treeview"';}?>>
+            <a href="#">
+              <i class="fa fa-archive"></i>Asset Management
+              <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+              </span>
+            </a>
+            <ul class="treeview-menu">
+              <?php if(in_array('7', $access)) { ?>
+                <li <?php if($sidebar == 'Asset Management' && $sidebarMenu == 'Asset Management'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddAssetManagement"><i class="fa fa-circle-o"></i>Asset Management</a></li>
+              <?php } ?>
+              <?php if(in_array('13', $subModule)) { ?>
+                <li <?php if($sidebar == 'Asset Management' && $sidebarMenu == 'AssetCategories'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddCategory"><i class="fa fa-circle-o"></i>Categories</a></li>
+              <?php } ?>
+            </ul>
+          </li>
         <?php } ?>
         <!-- <?php if(in_array('8', $access)) { ?>
           <li <?php if($sidebar == 'BorrowerManagement' && $sidebarMenu == 'BorrowerManagement'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/borrowers"><i class="fa fa-users"></i>Borrower Management</a></li>
@@ -82,35 +127,6 @@
         <!-- <?php if(in_array('1', $access)) { ?>
           <li <?php if($sidebar == 'EmployeeManagement' && $sidebarMenu == 'EmployeeManagement'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/addEmployees"><i class="fa fa-black-tie"></i>Employee Management</a></li>
         <?php } ?> -->
-
-
-        <?php if(in_array('1', $access)) { ?>
-          <li <?php if($sidebar == 'BorrowerManagement'){echo 'class="treeview active"';} else {echo 'class="treeview"';}?>>
-            <a href="#">
-              <i class="fa fa-users"></i> <span>Borrower Management</span>
-              <span class="pull-right-container">
-                <i class="fa fa-angle-left pull-right"></i>
-              </span>
-            </a>
-            <ul class="treeview-menu">
-              <?php if(in_array('1', $subModule)) { ?>
-                <li <?php if($sidebar == 'BorrowerManagement' && $sidebarMenu == 'BorrowerManagement'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/borrowers"><i class="fa fa-circle-o"></i>Borrowers</a></li>
-              <?php } ?>
-              <?php if(in_array('26', $subModule)) { ?>
-                <li <?php if($sidebar == 'BorrowerManagement' && $sidebarMenu == 'Industries'){echo 'class="active"';}?> ><a href="<?php echo base_url();?>home/AddIndustry"><i class="fa fa-circle-o"></i>Industries</a></li>
-              <?php } ?>
-              <?php if(in_array('27', $subModule)) { ?>
-                <li <?php if($sidebar == 'BorrowerManagement' && $sidebarMenu == 'Occupations'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddOccupation"><i class="fa fa-circle-o"></i>Occupations</a></li>
-              <?php } ?>
-              <?php if(in_array('34', $subModule)) { ?>
-                <li <?php if($sidebar == 'BorrowerManagement' && $sidebarMenu == 'Education'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddEducation"><i class="fa fa-circle-o"></i>Education Levels</a></li>
-              <?php } ?>
-              <?php if(in_array('42', $subModule)) { ?>
-                <li <?php if($sidebar == 'BorrowerManagement' && $sidebarMenu == 'BorrowerStatus'){echo 'class="active"';}?> ><a href="<?php echo base_url();?>home/AddBorrowerStatus"><i class="fa fa-circle-o"></i>Borrower's Status</a></li>
-              <?php } ?>
-            </ul>
-          </li>
-        <?php } ?>
 
 
         <?php if(in_array('1', $access)) { ?>
@@ -140,23 +156,23 @@
         <?php if(in_array('5', $access)) { ?>
           <li <?php if($sidebar == 'Finance'){echo 'class="treeview active"';} else {echo 'class="treeview"';}?>>
             <a href="#">
-              <i class="fa fa-dollar"></i> <span>Finance Management</span>
+              <i class="fa fa-dollar"></i>Finance Management
               <span class="pull-right-container">
                 <i class="fa fa-angle-left pull-right"></i>
               </span>
             </a>
             <ul class="treeview-menu">
-              <?php if(in_array('32', $subModule)) { ?>
-                <li <?php if($sidebar == 'Finance' && $sidebarMenu == 'ExpenseType'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddExpenseType"><i class="fa fa-circle-o"></i>Types of Expense</a></li>
+              <?php if(in_array('14', $subModule)) { ?>
+                <li <?php if($sidebar == 'Finance' && $sidebarMenu == 'Deposit'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/addDeposit"><i class="fa fa-circle-o"></i>Add Deposit</a></li>
               <?php } ?>
               <?php if(in_array('13', $subModule)) { ?>
                 <li <?php if($sidebar == 'Finance' && $sidebarMenu == 'Expenses'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddExpense"><i class="fa fa-circle-o"></i>Add Expense</a></li>
               <?php } ?>
+              <?php if(in_array('32', $subModule)) { ?>
+                <li <?php if($sidebar == 'Finance' && $sidebarMenu == 'ExpenseType'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddExpenseType"><i class="fa fa-circle-o"></i>Types of Expense</a></li>
+              <?php } ?>
               <?php if(in_array('33', $subModule)) { ?>
                 <li <?php if($sidebar == 'Finance' && $sidebarMenu == 'DepositType'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/addDepositType"><i class="fa fa-circle-o"></i>Types of Deposit</a></li>
-              <?php } ?>
-              <?php if(in_array('14', $subModule)) { ?>
-                <li <?php if($sidebar == 'Finance' && $sidebarMenu == 'Deposit'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/addDeposit"><i class="fa fa-circle-o"></i>Add Deposit</a></li>
               <?php } ?>
             </ul>
           </li>
@@ -224,19 +240,19 @@
                 <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'LoanStatus'){echo 'class="active"';}?> ><a href="<?php echo base_url();?>home/AddLoanStatus"><i class="fa fa-circle-o"></i> Loan Status</a></li>
               <?php } ?> -->
               <?php if(in_array('39', $subModule)) { ?>
-                <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Methods'){echo 'class="active"';}?> ><a href="<?php echo base_url();?>home/AddMethod"><i class="fa fa-circle-o"></i> <span>Modes of Payment</span></a></li>
+                <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Methods'){echo 'class="active"';}?> ><a href="<?php echo base_url();?>home/AddMethod"><i class="fa fa-circle-o"></i>Modes of Payment</a></li>
               <?php } ?>
               <!-- <?php if(in_array('40', $subModule)) { ?>
                 <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Conditional'){echo 'class="active"';}?> ><a href="<?php echo base_url();?>home/AddConditional"><i class="fa fa-circle-o"></i> <span>Additional Charges</span></a></li>
               <?php } ?> -->
               <?php if(in_array('41', $subModule)) { ?>
-                <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Categories'){echo 'class="active"';}?> ><a href="<?php echo base_url();?>home/AddCategory"><i class="fa fa-circle-o"></i> <span>Asset Categories</span></a></li>
+                <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Categories'){echo 'class="active"';}?> ><a href="<?php echo base_url();?>home/AddCategory"><i class="fa fa-circle-o"></i>Asset Categories</a></li>
               <?php } ?>
               <!-- <?php if(in_array('42', $subModule)) { ?>
                 <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'BorrowerStatus'){echo 'class="active"';}?> ><a href="<?php echo base_url();?>home/AddBorrowerStatus"><i class="fa fa-circle-o"></i> <span>Borrower's Status</span></a></li>
               <?php } ?> -->
               <?php if(in_array('54', $subModule)) { ?>
-                <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'DB'){echo 'class="active"';}?> ><a href="<?php echo base_url();?>home/branchDatabase"><i class="fa fa-circle-o"></i> <span>Database Management</span></a></li>
+                <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'DB'){echo 'class="active"';}?> ><a href="<?php echo base_url();?>home/branchDatabase"><i class="fa fa-circle-o"></i>Database Management</a></li>
               <?php } ?>
             </ul>
           </li>
@@ -264,16 +280,22 @@
                 <li <?php if($sidebar == 'Reports' && $sidebarMenu == 'Expenses'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/generateExpenses"><i class="fa fa-circle-o"></i>Expenses</a></li>
               <?php } ?>
               <?php if(in_array('53', $subModule)) { ?>
-                <li <?php if($sidebar == 'Reports' && $sidebarMenu == 'Expenses'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/generateIncomeStatement"><i class="fa fa-circle-o"></i>Income Statement</a></li>
+                <li <?php if($sidebar == 'Reports' && $sidebarMenu == 'Income Statement'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/generateIncomeStatement"><i class="fa fa-circle-o"></i>Income Statement</a></li>
               <?php } ?>
-              <?php if(in_array('53', $subModule)) { ?>
+              <!-- <?php if(in_array('53', $subModule)) { ?>
                 <li <?php if($sidebar == 'Reports' && $sidebarMenu == 'Demographics'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>loanapplication_controller/generateReport/4"><i class="fa fa-circle-o"></i>Download Demographics</a></li>
-              <?php } ?>
+              <?php } ?> -->
               <?php if(in_array('53', $subModule)) { ?>
+                <li <?php if($sidebar == 'Reports' && $sidebarMenu == 'Demographics Report'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/generateDemographics"><i class="fa fa-circle-o"></i>Demographics</a></li>
+              <?php } ?>
+              <!-- <?php if(in_array('53', $subModule)) { ?>
                 <li <?php if($sidebar == 'Reports' && $sidebarMenu == 'Loans'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>loanapplication_controller/generateReport/5"><i class="fa fa-circle-o"></i>Download Loans Extended</a></li>
+              <?php } ?> -->
+              <?php if(in_array('53', $subModule)) { ?>
+                <li <?php if($sidebar == 'Reports' && $sidebarMenu == 'Loans Extended Report'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/generateLoansExtended"><i class="fa fa-circle-o"></i>Loans Extended</a></li>
               <?php } ?>
               <?php if(in_array('53', $subModule)) { ?>
-                <li <?php if($sidebar == 'Reports' && $sidebarMenu == 'Loans'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>loanapplication_controller/generateReport/6"><i class="fa fa-circle-o"></i>Download Financial Health</a></li>
+                <li <?php if($sidebar == 'Reports' && $sidebarMenu == 'Financial Health Report'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/generateFinancialHealth"><i class="fa fa-circle-o"></i>Financial Health</a></li>
               <?php } ?>
               <?php if(in_array('53', $subModule)) { ?>
                 <!-- <li <?php if($sidebar == 'Reports' && $sidebarMenu == 'Transactions'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/generateExpenses"><i class="fa fa-circle-o"></i>Employee Transactions</a></li> -->
