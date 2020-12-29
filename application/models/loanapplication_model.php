@@ -576,10 +576,10 @@ class loanapplication_model extends CI_Model
   function getCharges($Id)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $query = $this->db->query("SELECT DISTINCT SUM(CASE
+    $query = $this->db->query("SELECT DISTINCT SUM(DISTINCT CASE
                                             WHEN C.ChargeType = 1
-                                                  THEN C.Amount
-                                                  ELSE C.Amount/100 * A.PrincipalAmount
+                                                  THEN C.Amount/100 * A.PrincipalAmount
+                                                  ELSE C.Amount
                                               END
                                         ) as TotalCharges
                                         , C.Amount
@@ -589,7 +589,7 @@ class loanapplication_model extends CI_Model
                                             ON C.ChargeId = AHC.ChargeId
                                           INNER JOIN t_application A
                                             ON A.ApplicationId = AHC.ApplicationId
-                                          WHERE A.ApplicationId = 5
+                                          WHERE A.ApplicationId = $Id
                                           AND AHC.StatusId = 2
     ");
 
