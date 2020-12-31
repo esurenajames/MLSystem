@@ -365,7 +365,7 @@
   <div class="pull-right hidden-xs">
     <b>Version</b> 1.0.0
   </div>
-  <strong>Copyright &copy; 2020 <a href="https://giatechph.com" target="_blank">GIA Tech.</a></strong> All rights
+  <strong>Copyright &copy; 2020 <a href="#" target="_blank">GIA Tech.</a></strong> All rights
   reserved.
 </footer>
 

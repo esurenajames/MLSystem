@@ -23,6 +23,7 @@ class home extends CI_Controller {
 		parent::__construct();		
 		$this->load->model('maintenance_model');
 		$this->load->model('access');
+    date_default_timezone_set('Asia/Manila');
 
    	if(empty($this->session->userdata("EmployeeNumber")) || $this->session->userdata("logged_in") == 0)
    	{
@@ -63,14 +64,16 @@ class home extends CI_Controller {
 
 		$data['totalBorrower'] = $this->maintenance_model->getTotalBorrower();
 		$data['TotalInterest'] = $this->maintenance_model->getTotalInterestCollected();
-		$data['TotalExpense'] = $this->maintenance_model->getTotalExpense();
+		$data['totalExpense'] = $this->maintenance_model->getTotalExpenses();
 		$data['TotalTransaction'] = $this->maintenance_model->getTransactions();
 		$data['dailyIncome'] = $this->maintenance_model->getDailyIncome();
 		$data['dailyPenalties'] = $this->maintenance_model->getDailyPenalties();
 		$data['dailyApprovedLoans'] = $this->maintenance_model->getApprovedDaily();
 		$data['dailyDisbursement'] = $this->maintenance_model->getDailyDisbursement();
+		$data['dailyExpenses'] = $this->maintenance_model->getDailyExpenses();
+		$data['TotalDisbursement'] = $this->maintenance_model->getTotalDisbursement();
+		$data['totalIncome'] = $this->maintenance_model->getTotalIncome();
 		$data['totalFund'] = $this->maintenance_model->getCurrentFund();
-		$data['totalExpenses'] = $this->maintenance_model->getTotalExpenses();
 		$data['totalActiveLoans'] = $this->maintenance_model->getActiveLoans();
 		$data['totalEmployees'] = $this->maintenance_model->getTotalEmployees();
 		$data['totalUsers'] = $this->maintenance_model->getTotalUsers();
@@ -709,6 +712,7 @@ class home extends CI_Controller {
 		$data['chargeList'] = $this->loanapplication_model->displayCharges($Id);
 		$data['selectCharges'] = $this->loanapplication_model->selectCharges($Id);
 		$data['selectChanges'] = $this->loanapplication_model->selectChanges($Id);
+		$data['selectPersonalRef'] = $this->loanapplication_model->selectPersonalReference($Id);
 
 		$data['interestPaid'] = $this->loanapplication_model->getInterestPaid($Id);
 		$data['principalpaid'] = $this->loanapplication_model->getPrincipalPaid($Id);

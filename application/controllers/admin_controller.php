@@ -26,6 +26,7 @@ class admin_controller extends CI_Controller {
 		$this->load->model('employee_model');
     $this->load->model('admin_model');
 		$this->load->model('borrower_model');
+    date_default_timezone_set('Asia/Manila');
 
    	if(empty($this->session->userdata("EmployeeNumber")) || $this->session->userdata("logged_in") == 0)
    	{
@@ -2423,88 +2424,42 @@ class admin_controller extends CI_Controller {
   function AddRepaymentCycle()
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $RepaymentDetail = $this->admin_model->getRepaymentDetails($_POST['RepaymentId']);
-    if ($_POST['FormType'] == 1) // add Repayment
-    {
-      $data = array(
-        'Type'                     => htmlentities($_POST['Repayment'], ENT_QUOTES)
+    // insert Repayment details
+      $insertRepayment = array(
+        'Type'                    => 'Date'
+        , 'CreatedBy'               => $EmployeeNumber
+        , 'UpdatedBy'               => $EmployeeNumber
       );
-      $query = $this->admin_model->countRepayment($data);
-      print_r($query);
-      if($query == 0) // not existing
-      {
-        // insert Repayment details
-          $insertRepayment = array(
-            'Type'                     => htmlentities($_POST['Repayment'], ENT_QUOTES)
-            , 'CreatedBy'              => $EmployeeNumber
-            , 'UpdatedBy'              => $EmployeeNumber
-          );
-          $insertRepaymentTable = 'R_RepaymentCycle';
-          $this->maintenance_model->insertFunction($insertRepayment, $insertRepaymentTable);
-        // notification
-          $this->session->set_flashdata('alertTitle','Success!'); 
-          $this->session->set_flashdata('alertText','Repayment Cycle successfully recorded!'); 
-          $this->session->set_flashdata('alertType','success'); 
-          redirect('home/AddRepaymentCycle/'. $EmployeeId['EmployeeId']);
-      }
-      else
-      {
-        // notification
-          $this->session->set_flashdata('alertTitle','Warning!'); 
-          $this->session->set_flashdata('alertText','Repayment Cycle already existing!'); 
-          $this->session->set_flashdata('alertType','warning'); 
-          redirect('home/AddRepaymentCycle');
-      }
-    }
-    else if($_POST['FormType'] == 2) // Edit Repayments 
-    {
-      $data = array(
-        'Type'                     => htmlentities($_POST['Repayment'], ENT_QUOTES)
+      $insertRepaymentTable = 'r_repaymentcycle';
+      $this->maintenance_model->insertFunction($insertRepayment, $insertRepaymentTable);
+    // get generated application id
+      $getData = array(
+        'table'                 => 'r_repaymentcycle'
+        , 'column'              => 'RepaymentId'
+        , 'CreatedBy'           => $EmployeeNumber
       );
-      $query = $this->admin_model->countOccupation($data);
-      print_r($query);
-      if($query == 0)
-      {
-        if($RepaymentDetail['Name'] != htmlentities($_POST['Repayment'], ENT_QUOTES))
-        {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$RepaymentDetail['Type'].' to '.htmlentities($_POST['Repayment'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
-          // update function
-            $set = array( 
-            'Type'                     => htmlentities($_POST['Repayment'], ENT_QUOTES)
-            );
-            $condition = array( 
-              'RepaymentId' => $_POST['RepaymentId']
-            );
-            $table = 'R_RepaymentCycle';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-        }
-      // notif
-        $this->session->set_flashdata('alertTitle','Success!'); 
-        $this->session->set_flashdata('alertText','Repayment Cycle details successfully updated!'); 
-        $this->session->set_flashdata('alertType','success'); 
-        redirect('home/AddRepaymentCycle/');
-      }
-      else // if existing
-      {
-        // notif
-        $this->session->set_flashdata('alertTitle','Warning!'); 
-        $this->session->set_flashdata('alertText','Repayment Cycle details already existing!'); 
-        $this->session->set_flashdata('alertType','warning'); 
-        redirect('home/AddRepaymentCycle/');
-      }
+      $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+    foreach ($_POST['DateSelected'] as $value) 
+    {
+      // insert Repayment details
+        $insertRepayment = array(
+          'RepaymentId'               => $generatedId['RepaymentId']
+          , 'Date'                    => htmlentities($value, ENT_QUOTES)
+        );
+        $insertRepaymentTable = 'repaymentcycle_has_content';
+        $this->maintenance_model->insertFunction($insertRepayment, $insertRepaymentTable);
     }
+    // notification
+      $this->session->set_flashdata('alertTitle','Success!'); 
+      $this->session->set_flashdata('alertText','Repayment Cycle successfully recorded!'); 
+      $this->session->set_flashdata('alertType','success'); 
+      redirect('home/AddRepaymentCycle');
   }
 
   function AddCapital()
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $AssignedBranch = $this->session->userdata('BranchId');
     $CapitalDetail = $this->admin_model->getCapitalDetails($_POST['CapitalId']);
     if ($_POST['FormType'] == 1) // add Capital
     {
@@ -2517,8 +2472,9 @@ class admin_controller extends CI_Controller {
       {
         // insert Capital detail
           $instertCapital = array(
-            'Amount'                     => htmlentities($_POST['Capital'], ENT_QUOTES)
-            , 'CreatedBy'              => $EmployeeNumber
+            'Amount'                      => htmlentities($_POST['Capital'], ENT_QUOTES),
+            'BranchId'                    => $AssignedBranch,
+            'CreatedBy'                   => $EmployeeNumber
           );
           $insertCapitalTable = 'R_Capital';
           $this->maintenance_model->insertFunction($instertCapital, $insertCapitalTable);
@@ -2590,12 +2546,14 @@ class admin_controller extends CI_Controller {
     $DateExpense = date('Y-m-d');
     $time = strtotime($_POST['DateExpense']);
     $ExpenseDate = date('Y-m-d', $time);
+    $AssignedBranch = $this->session->userdata('BranchId');
     if ($_POST['FormType'] == 1) // add Expense
     {
       // insert Expense detail
         $instertExpense = array(
           'ExpenseTypeId'              => htmlentities($_POST['Expense'], ENT_QUOTES)
           , 'Amount'                   => htmlentities($_POST['Amount'], ENT_QUOTES)
+          , 'BranchId'                 => $AssignedBranch
           , 'DateExpense'              => htmlentities($ExpenseDate, ENT_QUOTES)
           , 'CreatedBy'                => $EmployeeNumber
         );

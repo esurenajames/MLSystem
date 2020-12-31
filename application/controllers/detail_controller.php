@@ -23,6 +23,7 @@ class detail_controller extends CI_Controller {
 		parent::__construct();		
 		$this->load->model('maintenance_model');
 		$this->load->model('access');
+		date_default_timezone_set('Asia/Manila');
 
 	   	if(empty($this->session->userdata("EmployeeNumber")) || $this->session->userdata("logged_in") == 0)
 	   	{

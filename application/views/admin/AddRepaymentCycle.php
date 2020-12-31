@@ -22,15 +22,44 @@
             <span aria-hidden="true">&times;</span></button>
           <h4 class="modal-title">Add Repayment Cycle</h4>
         </div>
-        <form action="<?php echo base_url(); ?>admin_controller/AddRepaymentCycle/" id="frmInsert2" method="post">
+        <form action="<?php echo base_url(); ?>admin_controller/AddRepaymentCycle" id="frmInsert2" method="post">
           <div class="modal-body">
               <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-12">
                   <div class="form-group">
-                    <label for="Repayment">Name of Repayment</label><br>
-                    <input type="text" class="form-control" id="txtRepayment" name="Repayment">
-                    <input type="hidden" class="form-control"  id="txtFormType" name="FormType" value="1">
-                    <input type="hidden" class="form-control" id="txtRepaymentId" name="RepaymentId">
+                    <select class="form-control select2" name="DateSelected[]" style="width: 100%" multiple="">
+                      <option>1</option>
+                      <option>2</option>
+                      <option>3</option>
+                      <option>4</option>
+                      <option>5</option>
+                      <option>6</option>
+                      <option>7</option>
+                      <option>8</option>
+                      <option>9</option>
+                      <option>10</option>
+                      <option>11</option>
+                      <option>12</option>
+                      <option>13</option>
+                      <option>14</option>
+                      <option>15</option>
+                      <option>16</option>
+                      <option>17</option>
+                      <option>18</option>
+                      <option>19</option>
+                      <option>20</option>
+                      <option>21</option>
+                      <option>22</option>
+                      <option>23</option>
+                      <option>24</option>
+                      <option>25</option>
+                      <option>26</option>
+                      <option>27</option>
+                      <option>28</option>
+                      <option>29</option>
+                      <option>30</option>
+                      <option>31</option>
+                    </select>
                   </div>
                 </div>
               </div>
@@ -52,7 +81,7 @@
         <h3 class="box-title">List of Repayment Cycles</h3>
       </div>
       <div class="box-body">
-        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewRepaymentCycle">Add New Repayment Cycle</button>
+        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewRepaymentCycle">Add Record</button>
         <br>
         <br>
         <form name="ApproverDocForm" method="post" id="ApproverDocForm">
@@ -192,6 +221,7 @@
   }
 
   $(function () {
+    $('.select2').select2();
     UserTable = $('#example1').DataTable({
       "pageLength": 10,
       "ajax": { url: '<?php echo base_url()."/datatables_controller/Repayments/"; ?>', type: 'POST', "dataSrc": "" },
@@ -213,7 +243,7 @@
                     {
                       data: "StatusId", "render": function (data, type, row) {
                       if(row.StatusId == 1){
-                          return '<a onclick="confirm(\'Are you sure you want to deactivate this Repayment Cycle?\', \''+row.RepaymentId+'\', 0)" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a> <a onclick="Edit('+row.RepaymentId+')" data-toggle="modal" data-target="#modalNewRepaymentCycle" class="btn btn-info" title="Edit"><span class="fa fa-edit"></span></a>';
+                          return '<a onclick="confirm(\'Are you sure you want to deactivate this Repayment Cycle?\', \''+row.RepaymentId+'\', 0)" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a>';
                         }
                         else if(row.StatusId == 0){
                           return '<a onclick="confirm(\'Are you sure you want to re-activate this Repayment Cycle?\', \''+row.RepaymentId+'\', 1)" class="btn btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';

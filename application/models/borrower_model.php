@@ -6,6 +6,7 @@ class borrower_model extends CI_Model
       parent::__construct();
 			$this->load->model('maintenance_model');
 			$this->load->model('access');
+      date_default_timezone_set('Asia/Manila');
     }
 
     function getAllUsers()
@@ -255,6 +256,44 @@ class borrower_model extends CI_Model
       return $data;
     }
 
+    function getNumberDetails($Id)
+    {
+      $query_string = $this->db->query("SELECT  CN.PhoneType
+                                                , Number
+                                                , EC.StatusId
+                                                , EC.CreatedBy
+                                                , EC.BorrowerContactId
+                                                , EC.IsPrimary
+                                                , CONCAT('CN-', LPAD(EC.BorrowerContactId, 6, 0)) as RefNo
+                                                , DATE_FORMAT(EC.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                                FROM R_ContactNumbers CN
+                                                  INNER JOIN borrower_has_contactNumbers EC
+                                                    ON EC.ContactNumberId = CN.ContactNumberId
+                                                      WHERE EC.BorrowerContactId = ".$Id."
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getEmailDetails($Id)
+    {
+      $query_string = $this->db->query("SELECT  E.EmailAddress
+                                                , EE.StatusId
+                                                , EE.BorrowerEmailId
+                                                , EE.IsPrimary
+                                                , EE.CreatedBy
+                                                , DATE_FORMAT(EE.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                                , EE.DateCreated as rawDateCreated
+                                                , CONCAT('EA-', LPAD(EE.BorrowerEmailId, 6, 0)) as RefNo
+                                                FROM R_Emails E
+                                                  INNER JOIN borrower_has_emails EE
+                                                    ON EE.EmailId = E.EmailId
+                                                      WHERE EE.BorrowerEmailId = '".$Id."'
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
     function getBorrowerAddress($BorrowerID)
     {
       $query_string = $this->db->query("SELECT DISTINCT  EA.BorrowerAddressHistoryId
@@ -284,6 +323,39 @@ class borrower_model extends CI_Model
                                                       WHERE EA.BorrowerId = ".$BorrowerID."
       ");
       $data = $query_string->result_array();
+      return $data;
+    }
+
+
+    function getAddressDetails($Id)
+    {
+      $query_string = $this->db->query("SELECT DISTINCT  EA.BorrowerAddressHistoryId
+                                                , IsPrimary
+                                                , A.AddressType
+                                                , UPPER(A.HouseNo) as HouseNo
+                                                , UPPER(B.brgyDesc) as brgyDesc
+                                                , UPPER(P.provDesc) as provDesc
+                                                , UPPER(C.cityMunDesc) as cityMunDesc
+                                                , UPPER(R.regDesc) as regDesc
+                                                , EA.StatusId
+                                                , EA.BorrowerId
+                                                , DATE_FORMAT(EA.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                                , EA.DateCreated as rawDateCreated
+                                                , CONCAT('ADD-', LPAD(EA.BorrowerAddressHistoryId, 6, 0)) as RefNo
+                                                FROM borrowerAddressHistory EA
+                                                  INNER JOIN r_address A
+                                                    ON A.AddressId = EA.AddressId
+                                                  INNER JOIN add_barangay B
+                                                    ON B.brgyCode = A.BarangayId
+                                                  INNER JOIN add_province P
+                                                    ON P.provCode = B.provCode
+                                                  INNER JOIN add_city C
+                                                    ON C.citymunCode = B.citymunCode
+                                                  INNER JOIN add_region R 
+                                                    ON R.regCode = B.regCode
+                                                      WHERE EA.BorrowerAddressHistoryId = ".$Id."
+      ");
+      $data = $query_string->row_array();
       return $data;
     }
 
@@ -329,6 +401,7 @@ class borrower_model extends CI_Model
     function getBorrowerEmployment($Id)
     {
       $query_string = $this->db->query("SELECT  CONCAT('ER-', LPAD(BHE.EmployerId, 6, 0)) as rowNumber
+                                                , CONCAT('ER-', LPAD(BHE.EmployerId, 6, 0)) as RefNo
                                                 , EmployerName
                                                 , BHP.Name as Position
                                                 , I.Name as Industry
@@ -1142,6 +1215,21 @@ class borrower_model extends CI_Model
       return $data;
     }
 
+    function getSpouseDetails2($Id)
+    {
+      $query_string = $this->db->query("SELECT DISTINCT CONCAT('SR-', LPAD(BHS.BorrowerSpouseId, 6, 0)) as RefNo
+                                                , CONCAT(LastName, ', ', FirstName, ' ', MiddleName, ', ', ExtName) as Name
+                                                FROM R_Spouse S
+                                                  INNER JOIN Borrower_has_spouse BHS
+                                                    ON BHS.SpouseId = S.SpouseId
+                                                  WHERE BHS.BorrowerSpouseId = $Id
+
+      ");
+
+      $data = $query_string->row_array();
+      return $data;
+    }
+
     function getSpouseEmployer($Id)
     {
       $query_string = $this->db->query("SELECT DISTINCT SP.SpouseId
@@ -1296,6 +1384,7 @@ class borrower_model extends CI_Model
                                                 , BCM.MobileNo
                                                 , BCM.StatusId
                                                 , DATE_FORMAT(BCM.Birthdate, '%d %b %Y') as Birthdate
+                                                , CONCAT('CM-', LPAD(BCM.BorrowerComakerId, 6, 0)) as RefNo
                                                 FROM Borrower_has_Comaker BCM
                                                   INNER JOIN r_occupation POS
                                                     ON BCM.PositionId = POS.OccupationId
@@ -1314,6 +1403,7 @@ class borrower_model extends CI_Model
                                                 , BRF.Address
                                                 , BRF.ContactNumber
                                                 , B.BorrowerId
+                                                , CONCAT('RF-', LPAD(BRF.ReferenceId, 6, 0)) as RefNo
                                                 FROM Borrower_has_reference BRF
                                                   INNER JOIN R_Borrowers B
                                                     ON B.BorrowerId = BRF.BorrowerId
@@ -1415,6 +1505,28 @@ class borrower_model extends CI_Model
                                                       WHERE B.BorrowerId = $Id
       ");
       $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getEducationDetails($Id)
+    {
+      $query_string = $this->db->query("SELECT  CONCAT('ED-', LPAD(BEDU.BorrowerEducationId, 6, 0)) as RefNo
+                                                , BEDU.BorrowerEducationId
+                                                , DATE_FORMAT(BEDU.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                                , BEDU.DateCreated as rawDateCreated
+                                                , BEDU.Level
+                                                , BEDU.SchoolName
+                                                , ED.Name
+                                                , YearGraduated
+                                                , BEDU.StatusId
+                                                FROM Borrower_has_Education BEDU
+                                                  INNER JOIN R_Borrowers B
+                                                    ON B.BorrowerId = BEDU.BorrowerId
+                                                  INNER JOIN R_Education ED
+                                                    ON ED.EducationId = BEDU.EducationId
+                                                      WHERE BEDU.BorrowerEducationId = $Id
+      ");
+      $data = $query_string->row_array();
       return $data;
     }
 

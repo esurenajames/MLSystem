@@ -6,6 +6,7 @@ class admin_model extends CI_Model
       parent::__construct();
 			$this->load->model('maintenance_model');
 			$this->load->model('access');
+      date_default_timezone_set('Asia/Manila');
     }
 
     function getAuditLogs()

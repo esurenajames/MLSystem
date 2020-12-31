@@ -103,8 +103,8 @@
                       </div>
                       <div class="col-md-4">
                         <div class="form-group">
-                          <label>Present Employer/Business <span class="text-red">*</span></label>
-                          <input type="text" class="form-control" required="" id="txtBorrowerEmployer" name="BorrowerEmployer" placeholder="Present employer/business">
+                          <label>Employer/Business <span class="text-red">*</span></label>
+                          <input type="text" class="form-control" required="" id="txtBorrowerEmployer" name="BorrowerEmployer" placeholder="Employer/business">
                         </div>
                       </div>
                       <div class="col-md-4">
@@ -177,7 +177,7 @@
                         <h6 id="lblEmploymentTenure"></h6>
                       </div>
                       <div class="col-md-4">
-                        <label>Present Employer/Business</label>
+                        <label>Employer/Business</label>
                         <h6 id="lblEmploymentEmployer"></h6>
                       </div>
                       <div class="col-md-4">
@@ -754,8 +754,8 @@
                         <div class="row">
                           <div class="col-md-3">
                             <div class="form-group">
-                              <label>Present Employer/Business</label>
-                              <input type="text" class="form-control" id="txtPresentEmployer" name="SpouseEmployer" placeholder="Present employer/business">
+                              <label>Employer/Business</label>
+                              <input type="text" class="form-control" id="txtPresentEmployer" name="SpouseEmployer" placeholder="Employer/business">
                             </div>
                           </div>
                           <div class="col-md-3">
@@ -1250,14 +1250,14 @@
                     <li><a href="#tabLoanApplications" data-toggle="tab" title="Loans"><span class="fa fa-list-alt"></span></a></li>
                     <li><a href="#tabCollectionsMade" data-toggle="tab" title="Collections Made"><span class="fa fa-money"></span></a></li>
                     <li><a href="#tabReference" data-toggle="tab" title="Personal Reference"><span class="fa fa-users"></span></a></li>
-                    <li><a href="#tabCoMaker" data-toggle="tab" title="Co-Maker Info"><span class="fa fa-link"></span></a></li>
+                    <li><a href="#tabCoMaker" data-toggle="tab" title="Co-Maker Info"><span class="fa fa-files-o"></span></a></li>
                     <li><a href="#tabSpouseInfo" data-toggle="tab" title="Spouse Info"><span class="fa fa-male"></span><span class="fa fa-female"></span></a></li>
                     <li><a href="#tabEmployment" data-toggle="tab" title="Employment Info"><span class="fa fa-briefcase"></span></a></li>
                     <li><a href="#tabContactInfo" data-toggle="tab" title="Contact Info"><span class="fa fa-phone"></span></a></li>
                     <li><a href="#tabAddress" data-toggle="tab" title="Address Info"><span class="fa fa-map"></span></a></li>
                     <li><a href="#tabEmail" data-toggle="tab" title="Email Info"><span class="fa fa-envelope"></span></a></li>
                     <li><a href="#tabSupportingDocuments" data-toggle="tab" title="Supporting Documents"><span class="fa fa-file-text"></span></a></li>
-                    <li><a href="#Education" data-toggle="tab" title="Education"><span class="fa fa-book"></span></a></li>
+                    <li><a href="#Education" data-toggle="tab" title="Education Info"><span class="fa fa-mortar-board"></span></a></li>
                   </ul>
                   <div class="tab-content">
                     <div class="active tab-pane" id="tabHistory">
@@ -1432,7 +1432,7 @@
                       <?php $this->load->view('borrowers/supportingDocs'); ?>
                     </div>
                     <div class="tab-pane" id="Education">
-                      <h4>EDUCATIONAL</h4>
+                      <h4>EDUCATION INFORMATION</h4>
                       <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewEducation">Add Record</button>
                       <br>
                       <br>

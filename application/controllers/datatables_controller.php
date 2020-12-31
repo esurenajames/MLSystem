@@ -25,6 +25,7 @@ class datatables_controller extends CI_Controller {
 		$this->load->model('access');
 		$this->load->model('employee_model');
 		$this->load->model('loanApplication_model');
+    	date_default_timezone_set('Asia/Manila');
 
    	if(empty($this->session->userdata("EmployeeNumber")) || $this->session->userdata("logged_in") == 0)
    	{

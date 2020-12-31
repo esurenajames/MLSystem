@@ -6,6 +6,7 @@ class maintenance_model extends CI_Model
       parent::__construct();
 			$this->load->model('maintenance_model');
 			$this->load->model('access');
+      date_default_timezone_set('Asia/Manila');
     }
 
     function getLoggedInRoles()
@@ -137,6 +138,7 @@ class maintenance_model extends CI_Model
       $query_string = $this->db->query("SELECT DISTINCT COUNT(DISTINCT BorrowerId) as Total 
                                               FROM r_borrowers
                                                 WHERE BranchId = $BranchId
+                                                AND StatusId = 1
       ");
       $data = $query_string->row_array();
       return $data;
@@ -160,12 +162,24 @@ class maintenance_model extends CI_Model
       return $data;
     }
 
-    function getTotalExpense()
+    function getDailyExpenses()
     {
       $query_string = $this->db->query("SELECT  FORMAT(COALESCE(SUM(Amount), 0), 2) as Total
                                                 FROM r_expense
                                                     WHERE DATE_FORMAT(DateCreated, '%Y-%m-%d')  = DATE_FORMAT(NOW(), '%Y-%m-%d')
                                                     AND StatusId = 1
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getTotalIncome()
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  COALESCE(SUM(Amount), 0) as Total
+                                                FROM t_paymentsmade
+                                                    WHERE StatusId = 1
+                                                    AND Amount > 0
       ");
       $data = $query_string->row_array();
       return $data;
@@ -241,6 +255,23 @@ class maintenance_model extends CI_Model
                                                       ON B.BorrowerId = A.BorrowerId
                                                       WHERE B.BranchId = $AssignedBranchId
                                                       AND DATE_FORMAT(AHD.DateCreated, '%Y-%m-%d') = DATE_FORMAT(NOW(), '%Y-%m-%d')
+                                                      AND AHD.StatusId = 1
+                                                      AND A.StatusId = 1
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getTotalDisbursement()
+    {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $query_string = $this->db->query("SELECT  COALESCE(SUM(Amount), 0) as Total
+                                                FROM Application_has_Disbursement AHD
+                                                  INNER JOIN t_application A
+                                                      ON A.ApplicationId = AHD.ApplicationId
+                                                    INNER JOIN R_Borrowers B
+                                                      ON B.BorrowerId = A.BorrowerId
+                                                      WHERE B.BranchId = $AssignedBranchId
                                                       AND AHD.StatusId = 1
                                                       AND A.StatusId = 1
       ");
@@ -347,13 +378,23 @@ class maintenance_model extends CI_Model
 
     function getAllRepayments()
     {
-      $query_string = $this->db->query("SELECT RC.Type as RepaymentName
-                                                , RepaymentId
-                                                , CONCAT('RC-', LPAD(RC.RepaymentId, 6, 0)) as ReferenceNo 
-                                                , RC.CreatedBy
-                                                , RC.StatusId
-                                                , DATE_FORMAT(RC.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
-                                                FROM R_RepaymentCycle RC
+      $query_string = $this->db->query("SELECT   CASE
+                                          WHEN RHC.RepaymentId IS NULL
+                                                THEN RC.Type
+                                                ELSE GROUP_CONCAT(RHC.Date ORDER BY RHC.Date ASC)
+                                              END as RepaymentName
+                                          , RC.RepaymentId
+                                          , RC.StatusId
+                                          , RC.CreatedBy
+                                          , DATE_FORMAT(RC.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                          , DATE_FORMAT(RC.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
+                                          FROM r_repaymentcycle RC
+                                              LEFT JOIN  repaymentcycle_has_content RHC
+                                                  ON RC.RepaymentId = RHC.RepaymentId
+                                                    WHERE RC.StatusId = 1
+                                                    AND RHC.StatusId = 1
+                                                    GROUP BY RC.RepaymentId
+                                                    ORDER BY RHC.Date DESC
       ");
       $data = $query_string->result_array();
       return $data;
@@ -1519,7 +1560,7 @@ class maintenance_model extends CI_Model
                                               LEFT JOIN  repaymentcycle_has_content RHC
                                                   ON RC.RepaymentId = RHC.RepaymentId
                                                     WHERE RC.StatusId = 1
-                                                    OR RHC.StatusId = 1
+                                                    AND RHC.StatusId = 1
                                                     GROUP BY RC.RepaymentId
                                                     ORDER BY RHC.Date DESC
       ");
@@ -1850,13 +1891,17 @@ class maintenance_model extends CI_Model
     /*Total Employees*/
     function getTotalEmployees()
     {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
       $AssignedBranchId = $this->session->userdata('BranchId');
-      $query_string = $this->db->query("SELECT  COALESCE(COUNT(*)) as Total
+      $query_string = $this->db->query("SELECT  COALESCE(COUNT(DISTINCT EMP.EmployeeNumber)) as Total
                                                 FROM r_employee EMP
                                                       INNER JOIN branch_has_employee BE
                                                           ON BE.EmployeeNumber = EMP.EmployeeNumber
                                                               WHERE BE.BranchId = $AssignedBranchId
                                                                 AND BE.StatusId = 1
+                                                                AND EMP.StatusId = 2
+                                                                AND EMP.EmployeeNumber != '000000'
+                                                                AND EMP.EmployeeNumber != '$EmployeeNumber'
       ");
       $data = $query_string->row_array();
       return $data;

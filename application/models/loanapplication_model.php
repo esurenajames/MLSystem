@@ -6,6 +6,7 @@ class loanapplication_model extends CI_Model
     parent::__construct();
 		$this->load->model('maintenance_model');
 		$this->load->model('access');
+    date_default_timezone_set('Asia/Manila');
   }
 
   function getLoanApplicationDetails($Id)
@@ -40,7 +41,7 @@ class loanapplication_model extends CI_Model
                                           THEN AHI.Amount/100 * PrincipalAmount
                                           ELSE PrincipalAmount + AHI.Amount
                                         END / (A.TermNo * A.RepaymentNo) as totalInterestPerCollection
-                                      , DATE_FORMAT(B.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                      , DATE_FORMAT(A.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                       , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as CreatedBy
                                       , EMP.EmployeeNumber as EmployeeCreator
                                       , A.TransactionNumber
@@ -188,18 +189,30 @@ class loanapplication_model extends CI_Model
   function getProvinceAddress($Id)
   {
     $query_string = $this->db->query("SELECT  MAX(A.AddressId) as AddressId
-                                              , A.HouseNo
-                                              , BA.BrgyDesc
-                                              FROM R_Borrowers B
-                                                INNER JOIN borrowerAddressHistory BAH
+                                              , UPPER(A.HouseNo) as HouseNo
+                                              , UPPER(BA.brgyDesc) as brgyDesc
+                                              , UPPER(P.provDesc) as provDesc
+                                              , UPPER(C.cityMunDesc) as cityMunDesc
+                                              , UPPER(R.regDesc) as regDesc
+                                              FROM application_has_address AHA
+                                                INNER JOIN borroweraddresshistory BAH
+                                                  ON BAH.BorrowerAddressHistoryId = AHA.BorrowerAddressHistoryId
+                                                INNER JOIN r_borrowers B
                                                   ON B.BorrowerId = BAH.BorrowerId
-                                                INNER JOIN R_Address A
+                                                INNER JOIN r_address A
                                                   ON A.AddressId = BAH.AddressId
                                                 INNER JOIN add_barangay BA
-                                                  ON BA.BrgyCode = A.BarangayId
+                                                  ON BA.brgyCode = A.BarangayId
+                                                INNER JOIN add_province P
+                                                  ON P.provCode = BA.provCode
+                                                INNER JOIN add_city C
+                                                  ON C.citymunCode = BA.citymunCode
+                                                INNER JOIN add_region R 
+                                                  ON R.regCode = BA.regCode
                                                 WHERE B.BorrowerId = $Id
                                                 AND A.AddressType = 'Province Address'
-                                                AND BAH.StatusId = 1
+                                                AND AHA.StatusId = 1
+                                                ORDER BY AHA.ApplicationAddressId DESC
 
     ");
     $data = $query_string->row_array();
@@ -208,28 +221,39 @@ class loanapplication_model extends CI_Model
 
   function getCityAddress($Id)
   {
-    $query_string = $this->db->query("SELECT  A.AddressId
+    $query_string = $this->db->query("SELECT DISTINCT  A.AddressId
                                               , BAH.AddressType
                                               , BAH.YearsStayed
                                               , BAH.MonthsStayed
                                               , BAH.NameOfLandlord
                                               , BAH.IsPrimary
-                                              , A.HouseNo
-                                              , BA.BrgyDesc
+                                              , UPPER(A.HouseNo) as HouseNo
+                                              , UPPER(BA.brgyDesc) as brgyDesc
+                                              , UPPER(P.provDesc) as provDesc
+                                              , UPPER(C.cityMunDesc) as cityMunDesc
+                                              , UPPER(R.regDesc) as regDesc
                                               , A.Telephone
                                               , A.ContactNumber
-                                              FROM R_Borrowers B
-                                                INNER JOIN borrowerAddressHistory BAH
+                                              , AHA.ApplicationAddressId
+                                              FROM application_has_address AHA
+                                                INNER JOIN borroweraddresshistory BAH
+                                                  ON BAH.BorrowerAddressHistoryId = AHA.BorrowerAddressHistoryId
+                                                INNER JOIN r_borrowers B
                                                   ON B.BorrowerId = BAH.BorrowerId
-                                                INNER JOIN R_Address A
+                                                INNER JOIN r_address A
                                                   ON A.AddressId = BAH.AddressId
                                                 INNER JOIN add_barangay BA
-                                                  ON BA.BrgyCode = A.BarangayId
+                                                  ON BA.brgyCode = A.BarangayId
+                                                INNER JOIN add_province P
+                                                  ON P.provCode = BA.provCode
+                                                INNER JOIN add_city C
+                                                  ON C.citymunCode = BA.citymunCode
+                                                INNER JOIN add_region R 
+                                                  ON R.regCode = BA.regCode
                                                 WHERE B.BorrowerId = $Id
-                                                AND BAH.IsPrimary = 1
                                                 AND A.AddressType = 'City Address'
-                                                AND BAH.StatusId = 1
-                                                AND BAH.IsPrimary = 1
+                                                AND AHA.StatusId = 1
+                                                ORDER BY AHA.ApplicationAddressId DESC
 
     ");
     $data = $query_string->row_array();
@@ -245,16 +269,20 @@ class loanapplication_model extends CI_Model
                                               , BAH.NameOfLandlord
                                               , A.HouseNo
                                               , BA.BrgyDesc
-                                              FROM R_Spouse B
+                                              FROM application_has_spouse AHS
+                                                INNER JOIN borrower_has_spouse BHS
+                                                    ON BHS.BorrowerSpouseId = AHS.BorrowerSpouseId
+                                                INNER JOIN r_spouse B
+                                                    ON BHS.SpouseId = B.SpouseId
                                                 INNER JOIN borrowerAddressHistory BAH
-                                                  ON B.SpouseId = BAH.BorrowerId
+                                                  ON B.SpouseId = BAH.SpouseId
                                                 INNER JOIN R_Address A
                                                   ON A.AddressId = BAH.AddressId
                                                 INNER JOIN add_barangay BA
                                                   ON BA.BrgyCode = A.BarangayId
                                                 WHERE B.SpouseId = $Id
+                                                AND AHS.StatusId = 1
                                                 AND A.AddressType = 'Province Address'
-                                                AND BAH.StatusId = 1
 
     ");
     $data = $query_string->row_array();
@@ -273,18 +301,20 @@ class loanapplication_model extends CI_Model
                                               , BA.BrgyDesc
                                               , A.Telephone
                                               , A.ContactNumber
-                                              FROM R_Spouse B
+                                              FROM application_has_spouse AHS
+                                                INNER JOIN borrower_has_spouse BHS
+                                                    ON BHS.BorrowerSpouseId = AHS.BorrowerSpouseId
+                                                INNER JOIN r_spouse B
+                                                    ON BHS.SpouseId = B.SpouseId
                                                 INNER JOIN borrowerAddressHistory BAH
-                                                  ON B.SpouseId = BAH.BorrowerId
+                                                  ON B.SpouseId = BAH.SpouseId
                                                 INNER JOIN R_Address A
                                                   ON A.AddressId = BAH.AddressId
                                                 INNER JOIN add_barangay BA
                                                   ON BA.BrgyCode = A.BarangayId
                                                 WHERE B.SpouseId = $Id
-                                                AND BAH.IsPrimary = 1
+                                                AND AHS.StatusId = 1
                                                 AND A.AddressType = 'City Address'
-                                                AND BAH.StatusId = 1
-                                                AND BAH.IsPrimary = 1
 
     ");
     $data = $query_string->row_array();
@@ -306,9 +336,11 @@ class loanapplication_model extends CI_Model
                                               , TenureMonth
                                               , BusinessAddress
                                               , TelephoneNumber
-                                              , EmployerId
+                                              , AHE.EmployerId
                                               , BHE.StatusId
-                                              FROM borrower_has_employer BHE
+                                              FROM application_has_employer AHE 
+                                                INNER JOIN borrower_has_employer BHE
+                                                  ON AHE.EmployerId = BHE.EmployerId
                                                 INNER JOIN R_Borrowers B
                                                   ON B.BorrowerId = BHE.BorrowerId
                                                 LEFT JOIN r_occupation BHP
@@ -340,7 +372,11 @@ class loanapplication_model extends CI_Model
                                               , TelephoneNumber
                                               , EmployerId
                                               , BHE.StatusId
-                                              FROM borrower_has_employer BHE
+                                              FROM application_has_spouse AHS
+                                                INNER JOIN borrower_has_spouse BHS
+                                                  ON BHS.BorrowerSpouseId = AHS.BorrowerSpouseId
+                                                INNER JOIN borrower_has_employer BHE
+                                                  ON BHE.SpouseId = BHS.SpouseId
                                                 INNER JOIN r_spouse B
                                                   ON B.SpouseId = BHE.SpouseId
                                                 LEFT JOIN Borrower_Has_Position BHP
@@ -359,7 +395,9 @@ class loanapplication_model extends CI_Model
     $query_string = $this->db->query("SELECT  Name
                                               , Address
                                               , ContactNumber
-                                              FROM Borrower_has_reference BN
+                                              FROM application_has_personalreference AHP
+                                                INNER JOIN Borrower_has_reference BN
+                                                  ON AHP.ReferenceId = BN.ReferenceId
                                                 INNER JOIN r_employee EMP
                                                   ON EMP.EmployeeNumber = BN.CreatedBy
                                                     WHERE BorrowerId = $BorrowerId
@@ -393,11 +431,15 @@ class loanapplication_model extends CI_Model
                                               , BusinessNo
                                               , MobileNo
                                               , MonthlyIncome
-                                              FROM borrower_has_comaker BHC
+                                              , AHC.ApplicationCoMakerId
+                                              FROM application_has_comaker AHC
+                                                INNER JOIN borrower_has_comaker BHC
+                                                  ON BHC.BorrowerCoMakerId = AHC.BorrowerCoMakerId
                                                 INNER JOIN r_occupation P
                                                   ON P.OccupationId = BHC.PositionId
                                                 WHERE BorrowerId = $borrowerId
                                                 AND BHC.StatusId = 1 
+                                                ORDER BY AHC.ApplicationCoMakerId DESC
 
     ");
     $data = $query_string->row_array();
@@ -432,7 +474,11 @@ class loanapplication_model extends CI_Model
                                               , N.NationalityId
                                               , N.Description as NationalityName
                                               , C.CivilStatusId
-                                              FROM R_Spouse B
+                                              FROM Application_has_spouse AHS
+                                                INNER JOIN borrower_has_spouse BHS
+                                                  ON BHS.BorrowerSpouseId = AHS.BorrowerSpouseId
+                                                INNER JOIN R_Spouse B
+                                                  ON B.SpouseId = BHS.SpouseId
                                                 INNER JOIN R_Salutation S
                                                   ON S.SalutationId = B.Salutation
                                                 INNER JOIN R_Sex SX
@@ -495,6 +541,9 @@ class loanapplication_model extends CI_Model
                                       , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName) as CreatedBy
                                       , P.StatusId
                                       , B.BankName
+                                      , P.IsInterest
+                                      , P.IsPrincipalCollection
+                                      , P.IsOthers
                                       , P.Description 
                                       , PaymentMadeId
                                       FROM t_paymentsmade P
@@ -576,9 +625,9 @@ class loanapplication_model extends CI_Model
   function getCharges($Id)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $query = $this->db->query("SELECT DISTINCT SUM(DISTINCT CASE
+    $query = $this->db->query("SELECT DISTINCT SUM(CASE
                                             WHEN C.ChargeType = 1
-                                                  THEN C.Amount/100 * A.PrincipalAmount
+                                                  THEN C.Amount/100 * AHC.LoanAmount
                                                   ELSE C.Amount
                                               END
                                         ) as TotalCharges
@@ -1566,10 +1615,11 @@ class loanapplication_model extends CI_Model
                                               , C.ChargeType
                                               , C.IsMandatory
                                               , S.Description
+                                              , AHC.LoanAmount
                                               , CASE
                                                   WHEN C.ChargeType = 1
                                                   THEN CONCAT(C.Amount)
-                                                  ELSE CONCAT(C.Amount / 100 * A.PrincipalAmount)
+                                                  ELSE CONCAT(C.Amount / 100 * AHC.LoanAmount)
                                                 END as TotalCharge
                                               , AHC.StatusId
                                               , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as CreatedBy
@@ -2256,6 +2306,341 @@ class loanapplication_model extends CI_Model
         $auditAffectedTable = 'Deactivated comment #'.$Details['ReferenceNo'].' in comments tab.';
         $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $Details['ApplicationId'], 'Application_has_notifications', 'ApplicationId');
     }
+    else if($input['Type'] == 'PersonalRef')
+    {
+      $Detail = $this->db->query("SELECT  CONCAT('RF-', LPAD(AHC.ReferenceId, 6, 0)) as ReferenceNo
+                                                , AHC.ApplicationId
+                                                  FROM application_has_personalreference AHC
+                                                    INNER JOIN T_Application A
+                                                      ON A.ApplicationId = AHC.ApplicationId
+                                                      WHERE AHC.ApplicationPersonalReferenceId = ".$input['Id']."
+      ")->row_array();
+
+      // update status
+        $set = array(
+          'StatusId' => $input['updateType'],
+          'UpdatedBy' => $EmployeeNumber,
+          'DateUpdated' => $DateNow,
+        );
+        $condition = array(
+          'ApplicationPersonalReferenceId' => $input['Id']
+        );
+        $table = 'application_has_personalreference';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      // admin audits finals
+        $loanDetails = $this->getLoanApplicationDetails($Detail['ApplicationId']);
+        if($input['updateType'] == 1)
+        {
+          $auditLogsManager = 'Re-activated personal reference #'.$Detail['ReferenceNo'].' in personal reference tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedEmployee = 'Re-activated personal reference #'.$Detail['ReferenceNo'].' in personal reference tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedTable = 'Re-activated personal reference #'.$Detail['ReferenceNo'].' in personal reference tab.';
+        }
+        else if($input['updateType'] == 0)
+        {
+          $auditLogsManager = 'Deactivated personal reference #'.$Detail['ReferenceNo'].' in personal reference tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedEmployee = 'Deactivated personal reference #'.$Detail['ReferenceNo'].' in personal reference tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedTable = 'Deactivated personal reference #'.$Detail['ReferenceNo'].' in personal reference tab.';
+        }
+        $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $Detail['ApplicationId'], 'Application_has_notifications', 'ApplicationId');
+    }
+    else if($input['Type'] == 'BorrowerCoMaker')
+    {
+      $Detail = $this->db->query("SELECT  CONCAT('CM-', LPAD(AHC.BorrowerCoMakerId, 6, 0)) as ReferenceNo
+                                                , AHC.ApplicationId
+                                                  FROM application_has_comaker AHC
+                                                    INNER JOIN T_Application A
+                                                      ON A.ApplicationId = AHC.ApplicationId
+                                                      WHERE AHC.ApplicationCoMakerId = ".$input['Id']."
+      ")->row_array();
+
+      // update status
+        $set = array(
+          'StatusId' => $input['updateType'],
+          'UpdatedBy' => $EmployeeNumber,
+          'DateUpdated' => $DateNow,
+        );
+        $condition = array(
+          'ApplicationCoMakerId' => $input['Id']
+        );
+        $table = 'application_has_comaker';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      // admin audits finals
+        $loanDetails = $this->getLoanApplicationDetails($Detail['ApplicationId']);
+        if($input['updateType'] == 1)
+        {
+          $auditLogsManager = 'Re-activated co-maker #'.$Detail['ReferenceNo'].' in co-maker tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedEmployee = 'Re-activated co-maker #'.$Detail['ReferenceNo'].' in co-maker tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedTable = 'Re-activated co-maker #'.$Detail['ReferenceNo'].' in co-maker tab.';
+        }
+        else if($input['updateType'] == 0)
+        {
+          $auditLogsManager = 'Deactivated co-maker #'.$Detail['ReferenceNo'].' in co-maker tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedEmployee = 'Deactivated co-maker #'.$Detail['ReferenceNo'].' in co-maker tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedTable = 'Deactivated co-maker #'.$Detail['ReferenceNo'].' in co-maker tab.';
+        }
+        $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $Detail['ApplicationId'], 'Application_has_notifications', 'ApplicationId');
+    }
+    else if($input['Type'] == 'BorrowerSpouse')
+    {
+      $Detail = $this->db->query("SELECT  CONCAT('SR-', LPAD(AHC.BorrowerSpouseId, 6, 0)) as ReferenceNo
+                                                , AHC.ApplicationId
+                                                  FROM application_has_spouse AHC
+                                                    INNER JOIN T_Application A
+                                                      ON A.ApplicationId = AHC.ApplicationId
+                                                      WHERE AHC.ApplicationSpouseId = ".$input['Id']."
+      ")->row_array();
+
+      // update status
+        $set = array(
+          'StatusId' => $input['updateType'],
+          'UpdatedBy' => $EmployeeNumber,
+          'DateUpdated' => $DateNow,
+        );
+        $condition = array(
+          'ApplicationSpouseId' => $input['Id']
+        );
+        $table = 'application_has_spouse';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      // admin audits finals
+        $loanDetails = $this->getLoanApplicationDetails($Detail['ApplicationId']);
+        if($input['updateType'] == 1)
+        {
+          $auditLogsManager = 'Re-activated spouse #'.$Detail['ReferenceNo'].' in spouse tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedEmployee = 'Re-activated spouse #'.$Detail['ReferenceNo'].' in spouse tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedTable = 'Re-activated spouse #'.$Detail['ReferenceNo'].' in spouse tab.';
+        }
+        else if($input['updateType'] == 0)
+        {
+          $auditLogsManager = 'Deactivated spouse #'.$Detail['ReferenceNo'].' in spouse tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedEmployee = 'Deactivated spouse #'.$Detail['ReferenceNo'].' in spouse tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedTable = 'Deactivated spouse #'.$Detail['ReferenceNo'].' in spouse tab.';
+        }
+        $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $Detail['ApplicationId'], 'Application_has_notifications', 'ApplicationId');
+    }
+    else if($input['Type'] == 'BorrowerEmployer')
+    {
+      $Detail = $this->db->query("SELECT  CONCAT('ER-', LPAD(AHC.EmployerId, 6, 0)) as ReferenceNo
+                                                , AHC.ApplicationId
+                                                  FROM application_has_employer AHC
+                                                    INNER JOIN T_Application A
+                                                      ON A.ApplicationId = AHC.ApplicationId
+                                                      WHERE AHC.ApplicationEmployerId = ".$input['Id']."
+      ")->row_array();
+
+      // update status
+        $set = array(
+          'StatusId' => $input['updateType'],
+          'UpdatedBy' => $EmployeeNumber,
+          'DateUpdated' => $DateNow,
+        );
+        $condition = array(
+          'ApplicationEmployerId' => $input['Id']
+        );
+        $table = 'application_has_employer';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      // admin audits finals
+        $loanDetails = $this->getLoanApplicationDetails($Detail['ApplicationId']);
+        if($input['updateType'] == 1)
+        {
+          $auditLogsManager = 'Re-activated employment #'.$Detail['ReferenceNo'].' in employment tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedEmployee = 'Re-activated employment #'.$Detail['ReferenceNo'].' in employment tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedTable = 'Re-activated employment #'.$Detail['ReferenceNo'].' in employment tab.';
+        }
+        else if($input['updateType'] == 0)
+        {
+          $auditLogsManager = 'Deactivated employment #'.$Detail['ReferenceNo'].' in employment tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedEmployee = 'Deactivated employment #'.$Detail['ReferenceNo'].' in employment tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedTable = 'Deactivated employment #'.$Detail['ReferenceNo'].' in employment tab.';
+        }
+        $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $Detail['ApplicationId'], 'Application_has_notifications', 'ApplicationId');
+    }
+    else if($input['Type'] == 'BorrowerContact')
+    {
+      $Detail = $this->db->query("SELECT  CONCAT('CN-', LPAD(AHC.BorrowerContactId, 6, 0)) as ReferenceNo
+                                                , AHC.ApplicationId
+                                                , AHC.ApplicationContactId
+                                                FROM application_has_contact AHC
+                                                  INNER JOIN T_Application A
+                                                    ON A.ApplicationId = AHC.ApplicationId
+                                                    WHERE AHC.ApplicationContactId = ".$input['Id']."
+      ")->row_array();
+
+      // update status
+        $set = array(
+          'StatusId' => 0,
+          'UpdatedBy' => $EmployeeNumber,
+          'DateUpdated' => $DateNow,
+        );
+        $condition = array(
+          'ApplicationId' => $Detail['ApplicationId'],
+          'StatusId' => 1,
+        );
+        $table = 'application_has_contact';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      // update status
+        $set = array(
+          'StatusId' => $input['updateType'],
+          'UpdatedBy' => $EmployeeNumber,
+          'DateUpdated' => $DateNow,
+        );
+        $condition = array(
+          'ApplicationContactId' => $input['Id']
+        );
+        $table = 'application_has_contact';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      // admin audits finals
+        $loanDetails = $this->getLoanApplicationDetails($Detail['ApplicationId']);
+        if($input['updateType'] == 1)
+        {
+          $auditLogsManager = 'Re-activated contact #'.$Detail['ReferenceNo'].' in contact tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedEmployee = 'Re-activated contact #'.$Detail['ReferenceNo'].' in contact tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedTable = 'Re-activated contact #'.$Detail['ReferenceNo'].' in contact tab.';
+        }
+        else if($input['updateType'] == 0)
+        {
+          $auditLogsManager = 'Deactivated contact #'.$Detail['ReferenceNo'].' in contact tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedEmployee = 'Deactivated contact #'.$Detail['ReferenceNo'].' in contact tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedTable = 'Deactivated contact #'.$Detail['ReferenceNo'].' in contact tab.';
+        }
+        $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $Detail['ApplicationId'], 'Application_has_notifications', 'ApplicationId');
+    }
+    else if($input['Type'] == 'BorrowerEmail')
+    {
+      $Detail = $this->db->query("SELECT  CONCAT('EA-', LPAD(AHC.BorrowerEmailId, 6, 0)) as ReferenceNo
+                                                , AHC.ApplicationId
+                                                , AHC.ApplicationEmailId
+                                                FROM Application_has_email AHC
+                                                  INNER JOIN T_Application A
+                                                    ON A.ApplicationId = AHC.ApplicationId
+                                                    WHERE AHC.ApplicationEmailId = ".$input['Id']."
+      ")->row_array();
+
+      // update status
+        $set = array(
+          'StatusId' => 0,
+          'UpdatedBy' => $EmployeeNumber,
+          'DateUpdated' => $DateNow,
+        );
+        $condition = array(
+          'ApplicationId' => $Detail['ApplicationId'],
+          'StatusId' => 1,
+        );
+        $table = 'Application_has_email';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      // update status
+        $set = array(
+          'StatusId' => $input['updateType'],
+          'UpdatedBy' => $EmployeeNumber,
+          'DateUpdated' => $DateNow,
+        );
+        $condition = array(
+          'ApplicationEmailId' => $input['Id']
+        );
+        $table = 'Application_has_email';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      // admin audits finals
+        $loanDetails = $this->getLoanApplicationDetails($Detail['ApplicationId']);
+        if($input['updateType'] == 1)
+        {
+          $auditLogsManager = 'Re-activated emaill #'.$Detail['ReferenceNo'].' in email tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedEmployee = 'Re-activated emaill #'.$Detail['ReferenceNo'].' in email tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedTable = 'Re-activated emaill #'.$Detail['ReferenceNo'].' in email tab.';
+        }
+        else if($input['updateType'] == 0)
+        {
+          $auditLogsManager = 'Deactivated emaill #'.$Detail['ReferenceNo'].' in email tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedEmployee = 'Deactivated emaill #'.$Detail['ReferenceNo'].' in email tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedTable = 'Deactivated emaill #'.$Detail['ReferenceNo'].' in email tab.';
+        }
+        $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $Detail['ApplicationId'], 'Application_has_notifications', 'ApplicationId');
+    }
+    else if($input['Type'] == 'BorrowerEducation')
+    {
+      $Detail = $this->db->query("SELECT  CONCAT('ED-', LPAD(AHC.BorrowerEducationId, 6, 0)) as ReferenceNo
+                                                , AHC.ApplicationId
+                                                , AHC.ApplicationEducationId
+                                                FROM application_has_education AHC
+                                                  INNER JOIN T_Application A
+                                                    ON A.ApplicationId = AHC.ApplicationId
+                                                    WHERE AHC.ApplicationEducationId = ".$input['Id']."
+      ")->row_array();
+
+      // update status
+        $set = array(
+          'StatusId' => 0,
+          'UpdatedBy' => $EmployeeNumber,
+          'DateUpdated' => $DateNow,
+        );
+        $condition = array(
+          'ApplicationId' => $Detail['ApplicationId'],
+          'StatusId' => 1,
+        );
+        $table = 'application_has_education';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      // update status
+        $set = array(
+          'StatusId' => $input['updateType'],
+          'UpdatedBy' => $EmployeeNumber,
+          'DateUpdated' => $DateNow,
+        );
+        $condition = array(
+          'ApplicationEducationId' => $input['Id']
+        );
+        $table = 'application_has_education';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      // admin audits finals
+        $loanDetails = $this->getLoanApplicationDetails($Detail['ApplicationId']);
+        if($input['updateType'] == 1)
+        {
+          $auditLogsManager = 'Re-activated education #'.$Detail['ReferenceNo'].' in education tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedEmployee = 'Re-activated education #'.$Detail['ReferenceNo'].' in education tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedTable = 'Re-activated education #'.$Detail['ReferenceNo'].' in education tab.';
+        }
+        else if($input['updateType'] == 0)
+        {
+          $auditLogsManager = 'Deactivated education #'.$Detail['ReferenceNo'].' in education tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedEmployee = 'Deactivated education #'.$Detail['ReferenceNo'].' in education tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedTable = 'Deactivated education #'.$Detail['ReferenceNo'].' in education tab.';
+        }
+        $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $Detail['ApplicationId'], 'Application_has_notifications', 'ApplicationId');
+    }
+    else if($input['Type'] == 'BorrowerAddress')
+    {
+      $Detail = $this->db->query("SELECT  CONCAT('ADD-', LPAD(AHC.BorrowerAddressHistoryId, 6, 0)) as ReferenceNo
+                                                , AHC.ApplicationId
+                                                , AHC.ApplicationAddressId
+                                                FROM application_has_address AHC
+                                                  INNER JOIN T_Application A
+                                                    ON A.ApplicationId = AHC.ApplicationId
+                                                    WHERE AHC.ApplicationAddressId = ".$input['Id']."
+      ")->row_array();
+      // update status
+        $set = array(
+          'StatusId' => $input['updateType'],
+          'UpdatedBy' => $EmployeeNumber,
+          'DateUpdated' => $DateNow,
+        );
+        $condition = array(
+          'ApplicationAddressId' => $input['Id']
+        );
+        $table = 'application_has_address';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      // admin audits finals
+        $loanDetails = $this->getLoanApplicationDetails($Detail['ApplicationId']);
+        if($input['updateType'] == 1)
+        {
+          $auditLogsManager = 'Re-activated address #'.$Detail['ReferenceNo'].' in address tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedEmployee = 'Re-activated address #'.$Detail['ReferenceNo'].' in address tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedTable = 'Re-activated address #'.$Detail['ReferenceNo'].' in address tab.';
+        }
+        else if($input['updateType'] == 0)
+        {
+          $auditLogsManager = 'Deactivated address #'.$Detail['ReferenceNo'].' in address tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedEmployee = 'Deactivated address #'.$Detail['ReferenceNo'].' in address tab for application #'.$loanDetails['TransactionNumber'].'.';
+          $auditAffectedTable = 'Deactivated address #'.$Detail['ReferenceNo'].' in address tab.';
+        }
+        $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $Detail['ApplicationId'], 'Application_has_notifications', 'ApplicationId');
+    }
   }
   
   function getRequirements($Id)
@@ -2343,6 +2728,193 @@ class loanapplication_model extends CI_Model
       $output .= '<option value="'.$row->BankId.'">'.$row->BankName.'</option>';
     }
     return $output;
+  } 
+  
+  function selectPersonalReference($Id)
+  {
+    $Id = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $Id);
+    $query = $this->db->query("SELECT CONCAT('RF-', LPAD(BR.ReferenceId, 6, 0)) as ReferenceNo
+                                      , BR.Name
+                                      , BR.ReferenceId
+                                      FROM Borrower_has_reference BR
+                                      WHERE StatusId = 1
+                                      AND BorrowerId = ".$Id['BorrowerId']."
+                                      AND BR.ReferenceId NOT IN (SELECT ReferenceId FROM application_has_personalreference)
+    ");
+    $output = '<option selected disabled value="">Select Personal References</option>';
+    foreach ($query->result() as $row)
+    {
+      $output .= '<option value="'.$row->ReferenceId.'">'.$row->ReferenceNo.' | '.$row->Name.'</option>';
+    }
+    return $output;
+  } 
+  
+  function selectBorrowerDet($Type, $Id)
+  {
+    $Id = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $Id);
+    if($Type == 'Comaker')
+    {
+      $query = $this->db->query("SELECT CONCAT('CM-', LPAD(BR.BorrowerCoMakerId, 6, 0)) as ReferenceNo
+                                        , BR.Name
+                                        , BR.BorrowerCoMakerId
+                                        FROM borrower_has_comaker BR
+                                        WHERE StatusId = 1
+                                        AND BorrowerId = ".$Id['BorrowerId']."
+                                        AND BR.BorrowerCoMakerId NOT IN (SELECT BorrowerCoMakerId FROM application_has_comaker)
+      ");
+      $output = '<option selected disabled value="">Select Co-Maker</option>';
+      foreach ($query->result() as $row)
+      {
+        $output .= '<option value="'.$row->BorrowerCoMakerId.'">'.$row->ReferenceNo.' | '.$row->Name.'</option>';
+      }
+      return $output;
+    }
+    else if($Type == 'Spouse')
+    {
+      $query = $this->db->query("SELECT CONCAT('SR-', LPAD(BR.BorrowerSpouseId, 6, 0)) as ReferenceNo
+                                        , CONCAT(S.FirstName, ' ', S.MiddleName, ' ', S.LastName, ', ', S.ExtName) as Name
+                                        , BR.BorrowerSpouseId
+                                        FROM borrower_has_spouse BR
+                                          INNER JOIN R_Spouse S
+                                            ON S.SpouseId = BR.SpouseId
+                                            WHERE BR.StatusId = 1
+                                            AND BR.BorrowerId = ".$Id['BorrowerId']."
+                                            AND BR.BorrowerSpouseId NOT IN (SELECT BorrowerSpouseId FROM Application_has_spouse)
+      ");
+      $output = '<option selected disabled value="">Select Spouse</option>';
+      foreach ($query->result() as $row)
+      {
+        $output .= '<option value="'.$row->BorrowerSpouseId.'">'.$row->ReferenceNo.' | '.$row->Name.'</option>';
+      }
+      return $output;
+    }
+    else if($Type == 'BorrowerEmployer')
+    {
+      $query = $this->db->query("SELECT CONCAT('ER-', LPAD(BHS.EmployerId, 6, 0)) as ReferenceNo
+                                        , BHS.EmployerName
+                                        , BHS.EmployerId
+                                        , CASE
+                                            WHEN EmployerStatus = 1
+                                            THEN 'Present Employer'
+                                            ELSE 'Previous Employer'
+                                          END as EmployerStatus
+                                        FROM borrower_has_employer BHS
+                                        WHERE BHS.StatusId = 1
+                                        AND BHS.BorrowerId = ".$Id['BorrowerId']."
+                                        AND BHS.EmployerId NOT IN (SELECT EmployerId FROM application_has_employer)
+      ");
+      $output = '<option selected disabled value="">Select Employer</option>';
+      foreach ($query->result() as $row)
+      {
+        $output .= '<option value="'.$row->EmployerId.'">'.$row->ReferenceNo.' | '.$row->EmployerStatus.' - '.$row->EmployerName.'</option>';
+      }
+      return $output;
+    }
+    else if($Type == 'BorrowerContact')
+    {
+      $query = $this->db->query("SELECT CONCAT('CN-', LPAD(EC.BorrowerContactId, 6, 0)) as ReferenceNo
+                                        , CN.PhoneType
+                                        , Number
+                                        , EC.BorrowerContactId
+                                        FROM R_ContactNumbers CN
+                                          INNER JOIN borrower_has_contactNumbers EC
+                                            ON EC.ContactNumberId = CN.ContactNumberId
+                                            WHERE EC.StatusId = 1
+                                            AND EC.BorrowerId = ".$Id['BorrowerId']."
+                                            AND EC.BorrowerContactId NOT IN (SELECT BorrowerContactId FROM application_has_contact)
+      ");
+      $output = '<option selected disabled value="">Select contact number</option>';
+      foreach ($query->result() as $row)
+      {
+        $output .= '<option value="'.$row->BorrowerContactId.'">'.$row->ReferenceNo.' | '.$row->PhoneType.' - '.$row->Number.'</option>';
+      }
+      return $output;
+    }
+    else if($Type == 'BorrowerEmail')
+    {
+      $query = $this->db->query("SELECT  E.EmailAddress
+                                        , EE.StatusId
+                                        , EE.BorrowerEmailId
+                                        , EE.IsPrimary
+                                        , EE.CreatedBy
+                                        , DATE_FORMAT(EE.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                        , EE.DateCreated as rawDateCreated
+                                        , CONCAT('EA-', LPAD(EE.BorrowerEmailId, 6, 0)) as ReferenceNo
+                                        FROM R_Emails E
+                                          INNER JOIN borrower_has_emails EE
+                                            ON EE.EmailId = E.EmailId
+                                              WHERE EE.BorrowerId = ".$Id['BorrowerId']."
+                                              AND EE.BorrowerEmailId NOT IN (SELECT BorrowerEmailId FROM application_has_email)
+                                              AND EE.StatusId = 1
+      ");
+      $output = '<option selected disabled value="">Select Email</option>';
+      foreach ($query->result() as $row)
+      {
+        $output .= '<option value="'.$row->BorrowerEmailId.'">'.$row->ReferenceNo.' | '.$row->EmailAddress.'</option>';
+      }
+      return $output;
+    }
+    else if($Type == 'BorrowerEducation')
+    {
+      $query = $this->db->query("SELECT   CONCAT('ED-', LPAD(BEDU.BorrowerEducationId, 6, 0)) as ReferenceNo
+                                          , BEDU.BorrowerEducationId
+                                          , DATE_FORMAT(BEDU.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                          , BEDU.DateCreated as rawDateCreated
+                                          , BEDU.Level
+                                          , BEDU.SchoolName
+                                          , ED.Name
+                                          , YearGraduated
+                                          , BEDU.StatusId
+                                          FROM Borrower_has_Education BEDU
+                                            INNER JOIN R_Borrowers B
+                                              ON B.BorrowerId = BEDU.BorrowerId
+                                            INNER JOIN R_Education ED
+                                              ON ED.EducationId = BEDU.EducationId
+                                                WHERE B.BorrowerId = ".$Id['BorrowerId']."
+                                                AND BEDU.BorrowerEducationId NOT IN (SELECT BorrowerEducationId FROM application_has_education)
+                                                AND BEDU.StatusId = 1
+      ");
+      $output = '<option selected disabled value="">Select Education Record</option>';
+      foreach ($query->result() as $row)
+      {
+        $output .= '<option value="'.$row->BorrowerEducationId.'">'.$row->ReferenceNo.' | '.$row->SchoolName.' - '.$row->Name.'</option>';
+      }
+      return $output;
+    }
+    else if($Type == 'BorrowerAddress')
+    {
+      $query = $this->db->query("SELECT   DISTINCT  EA.BorrowerAddressHistoryId
+                                          , IsPrimary
+                                          , A.AddressType
+                                          , UPPER(A.HouseNo) as HouseNo
+                                          , UPPER(B.brgyDesc) as brgyDesc
+                                          , UPPER(P.provDesc) as provDesc
+                                          , UPPER(C.cityMunDesc) as cityMunDesc
+                                          , UPPER(R.regDesc) as regDesc
+                                          , EA.BorrowerId
+                                          , CONCAT('ADD-', LPAD(EA.BorrowerAddressHistoryId, 6, 0)) as ReferenceNo
+                                          FROM borrowerAddressHistory EA
+                                          INNER JOIN r_address A
+                                            ON A.AddressId = EA.AddressId
+                                          INNER JOIN add_barangay B
+                                            ON B.brgyCode = A.BarangayId
+                                          INNER JOIN add_province P
+                                            ON P.provCode = B.provCode
+                                          INNER JOIN add_city C
+                                            ON C.citymunCode = B.citymunCode
+                                          INNER JOIN add_region R 
+                                            ON R.regCode = B.regCode
+                                            WHERE EA.BorrowerId = ".$Id['BorrowerId']."
+                                            AND EA.BorrowerAddressHistoryId NOT IN (SELECT BorrowerAddressHistoryId FROM application_has_address)
+                                            AND EA.StatusId = 1
+      ");
+      $output = '<option selected disabled value="">Select Address Record</option>';
+      foreach ($query->result() as $row)
+      {
+        $output .= '<option value="'.$row->BorrowerAddressHistoryId.'">'.$row->ReferenceNo.' | '.$row->HouseNo.', '.$row->brgyDesc.', '.$row->provDesc.', '.$row->regDesc.' </option>';
+      }
+      return $output;
+    }
   } 
 
   // RENEWAL OF LOANS
@@ -3200,5 +3772,227 @@ class loanapplication_model extends CI_Model
       );
       $table = 'application_has_approver';
       $this->maintenance_model->updateFunction1($set, $condition, $table);  
+    }
+
+    function getApplicationReferences($Id)
+    {
+      $query_string = $this->db->query("SELECT  CONCAT('RF-', LPAD(AP.ReferenceId, 6, 0)) as rowNumber
+                                                , AP.ApplicationPersonalReferenceId
+                                                , AR.Name as RefName
+                                                , AR.Address 
+                                                , AR.ContactNumber 
+                                                , AP.StatusId
+                                                , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as Name
+                                                , DATE_FORMAT(AP.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                FROM application_has_personalreference AP
+                                                  INNER JOIN T_Application A
+                                                    ON A.ApplicationId = AP.ApplicationId
+                                                  INNER JOIN Borrower_has_reference AR
+                                                    ON AR.ReferenceId = AP.ReferenceId
+                                                  INNER JOIN R_Employee EMP
+                                                    ON EMP.EmployeeNumber = AP.CreatedBy
+                                                    WHERE A.ApplicationId = $Id
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getApplicationCoMaker($Id)
+    {
+      $query_string = $this->db->query("SELECT  CONCAT('CM-', LPAD(AP.BorrowerCoMakerId, 6, 0)) as rowNumber
+                                                , AP.ApplicationCoMakerId
+                                                , AR.Name as RefName
+                                                , DATE_FORMAT(AR.Birthdate, '%b %d, %Y') as Birthdate
+                                                , AR.Employer 
+                                                , AR.BusinessAddress 
+                                                , AR.MobileNo 
+                                                , AP.StatusId
+                                                , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as Name
+                                                , DATE_FORMAT(AP.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                FROM application_has_comaker AP
+                                                  INNER JOIN T_Application A
+                                                    ON A.ApplicationId = AP.ApplicationId
+                                                  INNER JOIN borrower_has_comaker AR
+                                                    ON AR.BorrowerCoMakerId = AP.BorrowerCoMakerId
+                                                  INNER JOIN R_Employee EMP
+                                                    ON EMP.EmployeeNumber = AP.CreatedBy
+                                                    WHERE A.ApplicationId = $Id
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getApplicationSpouse($Id)
+    {
+      $query_string = $this->db->query("SELECT  CONCAT('SR-', LPAD(AHS.BorrowerSpouseId, 6, 0)) as rowNumber
+                                                , AHS.ApplicationSpouseId
+                                                , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as Name
+                                                , DATE_FORMAT(AHS.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                , CONCAT(S.FirstName, ' ', S.MiddleName, ' ', S.LastName, ', ', S.ExtName) as SpouseName
+                                                , DATE_FORMAT(S.DateOfBirth, '%d %b %Y') as DateOfBirth
+                                                , SX.Name as Sex
+                                                , AHS.StatusId
+                                                FROM application_has_spouse AHS
+                                                    INNER JOIN borrower_has_spouse BHS
+                                                      ON BHS.BorrowerSpouseId = AHS.BorrowerSpouseId
+                                                    INNER JOIN t_application A
+                                                      ON A.ApplicationId = AHS.ApplicationId
+                                                    INNER JOIN r_spouse S
+                                                      ON S.SpouseId = BHS.SpouseId
+                                                    INNER JOIN r_sex SX
+                                                      ON SX.SexId = S.Sex
+                                                    INNER JOIN R_Employee EMP
+                                                      ON EMP.EmployeeNumber = AHS.CreatedBy
+                                                      WHERE A.ApplicationId = $Id
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getApplicationEmployment($Id)
+    {
+      $query_string = $this->db->query("SELECT  CONCAT('ER-', LPAD(BHS.EmployerId, 6, 0)) as rowNumber
+                                                , AHS.ApplicationEmployerId
+                                                , EmployerName
+                                                , BHP.Name as Position
+                                                , I.Name as Industry
+                                                , CASE
+                                                    WHEN EmployerStatus = 1
+                                                    THEN 'Present Employer'
+                                                    ELSE 'Previous Employer'
+                                                  END as EmployerStatus
+                                                , DATE_FORMAT(BHS.DateHired, '%d %b %Y') as DateHired
+                                                , DATE_FORMAT(AHS.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                                , TenureYear
+                                                , TenureMonth
+                                                , BusinessAddress
+                                                , TelephoneNumber
+                                                , BHS.EmployerId
+                                                , AHS.StatusId
+                                                FROM application_has_employer AHS
+                                                  INNER JOIN borrower_has_employer BHS
+                                                    ON BHS.EmployerId = AHS.EmployerId
+                                                  INNER JOIN t_application A
+                                                    ON A.ApplicationId = AHS.ApplicationId
+                                                  INNER JOIN R_Employee EMP
+                                                    ON EMP.EmployeeNumber = AHS.CreatedBy
+                                                  LEFT JOIN Borrower_Has_Position BHP
+                                                    ON BHP.BorrowerPositionId = BHS.PositionId
+                                                  LEFT JOIN R_Industry I
+                                                    ON I.IndustryId = BHS.IndustryId
+                                                    WHERE A.ApplicationId = $Id
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getApplicationContact($Id)
+    {
+      $query_string = $this->db->query("SELECT  CN.PhoneType
+                                                , Number
+                                                , AHC.StatusId
+                                                , EC.CreatedBy
+                                                , EC.BorrowerContactId
+                                                , EC.IsPrimary
+                                                , CONCAT('CN-', LPAD(EC.BorrowerContactId, 6, 0)) as rowNumber
+                                                , AHC.ApplicationContactId
+                                                , DATE_FORMAT(AHC.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                                FROM Application_has_contact AHC
+                                                  INNER JOIN T_Application A
+                                                    ON A.ApplicationId = AHC.ApplicationId
+                                                  INNER JOIN borrower_has_contactNumbers EC
+                                                    ON AHC.BorrowerContactId = EC.BorrowerContactId
+                                                  INNER JOIN R_ContactNumbers CN
+                                                    ON EC.ContactNumberId = CN.ContactNumberId
+                                                    WHERE A.ApplicationId = $Id
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getApplicationEmail($Id)
+    {
+      $query_string = $this->db->query("SELECT  E.EmailAddress
+                                                , EE.BorrowerEmailId
+                                                , EE.IsPrimary
+                                                , EE.CreatedBy
+                                                , DATE_FORMAT(EE.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                                , EE.DateCreated as rawDateCreated
+                                                , CONCAT('EA-', LPAD(EE.BorrowerEmailId, 6, 0)) as rowNumber
+                                                , AHE.StatusId
+                                                , AHE.ApplicationEmailId
+                                                FROM Application_has_email AHE
+                                                  INNER JOIN borrower_has_emails EE
+                                                    ON AHE.BorrowerEmailId = EE.BorrowerEmailId
+                                                  INNER JOIN T_Application A
+                                                    ON A.ApplicationId = AHE.ApplicationId
+                                                  INNER JOIN R_Emails E
+                                                    ON EE.EmailId = E.EmailId
+                                                      WHERE A.ApplicationId = $Id
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getApplicationEducation($Id)
+    {
+      $query_string = $this->db->query("SELECT  CONCAT('ED-', LPAD(BEDU.BorrowerEducationId, 6, 0)) as rowNumber
+                                                , AHE.ApplicationEducationId
+                                                , BEDU.BorrowerEducationId
+                                                , DATE_FORMAT(AHE.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                                , BEDU.DateCreated as rawDateCreated
+                                                , BEDU.Level
+                                                , BEDU.SchoolName
+                                                , ED.Name
+                                                , YearGraduated
+                                                , AHE.StatusId
+                                                FROM application_has_education AHE
+                                                  INNER JOIN T_Application A
+                                                    ON A.ApplicationId = AHE.ApplicationId
+                                                  INNER JOIN Borrower_has_Education BEDU
+                                                    ON AHE.BorrowerEducationId = BEDU.BorrowerEducationId
+                                                  INNER JOIN R_Borrowers B
+                                                    ON B.BorrowerId = BEDU.BorrowerId
+                                                  INNER JOIN R_Education ED
+                                                    ON ED.EducationId = BEDU.EducationId
+                                                      WHERE A.ApplicationId = $Id
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getApplicationAddress($Id)
+    {
+      $query_string = $this->db->query("SELECT DISTINCT  EA.BorrowerAddressHistoryId
+                                                , IsPrimary
+                                                , A.AddressType
+                                                , UPPER(A.HouseNo) as HouseNo
+                                                , UPPER(B.brgyDesc) as brgyDesc
+                                                , UPPER(P.provDesc) as provDesc
+                                                , UPPER(C.cityMunDesc) as cityMunDesc
+                                                , UPPER(R.regDesc) as regDesc
+                                                , AHA.StatusId
+                                                , EA.BorrowerId
+                                                , DATE_FORMAT(AHA.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                                , EA.DateCreated as rawDateCreated
+                                                , CONCAT('ADD-', LPAD(EA.BorrowerAddressHistoryId, 6, 0)) as rowNumber
+                                                , AHA.ApplicationAddressId
+                                                FROM application_has_address AHA
+                                                  INNER JOIN borrowerAddressHistory EA
+                                                    ON AHA.BorrowerAddressHistoryId = EA.BorrowerAddressHistoryId 
+                                                  INNER JOIN r_address A
+                                                    ON A.AddressId = EA.AddressId
+                                                  INNER JOIN add_barangay B
+                                                    ON B.brgyCode = A.BarangayId
+                                                  INNER JOIN add_province P
+                                                    ON P.provCode = B.provCode
+                                                  INNER JOIN add_city C
+                                                    ON C.citymunCode = B.citymunCode
+                                                  INNER JOIN add_region R 
+                                                    ON R.regCode = B.regCode
+                                                      WHERE AHA.ApplicationId = $Id
+      ");
+      $data = $query_string->result_array();
+      return $data;
     }
 }

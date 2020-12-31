@@ -645,6 +645,74 @@
       <!-- /.modal-dialog -->
     </div>
 
+    <div class="modal fade" id="modalReference">
+      <div class="modal-dialog modal-md">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Add Personal Reference</h4>
+          </div>
+          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddPersonalRef/<?php print_r($detail['ApplicationId']) ?>" method="post" enctype="multipart/form-data">
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-md-12">
+                  <select class="select2 form-control" style="width: 100%" name="ReferenceId">
+                    <?php echo $selectPersonalRef; ?>
+                  </select>
+                </div>
+                <br>
+                <br>
+                <div class="col-md-12" id="divBtnView">
+                  <a target="_blank" href="<?php echo base_url(); ?>home/borrowerdetails/<?php print_r($detail['BorrowerId']) ?>">View Reference</a>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+          </form>
+        </div>
+        <!-- /.modal-content -->
+      </div>
+      <!-- /.modal-dialog -->
+    </div>
+
+    <div class="modal fade" id="modalDropdown">
+      <div class="modal-dialog modal-md">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="modalDropdownTitle"></h4>
+          </div>
+          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/addBorrowerDets/<?php print_r($detail['ApplicationId']) ?>" method="post" enctype="multipart/form-data">
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-md-12">
+                  <select class="select2 form-control" id="dropDownSelection" style="width: 100%" name="ReferenceId">
+                  </select>
+                  <input type="" id="txtReferenceType" value="Comaker" name="ReferenceType">
+                </div>
+                <br>
+                <br>
+                <div class="col-md-12" id="divBtnView">
+                  <a target="_blank" href="<?php echo base_url(); ?>home/borrowerdetails/<?php print_r($detail['BorrowerId']) ?>">View Reference</a>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+          </form>
+        </div>
+        <!-- /.modal-content -->
+      </div>
+      <!-- /.modal-dialog -->
+    </div>
+
     <div class="modal fade" id="modalCollateral">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -1283,8 +1351,8 @@
               <div class="col-md-4">
                 <label>Source:</label> <?php print_r($detail['Source']) ?>  <?php print_r($detail['SourceName']) ?> <br>
                 <label>Purpose:</label> <?php print_r($detail['PurposeName']) ?><br>
-                <label>Principal Per Collection:</label> Php <?php print_r(number_format($detail['PrincipalPerCollection'], 2)) ?><br>
-                <label>Interest Per Collection:</label> Php <?php print_r(number_format($paymentDues['InterestPerCollection'], 2)) ?><br>
+                <label title="Loan Amount / (No. of Terms * No. of Repayments)">Principal Per Collection:</label> Php <?php print_r(number_format($detail['PrincipalPerCollection'], 2)) ?><br>
+                <label title="Interest / (No. of Terms * No. of Repayments)">Interest Per Collection:</label> Php <?php print_r(number_format($paymentDues['InterestPerCollection'], 2)) ?><br>
               </div>
               <div class="col-md-4">
                 <label>Loan Type:</label> <?php print_r($detail['LoanType']) ?><br>
@@ -1322,7 +1390,7 @@
                 }
               ?>
               <div class="col-md-3">
-                <label>Total Cost of Loan:</label> Php <?php 
+                <label title="Total Charges + Total Interest">Total Cost of Loan:</label> Php <?php 
                   $chargeFinalCost = 0;
                   if($charges['TotalCharges'] != null)
                   {
@@ -1336,7 +1404,7 @@
                   print_r(number_format($chargeFinalCost + $TotalInterest, 2));
                 ?><br>
                 <label>Loan Amount:</label> Php <?php print_r($detail['PrincipalAmount']) ?><br>
-                <label>Charges:</label> 
+                <label>Total Charges:</label> 
                   <?php 
                     if($charges['TotalCharges'] != null)
                     {
@@ -1347,7 +1415,7 @@
                       print_r('Php 0.00');
                     }
                   ?><br>
-                <label>Net Loan Amount:</label> Php 
+                <label title="Loan Amount - Total Cost of Loan">Net Loan Amount:</label> Php 
                   <?php
                     $chargeFinal = 0;
                     if($charges['TotalCharges'] != null)
@@ -1363,7 +1431,7 @@
               </div>
               <div class="col-md-3">
                 <label>Interest Rate:</label> <?php print_r($detail['InterestRate']) ?><br>
-                <label>Interest:</label> 
+                <label title="Interest * No. of Terms">Interest:</label> 
                 <?php
                   $TotalInterest = 0;
                   if($detail['InterestType'] == 'Percentage')
@@ -1380,9 +1448,9 @@
                 <label>Amount Disbursed: </label> <?php print_r('Php '. number_format($disbursedReleased['Total'], 2)); ?><br>
               </div>
   			    	<div class="col-md-3">
-                <label>Principal Collection:</label> Php <?php print_r(number_format($principalpaid['Total'], 2));?><br>
-                <label>Interest Collected: </label> Php <?php print_r(number_format($interestPaid['Total'], 2));?><br>
                 <label>Other Collection: </label> Php <?php print_r(number_format($otherPaid['Total'], 2));?><br>
+                <label>Interest Collected: </label> Php <?php print_r(number_format($interestPaid['Total'], 2));?><br>
+                <label>Principal Collection Collected:</label> Php <?php print_r(number_format($principalpaid['Total'], 2));?><br>
   			    	</div>
   			    	<div class="col-md-3">
                 <label>Penalty:</label>
@@ -1396,8 +1464,8 @@
                     print_r('Php 0.00');
                   }
                 ?><br>
-                <label>Due: </label> <?php print_r('Php '. number_format($totalDue, 2)); ?><br>
-  			    		<label>Paid: </label>
+                <label title="Total Interest + Loan Amount">Due: </label> <?php print_r('Php '. number_format($totalDue, 2)); ?><br>
+  			    		<label title="Other Collection + Interest Collected + Principal Collection Collected">Paid: </label>
   			    		<?php 
   			    			if($payments['Total'] != null)
   				    		{
@@ -1408,7 +1476,7 @@
   				    			print_r('Php 0.00');
   				    		}
   				    	?><br>
-  			    		<label>Balance: </label> 
+  			    		<label title="Due - Paid">Balance: </label> 
   			    		<?php 
   			    			$balanceDue = $totalDue - $payments['Total'];
 
@@ -1430,15 +1498,23 @@
             <div class="nav-tabs-custom">
               <ul class="nav nav-tabs">
                 <li class="active"><a href="#tabHistory" data-toggle="tab" title="History"><span class="fa fa-clipboard"></span></a></li>
-                <li><a href="#tabRepayments" data-toggle="tab" title="Repayments"><span class="fa fa-money"></span></a></li>
+                <li><a href="#tabRepayments" data-toggle="tab" title="Collections"><span class="fa fa-money"></span></a></li>
                 <li><a href="#tabDisbursements" data-toggle="tab" title="Disbursements"><span class="fa fa-balance-scale"></span></a></li>
                 <li><a href="#tabPenalty" data-toggle="tab" title="Penalties"><span class="fa fa-institution"></span></a></li>
-                <li><a href="#tabCollateral" data-toggle="tab" title="Loan Collateral"><span class="fa fa-navicon "></span></a></li>
-                <li><a href="#tabRequirements" data-toggle="tab" title="Loan Requirements"><span class="fa fa-clipboard "></span></a></li>
+                <li><a href="#tabCollateral" data-toggle="tab" title="Loan Collateral"><span class="fa fa-list-alt "></span></a></li>
+                <li><a href="#tabRequirements" data-toggle="tab" title="Loan Requirements"><span class="fa fa-list-ol "></span></a></li>
                 <li><a href="#tabCharges" data-toggle="tab" title="Loan Charges"><span class="fa fa-chain "></span></a></li>
-                <li><a href="#tabIncome" data-toggle="tab" title="Sources of Other Income"><span class="fa fa-credit-card "></span></a></li>
+                <li><a href="#tabIncome" data-toggle="tab" title="Other Sources of Income"><span class="fa fa-credit-card "></span></a></li>
                 <li><a href="#tabExpense" data-toggle="tab" title="Monthly Expense"><span class="fa fa-database "></span></a></li>
-                <li><a href="#tabObligations" data-toggle="tab" title="Monthly Obligation"><span class="fa fa-certificate "></span></a></li>
+                <li><a href="#tabObligations" data-toggle="tab" title="Monthly Obligation"><span class="fa fa-sticky-note "></span></a></li>
+                <li><a href="#tabPersonalReferences" data-toggle="tab" title="Personal References"><span class="fa fa-users "></span></a></li>
+                <li><a href="#tabCoMaker" data-toggle="tab" title="Co Maker Info"><span class="fa fa-files-o "></span></a></li>
+                <li><a href="#tabSpouseInfo" data-toggle="tab" title="Spouse Info"><span class="fa fa-male"></span><span class="fa fa-female"></span></a></li>
+                <li><a href="#tabEmployment" data-toggle="tab" title="Employment Info"><span class="fa fa-briefcase "></span></a></li>
+                <li><a href="#tabContact" data-toggle="tab" title="Contact Info"><span class="fa fa-phone "></span></a></li>
+                <li><a href="#tabAddress" data-toggle="tab" title="Address Info"><span class="fa fa-map "></span></a></li>
+                <li><a href="#tabEmail" data-toggle="tab" title="Email Info"><span class="fa fa-envelope "></span></a></li>
+                <li><a href="#tabEducation" data-toggle="tab" title="Education Info"><span class="fa fa-mortar-board "></span></a></li>
                 <li><a href="#tabComments" data-toggle="tab" title="Comments"><span class="fa fa-comment "></span></a></li>
               </ul>
               <div class="tab-content">
@@ -1531,7 +1607,24 @@
                             echo "<td>".$value['CreatedBy']."</td>";
                             echo "<td>".$value['BankName']."</td>";
                             echo "<td>".number_format($value['Amount'], 2)."</td>";
-                            echo "<td>".$value['Description']."</td>";
+                            $remarkType = '';
+                            if($value['IsPrincipalCollection'] == 1 && $value['IsInterest'] == 1)
+                            {
+                              $remarkType = '';
+                            }
+                            else if($value['IsPrincipalCollection'] == 0 && $value['IsInterest'] == 1)
+                            {
+                              $remarkType = 'Interest Collected: ';
+                            }
+                            else if($value['IsPrincipalCollection'] == 1 && $value['IsInterest'] == 0)
+                            {
+                              $remarkType = 'Principal Amount Collected: ';
+                            }
+                            else if($value['IsOthers'] == 1)
+                            {
+                              $remarkType = '';
+                            }
+                            echo "<td>".$remarkType."".$value['Description']."</td>";
                             echo "<td>".$value['DateCollected']."</td>";
                             echo "<td>".$value['PaymentDate']."</td>";
                             echo "<td>".$value['DateCreated']."</td>";
@@ -1816,7 +1909,7 @@
                           if($value['ChargeType'] == 1) // pecentage
                           {
                             echo "<td>Percentage</td>";
-                            echo "<td> Php ".number_format($value['Amount']/100 * $detail['RawPrincipalAmount'], 2)."</td>";
+                            echo "<td> Php ".number_format($value['Amount']/100 * $value['LoanAmount'], 2)."</td>";
                           }
                           else
                           { 
@@ -2039,6 +2132,481 @@
                     </tbody>
                   </table>
                 </div>
+                <div class="tab-pane" id="tabPersonalReferences">
+                  <h4>Personal References</h4>
+                  <br>
+                  <?php 
+                    if($detail['StatusId'] == 1 || $detail['BranchId'] == $this->session->userdata('BranchId'))
+                    {
+                      echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalReference">Add Record</a>';
+                    }
+                  ?>
+                  <br>
+                  <br>
+                  <?php $Reference = $this->loanapplication_model->getApplicationReferences($detail['ApplicationId']);?>
+                  <table id="example2" class="table table-bordered table-hover" style="width: 100%">
+                    <thead>
+                    <tr>
+                      <th>Reference No</th>
+                      <th>Name</th>
+                      <th>Address</th>
+                      <th>Contact Number</th>
+                      <th>Date Creation</th>
+                      <th>Created By</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                      <?php
+                        if($Reference != 0)
+                        {
+                          foreach ($Reference as $value) 
+                          {
+                            if($value['StatusId'] == 1)
+                            {
+                              $action = '<a onclick="confirm(\'Are you sure you want to deactivate this reference?\', \''.$value['ApplicationPersonalReferenceId'].'\', 0, \'PersonalRef\')" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a>';
+                              $status = "<span class='badge bg-green'>Active</span>";
+                            }
+                            else
+                            {
+                              $action = '<a onclick="confirm(\'Are you sure you want to re-activate this reference?\', \''.$value['ApplicationPersonalReferenceId'].'\', 1, \'PersonalRef\')" class="btn btn-warning" title="Re-Activate"><span class="fa fa-refresh"></span></a>';
+                              $status = "<span class='badge bg-red'>Deactivated</span>";
+                            }
+                            echo "<tr>";
+                            echo "<td>".$value['rowNumber']."</td>";
+                            echo "<td>".$value['RefName']."</td>";
+                            echo "<td>".$value['Address']."</td>";
+                            echo "<td>".$value['ContactNumber']."</td>";
+                            echo "<td>".$value['DateCreated']."</td>";
+                            echo "<td>".$value['Name']."</td>";
+                            echo "<td>".$status."</td>";
+                            echo "<td>".$action."</td>";
+                            echo "</tr>";
+                          }
+                        }
+                      ?>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="tab-pane" id="tabCoMaker">
+                  <h4>Co-Maker</h4>
+                  <br>
+                  <?php 
+                    if($detail['StatusId'] == 1 || $detail['BranchId'] == $this->session->userdata('BranchId'))
+                    {
+                      echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" onclick="addBorrowerDets(\'Comaker\', '.$detail["ApplicationId"].')" data-target="#modalDropdown">Add Record</a>';
+                    }
+                  ?>
+                  <br>
+                  <br>
+                  <?php $CoMaker = $this->loanapplication_model->getApplicationCoMaker($detail['ApplicationId']);?>
+                  <table id="dtblcoMaker" class="table table-bordered table-hover" style="width: 100%">
+                    <thead>
+                    <tr>
+                      <th>Reference No</th>
+                      <th>Full Name</th>
+                      <th>Employer/Business</th>
+                      <th>Cellphone No.</th>
+                      <th>Date Creation</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                      <?php
+                        if($CoMaker != 0)
+                        {
+                          foreach ($CoMaker as $value) 
+                          {
+                            if($value['StatusId'] == 1)
+                            {
+                              $status = "<span class='badge bg-green'>Active</span>";
+                              $action = '<a class="btn btn-sm btn-default" href="'.base_url().'home/borrowerdetails/'.$detail['BorrowerId'].'" target="_blank" title="View"><span class="fa fa-info-circle"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this record?\', \''.$value['ApplicationCoMakerId'].'\', 0, \'BorrowerCoMaker\')" class="btn btn-sm btn-danger" title="Deactivate"><span class="fa fa-close"></span></a>';
+                            }
+                            else
+                            {
+                              $status = "<span class='badge bg-red'>Deactivated</span>";
+                              $action = '<a onclick="confirm(\'Are you sure you want to re-activate this record?\', \''.$value['ApplicationCoMakerId'].'\', 1, \'BorrowerCoMaker\')" class="btn btn-sm btn-warning" title="Re-Activate"><span class="fa fa-refresh"></span></a>';
+                            }
+                            echo "<tr>";
+                            echo "<td>".$value['rowNumber']."</td>";
+                            echo "<td>".$value['Name']."</td>";
+                            echo "<td>".$value['Employer']."</td>";
+                            echo "<td>".$value['MobileNo']."</td>";
+                            echo "<td>".$value['DateCreated']."</td>";
+                            echo "<td>".$status."</td>";
+                            echo "<td>".$action."</td>";
+                            echo "</tr>";
+                          }
+                        }
+                      ?>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="tab-pane" id="tabSpouseInfo">
+                  <h4>Spouse Information</h4>
+                  <br>
+                  <?php 
+                    if($detail['StatusId'] == 1 || $detail['BranchId'] == $this->session->userdata('BranchId'))
+                    {
+                      echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" onclick="addBorrowerDets(\'Spouse\', '.$detail["ApplicationId"].')" data-target="#modalDropdown">Add Record</a>';
+                    }
+                  ?>
+                  <br>
+                  <br>
+                  <?php $Spouse = $this->loanapplication_model->getApplicationSpouse($detail['ApplicationId']);?>
+                    <table id="dtblSpouse" class="table table-bordered table-hover" style="width: 100%">
+                      <thead>
+                      <tr>
+                        <th>Reference No</th>
+                        <th>Full Name</th>
+                        <th>Birthdate</th>
+                        <th>Gender</th>
+                        <th>Date Creation</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                        <?php
+                          foreach ($Spouse as $value) 
+                          {
+                            echo "<tr>";
+                            echo "<td>".$value['rowNumber']."</td>";
+                            echo "<td>".$value['SpouseName']."</td>";
+                            echo "<td>".$value['DateOfBirth']."</td>";
+                            echo "<td>".$value['Sex']."</td>";
+                            echo "<td>".$value['DateCreated']."</td>";
+                            if($value['StatusId'] == 1)
+                            {
+                              $status = "<span class='badge bg-green'>Active</span>";
+                              $action = '<a class="btn btn-sm btn-default" href="'.base_url().'home/borrowerdetails/'.$detail['BorrowerId'].'" target="_blank" title="View"><span class="fa fa-info-circle"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this spouse?\', \''.$value['ApplicationSpouseId'].'\', 0, \'BorrowerSpouse\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                            }
+                            else if($value['StatusId'] == 0)
+                            {
+                              $status = "<span class='badge bg-red'>Deactivated</span>";
+                              $action = '<a onclick="confirm(\'Are you sure you want to re-activate this spouse?\', \''.$value['ApplicationSpouseId'].'\', 1, \'BorrowerSpouse\')" class="btn btn-warning btn-sm" title="Re-activate"><span class="fa fa-refresh"></span></a>';
+                            }
+
+                            echo "<td>".$status."</td>";
+                            echo "<td>".$action."</td>";
+                            echo "</tr>";
+                          }
+                        ?>
+                      </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane" id="tabEmployment">
+                  <h4>Employment Information</h4>
+                  <br>
+                  <?php 
+                    if($detail['StatusId'] == 1 || $detail['BranchId'] == $this->session->userdata('BranchId'))
+                    {
+                      echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" onclick="addBorrowerDets(\'BorrowerEmployer\', '.$detail["ApplicationId"].')" data-target="#modalDropdown">Add Record</a>';
+                    }
+                  ?>
+                  <br>
+                  <br>
+                  <?php $Employment = $this->loanapplication_model->getApplicationEmployment($detail['ApplicationId']);?>
+                    <table id="dtblEmployer" class="table table-bordered table-hover" style="width: 100%">
+                      <thead>
+                      <tr>
+                        <th>Reference No</th>
+                        <th>Employer Type</th>
+                        <th>Employer/Business</th>
+                        <th>Date Hired</th>
+                        <th>Date Creation</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                        <?php
+                          foreach ($Employment as $value) 
+                          {
+                            echo "<tr>";
+                            echo "<td>".$value['rowNumber']."</td>";
+                            echo "<td>".$value['EmployerStatus']."</td>";
+                            echo "<td>".$value['EmployerName']."</td>";
+                            echo "<td>".$value['DateHired']."</td>";
+                            echo "<td>".$value['DateCreated']."</td>";
+                            if($value['StatusId'] == 1)
+                            {
+                              $status = "<span class='badge bg-green'>Active</span>";
+                              $action = '<a class="btn btn-sm btn-default" href="'.base_url().'home/borrowerdetails/'.$detail['BorrowerId'].'" target="_blank" title="View"><span class="fa fa-info-circle"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this employer?\', \''.$value['ApplicationEmployerId'].'\', 0, \'BorrowerEmployer\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                            }
+                            else if($value['StatusId'] == 0)
+                            {
+                              $status = "<span class='badge bg-red'>Deactivated</span>";
+                              $action = '<a onclick="confirm(\'Are you sure you want to re-activate this employer?\', \''.$value['ApplicationEmployerId'].'\', 1, \'BorrowerEmployer\')" class="btn btn-success btn-sm" title="Deactivate"><span class="fa fa-refresh"></span></a>';
+                            }
+
+                            echo "<td>".$status."</td>";
+                            echo "<td>".$action."</td>";
+                            echo "</tr>";
+                          }
+                        ?>
+                      </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane" id="tabContact">
+                  <h4>Contact Information</h4>
+                  <br>
+                  <?php 
+                    if($detail['StatusId'] == 1 || $detail['BranchId'] == $this->session->userdata('BranchId'))
+                    {
+                      echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" onclick="addBorrowerDets(\'BorrowerContact\', '.$detail["ApplicationId"].')" data-target="#modalDropdown">Add Record</a>';
+                    }
+                  ?>
+                  <br>
+                  <br>
+                  <?php $ContactNumber = $this->loanapplication_model->getApplicationContact($detail['ApplicationId']);?>
+                    <table id="dtblContact" class="table table-bordered table-hover" style="width: 100%">
+                      <thead>
+                      <tr>
+                        <th>Reference No</th>
+                        <th>Type</th>
+                        <th>Number</th>
+                        <th>Is Primary?</th>
+                        <th>Date Creation</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                        <?php
+                          foreach ($ContactNumber as $value) 
+                          {
+                            echo "<tr>";
+                            echo "<td>".$value['rowNumber']."</td>";
+                            echo "<td>".$value['PhoneType']."</td>";
+                            echo "<td>".$value['Number']."</td>";
+                            if($value['IsPrimary'] == 1)
+                            {
+                              echo "<td>Yes</td>";
+                            }
+                            else
+                            {
+                              echo "<td>No</td>";
+                            }
+
+                            if($value['StatusId'] == 1)
+                            {
+                              $status = "<span class='badge bg-green'>Active</span>";
+                            }
+                            else if($value['StatusId'] == 0)
+                            {
+                              $status = "<span class='badge bg-red'>Deactivated</span>";
+                            }
+
+                            if($value['StatusId'] == 1)
+                            {
+                              $action = '<a onclick="confirm(\'Are you sure you want to deactivate this contact detail?\', \''.$value['ApplicationContactId'].'\', 0 , \'BorrowerContact\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                            }
+                            else 
+                            {
+                              $action = '<a onclick="confirm(\'Are you sure you want to re-activate this contact detail?\', \''.$value['ApplicationContactId'].'\', 1 , \'BorrowerContact\')" class="btn btn-warning btn-sm" title="Deactivate"><span class="fa fa-refresh"></span></a>';
+                            }
+                            echo "<td>".$value['DateCreated']."</td>";
+                            echo "<td>".$status."</td>";
+                            echo "<td>".$action."</td>";
+                            echo "</tr>";
+                          }
+                        ?>
+                      </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane" id="tabAddress">
+                  <h4>Address Information</h4>
+                  <br>
+                  <?php 
+                    if($detail['StatusId'] == 1 || $detail['BranchId'] == $this->session->userdata('BranchId'))
+                    {
+                      echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" onclick="addBorrowerDets(\'BorrowerAddress\', '.$detail["ApplicationId"].')" data-target="#modalDropdown">Add Record</a>';
+                    }
+                  ?>
+                  <br>
+                  <br>
+                  <?php $Address = $this->loanapplication_model->getApplicationAddress($detail['ApplicationId']);?>
+                    <table id="dtblAddress" class="table table-bordered table-hover" style="width: 100%">
+                      <thead>
+                      <tr>
+                        <th>Reference No</th>
+                        <th>Address</th>
+                        <th>Type</th>
+                        <th>Is Primary?</th>
+                        <th>Date Creation</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                        <?php
+                          foreach ($Address as $value)
+                          {
+                            echo "<tr>";
+                            echo "<td>".$value['rowNumber']."</td>";
+                            echo "<td>".$value['HouseNo'].", ".$value['brgyDesc'].", ".$value['cityMunDesc'].", ".$value['provDesc'].", ".$value['regDesc']."</td>";
+                            echo "<td>".$value['AddressType']."</td>";
+                            if($value['IsPrimary'] == 1)
+                            {
+                              echo "<td>Yes</td>";
+                            }
+                            else
+                            {
+                              echo "<td>No</td>";
+                            }
+                            if($value['StatusId'] == 1)
+                            {
+                              $status = "<span class='badge bg-green'>Active</span>";
+                            }
+                            else if($value['StatusId'] == 0)
+                            {
+                              $status = "<span class='badge bg-red'>Deactivated</span>";
+                            }
+                            if($value['StatusId'] == 1)
+                            {
+                              $action = '<a class="btn btn-sm btn-default" href="'.base_url().'home/borrowerdetails/'.$detail['BorrowerId'].'" target="_blank" title="View"><span class="fa fa-info-circle"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this address?\', \''.$value['ApplicationAddressId'].'\', 0,\'BorrowerAddress\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                            }
+                            else
+                            {
+                              $action = '<a onclick="confirm(\'Are you sure you want to re-activate this address?\', \''.$value['ApplicationAddressId'].'\', 1, \'BorrowerAddress\')" class="btn btn-warning btn-sm" title="Reactivate"><span class="fa fa-refresh"></span></a>';
+                            }
+                            echo "<td>".$value['DateCreated']."</td>";
+                            echo "<td>".$status."</td>";
+                            echo "<td>".$action."</td>";
+                            echo "</tr>";
+                          }
+                        ?>
+                      </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane" id="tabEmail">
+                  <h4>Email Information</h4>
+                  <br>
+                  <?php 
+                    if($detail['StatusId'] == 1 || $detail['BranchId'] == $this->session->userdata('BranchId'))
+                    {
+                      echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" onclick="addBorrowerDets(\'BorrowerEmail\', '.$detail["ApplicationId"].')" data-target="#modalDropdown">Add Record</a>';
+                    }
+                  ?>
+                  <br>
+                  <br>
+                  <?php $EmailAddress = $this->loanapplication_model->getApplicationEmail($detail['ApplicationId']);?>
+                    <table id="example8" class="table table-bordered table-hover" style="width: 100%">
+                      <thead>
+                      <tr>
+                        <th>Reference No</th>
+                        <th>Email Address</th>
+                        <th>Is Primary?</th>
+                        <th>Date Creation</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                        <th>Action</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                        <?php
+                          foreach ($EmailAddress as $value) 
+                          {
+                            echo "<tr>";
+                            echo "<td>".$value['rowNumber']."</td>";
+                            echo "<td>".$value['EmailAddress']."</td>";
+                            if($value['IsPrimary'] == 1)
+                            {
+                              echo "<td>Yes</td>";
+                            }
+                            else
+                            {
+                              echo "<td>No</td>";
+                            }
+
+                            if($value['StatusId'] == 1)
+                            {
+                              $status = "<span class='badge bg-green'>Active</span>";
+                            }
+                            else if($value['StatusId'] == 0)
+                            {
+                              $status = "<span class='badge bg-red'>Deactivated</span>";
+                            }
+
+                            if($value['StatusId'] == 1)
+                            {
+                              $action = '<a onclick="confirm(\'Are you sure you want to deactivate this email?\', \''.$value['ApplicationEmailId'].'\', 0, \'BorrowerEmail\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                            }
+                            else
+                            {
+                              $action = '<a onclick="confirm(\'Are you sure you want to re-activate this email?\', \''.$value['ApplicationEmailId'].'\', 1, \'BorrowerEmail\')" class="btn btn-warning btn-sm" title="Deactivate"><span class="fa fa-refresh"></span></a>';
+                            }
+                            echo "<td>".$value['DateCreated']."</td>";
+                            echo "<td>".$status."</td>";
+                            echo "<td>".$action."</td>";
+                            echo "<td>".$value['rawDateCreated']."</td>";
+                            echo "</tr>";
+                          }
+                        ?>
+                      </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane" id="tabEducation">
+                  <h4>Education Information</h4>
+                  <br>
+                  <?php 
+                    if($detail['StatusId'] == 1 || $detail['BranchId'] == $this->session->userdata('BranchId'))
+                    {
+                      echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" onclick="addBorrowerDets(\'BorrowerEducation\', '.$detail["ApplicationId"].')" data-target="#modalDropdown">Add Record</a>';
+                    }
+                  ?>
+                  <br>
+                  <br>
+                  <?php $Education = $this->loanapplication_model->getApplicationEducation($detail['ApplicationId']);?>
+                    <table id="example10" class="table table-bordered table-hover" style="width: 100%">
+                      <thead>
+                      <tr>
+                        <th>Reference No</th>
+                        <th>Education Level</th>
+                        <th>School Name</th>
+                        <th>Year Graduated</th>
+                        <th>Date Creation</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                        <th>Action</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                        <?php
+                            if(!empty($Education))
+                            {
+                              foreach ($Education as $value) 
+                              {
+                                echo "<tr>";
+                                echo "<td>".$value['rowNumber']."</td>";
+                                echo "<td>".$value['Name']."</td>";
+                                echo "<td>".$value['SchoolName']."</td>";
+                                echo "<td>".$value['YearGraduated']."</td>";
+
+                                if($value['StatusId'] == 1)
+                                {
+                                  $status = "<span class='badge bg-green'>Active</span>";
+                                  $action = '<a onclick="confirm(\'Are you sure you want to deactivate this Education record?\', \''.$value['ApplicationEducationId'].'\', 0, \'BorrowerEducation\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                                }
+                                else if($value['StatusId'] == 0)
+                                {
+                                  $status = "<span class='badge bg-red'>Deactivated</span>";
+                                  $action = '<a onclick="confirm(\'Are you sure you want to re-activate this Education record?\', \''.$value['ApplicationEducationId'].'\', 1, \'BorrowerEducation\')" class="btn btn-warning btn-sm" title="Re-activate"><span class="fa fa-refresh"></span></a>';
+                                }
+                                echo "<td>".$value['DateCreated']."</td>";
+                                echo "<td>".$status."</td>";
+                                echo "<td>".$action."</td>";
+                                echo "<td>".$value['rawDateCreated']."</td>";
+                                echo "</tr>";
+                              }
+                            }
+                        ?>
+                      </tbody>
+                    </table>
+                </div>
                 <div class="tab-pane" id="tabComments">
                 	<h4>Comments</h4>
                 	<br>
@@ -2222,6 +2790,69 @@
   $('#dtblCharges').DataTable({
     "order": [[0, "desc"]]
   });
+
+  // borrower dets
+    function addBorrowerDets(value, id)
+    {
+      $.ajax({
+        url: "<?php echo base_url();?>" + "/loanapplication_controller/selectBorrowerDet",
+        method: "POST",
+        async: false,
+        data: {
+          Type    : value,
+          Id    : id,
+        },
+        dataType: "JSON",
+        beforeSend: function(){
+          $('.loading').show();
+        },
+        success: function(data)
+        {
+          if(value == 'Comaker')
+          {
+            $('#modalDropdownTitle').html('Add Co-Maker');
+            $('#dropDownSelection').html(data);
+            $('#txtReferenceType').val(value);
+          }
+          if(value == 'Spouse')
+          {
+            $('#modalDropdownTitle').html('Add Spouse');
+            $('#dropDownSelection').html(data);
+            $('#txtReferenceType').val(value);
+          }
+          if(value == 'BorrowerEmployer')
+          {
+            $('#modalDropdownTitle').html('Add Employment');
+            $('#dropDownSelection').html(data);
+            $('#txtReferenceType').val(value);
+          }
+          if(value == 'BorrowerContact')
+          {
+            $('#modalDropdownTitle').html('Add Contact Number');
+            $('#dropDownSelection').html(data);
+            $('#txtReferenceType').val(value);
+          }
+          if(value == 'BorrowerEmail')
+          {
+            $('#modalDropdownTitle').html('Add Email');
+            $('#dropDownSelection').html(data);
+            $('#txtReferenceType').val(value);
+          }
+          if(value == 'BorrowerEducation')
+          {
+            $('#modalDropdownTitle').html('Add Education');
+            $('#dropDownSelection').html(data);
+            $('#txtReferenceType').val(value);
+          }
+          if(value == 'BorrowerAddress')
+          {
+            $('#modalDropdownTitle').html('Add Address');
+            $('#dropDownSelection').html(data);
+            $('#txtReferenceType').val(value);
+          }
+        }
+      })
+    }
 
   // loan status
     function onChangeLoanStatus(value)
@@ -2410,7 +3041,6 @@
     var varChange2 = 0; 
     var varTotalAmountDue2 = 0;
     var varProcessPayment = 0;
-
 
     function computePayment()
     {
@@ -3238,55 +3868,21 @@
     }
   }
 
-  function getRepaymentDuration()
-  {
-    var repaymentType = $('#selectRepaymentType').val();
-    var termType = $('#selectTermType').val();
-    var loanRepaymentNo = $('#txtRepayments').val();
-    var loanDurationNo = $('#txtTermNo').val();
-
-    if (repaymentType != null)
+    function getRepaymentDuration()
     {
-      var totalRepayments = 0;
-      var yearly = 0;
-      var monthly = 0;
-      var weekly = 0;
-      var daily = 0;
-    
-      if (repaymentType == 1) // daily
+      var repaymentType = $('#selectRepaymentType').val();
+      var termType = $('#selectTermType').val();
+      var loanRepaymentNo = $('#txtRepayments').val();
+      var loanDurationNo = $('#txtTermNo').val();
+
+      if(repaymentType != null)
       {
-        yearly = 360;
-        monthly = 30;
-        biweekly = 14;
-        weekly = 7;
-        daily = 1;
-      }  
-      else if (repaymentType == 2) // weekly
-      {
-        yearly = 52;
-        monthly = 4;
-        biweekly = 2;
-        weekly = 1;
-        daily = 1/7;
-      }
-      else if (repaymentType == 3) // monthly
-      {
-        yearly = 12;
-        monthly = 1;
-        biweekly = 1/2;
-        weekly = 1/4;
-        daily = 1/30;
-      }
-      else if (repaymentType == 4) // yearly
-      {
-        yearly = 1;
-        monthly = 1/12;
-        biweekly = 1/24;
-        weekly = 1/38;
-        daily = 1/360;
-      } 
-      else
-      {
+        var totalRepayments = 0;
+        var yearly = 0;
+        var monthly = 0;
+        var weekly = 0;
+        var daily = 0;
+
         $.ajax({
           url: "<?php echo base_url();?>" + "/loanapplication_controller/getRepaymentCount",
           type: "POST",
@@ -3300,7 +3896,7 @@
           },
           success: function(data)
           {
-            $('#txtRepayments').val($('#txtTermNo').val() * data['RepaymentNo'])
+            $('#txtRepayments').val(data['RepaymentNo'])
           },
           error: function()
           {
@@ -3315,39 +3911,38 @@
             }, 2000);
           }
         });
-      }
-       
-      if (termType == "Days")
-      {
-        totalRepayments = loanDurationNo * daily;
-      }
-      if (termType == "Weeks")
-      {
-        totalRepayments = loanDurationNo * weekly;
-      }
-      if (termType == "Months")
-      {
-        totalRepayments = loanDurationNo * monthly;
-      }
-      if (termType == "Years")
-      {
-        totalRepayments = loanDurationNo * yearly;
-      }
+         
+        if (termType == "Days")
+        {
+          totalRepayments = loanDurationNo * daily;
+        }
+        if (termType == "Weeks")
+        {
+          totalRepayments = loanDurationNo * weekly;
+        }
+        if (termType == "Months")
+        {
+          totalRepayments = loanDurationNo * monthly;
+        }
+        if (termType == "Years")
+        {
+          totalRepayments = loanDurationNo * yearly;
+        }
 
-      totalRepayments = Math.floor(totalRepayments);
-     
-      if (repaymentType == 5) // lump sum 
-        totalRepayments = 1;
-      
-      if (totalRepayments > 0)
-        $('#txtRepayments').val(totalRepayments);
-        displayPrincipalPerCollection = $('#txtPrincipalAmount').val() / totalRepayments;
-        $('.lblPrincipalPerCollection').html('Php ' + parseInt(displayPrincipalPerCollection).toLocaleString('en-US', {minimumFractionDigits: 2}));
-      // display net loan amount [loan amount - Processing Fee]
-        displayNetLoan = parseInt($('#txtPrincipalAmount').val()) - parseInt(displayTotal);
-        $('.lblNetLoanAmount').html('Php ' + parseInt(displayNetLoan).toLocaleString('en-US', {minimumFractionDigits: 2}));
+        totalRepayments = Math.floor(totalRepayments);
+       
+        if (repaymentType == 5) // lump sum 
+          totalRepayments = 1;
+        
+        if (totalRepayments > 0)
+          $('#txtRepayments').val(totalRepayments);
+          displayPrincipalPerCollection = $('#txtPrincipalAmount').val() / totalRepayments;
+          $('.lblPrincipalPerCollection').html('Php ' + parseInt(displayPrincipalPerCollection).toLocaleString('en-US', {minimumFractionDigits: 2}));
+        // display net loan amount [loan amount - Processing Fee]
+          displayNetLoan = parseInt($('#txtPrincipalAmount').val()) - parseInt(displayTotal);
+          $('.lblNetLoanAmount').html('Php ' + parseInt(displayNetLoan).toLocaleString('en-US', {minimumFractionDigits: 2}));
+      }
     }
-  }
 
   function getPrincipalCollection()
   {
@@ -3430,7 +4025,7 @@
             $.each(data, function (a, b) {
               row = row + 1; 
 
-              if(b.ChargeType == 'Percentage')
+              if(b.ChargeType == 1)
               {
                 total = parseInt(b.Amount)/100 * parseInt(PrincipalAmount);
                 amount = parseInt(b.Amount).toLocaleString('en-US', {minimumFractionDigits: 2}) + '%';
@@ -3816,4 +4411,26 @@
   $('.select2').select2();
 
 
+  $('#example2').DataTable();
+  $('#dtblcoMaker').DataTable();
+  $('#dtblSpouse').DataTable();
+  $('#dtblEmployer').DataTable();
+  $('#dtblContact').DataTable();
+
+  $('#example8').DataTable({
+    "pageLength": 10,
+    "aoColumnDefs": [{ "bVisible": false, "aTargets": [6] }],
+    "order": [[3, "desc"], [4, "desc"]]
+  });
+
+  $('#dtblAddress').DataTable({
+    "pageLength": 10,
+    // "aoColumnDefs": [{ "bVisible": false, "aTargets": [6] }],
+    // "order": [[3, "desc"], [4, "desc"]]
+  });
+  $('#example10').DataTable({
+    "pageLength": 10,
+    "aoColumnDefs": [{ "bVisible": false, "aTargets": [7] }],
+    "order": [[3, "desc"], [4, "desc"]]
+  });
 </script>

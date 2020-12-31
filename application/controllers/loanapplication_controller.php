@@ -28,6 +28,7 @@ class loanapplication_controller extends CI_Controller {
 		$this->load->model('borrower_model');
     $this->load->model('maintenance_model');
     $this->load->library('Pdf');
+    date_default_timezone_set('Asia/Manila');
 
    	if(empty($this->session->userdata("EmployeeNumber")) || $this->session->userdata("logged_in") == 0)
    	{
@@ -195,6 +196,7 @@ class loanapplication_controller extends CI_Controller {
               'ApplicationId'         => $generatedId['ApplicationId'],
               'ChargeId'              => $_POST['ChargeId'][$chargeRow],
               'Amount'                => $_POST['chargeTotal'][$chargeRow],
+              'LoanAmount'            => $_POST['PrincipalAmount'],
               'StatusId'              => 2,
               'CreatedBy'             => $EmployeeNumber
             );
@@ -695,6 +697,7 @@ class loanapplication_controller extends CI_Controller {
             $insertData = array(
               'ApplicationId'         => $this->uri->segment(3),
               'ChargeId'              => $_POST['ChargeId'][$chargeRow],
+              'LoanAmount'            => $_POST['PrincipalAmount'],
               'Amount'                => $_POST['chargeTotal'][$chargeRow],
               'StatusId'              => 2,
               'CreatedBy'             => $EmployeeNumber
@@ -721,6 +724,7 @@ class loanapplication_controller extends CI_Controller {
                 'ApplicationChargeId' => $generatedId['ApplicationChargeId'],
                 'IsInterest'        => 0,
                 'IsPrincipalCollection' => 0,
+                'IsOthers'              => 1,
                 'InterestAmount'    => 0,
                 'PrincipalAmount'   => 0,
                 'ChangeId'          => 1,
@@ -1220,7 +1224,6 @@ class loanapplication_controller extends CI_Controller {
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $DateNow = date("Y-m-d H:i:s");
-    if ($_POST['FormType'] == 1) // add Comment
     $query = $this->loanapplication_model->countExpense($data);
     if($query == 0) // not existing
     {
@@ -2290,10 +2293,12 @@ class loanapplication_controller extends CI_Controller {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $DateNow = date("Y-m-d H:i:s");
     $Id = $this->uri->segment(3);
+    $loanDetails = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $Id);
     // insert into charges
       $insertData = array(
         'ApplicationId'             => $Id,
         'ChargeId'                  => $_POST['ChargeId'],
+        'LoanAmount'                => $loanDetails['PrincipalAmount'],
         'StatusId'                  => 2,
         'CreatedBy'                 => $EmployeeNumber
       );
@@ -2328,7 +2333,6 @@ class loanapplication_controller extends CI_Controller {
         $table = 't_paymentsmade';
         $this->maintenance_model->insertFunction($insertData1, $table);
     // admin audits finals
-      $loanDetails = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $Id);
       $TransactionNumber = 'CHG-'.sprintf('%06d', $generatedId['ApplicationChargeId']);
       $auditLogsManager = 'Added charge #'.$TransactionNumber.' in charge tab for application #'.$loanDetails['TransactionNumber'].'.';
       $auditAffectedEmployee = 'Added charge #'.$TransactionNumber.' in charge tab for application #'.$loanDetails['TransactionNumber'].'.';
@@ -3155,7 +3159,7 @@ class loanapplication_controller extends CI_Controller {
       $pdf->Output('Form3.pdf', 'I');
       // $pdf->Output(htmlentities($_POST['reportName'], ENT_QUOTES) .'.pdf', 'D');
     }
-    if($this->uri->segment(3) == 3) // loan pplication
+    if($this->uri->segment(3) == 3) // loan application
     {
       $this->load->library('excel');
       require_once(APPPATH . 'third_party\PHPExcel\Classes\PHPExcel\IOFactory.php');
@@ -3202,7 +3206,7 @@ class loanapplication_controller extends CI_Controller {
           $objPHPExcel->setActiveSheetIndex($index)->setCellValue('B12', $details['DateCreated']);
           $objPHPExcel->setActiveSheetIndex($index)->setCellValue('D12', $details['Source'] . ' ' . $details['SourceName']);
           
-          $gdImage = imagecreatefrompng('borrowerpicture/' . $details['FileName']);
+          $gdImage = imagecreatefromjpeg('borrowerpicture/' . $details['FileName']);
           $objDrawing = new PHPExcel_Worksheet_MemoryDrawing();
           $objDrawing->setImageResource($gdImage);
           $objDrawing->setRenderingFunction(PHPExcel_Worksheet_MemoryDrawing::RENDERING_JPEG);
@@ -3226,7 +3230,7 @@ class loanapplication_controller extends CI_Controller {
           $objPHPExcel->setActiveSheetIndex($index)->setCellValue('F27', $details['EmailAddress']);
 
           $cityAddress = $this->loanapplication_model->getCityAddress($details['BorrowerId']);
-          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('A31', $cityAddress['HouseNo'] . ' ' . $cityAddress['BrgyDesc']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('A31', $cityAddress['HouseNo'] . ', ' . $cityAddress['brgyDesc'] . ', ' . $cityAddress['provDesc'] . ', ' . $cityAddress['regDesc']);
           $objPHPExcel->setActiveSheetIndex($index)->setCellValue('E32', $cityAddress['YearsStayed']);
           $objPHPExcel->setActiveSheetIndex($index)->setCellValue('F32', $cityAddress['MonthsStayed']);
           $objPHPExcel->setActiveSheetIndex($index)->setCellValue('E34', $cityAddress['Telephone']);
@@ -3234,7 +3238,7 @@ class loanapplication_controller extends CI_Controller {
           $objPHPExcel->setActiveSheetIndex($index)->setCellValue('C35', $cityAddress['AddressType'] . ' : ' . $cityAddress['NameOfLandlord']);
 
           $provBorrowerAddress = $this->loanapplication_model->getProvinceAddress($details['BorrowerId']);
-          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('C31', $provBorrowerAddress['HouseNo'] . ' ' . $provBorrowerAddress['BrgyDesc']);
+          $objPHPExcel->setActiveSheetIndex($index)->setCellValue('C31', $provBorrowerAddress['HouseNo'] . ', ' . $provBorrowerAddress['brgyDesc'] . ', ' . $provBorrowerAddress['provDesc'] . ', ' . $provBorrowerAddress['regDesc']);
 
         // present employer
           $presentEmployer = $this->loanapplication_model->getEmployer($details['BorrowerId'], 1);
@@ -3281,12 +3285,15 @@ class loanapplication_controller extends CI_Controller {
         // Personal References
           $personalRef = $this->loanapplication_model->getReferences($details['BorrowerId']);
           $rowss = 3;
-          foreach ($personalRef as $row)
+          if($rowss <= 4)
           {
-            $objPHPExcel->setActiveSheetIndex($index)->setCellValue("H$rowss", $row['Name']);
-            $objPHPExcel->setActiveSheetIndex($index)->setCellValue("K$rowss", $row['Address']);
-            $objPHPExcel->setActiveSheetIndex($index)->setCellValue("P$rowss", $row['ContactNumber']);
-            $rowss++;
+            foreach ($personalRef as $row)
+            {
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue("H$rowss", $row['Name']);
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue("K$rowss", $row['Address']);
+              $objPHPExcel->setActiveSheetIndex($index)->setCellValue("P$rowss", $row['ContactNumber']);
+              $rowss++;
+            }
           }
 
         // spouse
@@ -4339,5 +4346,269 @@ class loanapplication_controller extends CI_Controller {
     }
   }
 
-  
+  function AddPersonalRef()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $DateNow = date("Y-m-d H:i:s");
+    // insert data
+      $insertData = array(
+        'ReferenceId'               => $_POST['ReferenceId'],
+        'ApplicationId'             => $this->uri->segment(3),
+        'CreatedBy'                 => $EmployeeNumber,
+        'DateCreated'               => $DateNow,      
+      );
+      $auditTable = 'application_has_personalreference';
+      $this->maintenance_model->insertFunction($insertData, $auditTable);
+    // admin audits finals
+      $TransNo = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $this->uri->segment(3));
+      $ReferenceNo = $this->borrower_model->getPersonalDetails($_POST['ReferenceId']);
+      $auditLogsManager = 'Added personal reference #'.$ReferenceNo['RefNo'].' in personal reference tab to application #'.$TransNo['TransactionNumber'].'.';
+      $auditAffectedEmployee = 'Added personal reference #'.$ReferenceNo['RefNo'].' in personal reference tab to application #'.$TransNo['TransactionNumber'].'.';
+      $auditAffectedTable = 'Added personal reference #'.$ReferenceNo['RefNo'].'.';
+      $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId');
+
+    // notification
+      $this->session->set_flashdata('alertTitle','Success!'); 
+      $this->session->set_flashdata('alertText','Successfully added record!'); 
+      $this->session->set_flashdata('alertType','success'); 
+      redirect('home/loandetail/' . $this->uri->segment(3));
+  }
+
+  function selectBorrowerDet()
+  {
+    $output = $this->loanapplication_model->selectBorrowerDet($this->input->post('Type'), $this->input->post('Id'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function addBorrowerDets()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $DateNow = date("Y-m-d H:i:s");
+    if($_POST['ReferenceType'] == 'Comaker')
+    {
+      // update exisitng co maker
+        $set = array( 
+          'StatusId' => 0
+        );
+        $condition = array( 
+          'ApplicationId' => $this->uri->segment(3),
+          'StatusId'      => 1
+        );
+        $table = 'application_has_comaker';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      // insert data
+        $insertData = array(
+          'BorrowerCoMakerId'         => $_POST['ReferenceId'],
+          'ApplicationId'             => $this->uri->segment(3),
+          'CreatedBy'                 => $EmployeeNumber,
+          'DateCreated'               => $DateNow,      
+        );
+        $auditTable = 'application_has_comaker';
+        $this->maintenance_model->insertFunction($insertData, $auditTable);
+      // admin audits finals
+        $TransNo = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $this->uri->segment(3));
+        $ReferenceNo = $this->borrower_model->getComakerDetails($_POST['ReferenceId']);
+        $auditLogsManager = 'Added co-maker #'.$ReferenceNo['RefNo'].' in co-maker tab to application #'.$TransNo['TransactionNumber'].'.';
+        $auditAffectedEmployee = 'Added co-maker #'.$ReferenceNo['RefNo'].' in co-maker tab to application #'.$TransNo['TransactionNumber'].'.';
+        $auditAffectedTable = 'Added co-maker #'.$ReferenceNo['RefNo'].' co-maker tab.';
+        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId');
+
+      // notification
+        $this->session->set_flashdata('alertTitle','Success!'); 
+        $this->session->set_flashdata('alertText','Successfully added record!'); 
+        $this->session->set_flashdata('alertType','success'); 
+        redirect('home/loandetail/' . $this->uri->segment(3));
+    }
+    if($_POST['ReferenceType'] == 'Spouse')
+    {
+      // update exisitng co maker
+        $set = array( 
+          'StatusId' => 0
+        );
+        $condition = array( 
+          'ApplicationId' => $this->uri->segment(3),
+          'StatusId'      => 1
+        );
+        $table = 'application_has_spouse';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      // insert data
+        $insertData = array(
+          'BorrowerSpouseId'          => $_POST['ReferenceId'],
+          'ApplicationId'             => $this->uri->segment(3),
+          'CreatedBy'                 => $EmployeeNumber,
+          'DateCreated'               => $DateNow,      
+        );
+        $auditTable = 'application_has_spouse';
+        $this->maintenance_model->insertFunction($insertData, $auditTable);
+      // admin audits finals
+        $TransNo = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $this->uri->segment(3));
+        $ReferenceNo = $this->borrower_model->getSpouseDetails2($_POST['ReferenceId']);
+        $auditLogsManager = 'Added spouse #'.$ReferenceNo['RefNo'].' in spouse tab to application #'.$TransNo['TransactionNumber'].'.';
+        $auditAffectedEmployee = 'Added spouse #'.$ReferenceNo['RefNo'].' in spouse tab to application #'.$TransNo['TransactionNumber'].'.';
+        $auditAffectedTable = 'Added spouse #'.$ReferenceNo['RefNo'].' in spouse tab.';
+        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId');
+
+      // notification
+        $this->session->set_flashdata('alertTitle','Success!'); 
+        $this->session->set_flashdata('alertText','Successfully added record!'); 
+        $this->session->set_flashdata('alertType','success'); 
+        redirect('home/loandetail/' . $this->uri->segment(3));
+    }
+    if($_POST['ReferenceType'] == 'BorrowerEmployer')
+    {
+      // insert data
+        $insertData = array(
+          'EmployerId'                => $_POST['ReferenceId'],
+          'ApplicationId'             => $this->uri->segment(3),
+          'CreatedBy'                 => $EmployeeNumber,
+          'DateCreated'               => $DateNow,      
+        );
+        $auditTable = 'application_has_employer';
+        $this->maintenance_model->insertFunction($insertData, $auditTable);
+      // admin audits finals
+        $TransNo = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $this->uri->segment(3));
+        $ReferenceNo = $this->borrower_model->getBorrowerEmployment($_POST['ReferenceId']);
+        $auditLogsManager = 'Added employment #'.$ReferenceNo['RefNo'].' in employment tab to application #'.$TransNo['TransactionNumber'].'.';
+        $auditAffectedEmployee = 'Added employment #'.$ReferenceNo['RefNo'].' in employment tab to application #'.$TransNo['TransactionNumber'].'.';
+        $auditAffectedTable = 'Added employment #'.$ReferenceNo['RefNo'].' employment tab.';
+        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId');
+
+      // notification
+        $this->session->set_flashdata('alertTitle','Success!'); 
+        $this->session->set_flashdata('alertText','Successfully added record!'); 
+        $this->session->set_flashdata('alertType','success'); 
+        redirect('home/loandetail/' . $this->uri->segment(3));
+    }
+    if($_POST['ReferenceType'] == 'BorrowerContact')
+    {
+      // update exisitng co maker
+        $set = array( 
+          'StatusId' => 0
+        );
+        $condition = array( 
+          'ApplicationId' => $this->uri->segment(3),
+          'StatusId'      => 1
+        );
+        $table = 'application_has_contact';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      // insert data
+        $insertData = array(
+          'BorrowerContactId'         => $_POST['ReferenceId'],
+          'ApplicationId'             => $this->uri->segment(3),
+          'CreatedBy'                 => $EmployeeNumber,
+          'DateCreated'               => $DateNow,      
+        );
+        $auditTable = 'application_has_contact';
+        $this->maintenance_model->insertFunction($insertData, $auditTable);
+      // admin audits finals
+        $TransNo = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $this->uri->segment(3));
+        $ReferenceNo = $this->borrower_model->getNumberDetails($_POST['ReferenceId']);
+        $auditLogsManager = 'Added contact #'.$ReferenceNo['RefNo'].' in contact tab to application #'.$TransNo['TransactionNumber'].'.';
+        $auditAffectedEmployee = 'Added contact #'.$ReferenceNo['RefNo'].' in contact tab to application #'.$TransNo['TransactionNumber'].'.';
+        $auditAffectedTable = 'Added contact #'.$ReferenceNo['RefNo'].' contact tab.';
+        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId');
+
+      // notification
+        $this->session->set_flashdata('alertTitle','Success!'); 
+        $this->session->set_flashdata('alertText','Successfully added record!'); 
+        $this->session->set_flashdata('alertType','success'); 
+        redirect('home/loandetail/' . $this->uri->segment(3));
+    }
+    if($_POST['ReferenceType'] == 'BorrowerEmail')
+    {
+      // update exisitng co maker
+        $set = array( 
+          'StatusId' => 0
+        );
+        $condition = array( 
+          'ApplicationId' => $this->uri->segment(3),
+          'StatusId'      => 1
+        );
+        $table = 'application_has_email';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      // insert data
+        $insertData = array(
+          'BorrowerEmailId'         => $_POST['ReferenceId'],
+          'ApplicationId'             => $this->uri->segment(3),
+          'CreatedBy'                 => $EmployeeNumber,
+          'DateCreated'               => $DateNow,      
+        );
+        $auditTable = 'application_has_email';
+        $this->maintenance_model->insertFunction($insertData, $auditTable);
+      // admin audits finals
+        $TransNo = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $this->uri->segment(3));
+        $ReferenceNo = $this->borrower_model->getEmailDetails($_POST['ReferenceId']);
+        $auditLogsManager = 'Added email #'.$ReferenceNo['RefNo'].' in email tab to application #'.$TransNo['TransactionNumber'].'.';
+        $auditAffectedEmployee = 'Added email #'.$ReferenceNo['RefNo'].' in email tab to application #'.$TransNo['TransactionNumber'].'.';
+        $auditAffectedTable = 'Added email #'.$ReferenceNo['RefNo'].' email tab.';
+        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId');
+
+      // notification
+        $this->session->set_flashdata('alertTitle','Success!'); 
+        $this->session->set_flashdata('alertText','Successfully added record!'); 
+        $this->session->set_flashdata('alertType','success'); 
+        redirect('home/loandetail/' . $this->uri->segment(3));
+    }
+    if($_POST['ReferenceType'] == 'BorrowerEducation')
+    {
+      // update exisitng co maker
+        $set = array( 
+          'StatusId' => 0
+        );
+        $condition = array( 
+          'ApplicationId' => $this->uri->segment(3),
+          'StatusId'      => 1
+        );
+        $table = 'application_has_education';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      // insert data
+        $insertData = array(
+          'BorrowerEducationId'       => $_POST['ReferenceId'],
+          'ApplicationId'             => $this->uri->segment(3),
+          'CreatedBy'                 => $EmployeeNumber,
+          'DateCreated'               => $DateNow,      
+        );
+        $auditTable = 'application_has_education';
+        $this->maintenance_model->insertFunction($insertData, $auditTable);
+      // admin audits finals
+        $TransNo = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $this->uri->segment(3));
+        $ReferenceNo = $this->borrower_model->getEducationDetails($_POST['ReferenceId']);
+        $auditLogsManager = 'Added education #'.$ReferenceNo['RefNo'].' in education tab to application #'.$TransNo['TransactionNumber'].'.';
+        $auditAffectedEmployee = 'Added education #'.$ReferenceNo['RefNo'].' in education tab to application #'.$TransNo['TransactionNumber'].'.';
+        $auditAffectedTable = 'Added education #'.$ReferenceNo['RefNo'].' education tab.';
+        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId');
+
+      // notification
+        $this->session->set_flashdata('alertTitle','Success!'); 
+        $this->session->set_flashdata('alertText','Successfully added record!'); 
+        $this->session->set_flashdata('alertType','success'); 
+        redirect('home/loandetail/' . $this->uri->segment(3));
+    }
+    if($_POST['ReferenceType'] == 'BorrowerAddress')
+    {
+      // insert data
+        $insertData = array(
+          'BorrowerAddressHistoryId'       => $_POST['ReferenceId'],
+          'ApplicationId'             => $this->uri->segment(3),
+          'CreatedBy'                 => $EmployeeNumber,
+          'DateCreated'               => $DateNow,      
+        );
+        $auditTable = 'application_has_address';
+        $this->maintenance_model->insertFunction($insertData, $auditTable);
+      // admin audits finals
+        $TransNo = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $this->uri->segment(3));
+        $ReferenceNo = $this->borrower_model->getAddressDetails($_POST['ReferenceId']);
+        $auditLogsManager = 'Added address #'.$ReferenceNo['RefNo'].' in address tab to application #'.$TransNo['TransactionNumber'].'.';
+        $auditAffectedEmployee = 'Added address #'.$ReferenceNo['RefNo'].' in address tab to application #'.$TransNo['TransactionNumber'].'.';
+        $auditAffectedTable = 'Added address #'.$ReferenceNo['RefNo'].' address tab.';
+        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId');
+
+      // notification
+        $this->session->set_flashdata('alertTitle','Success!'); 
+        $this->session->set_flashdata('alertText','Successfully added record!'); 
+        $this->session->set_flashdata('alertType','success'); 
+        redirect('home/loandetail/' . $this->uri->segment(3));
+    }
+  }
 }

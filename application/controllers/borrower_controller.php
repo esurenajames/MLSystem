@@ -30,6 +30,7 @@ class borrower_controller extends CI_Controller {
     $this->load->library('session');
     $this->load->library('excel');
     $this->load->helper('url');
+    date_default_timezone_set('Asia/Manila');
 
    	if(empty($this->session->userdata("EmployeeNumber")) || $this->session->userdata("logged_in") == 0)
    	{

@@ -1,105 +1,108 @@
 
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
+
+  <?php if($this->uri->segment(3) == $this->session->userdata("EmployeeNumber")) { ?>
+
   <!-- Content Header (Page header) -->
-  <section class="content-header">
-    <h1>
-      MY PROFILE
-    </h1>
-    <ol class="breadcrumb">
-      <li><a href="#" class="active"><i class="fa fa-dashboard"></i> Dashboard</a></li>
-      <li><a href="#">Profile</a></li>
-    </ol>
-  </section>
+    <section class="content-header">
+      <h1>
+        MY PROFILE
+      </h1>
+      <ol class="breadcrumb">
+        <li><a href="#" class="active"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        <li><a href="#">Profile</a></li>
+      </ol>
+    </section>
 
-  <!-- Main content -->
-  <section class="content">
+    <!-- Main content -->
+    <section class="content">
 
-  <div class="modal fade" id="modalChangePassword">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">CHANGE PASSWORD</h4>
+    <div class="modal fade" id="modalChangePassword">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">CHANGE PASSWORD</h4>
+          </div>
+            <form action="<?php echo base_url(); ?>admin_controller/ResetPassword/1" id="frmInsert" method="post">
+              <div class="modal-body">
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="colorCurrent">Current Password</label>
+                      <div class="form-group" id="colorCurrent">
+                        <label class="control-label" id="lblSuccess" style="display: none" for="inputSuccess"><i class="fa fa-check"></i></label>
+                        <input type="password" class="form-control" name="NewPassword" id="txtCurrentPassword" oninput="checkCurrentPassword(this.value);" placeholder="Enter Current password">
+                        <span id="successMessage3" style="display: none" class="help-block"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">New Password</label>
+                      <div class="form-group" id="colorSuccess">
+                        <label class="control-label" id="lblSuccess" style="display: none" for="inputSuccess"><i class="fa fa-check"></i></label>
+                        <input type="password" class="form-control" name="NewPassword" id="txtNewPassword" oninput="checkNewPassword(this.value);" placeholder="Enter New password">
+                        <span id="successMessage" style="display: none" class="help-block"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">Confirm Password</label>
+                      <div class="form-group" id="colorSuccess2">
+                        <label class="control-label" id="lblSuccess2" style="display: none" for="txtConfirmPassword"><i class="fa fa-check"></i></label>
+                        <input type="number" class="form-control" id="txtConfirmPassword" oninput="checkPasswordMatch(this.value);">
+                        <span id="successMessage2" style="display: none" class="help-block"></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Save changes</button>
+              </div>
+            </form>
         </div>
-          <form action="<?php echo base_url(); ?>admin_controller/ResetPassword/1" id="frmInsert" method="post">
+        <!-- /.modal-content -->
+      </div>
+      <!-- /.modal-dialog -->
+    </div>
+
+    <div class="modal fade" id="modalProfilePicture">
+      <div class="modal-dialog modal-md">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Edit User Profile Picture</h4>
+          </div>
+          <form autocomplete="off" action="<?php echo base_url(); ?>employee_controller/employeeProcessing/8/<?php print_r($detail['EmployeeNumber'])?>" id="frmInsert5" method="post" enctype="multipart/form-data">
             <div class="modal-body">
               <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-12">
                   <div class="form-group">
-                    <label for="colorCurrent">Current Password</label>
-                    <div class="form-group" id="colorCurrent">
-                      <label class="control-label" id="lblSuccess" style="display: none" for="inputSuccess"><i class="fa fa-check"></i></label>
-                      <input type="password" class="form-control" name="NewPassword" id="txtCurrentPassword" oninput="checkCurrentPassword(this.value);" placeholder="Enter Current password">
-                      <span id="successMessage3" style="display: none" class="help-block"></span>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label for="exampleInputEmail1">New Password</label>
-                    <div class="form-group" id="colorSuccess">
-                      <label class="control-label" id="lblSuccess" style="display: none" for="inputSuccess"><i class="fa fa-check"></i></label>
-                      <input type="password" class="form-control" name="NewPassword" id="txtNewPassword" oninput="checkNewPassword(this.value);" placeholder="Enter New password">
-                      <span id="successMessage" style="display: none" class="help-block"></span>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label for="exampleInputEmail1">Confirm Password</label>
-                    <div class="form-group" id="colorSuccess2">
-                      <label class="control-label" id="lblSuccess2" style="display: none" for="txtConfirmPassword"><i class="fa fa-check"></i></label>
-                      <input type="number" class="form-control" id="txtConfirmPassword" oninput="checkPasswordMatch(this.value);">
-                      <span id="successMessage2" style="display: none" class="help-block"></span>
-                    </div>
+                    <label for="txtHouseNo">Upload Profile Picture<span class="text-red">*</span></label>
+                    <input type="file" name="ID[]" required="" id="Attachment" accept=".jpeg, .jpg, .png">
                   </div>
                 </div>
               </div>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-primary">Save changes</button>
+              <button type="submit" class="btn btn-primary">Submit</button>
             </div>
           </form>
-      </div>
-      <!-- /.modal-content -->
-    </div>
-    <!-- /.modal-dialog -->
-  </div>
-
-  <div class="modal fade" id="modalProfilePicture">
-    <div class="modal-dialog modal-md">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">Edit User Profile Picture</h4>
         </div>
-        <form autocomplete="off" action="<?php echo base_url(); ?>employee_controller/employeeProcessing/8/<?php print_r($detail['EmployeeNumber'])?>" id="frmInsert5" method="post" enctype="multipart/form-data">
-          <div class="modal-body">
-            <div class="row">
-              <div class="col-md-12">
-                <div class="form-group">
-                  <label for="txtHouseNo">Upload Profile Picture<span class="text-red">*</span></label>
-                  <input type="file" name="ID[]" required="" id="Attachment" accept=".jpeg, .jpg, .png">
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary">Submit</button>
-          </div>
-        </form>
+        <!-- /.modal-content -->
       </div>
-      <!-- /.modal-content -->
+      <!-- /.modal-dialog -->
     </div>
-    <!-- /.modal-dialog -->
-  </div>
 
-    <div class="row">
+      <div class="row">
         <div class="col-md-3">
 
           <!-- Profile Image -->
@@ -300,8 +303,19 @@
         <!-- /.col -->
       </div>
 
-    <!-- /.box -->
-  </section>
+      <!-- /.box -->
+    </section>
+  <?php } else { ?>
+    <br>
+    <br>
+    <div class="col-md-12">
+      <div class="callout callout-danger">
+        <h4>You have no access to this module!</h4>
+        <p>Please contact your admin to request for access!</p>
+      </div>
+    </div>
+
+  <?php } ?>
   <!-- /.content -->
 </div>
 <!-- /.content-wrapper -->

@@ -24,6 +24,7 @@ class LMS extends CI_Controller {
 		$this->load->model('maintenance_model');
 		$this->load->model('access');
 		$this->load->model('employee_model');
+    	date_default_timezone_set('Asia/Manila');
 	}
 
 	function accessCheck()

@@ -134,9 +134,9 @@
         <!-- 56 -->
         <?php if(in_array('48', $subModule)) { ?>
           <div class="col-lg-3 col-xs-6">
-            <div class="small-box bg-aqua">
+            <div class="small-box bg-green">
               <div class="inner">
-                <h3><?php print_r(number_format($totalFund['Total'] - $totalExpenses['Total'], 2)) ?></h3>
+                <h3><?php print_r(number_format(($totalFund['Total'] + $totalIncome['Total']) - ($totalExpense['Total'] + $TotalDisbursement['Total']), 2)) ?></h3>
                 <p>Current Fund</p>
               </div>
               <div class="icon">
@@ -178,7 +178,7 @@
           <div class="col-lg-3 col-xs-6">
             <div class="small-box bg-red">
               <div class="inner">
-                <h3><?php print_r($TotalExpense['Total']) ?></h3>
+                <h3><?php print_r($dailyExpenses['Total']) ?></h3>
                 <p>Daily Expense</p>
               </div>
               <div class="icon">
@@ -191,13 +191,13 @@
         <!-- 60 -->
         <?php if(in_array('48', $subModule)) { ?>
           <div class="col-lg-3 col-xs-6">
-            <div class="small-box bg-aqua">
+            <div class="small-box bg-orange">
               <div class="inner">
                 <h3><?php print_r(number_format($dailyDisbursement['Total'], 2)) ?></h3>
                 <p>Daily Disbursement</p>
               </div>
               <div class="icon">
-                <i class="fa fa-tachometer"></i>
+                <i class="fa fa-credit-card"></i>
               </div>
               <a href="<?php echo base_url(); ?>/home/AddInitialCapital" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
             </div>
@@ -205,7 +205,7 @@
         <?php } ?>
         <?php if(in_array('48', $subModule)) { ?>
           <div class="col-lg-3 col-xs-6">
-            <div class="small-box bg-aqua">
+            <div class="small-box bg-light-blue">
               <div class="inner">
                 <h3><?php print_r($dailyApprovedLoans['Total']) ?></h3>
                 <p>Daily Approved Loans</p>
@@ -220,7 +220,7 @@
         <!--  57 -->
         <?php if(in_array('48', $subModule)) { ?>
           <div class="col-lg-3 col-xs-6">
-            <div class="small-box bg-aqua">
+            <div class="small-box bg-purple">
               <div class="inner">
                 <h3><?php print_r($totalActiveLoans['Total']) ?></h3>
                 <p>Active Loans</p>
@@ -249,7 +249,7 @@
         <!-- 58 -->
         <?php if(in_array('48', $subModule)) { ?>
           <div class="col-lg-3 col-xs-6">
-            <div class="small-box bg-aqua">
+            <div class="small-box bg-olive-active">
               <div class="inner">
                 <h3><?php print_r($totalEmployees['Total']) ?></h3>
                 <p>Total Employees</p>
@@ -264,7 +264,7 @@
         <!-- 59 -->
         <?php if(in_array('48', $subModule)) { ?>
           <div class="col-lg-3 col-xs-6">
-            <div class="small-box bg-aqua">
+            <div class="small-box bg-teal">
               <div class="inner">
                 <h3><?php print_r($totalUsers['Total']) ?></h3>
                 <p>Total Users</p>
