@@ -34,7 +34,8 @@ class access extends CI_Model
                                                 , B.BranchId
                                                 , EmployeeId
                                                 , U.Password
-                                                , EMP.ManagerId
+                                                -- , EMP.ManagerId as ManagerId
+                                                , BE.ManagerBranchId as ManagerId
                                                 , (SELECT COUNT(*) FROM branch_has_manager WHERE EmployeeNumber = EMP.EmployeeNumber AND StatusId = 1) isManager
                                                 FROM R_Userrole U
                                                   INNER JOIN R_Employee EMP
@@ -61,9 +62,13 @@ class access extends CI_Model
       {
         $this->db->insert('Employee_Has_Notifications', $data2);
       }
-      else
+      else if($type == 2)
       {
         $this->db->insert('R_Logs', $data2);
+      }
+      else
+      {
+        $this->db->insert('manager_has_notifications', $data2);
       }
     }
 

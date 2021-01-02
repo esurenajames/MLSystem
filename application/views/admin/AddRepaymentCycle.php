@@ -1,106 +1,116 @@
-
-<!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
-  <!-- Content Header (Page header) -->
-  <section class="content-header">
-    <h1>
-      Repayment Cycles
-    </h1>
-    <ol class="breadcrumb">
-      <li><a href="http://localhost/ELendingTool/home/Dashboard" class="active"><i class="fa fa-dashboard"></i>Dashboard</a></li>
-      <li><a href="#">System Setup</a></li>
-      <li><a href="#">Repayment Cycles</a></li>
-    </ol>
-  </section>
+  <?php if(in_array('29', $subModule)) { ?>
+    <section class="content-header">
+      <h1>
+        Repayment Cycles
+      </h1>
+      <ol class="breadcrumb">
+        <li><a href="http://localhost/ELendingTool/home/Dashboard" class="active"><i class="fa fa-dashboard"></i>Dashboard</a></li>
+        <li><a href="#">System Setup</a></li>
+        <li><a href="#">Repayment Cycles</a></li>
+      </ol>
+    </section>
 
-
-  <div class="modal fade" id="modalNewRepaymentCycle">
-    <div class="modal-dialog modal-md">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">Add Repayment Cycle</h4>
-        </div>
-        <form action="<?php echo base_url(); ?>admin_controller/AddRepaymentCycle" id="frmInsert2" method="post">
-          <div class="modal-body">
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <select class="form-control select2" name="DateSelected[]" style="width: 100%" multiple="">
-                      <option>1</option>
-                      <option>2</option>
-                      <option>3</option>
-                      <option>4</option>
-                      <option>5</option>
-                      <option>6</option>
-                      <option>7</option>
-                      <option>8</option>
-                      <option>9</option>
-                      <option>10</option>
-                      <option>11</option>
-                      <option>12</option>
-                      <option>13</option>
-                      <option>14</option>
-                      <option>15</option>
-                      <option>16</option>
-                      <option>17</option>
-                      <option>18</option>
-                      <option>19</option>
-                      <option>20</option>
-                      <option>21</option>
-                      <option>22</option>
-                      <option>23</option>
-                      <option>24</option>
-                      <option>25</option>
-                      <option>26</option>
-                      <option>27</option>
-                      <option>28</option>
-                      <option>29</option>
-                      <option>30</option>
-                      <option>31</option>
-                    </select>
+    <div class="modal fade" id="modalNewRepaymentCycle">
+      <div class="modal-dialog modal-md">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Add Repayment Cycle</h4>
+          </div>
+          <form action="<?php echo base_url(); ?>admin_controller/AddRepaymentCycle" id="frmInsert2" method="post">
+            <div class="modal-body">
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <select class="form-control select2" name="DateSelected[]" style="width: 100%" multiple="">
+                        <option>1</option>
+                        <option>2</option>
+                        <option>3</option>
+                        <option>4</option>
+                        <option>5</option>
+                        <option>6</option>
+                        <option>7</option>
+                        <option>8</option>
+                        <option>9</option>
+                        <option>10</option>
+                        <option>11</option>
+                        <option>12</option>
+                        <option>13</option>
+                        <option>14</option>
+                        <option>15</option>
+                        <option>16</option>
+                        <option>17</option>
+                        <option>18</option>
+                        <option>19</option>
+                        <option>20</option>
+                        <option>21</option>
+                        <option>22</option>
+                        <option>23</option>
+                        <option>24</option>
+                        <option>25</option>
+                        <option>26</option>
+                        <option>27</option>
+                        <option>28</option>
+                        <option>29</option>
+                        <option>30</option>
+                        <option>31</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
-              </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary">Submit</button>
-          </div>
-        </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+          </form>
+        </div>
+        <!-- /.modal-content -->
       </div>
-      <!-- /.modal-content -->
+      <!-- /.modal-dialog -->
     </div>
-    <!-- /.modal-dialog -->
-  </div>
 
-  <section class="content">
-    <div class="box">
-      <div class="box-header with-border">
-        <h3 class="box-title">List of Repayment Cycles</h3>
+    <section class="content">
+      <div class="box">
+        <div class="box-header with-border">
+          <h3 class="box-title">List of Repayment Cycles</h3>
+        </div>
+        <div class="box-body">
+          <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewRepaymentCycle">Add Record</button>
+          <br>
+          <br>
+          <form name="ApproverDocForm" method="post" id="ApproverDocForm">
+            <table id="example1" class="table table-bordered table-hover">
+              <thead>
+              <tr>
+                <th>Reference No</th>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Date Created</th>
+                <th>Action</th>
+              </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </form>
+        </div>
       </div>
-      <div class="box-body">
-        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewRepaymentCycle">Add Record</button>
-        <br>
-        <br>
-        <form name="ApproverDocForm" method="post" id="ApproverDocForm">
-          <table id="example1" class="table table-bordered table-hover">
-            <thead>
-            <tr>
-              <th>Name</th>
-              <th>Status</th>
-              <th>Date Created</th>
-              <th>Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            </tbody>
-          </table>
-        </form>
+    </section>
+
+  <?php } else { ?>
+    <br>
+    <br>
+    <div class="col-md-12">
+      <div class="callout callout-danger">
+        <h4>You have no access to this module!</h4>
+        <p>Please contact your admin to request for access!</p>
       </div>
     </div>
-  </section>
+  <?php } ?>
+
 </div>
 <!-- /.content-wrapper -->
 
@@ -225,7 +235,8 @@
     UserTable = $('#example1').DataTable({
       "pageLength": 10,
       "ajax": { url: '<?php echo base_url()."/datatables_controller/Repayments/"; ?>', type: 'POST', "dataSrc": "" },
-      "columns": [  { data: "RepaymentName" }
+      "columns": [  { data: "ReferenceNo" }
+                    , { data: "RepaymentName" }
                     , {
                       data: "StatusId", "render": function (data, type, row) {
                         if(row.StatusId == 1){
@@ -243,19 +254,21 @@
                     {
                       data: "StatusId", "render": function (data, type, row) {
                       if(row.StatusId == 1){
-                          return '<a onclick="confirm(\'Are you sure you want to deactivate this Repayment Cycle?\', \''+row.RepaymentId+'\', 0)" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a>';
+                          return '<a onclick="confirm(\'Are you sure you want to deactivate this Repayment Cycle?\', \''+row.RepaymentId+'\', 0)" class="btn btn-sm btn-danger" title="Deactivate"><span class="fa fa-close"></span></a>';
                         }
                         else if(row.StatusId == 0){
-                          return '<a onclick="confirm(\'Are you sure you want to re-activate this Repayment Cycle?\', \''+row.RepaymentId+'\', 1)" class="btn btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
+                          return 'N/A';
+                          // return '<a onclick="confirm(\'Are you sure you want to re-activate this Repayment Cycle?\', \''+row.RepaymentId+'\', 1)" class="btn btn-sm btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
                         }
                         else{
                           return "N/A";
                         }
                       }
                     },
+                    { data: "rawDateCreated" }, 
       ],
-      // "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
-      "order": [[0, "asc"]]
+      "aoColumnDefs": [{ "bVisible": false, "aTargets": [5] }],
+      "order": [[5, "asc"]]
     });
 
     $("#frmInsert").on('submit', function (e) {

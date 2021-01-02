@@ -27,6 +27,7 @@ class admin_controller extends CI_Controller {
     $this->load->model('admin_model');
 		$this->load->model('borrower_model');
     date_default_timezone_set('Asia/Manila');
+    $this->load->library('Pdf');
 
    	if(empty($this->session->userdata("EmployeeNumber")) || $this->session->userdata("logged_in") == 0)
    	{
@@ -224,10 +225,10 @@ class admin_controller extends CI_Controller {
     $DateNow = date("Y-m-d H:i:s");
     if($this->uri->segment(3) == 1) // update Security Question
     {
-      // admin audits
-        $auditLogsManager = $EmployeeNumber . ' changed temporary password.';
+      // admin audits finalss
+        $auditLogsManager = 'Changed temporary password.';
         $auditAffectedEmployee = 'Changed temporary password.';
-        $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
+        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
       // Update Security Question
         $set = array( 
           'StatusId' => 0
@@ -316,7 +317,7 @@ class admin_controller extends CI_Controller {
           $this->maintenance_model->insertFunction($insertData, $insertTable);
         }
       // admin audits
-        $auditLogsManager = $_POST['selectEmployee'] . ' has been added as user.';
+        $auditLogsManager = 'Employee #' . $_POST['selectEmployee'] . ' has been added as user.';
         $auditAffectedEmployee = 'Added as user.';
         $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
       // notification
@@ -613,7 +614,6 @@ class admin_controller extends CI_Controller {
         , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
       );
       $query = $this->admin_model->countLoanType($data);
-      print_r($query);
       if($query == 0) // not existing
       {
         // insert LoanType details
@@ -625,9 +625,21 @@ class admin_controller extends CI_Controller {
           );
           $insertLoanTypeTable = 'R_Loans';
           $this->maintenance_model->insertFunction($insertLoanType, $insertLoanTypeTable);
+        // get generated application id
+          $getData = array(
+            'table'                 => 'R_Loans'
+            , 'column'              => 'LoanId'
+            , 'CreatedBy'           => $EmployeeNumber
+          );
+          $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+        // admin audits finalss
+          $TransactionNumber = 'LT-'.sprintf('%06d', $generatedId['LoanStatusId']);
+          $auditLogsManager = 'Added loan type #'.$TransactionNumber.' in loan type setup.';
+          $auditAffectedEmployee = 'Added loan type #'.$TransactionNumber.' in loan type setup.';
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
-          $this->session->set_flashdata('alertText','Loan Type successfully recorded!'); 
+          $this->session->set_flashdata('alertText','Loan type successfully recorded!'); 
           $this->session->set_flashdata('alertType','success'); 
           redirect('home/AddLoanType/'. $EmployeeId['EmployeeId']);
       }
@@ -879,6 +891,18 @@ class admin_controller extends CI_Controller {
           );
           $insertDisbursementTable = 'R_DIsbursement';
           $this->maintenance_model->insertFunction($insertDisbursement, $insertDisbursementTable);
+        // get generated application id
+          $getData = array(
+            'table'                 => 'R_DIsbursement'
+            , 'column'              => 'DisbursementId'
+            , 'CreatedBy'           => $EmployeeNumber
+          );
+          $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+        // admin audits finalss
+          $TransactionNumber = 'DB-'.sprintf('%06d', $generatedId['DisbursementId']);
+          $auditLogsManager = 'Added disbursement #'.$TransactionNumber.' in disbursement setup.';
+          $auditAffectedEmployee = 'Added disbursement #'.$TransactionNumber.' in  disbursement setup.';
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Disbursement successfully recorded!'); 
@@ -964,6 +988,18 @@ class admin_controller extends CI_Controller {
           );
           $insertRequirementTable = 'R_Requirements';
           $this->maintenance_model->insertFunction($insertRequirement, $insertRequirementTable);
+        // get generated application id
+          $getData = array(
+            'table'                 => 'R_Requirements'
+            , 'column'              => 'RequirementId'
+            , 'CreatedBy'           => $EmployeeNumber
+          );
+          $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+        // admin audits finalss
+          $TransactionNumber = 'REQ-'.sprintf('%06d', $generatedId['RequirementId']);
+          $auditLogsManager = 'Added requirement #'.$TransactionNumber.' in requirements setup.';
+          $auditAffectedEmployee = 'Added requirement #'.$TransactionNumber.' in requirements setup.';
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Requirement successfully recorded!'); 
@@ -1291,7 +1327,6 @@ class admin_controller extends CI_Controller {
         , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
       );
       $query = $this->admin_model->countPurpose($data);
-      print_r($query);
       if($query == 0) // not existing
       {
         // insert Bank details
@@ -1303,6 +1338,18 @@ class admin_controller extends CI_Controller {
           );
           $insertPurposeTable = 'R_Purpose';
           $this->maintenance_model->insertFunction($insertPurpose, $insertPurposeTable);
+        // get generated application id
+          $getData = array(
+            'table'                 => 'R_Purpose'
+            , 'column'              => 'PurposeId'
+            , 'CreatedBy'           => $EmployeeNumber
+          );
+          $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+        // admin audits finalss
+          $TransactionNumber = 'PUR-'.sprintf('%06d', $generatedId['PurposeId']);
+          $auditLogsManager = 'Added loan purpose #'.$TransactionNumber.' in purpose setup.';
+          $auditAffectedEmployee = 'Added loan purpose #'.$TransactionNumber.' in purpose setup.';
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Purpose successfully recorded!'); 
@@ -1393,7 +1440,6 @@ class admin_controller extends CI_Controller {
     {
       $data = array(
          'Name'                    => htmlentities($_POST['Method'], ENT_QUOTES)
-        , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
       );
       $query = $this->admin_model->countMethod($data);
       print_r($query);
@@ -1402,12 +1448,22 @@ class admin_controller extends CI_Controller {
         // insert Bank details
           $insertMethod = array(
              'Name'                    => htmlentities($_POST['Method'], ENT_QUOTES)
-            , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
             , 'CreatedBy'              => $EmployeeNumber
-            , 'UpdatedBy'              => $EmployeeNumber
           );
-          $insertMethodTable = 'R_MethodOfPayment';
+          $insertMethodTable = 'r_disbursement';
           $this->maintenance_model->insertFunction($insertMethod, $insertMethodTable);
+        // get generated application id
+          $getData = array(
+            'table'                 => 'r_disbursement'
+            , 'column'              => 'DisbursementId'
+            , 'CreatedBy'           => $EmployeeNumber
+          );
+          $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+        // admin audits finalss
+          $TransactionNumber = 'MP-'.sprintf('%06d', $generatedId['DisbursementId']);
+          $auditLogsManager = 'Added method of payment #'.$TransactionNumber.' in method of payment setup.';
+          $auditAffectedEmployee = 'Added method of payment #'.$TransactionNumber.' in method of payment setup.';
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Method of Payment successfully recorded!'); 
@@ -1889,16 +1945,16 @@ class admin_controller extends CI_Controller {
       {
         $newStock = htmlentities($_POST['stockNo'], ENT_QUOTES) + $currentStock['Stock'];
         // admin audits
-          $auditLogsManager = 'Added '.$_POST['stockNo'].' to asset #'.$TransactionNumber.' in asset management module.';
-          $auditAffectedEmployee = 'Added '.$_POST['stockNo'].' to asset #'.$TransactionNumber.' in asset management module.';
+          $auditLogsManager = 'Added '.$_POST['stockNo'].' stocks to asset #'.$TransactionNumber.' in asset management module.';
+          $auditAffectedEmployee = 'Added '.$_POST['stockNo'].' stocks to asset #'.$TransactionNumber.' in asset management module.';
           $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
       }
       else
       {
         $newStock = $currentStock['Stock'] - htmlentities($_POST['stockNo'], ENT_QUOTES);
         // admin audits
-          $auditLogsManager = 'Removed '.$_POST['stockNo'].' from asset #'.$TransactionNumber.' in asset management module.';
-          $auditAffectedEmployee = 'Removed '.$_POST['stockNo'].' from asset #'.$TransactionNumber.' in asset management module.';
+          $auditLogsManager = 'Removed '.$_POST['stockNo'].' stocks from asset #'.$TransactionNumber.' in asset management module.';
+          $auditAffectedEmployee = 'Removed '.$_POST['stockNo'].' stocks from asset #'.$TransactionNumber.' in asset management module.';
           $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
       }
 
@@ -1926,22 +1982,33 @@ class admin_controller extends CI_Controller {
     if ($_POST['FormType'] == 1) // add LoanStatus
     {
       $data = array(
-        'Name'                     => htmlentities($_POST['LoanStatus'], ENT_QUOTES)
-        , 'Description'          => htmlentities($_POST['Description'], ENT_QUOTES)
+        'Name'                      => htmlentities($_POST['LoanStatus'], ENT_QUOTES)
       );
       $query = $this->admin_model->countLoanStatus($data);
-      print_r($query);
       if($query == 0) // not existing
       {
         // insert LoanStatus details
           $insertLoanStatus = array(
             'Name'                     => htmlentities($_POST['LoanStatus'], ENT_QUOTES)
-            , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
             , 'CreatedBy'              => $EmployeeNumber
-            , 'UpdatedBy'              => $EmployeeNumber
+            , 'IsApprovable'           => $_POST['Approvable']
+            , 'statusColor'            => $_POST['StatusColor']
+            , 'IsEditable'             => 1
           );
-          $insertLoanStatusTable = 'R_LoanStatus';
+          $insertLoanStatusTable = 'application_has_status';
           $this->maintenance_model->insertFunction($insertLoanStatus, $insertLoanStatusTable);
+        // get generated application id
+          $getData = array(
+            'table'                 => 'application_has_status'
+            , 'column'              => 'LoanStatusId'
+            , 'CreatedBy'           => $EmployeeNumber
+          );
+          $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+        // admin audits finalss
+          $TransactionNumber = 'ALS-'.sprintf('%06d', $generatedId['LoanStatusId']);
+          $auditLogsManager = 'Added loan status #'.$TransactionNumber.' in loan status setup.';
+          $auditAffectedEmployee = 'Added loan status #'.$TransactionNumber.' in loan status setup.';
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Loan Status successfully recorded!'); 
@@ -2449,6 +2516,11 @@ class admin_controller extends CI_Controller {
         $insertRepaymentTable = 'repaymentcycle_has_content';
         $this->maintenance_model->insertFunction($insertRepayment, $insertRepaymentTable);
     }
+    // admin audits finalss
+      $TransactionNumber = 'RC-'.sprintf('%06d', $generatedId['RepaymentId']);
+      $auditLogsManager = 'Added repayment cycle #'.$TransactionNumber.' in repayment cycle setup.';
+      $auditAffectedEmployee = 'Added repayment cycle #'.$TransactionNumber.' in  repayment cycle setup.';
+      $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
     // notification
       $this->session->set_flashdata('alertTitle','Success!'); 
       $this->session->set_flashdata('alertText','Repayment Cycle successfully recorded!'); 
@@ -3060,310 +3132,314 @@ class admin_controller extends CI_Controller {
   function truncateBranchDB()
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $this->db->query("SET foreign_key_checks = 0;");
-    $this->db->truncate('applicationfooter');
-    $this->db->truncate('application_has_approver');
-    $this->db->truncate('application_has_charges');
-    $this->db->truncate('application_has_collaterals');
-    $this->db->truncate('application_has_conditionalcharges');
-    $this->db->truncate('application_has_disclosurestatement');
-    $this->db->truncate('application_has_expense');
-    $this->db->truncate('application_has_interests');
-    $this->db->truncate('application_has_monthlyincome');
-    $this->db->truncate('application_has_monthlyobligation');
-    $this->db->truncate('application_has_notifications');
-    $this->db->truncate('application_has_penalty');
-    $this->db->truncate('application_has_requirements');
-    $this->db->truncate('application_has_interests');
-    $this->db->truncate('application_has_notifications');
-    $this->db->truncate('application_has_penalty');
-    $this->db->truncate('application_has_requirements');
-    $this->db->truncate('application_has_status');
-    $this->db->truncate('borroweraddresshistory');
-    $this->db->truncate('borrower_has_comaker');
-    $this->db->truncate('borrower_has_contactnumbers');
-    $this->db->truncate('borrower_has_education');
-    $this->db->truncate('borrower_has_emails');
-    $this->db->truncate('borrower_has_employer');
-    $this->db->truncate('borrower_has_notifications');
-    $this->db->truncate('borrower_has_picture');
-    $this->db->truncate('borrower_has_position');
-    $this->db->truncate('borrower_has_reference');
-    $this->db->truncate('borrower_has_spouse');
-    $this->db->truncate('borrower_has_supportdocuments');
-    $this->db->truncate('branch_has_address');
-    $this->db->truncate('branch_has_contactnumbers');
-    $this->db->truncate('branch_has_employee');
-    $this->db->truncate('branch_has_manager');
-    $this->db->truncate('comments_has_attachments');
-    $this->db->truncate('company_has_logo');
-    $this->db->truncate('employee_has_address');
-    $this->db->truncate('employee_has_contactnumbers');
-    $this->db->truncate('employee_has_emails');
-    $this->db->truncate('employee_has_identifications');
-    $this->db->truncate('employee_has_notifications');
-    $this->db->truncate('l_employeelog');
-    $this->db->truncate('manager_has_notifications');
-    $this->db->truncate('repaymentcycle_has_content');
-    $this->db->truncate('requirements_has_attachments');
-    $this->db->truncate('r_address');
-    $this->db->truncate('r_assetmanagement');
-    $this->db->truncate('r_bank');
-    $this->db->truncate('r_borrowers');
-    $this->db->truncate('r_borrowerstatus');
-    $this->db->truncate('r_borrower_has_status');
-    $this->db->truncate('r_branches');
-    $this->db->truncate('r_capital');
-    $this->db->truncate('r_category');
-    $this->db->truncate('r_charges');
-    $this->db->truncate('r_collaterals');
-    $this->db->truncate('r_companydetail');
-    $this->db->truncate('r_contactnumbers');
-    $this->db->truncate('r_emails');
-    $this->db->truncate('r_employee');
-    $this->db->truncate('r_expense');
-    $this->db->truncate('r_expensetype');
-    $this->db->truncate('r_idcategory');
-    $this->db->truncate('r_identificationcards');
-    $this->db->truncate('r_industry');
-    $this->db->truncate('r_intangibles');
-    $this->db->truncate('r_loans');
-    $this->db->truncate('r_loanstatus');
-    $this->db->truncate('r_loanundertaking');
-    $this->db->truncate('r_logs');
-    $this->db->truncate('r_methodofpayment');
-    $this->db->truncate('r_optionalcharges');
-    $this->db->truncate('r_penalty');
-    $this->db->truncate('r_personalreference');
-    $this->db->truncate('r_position');
-    $this->db->truncate('r_profilepicture');
-    $this->db->truncate('r_purpose');
-    $this->db->truncate('r_repaymentcycle');
-    $this->db->truncate('r_requirements');
-    $this->db->truncate('r_riskagegroup');
-    $this->db->truncate('r_riskloanpercentage');
-    $this->db->truncate('r_risktenure');
-    $this->db->truncate('r_role');
-    $this->db->truncate('r_spouse');
-    $this->db->truncate('r_userrole');
-    $this->db->truncate('r_withdrawal');
-    $this->db->truncate('r_withdrawaltype');
-    $this->db->truncate('t_application');
-    $this->db->truncate('t_changemade');
-    $this->db->truncate('t_paymentdue');
-    $this->db->truncate('t_paymentsmade');
-    $this->db->truncate('r_userrole_has_r_securityquestions');
-    $this->db->truncate('R_UserAccess');    
-                        // SET foreign_key_checks = 1 ;
-    // application has status
-      $insertData1 = array(
-        'Name' => 'Approved',
-        'IsApprovable' => 0,
-        'statusColor' => 'green',
-        'IsEditable' => 0,
-        'StatusId' => 1,
-      );
-      $insertData2 = array(
-        'Name' => 'Declined',
-        'IsApprovable' => 0,
-        'statusColor' => 'red',
-        'IsEditable' => 0,
-        'StatusId' => 1,
-      );
-      $insertData3 = array(
-        'Name' => 'For Approval',
-        'statusColor' => 'blue',
-        'IsApprovable' => 1,
-        'IsEditable' => 0,
-        'StatusId' => 1,
-      );
-      $insertData4 = array(
-        'Name' => 'Matured',
-        'IsApprovable' => 0,
-        'statusColor' => 'green',
-        'IsEditable' => 0,
-        'StatusId' => 1,
-      );
-      $auditTable = 'application_has_status';
-      $this->maintenance_model->insertFunction($insertData1, $auditTable);
-      $this->maintenance_model->insertFunction($insertData2, $auditTable);
-      $this->maintenance_model->insertFunction($insertData3, $auditTable);
-      $this->maintenance_model->insertFunction($insertData4, $auditTable);
-    // borrower status
-      $insertDataBS1 = array(
-        'Name'          => 'Active',
-        'BranchId'      => 1,
-        'IsApprovable'  => 0,
-      );
-      $insertDataBS2 = array(
-        'Name' => 'Deactivated',
-        'BranchId' => 1,
-        'IsApprovable'  => 0,
-      );
-      // $insertDataBS3 = array(
-      //   'Name' => 'Approved',
-      //   'BranchId' => 1,
-      //   'IsApprovable'  => 1,
-      // );
-      // $insertDataBS4 = array(
-      //   'Name' => 'Disapproved',
-      //   'BranchId' => 1,
-      //   'IsApprovable'  => 1,
-      // );
-      // $insertDataBS5 = array(
-      //   'Name' => 'For Revision',
-      //   'BranchId' => 1,
-      //   'IsApprovable'  => 1,
-      // );
-      $auditTableBS = 'r_borrowerstatus';
-      $this->maintenance_model->insertFunction($insertDataBS1, $auditTableBS);
-      $this->maintenance_model->insertFunction($insertDataBS2, $auditTableBS);
-      // $this->maintenance_model->insertFunction($insertDataBS3, $auditTableBS);
-      // $this->maintenance_model->insertFunction($insertDataBS4, $auditTableBS);
-      // $this->maintenance_model->insertFunction($insertDataBS5, $auditTableBS);
-    // branch
-      $insertDataB = array(
-        'Name' => 'Taytay',
-        'Code' => 'TAY',
-        'BranchId' => 1,
-      );
-      $auditTableB = 'r_branches';
-      $this->maintenance_model->insertFunction($insertDataB, $auditTableB);
-    // branch
-      $insertDataP = array(
-        'Name' => 'Owner',
-        'CreatedBy' => '000000',
-        'BranchId' => 1,
-      );
-      $auditTableP = 'r_position';
-      $this->maintenance_model->insertFunction($insertDataP, $auditTableP);
-    // employee
-      $insertDataE = array(
-        'FirstName' => 'GIA TECH',
-        'LastName' => 'INFORMATION SOLUTIONS',
-        'EmployeeNumber' => '000000',
-        'StatusId' => 2,
-      );
-      $auditTablee = 'r_employee';
-      $this->maintenance_model->insertFunction($insertDataE, $auditTablee);
-      $insertDataE2 = array(
-        'FirstName' => 'Myrna',
-        'LastName' => 'Biliber',
-        'EmployeeNumber' => '000002',
-        'Nationality' => 1,
-        'Sex' => 1,
-        'CivilStatus' => 1,
-        'Salutation' => 3,
-        'PositionId' => 1,
-        'ManagerId' => 1,
-        'StatusId' => 2,
-      );
-      $auditTablee2 = 'r_employee';
-      $this->maintenance_model->insertFunction($insertDataE2, $auditTablee2);
-    // branch has employee
-      $insertDataBHE = array(
-        'EmployeeNumber' => '000000',
-        'BranchId' => 1,
-      );
-      $auditTableBHE = 'branch_has_employee';
-      $insertDataBHE2 = array(
-        'EmployeeNumber' => '000002',
-        'BranchId' => 1,
-        'ManagerBranchId' => 1,
-      );
-      $this->maintenance_model->insertFunction($insertDataBHE, $auditTableBHE);
-      $this->maintenance_model->insertFunction($insertDataBHE2, $auditTableBHE);
-    // branch has manager
-      $insertDataBHE3 = array(
-        'EmployeeNumber' => '000002',
-        'BranchId' => 1,
-      );
-      $auditTableBHE3 = 'branch_has_manager';
-      $this->maintenance_model->insertFunction($insertDataBHE3, $auditTableBHE3);
-    // r_loanundertaking
-      $insertDataLU = array(
-        'Description' => 'I hereby certify that all information herein, including all documents submitted along with this application, are genuine, true and correct. I authorize the Creditor and / or its representative to verify any and all information furnished by me, including any credit credit transactions with other institutions.',
-        'BranchId' => 1,
-      );
-      $auditTableLU = 'r_loanundertaking';
-      $this->maintenance_model->insertFunction($insertDataLU, $auditTableLU);
-    // r_repaymentcycle
-      $insertDataRC = array(
-        'Type' => 'Daily',
-        'Type' => 'Weekly',
-        'Type' => 'Monthly',
-        'Type' => 'Yearly',
-        'Type' => 'Lump Sum',
-        'Type' => 'Dates',
-      );
-      $auditTableRC = 'r_repaymentcycle';
-      $this->maintenance_model->insertFunction($insertDataBS1, $auditTableBS);
-    // r_userrole
-      $insertDataUR = array(
-        'EmployeeNumber' => '000000',
-        'IsNew' => 0,
-        'StatusId' => 1,
-      );
-      $auditTableUR = 'r_userrole';
-      $this->maintenance_model->insertFunction($insertDataUR, $auditTableUR);
-      $set = array( 
-        'Password' => 'LookingGood!',
-      );
-      $condition = array( 
-        'EmployeeNumber' => '000000'
-      );
-      $table = 'r_userrole';
-      $this->maintenance_model->updateFunction1($set, $condition, $table);
-
-      $employeeRoles = $this->employee_model->getSubmodules();
-      foreach ($employeeRoles as $roles) 
-      {
-        $insertData = array(
-          'EmployeeNumber'              => '000000'
-          , 'StatusId'                  => 1
-          , 'SubModuleId'               => $roles['SubModuleId']
-          , 'Code'                      => $roles['Code']
-          , 'ModuleId'                  => $roles['ModuleId']
+    $Password = $this->session->userdata('Password');
+    if($_POST['Username'] == $EmployeeNumber && $_POST['NewPassword'] == $Password && $_POST['confirmPassword'] == $Password)
+    {
+      $this->db->query("SET foreign_key_checks = 0;");
+      $this->db->truncate('applicationfooter');
+      $this->db->truncate('application_has_approver');
+      $this->db->truncate('application_has_charges');
+      $this->db->truncate('application_has_collaterals');
+      $this->db->truncate('application_has_conditionalcharges');
+      $this->db->truncate('application_has_disclosurestatement');
+      $this->db->truncate('application_has_expense');
+      $this->db->truncate('application_has_interests');
+      $this->db->truncate('application_has_monthlyincome');
+      $this->db->truncate('application_has_monthlyobligation');
+      $this->db->truncate('application_has_notifications');
+      $this->db->truncate('application_has_penalty');
+      $this->db->truncate('application_has_requirements');
+      $this->db->truncate('application_has_interests');
+      $this->db->truncate('application_has_notifications');
+      $this->db->truncate('application_has_penalty');
+      $this->db->truncate('application_has_status');
+      $this->db->truncate('application_has_education');
+      $this->db->truncate('application_has_contact');
+      $this->db->truncate('application_has_email');
+      $this->db->truncate('application_has_address');
+      $this->db->truncate('application_has_disbursement');
+      $this->db->truncate('application_has_employer');
+      $this->db->truncate('application_has_personalreference');
+      $this->db->truncate('application_has_spouse');
+      $this->db->truncate('borroweraddresshistory');
+      $this->db->truncate('borrower_has_comaker');
+      $this->db->truncate('borrower_has_contactnumbers');
+      $this->db->truncate('borrower_has_education');
+      $this->db->truncate('borrower_has_emails');
+      $this->db->truncate('borrower_has_employer');
+      $this->db->truncate('borrower_has_notifications');
+      $this->db->truncate('borrower_has_picture');
+      $this->db->truncate('borrower_has_position');
+      $this->db->truncate('borrower_has_reference');
+      $this->db->truncate('borrower_has_spouse');
+      $this->db->truncate('borrower_has_supportdocuments');
+      $this->db->truncate('branch_has_address');
+      $this->db->truncate('branch_has_contactnumbers');
+      $this->db->truncate('branch_has_employee');
+      $this->db->truncate('branch_has_manager');
+      $this->db->truncate('comments_has_attachments');
+      $this->db->truncate('company_has_logo');
+      $this->db->truncate('employee_has_address');
+      $this->db->truncate('employee_has_contactnumbers');
+      $this->db->truncate('employee_has_emails');
+      $this->db->truncate('employee_has_identifications');
+      $this->db->truncate('employee_has_notifications');
+      $this->db->truncate('l_employeelog');
+      $this->db->truncate('manager_has_notifications');
+      $this->db->truncate('repaymentcycle_has_content');
+      $this->db->truncate('requirements_has_attachments');
+      $this->db->truncate('r_address');
+      $this->db->truncate('r_assetmanagement');
+      $this->db->truncate('r_bank');
+      $this->db->truncate('r_borrowers');
+      $this->db->truncate('r_borrowerstatus');
+      $this->db->truncate('r_borrower_has_status');
+      $this->db->truncate('r_branches');
+      $this->db->truncate('r_capital');
+      $this->db->truncate('r_category');
+      $this->db->truncate('r_charges');
+      $this->db->truncate('r_collaterals');
+      $this->db->truncate('r_companydetail');
+      $this->db->truncate('r_contactnumbers');
+      $this->db->truncate('r_emails');
+      $this->db->truncate('r_employee');
+      $this->db->truncate('r_expense');
+      $this->db->truncate('r_expensetype');
+      $this->db->truncate('r_idcategory');
+      $this->db->truncate('r_identificationcards');
+      $this->db->truncate('r_industry');
+      $this->db->truncate('r_intangibles');
+      $this->db->truncate('r_loans');
+      $this->db->truncate('r_loanstatus');
+      $this->db->truncate('r_loanundertaking');
+      $this->db->truncate('r_logs');
+      $this->db->truncate('r_methodofpayment');
+      $this->db->truncate('r_optionalcharges');
+      $this->db->truncate('r_penalty');
+      $this->db->truncate('r_personalreference');
+      $this->db->truncate('r_position');
+      $this->db->truncate('r_profilepicture');
+      $this->db->truncate('r_purpose');
+      $this->db->truncate('r_repaymentcycle');
+      $this->db->truncate('r_requirements');
+      $this->db->truncate('r_riskagegroup');
+      $this->db->truncate('r_riskloanpercentage');
+      $this->db->truncate('r_risktenure');
+      $this->db->truncate('r_role');
+      $this->db->truncate('r_spouse');
+      $this->db->truncate('r_userrole');
+      $this->db->truncate('r_withdrawal');
+      $this->db->truncate('r_withdrawaltype');
+      $this->db->truncate('t_application');
+      $this->db->truncate('t_changemade');
+      $this->db->truncate('t_paymentdue');
+      $this->db->truncate('t_paymentsmade');
+      $this->db->truncate('r_userrole_has_r_securityquestions');
+      $this->db->truncate('R_UserAccess');
+                          // SET foreign_key_checks = 1 ;
+      // application has status
+        $insertData1 = array(
+          'Name' => 'Approved',
+          'IsApprovable' => 0,
+          'statusColor' => 'green',
+          'IsEditable' => 0,
+          'StatusId' => 1,
         );
-        $insertTable = 'R_UserAccess';
-        $this->maintenance_model->insertFunction($insertData, $insertTable);
-      }
-      // for owner
-      $insertDataUR2 = array(
-        'EmployeeNumber' => '000002',
-        'IsNew' => 1,
-        'StatusId' => 1,
-      );
-      $auditTableUR2 = 'r_userrole';
-      $this->maintenance_model->insertFunction($insertDataUR2, $auditTableUR2);
-      $set2 = array( 
-        'Password' => '000002',
-      );
-      $condition2 = array( 
-        'EmployeeNumber' => '000002'
-      );
-      $table2 = 'r_userrole';
-      $this->maintenance_model->updateFunction1($set2, $condition2, $table2);
-
-      $employeeRoles = $this->employee_model->getSubmodules();
-      foreach ($employeeRoles as $roles) 
-      {
-        $insertData = array(
-          'EmployeeNumber'              => '000002'
-          , 'StatusId'                  => 1
-          , 'SubModuleId'               => $roles['SubModuleId']
-          , 'Code'                      => $roles['Code']
-          , 'ModuleId'                  => $roles['ModuleId']
+        $insertData2 = array(
+          'Name' => 'Declined',
+          'IsApprovable' => 0,
+          'statusColor' => 'red',
+          'IsEditable' => 0,
+          'StatusId' => 1,
         );
-        $insertTable = 'R_UserAccess';
-        $this->maintenance_model->insertFunction($insertData, $insertTable);
-      }
-    // notification
-      $this->session->set_flashdata('alertTitle','Success!'); 
-      $this->session->set_flashdata('alertText','System successfully truncated!'); 
-      $this->session->set_flashdata('alertType','success'); 
-    
-      redirect(site_url());
+        $insertData3 = array(
+          'Name' => 'For Approval',
+          'statusColor' => 'blue',
+          'IsApprovable' => 1,
+          'IsEditable' => 0,
+          'StatusId' => 1,
+        );
+        $insertData4 = array(
+          'Name' => 'Matured',
+          'IsApprovable' => 0,
+          'statusColor' => 'green',
+          'IsEditable' => 0,
+          'StatusId' => 1,
+        );
+        $auditTable = 'application_has_status';
+        $this->maintenance_model->insertFunction($insertData1, $auditTable);
+        $this->maintenance_model->insertFunction($insertData2, $auditTable);
+        $this->maintenance_model->insertFunction($insertData3, $auditTable);
+        $this->maintenance_model->insertFunction($insertData4, $auditTable);
+      // borrower status
+        $insertDataBS1 = array(
+          'Name'          => 'Active',
+          'statusColor' => 'green',
+          'BranchId'      => 1,
+          'IsApprovable'  => 0,
+        );
+        $insertDataBS2 = array(
+          'Name' => 'Deactivated',
+          'statusColor' => 'red',
+          'BranchId' => 1,
+          'IsApprovable'  => 0,
+        );
+        $auditTableBS = 'r_borrowerstatus';
+        $this->maintenance_model->insertFunction($insertDataBS1, $auditTableBS);
+        $this->maintenance_model->insertFunction($insertDataBS2, $auditTableBS);
+      // branch
+        $insertDataB = array(
+          'Name' => 'Taytay',
+          'Code' => 'TAY',
+          'BranchId' => 1,
+        );
+        $auditTableB = 'r_branches';
+        $this->maintenance_model->insertFunction($insertDataB, $auditTableB);
+      // branch
+        $insertDataP = array(
+          'Name' => 'Owner',
+          'CreatedBy' => '000000',
+          'BranchId' => 1,
+        );
+        $auditTableP = 'r_position';
+        $this->maintenance_model->insertFunction($insertDataP, $auditTableP);
+      // employee
+        $insertDataE = array(
+          'FirstName' => 'GIA TECH',
+          'LastName' => 'INFORMATION SOLUTIONS',
+          'EmployeeNumber' => '000000',
+          'StatusId' => 2,
+        );
+        $auditTablee = 'r_employee';
+        $this->maintenance_model->insertFunction($insertDataE, $auditTablee);
+        $insertDataE2 = array(
+          'FirstName' => 'Myrna',
+          'LastName' => 'Biliber',
+          'EmployeeNumber' => '000002',
+          'Nationality' => 1,
+          'Sex' => 1,
+          'CivilStatus' => 1,
+          'Salutation' => 3,
+          'PositionId' => 1,
+          'ManagerId' => 1,
+          'StatusId' => 2,
+        );
+        $auditTablee2 = 'r_employee';
+        $this->maintenance_model->insertFunction($insertDataE2, $auditTablee2);
+      // branch has employee
+        $insertDataBHE = array(
+          'EmployeeNumber' => '000000',
+          'BranchId' => 1,
+        );
+        $auditTableBHE = 'branch_has_employee';
+        $insertDataBHE2 = array(
+          'EmployeeNumber' => '000002',
+          'BranchId' => 1,
+          'ManagerBranchId' => 1,
+        );
+        $this->maintenance_model->insertFunction($insertDataBHE, $auditTableBHE);
+        $this->maintenance_model->insertFunction($insertDataBHE2, $auditTableBHE);
+      // branch has manager
+        $insertDataBHE3 = array(
+          'EmployeeNumber' => '000002',
+          'BranchId' => 1,
+        );
+        $auditTableBHE3 = 'branch_has_manager';
+        $this->maintenance_model->insertFunction($insertDataBHE3, $auditTableBHE3);
+      // r_loanundertaking
+        $insertDataLU = array(
+          'Description' => 'I hereby certify that all information herein, including all documents submitted along with this application, are genuine, true and correct. I authorize the Creditor and / or its representative to verify any and all information furnished by me, including any credit credit transactions with other institutions.',
+          'BranchId' => 1,
+        );
+        $auditTableLU = 'r_loanundertaking';
+        $this->maintenance_model->insertFunction($insertDataLU, $auditTableLU);
+      // // r_repaymentcycle
+      //   $insertDataRC = array(
+      //     'Type' => 'Daily',
+      //     'Type' => 'Weekly',
+      //     'Type' => 'Monthly',
+      //     'Type' => 'Yearly',
+      //     'Type' => 'Lump Sum',
+      //     'Type' => 'Dates',
+      //   );
+      //   $auditTableRC = 'r_repaymentcycle';
+      //   $this->maintenance_model->insertFunction($insertDataRC, $auditTableBS);
+      // r_userrole
+        $insertDataUR = array(
+          'EmployeeNumber' => '000000',
+          'IsNew' => 0,
+          'StatusId' => 1,
+        );
+        $auditTableUR = 'r_userrole';
+        $this->maintenance_model->insertFunction($insertDataUR, $auditTableUR);
+        $set = array( 
+          'Password' => 'LookingGood!',
+        );
+        $condition = array( 
+          'EmployeeNumber' => '000000'
+        );
+        $table = 'r_userrole';
+        $this->maintenance_model->updateFunction1($set, $condition, $table);
+
+        $employeeRoles = $this->employee_model->getSubmodules();
+        foreach ($employeeRoles as $roles) 
+        {
+          $insertData = array(
+            'EmployeeNumber'              => '000000'
+            , 'StatusId'                  => 1
+            , 'SubModuleId'               => $roles['SubModuleId']
+            , 'Code'                      => $roles['Code']
+            , 'ModuleId'                  => $roles['ModuleId']
+          );
+          $insertTable = 'R_UserAccess';
+          $this->maintenance_model->insertFunction($insertData, $insertTable);
+        }
+        // for owner
+        $insertDataUR2 = array(
+          'EmployeeNumber' => '000002',
+          'IsNew' => 1,
+          'StatusId' => 1,
+        );
+        $auditTableUR2 = 'r_userrole';
+        $this->maintenance_model->insertFunction($insertDataUR2, $auditTableUR2);
+        $set2 = array( 
+          'Password' => '000002',
+        );
+        $condition2 = array( 
+          'EmployeeNumber' => '000002'
+        );
+        $table2 = 'r_userrole';
+        $this->maintenance_model->updateFunction1($set2, $condition2, $table2);
+
+        $employeeRoles = $this->employee_model->getSubmodules();
+        foreach ($employeeRoles as $roles) 
+        {
+          $insertData = array(
+            'EmployeeNumber'              => '000002'
+            , 'StatusId'                  => 1
+            , 'SubModuleId'               => $roles['SubModuleId']
+            , 'Code'                      => $roles['Code']
+            , 'ModuleId'                  => $roles['ModuleId']
+          );
+          $insertTable = 'R_UserAccess';
+          $this->maintenance_model->insertFunction($insertData, $insertTable);
+        }
+      // notification
+        $this->session->set_flashdata('alertTitle','Success!'); 
+        $this->session->set_flashdata('alertText','System successfully truncated!'); 
+        $this->session->set_flashdata('alertType','success'); 
+      
+        redirect(site_url());
+    }
+    else
+    {
+      // notification
+        $this->session->set_flashdata('alertTitle','Warning!'); 
+        $this->session->set_flashdata('alertText','You have no access to reset database!'); 
+        $this->session->set_flashdata('alertType','warning'); 
+      
+        redirect('home/branchDatabase/');
+    }
   }
 
   function ResetPassword()
@@ -3382,14 +3458,10 @@ class admin_controller extends CI_Controller {
       $table = 'r_userrole';
       $this->maintenance_model->updateFunction1($set, $condition, $table);
 
-    // audits
-      $auditDetail = 'Changed password.';
-      $insertData = array(
-        'Description' => $auditDetail,
-        'CreatedBy' => $EmployeeNumber
-      );
-      $auditTable = 'R_Logs';
-      $this->maintenance_model->insertFunction($insertData, $auditTable);
+    // admin audits finalss
+      $auditLogsManager = 'Changed password.';
+      $auditAffectedEmployee = 'Changed password.';
+      $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
     // notification
       $this->session->set_flashdata('alertTitle','Success!'); 
       $this->session->set_flashdata('alertText','Password successfully changed!'); 
@@ -3616,5 +3688,81 @@ class admin_controller extends CI_Controller {
       $auditLoanApplicationTable = $independentTable;
       $this->maintenance_model->insertFunction($insertApplicationLog, $auditLoanApplicationTable);
     }
+  }
+
+  function generateReport()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+    // set default monospaced font
+    $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+    // set default header data
+    $pdf->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, 'M.C Biliber Lending Corporation', "Report Generation");
+    // set margins
+    $pdf->SetMargins('10', '20', '10');
+    $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+    $pdf->SetFont('dejavusans', '', 10);
+
+    $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
+    $DateNow = date("m-d-Y");
+    
+    $pdf->AddPage('L', 'A4');
+    $branchName = $this->maintenance_model->selectSpecific('R_Branches', 'BranchId', $this->session->userdata('BranchId'));
+
+    $html = '
+      <style>
+      table {
+        border-collapse: collapse;
+      }
+
+      table, td, th {
+        border: 1px solid black;
+      }
+
+      p {
+        text-align: center;
+        font-size: 15px;
+      }
+      </style>
+
+      <p>History Logs<br><small>'.$branchName['Name'].' Branch</small></p>
+
+      <br>
+      <br>
+      ';
+      $logs = $this->admin_model->getAuditLogs();
+      $html .='
+      <table>
+        <tr>
+        <td><strong>Row No.</strong></td>
+        <td><strong>Description</strong></td>
+        <td><strong>Remarks</strong></td>
+        <td><strong>Date Created</strong> </td>
+        <td><strong>Created By</strong></td>
+        </tr>
+        <tbody>';
+          $rowNumber = 0;
+          foreach ($logs as $value)
+          {
+            $rowNumber = $rowNumber + 1;
+            $html .='<tr>';
+            $html .='<td>'.$rowNumber.'</td>';
+            $html .='<td>'.$value['Description'].'</td>';
+            $html .='<td>'.$value['Remarks'].'</td>';
+            $html .='<td>'.$value['DateCreated'].'</td>';
+            $html .='<td>'.$value['Name'].'</td>';
+            $html .='</tr>';
+          }
+        $html .= '
+        <tbody>
+      </table>
+      <br><br>
+      <br><br>
+    ';
+    $pdf->writeHTML($html, true, false, true, false, '');
+
+    // Close and output PDF document
+    // $pdf->Output('Borrower Data.pdf', 'I');
+    $pdf->Output('History Logs.pdf', 'D');
   }
 }

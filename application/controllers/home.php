@@ -203,7 +203,7 @@ class home extends CI_Controller {
 
 	function AddRequirement()
 	{
-		$sidebar['sidebar'] = "SystemSetup";
+		$sidebar['sidebar'] = "Loans";
 		$sidebar['sidebarMenu'] = 'Requirements';
 		$header['header'] = 'Requirements';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();

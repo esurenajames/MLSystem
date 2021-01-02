@@ -211,6 +211,7 @@ class loanapplication_controller extends CI_Controller {
                 'Amount'            => $_POST['chargeTotal'][$chargeRow],
                 'Description'       => 'Payment for ' . $charge['Name'],
                 'AmountPaid'        => $_POST['chargeTotal'][$chargeRow],
+                'PaymentMethod'     => 1,
                 'IsInterest'        => 0,
                 'IsOthers'          => 1,
                 'IsPrincipalCollection' => 0,
@@ -431,15 +432,13 @@ class loanapplication_controller extends CI_Controller {
             $this->maintenance_model->insertFunction($insertDataPR, $insertTablePR);
           }
         }
+    // admin audits finals
+      $transNo = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $this->uri->segment(3));
+      $auditLogsManager = 'Created loan application #'.$TransactionNumber.'.';
+      $auditAffectedEmployee = 'Created loan application #'.$TransactionNumber.'.';
+      $auditAffectedTable = 'Created loan application.';
+      $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId');
     // notifications
-    // history
-      $insertData = array(
-        'ApplicationId'             => $generatedId['ApplicationId'],
-        'Description'               => 'Created loan application.',
-        'CreatedBy'                 => $EmployeeNumber
-      );
-      $auditTable = 'application_has_notifications';
-      $this->maintenance_model->insertFunction($insertData, $auditTable);
       $this->session->set_flashdata('alertTitle','Success!'); 
       $this->session->set_flashdata('alertText','Successfully submitted loan application!'); 
       $this->session->set_flashdata('alertType','success'); 
@@ -2518,6 +2517,7 @@ class loanapplication_controller extends CI_Controller {
             'AmountPaid'        => $_POST['Amount'],
             'IsOthers'          => isset($_POST['chkPayment3'][0]),
             'ChangeId'          => $_POST['ChangeMethod'],
+            'PaymentMethod'     => $_POST['PaymentMethod'],
             'DateCollected'     => $varDateCollected,
             'PaymentDate'       => $varDatePayment,
             'CreatedBy'         => $EmployeeNumber
@@ -2537,6 +2537,7 @@ class loanapplication_controller extends CI_Controller {
             'PrincipalAmount'   => $_POST['PrincipalAmountCollected'],
             'ChangeId'          => $_POST['ChangeMethod'],
             'ChangeAmount'      => $_POST['ChangeAmount'],
+            'PaymentMethod'     => $_POST['PaymentMethod'],
             'DateCollected'     => $varDateCollected,
             'PaymentDate'       => $varDatePayment,
             'CreatedBy'         => $EmployeeNumber
@@ -4180,8 +4181,8 @@ class loanapplication_controller extends CI_Controller {
       $pdf->writeHTML($html, true, false, true, false, '');
 
       // Close and output PDF document
-      $pdf->Output('Income Statement.pdf', 'I');
-      // $pdf->Output('Income Statement.pdf', 'D');
+      // $pdf->Output('Income Statement.pdf', 'I');
+      $pdf->Output('Income Statement.pdf', 'D');
     }
   }
 

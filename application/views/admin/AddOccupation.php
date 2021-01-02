@@ -1,85 +1,94 @@
-
-<!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
-  <!-- Content Header (Page header) -->
-  <section class="content-header">
-    <h1>
-      Occupations
-    </h1>
-    <ol class="breadcrumb">
-      <li><a href="http://localhost/ELendingTool/home/Dashboard" class="active"><i class="fa fa-dashboard"></i>Dashboard</a></li>
-      <li><a href="#">System Setup</a></li>
-      <li><a href="#">Occupations</a></li>
-    </ol>
-  </section>
 
+  <?php if(in_array('27', $subModule)) { ?>
+    <section class="content-header">
+      <h1>
+        Occupations
+      </h1>
+      <ol class="breadcrumb">
+        <li><a href="http://localhost/ELendingTool/home/Dashboard" class="active"><i class="fa fa-dashboard"></i>Dashboard</a></li>
+        <li><a href="#">System Setup</a></li>
+        <li><a href="#">Occupations</a></li>
+      </ol>
+    </section>
 
-  <div class="modal fade" id="modalNewOccupation">
-    <div class="modal-dialog modal-md">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">Occupation Details</h4>
+    <div class="modal fade" id="modalNewOccupation">
+      <div class="modal-dialog modal-md">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Occupation Details</h4>
+          </div>
+          <form action="<?php echo base_url(); ?>admin_controller/AddOccupation/" id="frmInsert2" method="post">
+            <div class="modal-body">
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label for="Optional">Name</label><br>
+                      <input type="text" class="form-control" id="txtOccupation" name="Occupation">
+                      <input type="hidden" class="form-control" id="txtFormType" name="FormType" value="1">
+                      <input type="hidden" class="form-control" id="txtOccupationId" name="OccupationId">
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label for="Description">Description</label>
+                      <textarea type="text" class="form-control" id="txtDescription" name="Description" placeholder="Description"></textarea>
+                    </div>
+                  </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+          </form>
         </div>
-        <form action="<?php echo base_url(); ?>admin_controller/AddOccupation/" id="frmInsert2" method="post">
-          <div class="modal-body">
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label for="Optional">Name</label><br>
-                    <input type="text" class="form-control" id="txtOccupation" name="Occupation">
-                    <input type="hidden" class="form-control" id="txtFormType" name="FormType" value="1">
-                    <input type="hidden" class="form-control" id="txtOccupationId" name="OccupationId">
-                  </div>
-                </div>
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label for="Description">Description</label>
-                    <textarea type="text" class="form-control" id="txtDescription" name="Description" placeholder="Description"></textarea>
-                  </div>
-                </div>
-              </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary">Submit</button>
-          </div>
-        </form>
+        <!-- /.modal-content -->
       </div>
-      <!-- /.modal-content -->
+      <!-- /.modal-dialog -->
     </div>
-    <!-- /.modal-dialog -->
-  </div>
 
-  <section class="content">
-    <div class="box">
-      <div class="box-header with-border">
-        <h3 class="box-title">List of Occupations</h3>
+    <section class="content">
+      <div class="box">
+        <div class="box-header with-border">
+          <h3 class="box-title">List of Occupations</h3>
+        </div>
+        <div class="box-body">
+          <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewOccupation">Add Occupation</button>
+          <br>
+          <br>
+          <form name="ApproverDocForm" method="post" id="ApproverDocForm">
+            <table id="example1" class="table table-bordered table-hover">
+              <thead>
+              <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Date Created</th>
+                <th>Date Updated</th>
+                <th>Action</th>
+              </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </form>
+        </div>
       </div>
-      <div class="box-body">
-        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewOccupation">Add Occupation</button>
-        <br>
-        <br>
-        <form name="ApproverDocForm" method="post" id="ApproverDocForm">
-          <table id="example1" class="table table-bordered table-hover">
-            <thead>
-            <tr>
-              <th>Name</th>
-              <th>Description</th>
-              <th>Status</th>
-              <th>Date Created</th>
-              <th>Date Updated</th>
-              <th>Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            </tbody>
-          </table>
-        </form>
+    </section>
+
+  <?php } else { ?>
+    <br>
+    <br>
+    <div class="col-md-12">
+      <div class="callout callout-danger">
+        <h4>You have no access to this module!</h4>
+        <p>Please contact your admin to request for access!</p>
       </div>
     </div>
-  </section>
+  <?php } ?>
 </div>
 
 <footer class="main-footer">

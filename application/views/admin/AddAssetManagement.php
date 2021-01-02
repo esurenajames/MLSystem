@@ -1,221 +1,222 @@
-
-<!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
-  <!-- Content Header (Page header) -->
-  <section class="content-header">
-    <h1>
-      Asset Management
-    </h1>
-    <ol class="breadcrumb">
-      <li><a href="#" class="active"><i class="fa fa-dashboard"></i>Asset Management</a></li>
-      <li><a href="#">Asset Dashboard</a></li>
-    </ol>
-  </section>
 
-  <div class="modal fade" id="modalNewTangible">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">Asset Details</h4>
-        </div>
-        <form action="<?php echo base_url(); ?>admin_controller/AddAssetManagement/" class="modalReset"  id="frmInsert2" method="post">
-          <div class="modal-body">
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="Asset">Type of Asset</label><br>
-                    <select class="form-control" style="width: 100%" name="AssetType" id="selectType">
-                      <option value="1">Tangible</option>
-                      <option value="0">Intangible</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="Asset">Asset Category</label><br>
-                    <select class="form-control" style="width: 100%" name="CategoryId" id="SelectCategory">
-                    <?php
-                      echo $Category;
-                    ?>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label>Asset Name</label>
-                    <input type="text" class="form-control" id="txtAssetName" name="AssetName" placeholder="Asset Name">
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="Stock">Stock</label>
-                    <input type="number" class="form-control" id="txtStock" name="Stock" placeholder="Stocks">
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>Critical Level</label>
-                    <input type="number" class="form-control" id="txtCriticalLevel" name="CriticalLevel" placeholder="Critical Level">
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="Asset">Purchase Price</label><br>
-                    <input type="number" class="form-control" style="width: 100%" name="PurchasePrice" id="txtPurchasePrice" placeholder="0.00">
-                    <input type="hidden" name="FormType" id="txtFormType" value="1">
-                    <input type="hidden" name="AssetManagementId" id="txtAssetManagementId">
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="Asset">Replacement Value</label><br>
-                    <input type="number" class="form-control" style="width: 100%" name="ReplacementValue" id="txtReplacementValue" placeholder="0.00">
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="Asset">Serial Number</label><br>
-                    <input type="text" class="form-control" style="width: 100%" name="SerialNumber" id="txtSerialNumber" placeholder="XXXXXXXXXXXX">
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="Description">Vendor</label>
-                    <input type="text" class="form-control" id="txtBoughtFrom" name="BoughtFrom" placeholder="Vendor Name">
-                  </div>
-                </div>
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label for="Branch">Company Branch</label><br>
-                    <select class="form-control" style="width: 100%" name="BranchId" id="SelectBranch" onchange="selectEmployees(this.value)">
-                    <?php
-                      echo $Branch;
-                    ?>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label>Assigned To</label><br>
-                    <select class="form-control" style="width: 100%" name="AssignedTo" id="selectAssignedTo">
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label for="Description">Description</label>
-                    <textarea type="text" class="form-control" id="txtDescription" name="Description" placeholder="Description"></textarea>
-                  </div>
-                </div>
-              </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary">Submit</button>
-          </div>
-        </form>
-      </div>
-      <!-- /.modal-content -->
-    </div>
-  </div>
+  <?php if(in_array('18', $subModule) || in_array('19', $subModule) || in_array('20', $subModule)) { ?>
 
-  <div class="modal fade" id="modalStocks">
-    <div class="modal-dialog modal-md">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="modalStockTitle"></h4>
-        </div>
-        <form action="<?php echo base_url(); ?>admin_controller/AddAssetManagement/" id="frmInsert2" class="modalReset" method="post">
-          <div class="modal-body">
-            <div class="row">
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label for="Asset">Current Stock</label>
-                  <h6 id="lblCurrentStock"></h6>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label> Stocks</label><br>
-                  <input type="number" name="stockNo" class="form-control" placeholder="No. of Stocks">
-                  <input type="hidden" name="stockType" id="txtStockType" class="form-control">
-                  <input type="hidden" name="FormType" class="form-control" value="3">
-                  <input type="hidden" name="assetId" id="txtAssetId" class="form-control" value="3">
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary">Submit</button>
-          </div>
-        </form>
-      </div>
-      <!-- /.modal-content -->
-    </div>
-  </div>
+    <input type="hidden" value="<?php print(in_array('18', $subModule))?>" id="txtAdd">
+    <input type="hidden" value="<?php print(in_array('19', $subModule))?>" id="txtEdit">
+    <input type="hidden" value="<?php print(in_array('20', $subModule))?>" id="txtRead">
+    <section class="content-header">
+      <h1>
+        Asset Management
+      </h1>
+      <ol class="breadcrumb">
+        <li><a href="#" class="active"><i class="fa fa-dashboard"></i>Asset Management</a></li>
+        <li><a href="#">Asset Dashboard</a></li>
+      </ol>
+    </section>
 
-    <!-- Main content -->
-    <section class="content">
-
-    <div class="modal fade" id="modalFilter">
+    <div class="modal fade" id="modalNewTangible">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title">Filter</h4>
+            <h4 class="modal-title">Asset Details</h4>
           </div>
-          <div class="modal-body">
-            <div class="row">
-              <div class="col-md-12">
-                <div class="form-group">
-                  <label>Status</label>
-                  <select class="form-control" id="selectStatus" required="">
-                    <option value="2">Active</option>
-                    <option value="6">Deactivated</option>
-                    <option value="3">Critical</option>
-                  </select>
+          <form action="<?php echo base_url(); ?>admin_controller/AddAssetManagement/" class="modalReset"  id="frmInsert2" method="post">
+            <div class="modal-body">
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="Asset">Type of Asset</label><br>
+                      <select class="form-control" style="width: 100%" name="AssetType" id="selectType">
+                        <option value="1">Tangible</option>
+                        <option value="0">Intangible</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="Asset">Asset Category</label><br>
+                      <select class="form-control" style="width: 100%" name="CategoryId" id="SelectCategory">
+                      <?php
+                        echo $Category;
+                      ?>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label>Asset Name</label>
+                      <input type="text" class="form-control" id="txtAssetName" name="AssetName" placeholder="Asset Name">
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="Stock">Stock</label>
+                      <input type="number" class="form-control" id="txtStock" name="Stock" placeholder="Stocks">
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>Critical Level</label>
+                      <input type="number" class="form-control" id="txtCriticalLevel" name="CriticalLevel" placeholder="Critical Level">
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="Asset">Purchase Price</label><br>
+                      <input type="number" class="form-control" style="width: 100%" name="PurchasePrice" id="txtPurchasePrice" placeholder="0.00">
+                      <input type="hidden" name="FormType" id="txtFormType" value="1">
+                      <input type="hidden" name="AssetManagementId" id="txtAssetManagementId">
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="Asset">Replacement Value</label><br>
+                      <input type="number" class="form-control" style="width: 100%" name="ReplacementValue" id="txtReplacementValue" placeholder="0.00">
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="Asset">Serial Number</label><br>
+                      <input type="text" class="form-control" style="width: 100%" name="SerialNumber" id="txtSerialNumber" placeholder="XXXXXXXXXXXX">
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="Description">Vendor</label>
+                      <input type="text" class="form-control" id="txtBoughtFrom" name="BoughtFrom" placeholder="Vendor Name">
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label for="Branch">Company Branch</label><br>
+                      <select class="form-control" style="width: 100%" name="BranchId" id="SelectBranch" onchange="selectEmployees(this.value)">
+                      <?php
+                        echo $Branch;
+                      ?>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label>Assigned To</label><br>
+                      <select class="form-control" style="width: 100%" name="AssignedTo" id="selectAssignedTo">
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label for="Description">Description</label>
+                      <textarea type="text" class="form-control" id="txtDescription" name="Description" placeholder="Description"></textarea>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div class="col-md-12">
-                <div class="form-group">
-                  <label>Asset Category</label>
-                  <select class="form-control" id="selectAssetCategory" required="">
-                    <?php 
-                      echo $Category;
-                    ?>
-                  </select>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+          </form>
+        </div>
+        <!-- /.modal-content -->
+      </div>
+    </div>
+
+    <div class="modal fade" id="modalStocks">
+      <div class="modal-dialog modal-md">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="modalStockTitle"></h4>
+          </div>
+          <form action="<?php echo base_url(); ?>admin_controller/AddAssetManagement/" id="frmInsert2" class="modalReset" method="post">
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="Asset">Current Stock</label>
+                    <h6 id="lblCurrentStock"></h6>
+                  </div>
                 </div>
-              </div>
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label>Purchase Range From</label>
-                  <input type="number" class="form-control" min="0" id="txtPurchaseRangeFrom">
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label>Purchase Range To</label>
-                  <input type="number" class="form-control" min="0" id="txtPurchaseRangeTo">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label> Stocks</label><br>
+                    <input type="number" name="stockNo" class="form-control" placeholder="No. of Stocks">
+                    <input type="hidden" name="stockType" id="txtStockType" class="form-control">
+                    <input type="hidden" name="FormType" class="form-control" value="3">
+                    <input type="hidden" name="assetId" id="txtAssetId" class="form-control" value="3">
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <a onclick="filterPage()" class="btn btn-primary">Submit</a>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+          </form>
+        </div>
+        <!-- /.modal-content -->
+      </div>
+    </div>
+
+    <section class="content">
+      <div class="modal fade" id="modalFilter">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">Filter</h4>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label>Status</label>
+                    <select class="form-control" id="selectStatus" required="">
+                      <option value="2">Active</option>
+                      <option value="6">Deactivated</option>
+                      <option value="3">Critical</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label>Asset Category</label>
+                    <select class="form-control" id="selectAssetCategory" required="">
+                      <?php 
+                        echo $Category;
+                      ?>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Purchase Range From</label>
+                    <input type="number" class="form-control" min="0" id="txtPurchaseRangeFrom">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Purchase Range To</label>
+                    <input type="number" class="form-control" min="0" id="txtPurchaseRangeTo">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <a onclick="filterPage()" class="btn btn-primary">Submit</a>
+            </div>
           </div>
         </div>
       </div>
-    </div>
       <div class="box">
         <div class="box-header with-border">
           <h3 class="box-title">List of Assets</h3>
@@ -223,7 +224,9 @@
         <div class="box-body">
           <div class="col-md-12">
             <div class="pull-right">
-              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalNewTangible">Add Record</button> 
+              <?php if(in_array('18', $subModule)) { ?>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalNewTangible">Add Record</button>
+              <?php }?>
               <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalFilter">Filter</button>
             </div>
             <br>
@@ -251,7 +254,16 @@
         </div>
       </div>
     </section>
-  <!-- /.content -->
+  <?php } else { ?>
+    <br>
+    <br>
+    <div class="col-md-12">
+      <div class="callout callout-danger">
+        <h4>You have no access to this module!</h4>
+        <p>Please contact your admin to request for access!</p>
+      </div>
+    </div>
+  <?php } ?>
 </div>
 <!-- /.content-wrapper -->
 
@@ -474,13 +486,24 @@
                     { data: "DateCreated" }, 
                     {
                       data: "StatusId", "render": function (data, type, row) {
-                      if(row.StatusId == 2){
-                          return '<a class="btn btn-sm btn-success" title="Add Stock" onclick="stockType('+row.currentStock+', 1, '+row.AssetManagementId+')" data-toggle="modal" data-target="#modalStocks"><span class="fa fa-plus-circle"></span></a> <a class="btn btn-sm btn-warning" title="Remove Stock" onclick="stockType('+row.currentStock+', 2, '+row.AssetManagementId+')" data-toggle="modal" data-target="#modalStocks"><span class="fa fa-minus-circle"></span></a> <a onclick="Edit('+row.AssetManagementId+')" data-toggle="modal" data-target="#modalNewTangible" class="btn btn-sm btn-info" title="View/Edit"><span class="fa fa-edit"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this Asset?\', \''+row.AssetManagementId+'\', 6)" class="btn btn-sm btn-danger" title="Deactivate"><span class="fa fa-close"></span></a> ';
+                        if($('#txtAdd').val() == 1 || $('#txtEdit').val() == 1)
+                        {
+                          if(row.StatusId == 2){
+                            return '<a class="btn btn-sm btn-success" title="Add Stock" onclick="stockType('+row.currentStock+', 1, '+row.AssetManagementId+')" data-toggle="modal" data-target="#modalStocks"><span class="fa fa-plus-circle"></span></a> <a class="btn btn-sm btn-warning" title="Remove Stock" onclick="stockType('+row.currentStock+', 2, '+row.AssetManagementId+')" data-toggle="modal" data-target="#modalStocks"><span class="fa fa-minus-circle"></span></a> <a onclick="Edit('+row.AssetManagementId+')" data-toggle="modal" data-target="#modalNewTangible" class="btn btn-sm btn-info" title="View/Edit"><span class="fa fa-edit"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this Asset?\', \''+row.AssetManagementId+'\', 6)" class="btn btn-sm btn-danger" title="Deactivate"><span class="fa fa-close"></span></a> ';
+                          }
+                          else if(row.StatusId == 6) {
+                            return '<a onclick="confirm(\'Are you sure you want to re-activate this Asset?\', \''+row.AssetManagementId+'\', 2)" class="btn btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
+                          }
+                          else{
+                            return "N/A";
+                          }
                         }
-                        else if(row.StatusId == 6) {
-                          return '<a onclick="confirm(\'Are you sure you want to re-activate this Asset?\', \''+row.AssetManagementId+'\', 2)" class="btn btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
+                        else if($('#txtRead').val() == 1)
+                        {
+                          return "N/A";
                         }
-                        else{
+                        else
+                        {
                           return "N/A";
                         }
                       }

@@ -54,7 +54,7 @@
                       <label for="exampleInputEmail1">Confirm Password</label>
                       <div class="form-group" id="colorSuccess2">
                         <label class="control-label" id="lblSuccess2" style="display: none" for="txtConfirmPassword"><i class="fa fa-check"></i></label>
-                        <input type="number" class="form-control" id="txtConfirmPassword" oninput="checkPasswordMatch(this.value);">
+                        <input type="password" class="form-control" id="txtConfirmPassword" oninput="checkPasswordMatch(this.value);">
                         <span id="successMessage2" style="display: none" class="help-block"></span>
                       </div>
                     </div>
@@ -111,7 +111,7 @@
               <?php
                 if($detail['FileName'] == null)
                 {
-                  echo '<img src="'.base_url().'/borrowerpicture/default.gif" class="profile-user-img img-responsive img-circle" alt="User Image" style="width: 100px">';
+                  echo '<img src="'.base_url().'/employeeupload/default.gif" class="profile-user-img img-responsive img-circle" alt="User Image" style="width: 100px">';
                 }
                 else
                 {
@@ -269,11 +269,11 @@
                 <table id="example2" width="100%" class="table table-bordered table-hover">
                   <thead>
                   <tr>
-                    <th>#</th>
+                    <th>Reference No</th>
                     <th>Description</th>
+                    <th>Created By</th>
                     <th>Date Created</th>
-                    <th>Created By</th>
-                    <th>Created By</th>
+                    <th>Date Created</th>
                   </tr>
                   </thead>
                   <tbody>
@@ -554,8 +554,8 @@
       "order": [[0, "desc"]]
     });
     $('#example2').DataTable({
-      // "aoColumnDefs": [{ "bVisible": false, "aTargets": [4] }],
-      "order": [[0, "desc"]]
+      "aoColumnDefs": [{ "bVisible": false, "aTargets": [4] }],
+      "order": [[4, "desc"]]
     });
   })
 </script>

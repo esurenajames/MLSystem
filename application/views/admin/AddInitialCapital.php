@@ -52,14 +52,14 @@
           <h3 class="box-title">List of Initial Capitals</h3>
         </div>
         <div class="box-body">
-          <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewCapital">Add New Capital</button>
+          <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewCapital">Add Record</button>
           <br>
           <br>
           <form name="ApproverDocForm" method="post" id="ApproverDocForm">
             <table id="example1" class="table table-bordered table-hover">
               <thead>
               <tr>
-                <th>#</th>
+                <th>Reference No.</th>
                 <th>Amount</th>
                 <th>Created By</th>
                 <th>Date Created</th>

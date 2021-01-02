@@ -1,83 +1,91 @@
-
-<!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
-  <!-- Content Header (Page header) -->
-  <section class="content-header">
-    <h1>
-      Types of Deposit
-    </h1>
-    <ol class="breadcrumb">
-      <li><a href="http://localhost/ELendingTool/home/Dashboard" class="active"><i class="fa fa-dashboard"></i>Dashboard</a></li>
-      <li><a href="#">System Setup</a></li>
-      <li><a href="#">Types of Deposit</a></li>
-    </ol>
-  </section>
+  <?php if(in_array('33', $subModule)) { ?>
 
+    <section class="content-header">
+      <h1>
+        Types of Deposit
+      </h1>
+      <ol class="breadcrumb">
+        <li><a href="http://localhost/ELendingTool/home/Dashboard" class="active"><i class="fa fa-dashboard"></i>Dashboard</a></li>
+        <li><a href="#">System Setup</a></li>
+        <li><a href="#">Types of Deposit</a></li>
+      </ol>
+    </section>
 
-  <div class="modal fade" id="modalNewWithdrawalType">
-    <div class="modal-dialog modal-md">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">Add Deposit Type</h4>
+    <div class="modal fade" id="modalNewWithdrawalType">
+      <div class="modal-dialog modal-md">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Add Deposit Type</h4>
+          </div>
+          <form action="<?php echo base_url(); ?>admin_controller/AddDepositType/" id="frmInsert2" method="post">
+            <div class="modal-body">
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label for="Asset">Name</label><br>
+                      <input type="Text" class="form-control" id="txtWithdrawalType" name="WithdrawalType">
+                      <input type="hidden" class="form-control"  id="txtFormType" name="FormType" value="1">
+                      <input type="hidden" class="form-control"  id="txtWithdrawalTypeId" name="WithdrawalTypeId" >
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label for="Description">Description</label><br>
+                      <textarea type="text" class="form-control" id="txtDescription" name="Description"></textarea> 
+                    </div>
+                  </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+          </form>
         </div>
-        <form action="<?php echo base_url(); ?>admin_controller/AddDepositType/" id="frmInsert2" method="post">
-          <div class="modal-body">
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label for="Asset">Name</label><br>
-                    <input type="Text" class="form-control" id="txtWithdrawalType" name="WithdrawalType">
-                    <input type="hidden" class="form-control"  id="txtFormType" name="FormType" value="1">
-                    <input type="hidden" class="form-control"  id="txtWithdrawalTypeId" name="WithdrawalTypeId" >
-                  </div>
-                </div>
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label for="Description">Description</label><br>
-                    <textarea type="text" class="form-control" id="txtDescription" name="Description"></textarea> 
-                  </div>
-                </div>
-              </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary">Submit</button>
-          </div>
-        </form>
+        <!-- /.modal-content -->
       </div>
-      <!-- /.modal-content -->
+      <!-- /.modal-dialog -->
     </div>
-    <!-- /.modal-dialog -->
-  </div>
 
-  <section class="content">
-    <div class="box">
-      <div class="box-header with-border">
+    <section class="content">
+      <div class="box">
+        <div class="box-header with-border">
+        </div>
+        <div class="box-body">
+          <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewWithdrawalType">Add Record</button>
+          <br>
+          <br>
+          <table id="example1" class="table table-bordered table-hover">
+            <thead>
+            <tr>
+              <th>#</th>
+              <th>Type</th>
+              <th>Description</th>
+              <th>Created By</th>
+              <th>Date Created</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </div>
       </div>
-      <div class="box-body">
-        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewWithdrawalType">Add Record</button>
-        <br>
-        <br>
-        <table id="example1" class="table table-bordered table-hover">
-          <thead>
-          <tr>
-            <th>#</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Created By</th>
-            <th>Date Created</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-          </thead>
-          <tbody>
-          </tbody>
-        </table>
+    </section>
+  <?php } else { ?>
+    <br>
+    <br>
+    <div class="col-md-12">
+      <div class="callout callout-danger">
+        <h4>You have no access to this module!</h4>
+        <p>Please contact your admin to request for access!</p>
       </div>
     </div>
-  </section>
+  <?php } ?>
 </div>
 
 <footer class="main-footer">

@@ -1,7 +1,6 @@
+<div class="content-wrapper">  
 
-<!-- Content Wrapper. Contains page content -->
-<div class="content-wrapper">
-  <!-- Content Header (Page header) -->
+  <?php if(in_array('37', $subModule)) { ?>
   <section class="content-header">
     <h1>
       Loan Types
@@ -12,7 +11,6 @@
       <li><a href="#">Loan Types</a></li>
     </ol>
   </section>
-
 
   <div class="modal fade" id="modalNewLoanType">
     <div class="modal-dialog modal-md">
@@ -25,7 +23,7 @@
         <form action="<?php echo base_url(); ?>admin_controller/AddLoanType/" id="frmInsert2" method="post">
           <div class="modal-body">
               <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-12">
                   <div class="form-group">
                     <label for="LoanType">Loan Type</label><br>
                     <input type="text" class="form-control" id="txtLoanType" name="LoanType">
@@ -58,14 +56,14 @@
         <h3 class="box-title">List of Loan Types</h3>
       </div>
       <div class="box-body">
-        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewLoanType">Add Loan Type</button>
+        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewLoanType">Add Record</button>
         <br>
         <br>
         <form name="ApproverDocForm" method="post" id="ApproverDocForm">
           <table id="example1" class="table table-bordered table-hover">
             <thead>
             <tr>
-              <th>#</th>
+              <th>Reference No</th>
               <th>Loan Type</th>
               <th>Description</th>
               <th>Status</th>
@@ -81,6 +79,17 @@
       </div>
     </div>
   </section>
+
+  <?php } else { ?>
+    <br>
+    <br>
+    <div class="col-md-12">
+      <div class="callout callout-danger">
+        <h4>You have no access to this module!</h4>
+        <p>Please contact your admin to request for access!</p>
+      </div>
+    </div>
+  <?php } ?>
 </div>
 
 <footer class="main-footer">
@@ -225,10 +234,11 @@
                     {
                       data: "StatusId", "render": function (data, type, row) {
                       if(row.StatusId == 1){
-                          return '<a onclick="confirm(\'Are you sure you want to deactivate this Loan Type?\', \''+row.LoanId+'\', 0)" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a> <a onclick="Edit('+row.LoanId+')" data-toggle="modal" data-target="#modalNewLoanType" class="btn btn-info" title="Edit"><span class="fa fa-edit"></span></a>';
+                          return '<a onclick="confirm(\'Are you sure you want to deactivate this loan type?\', \''+row.LoanId+'\', 0)" class="btn btn-sm btn-danger" title="Deactivate"><span class="fa fa-close"></span></a>';
+                           // <a onclick="Edit('+row.LoanId+')" data-toggle="modal" data-target="#modalNewLoanType" class="btn btn-info" title="Edit"><span class="fa fa-edit"></span></a>
                         }
                         else if(row.StatusId == 0){
-                          return '<a onclick="confirm(\'Are you sure you want to re-activate this Loan Type?\', \''+row.LoanId+'\', 1)" class="btn btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
+                          return '<a onclick="confirm(\'Are you sure you want to re-activate this loan type?\', \''+row.LoanId+'\', 1)" class="btn btn-sm btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
                         }
                         else{
                           return "N/A";

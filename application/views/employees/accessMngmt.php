@@ -22,7 +22,7 @@
           <h3 class="box-title">Access Rights for <?php print_r($Detail['Name']) ?> <br> (<?php print_r($Detail['EmployeeNumber']) ?>)</h3>
         </div>
         <div class="box-body">
-          <form autocomplete="off" action="<?php echo base_url(); ?>employee_controller/accessmanagement/<?php print_r($Detail['EmployeeId']) ?>" id="frmInsert2" method="post">
+          <form autocomplete="off" action="<?php echo base_url(); ?>employee_controller/accessmanagement/<?php print_r($Detail['EmployeeId']) ?>" id="frmInsert" method="post">
             <table  id="example1" class="table table-bordered table-hover">
               <tr>
                 <th>Module</th>
@@ -92,6 +92,32 @@
 <?php $this->load->view('includes/footer'); ?>
 
 <script>
+  if("<?php print_r($this->session->flashdata('alertTitle')) ?>" != '')
+  {
+    swal({
+      title: '<?php print_r($this->session->flashdata('alertTitle')) ?>',
+      text: '<?php print_r($this->session->flashdata('alertText')) ?>',
+      type: '<?php print_r($this->session->flashdata('alertType')) ?>',
+      buttonsStyling: false,
+      confirmButtonClass: 'btn btn-primary'
+    });
+  }
+
+  $("#frmInsert").on('submit', function (e) {
+      e.preventDefault(); 
+      swal({
+        title: 'Confirm',
+        text: 'Are you sure want to give access to user?',
+        type: 'info',
+        showCancelButton: true,
+        buttonsStyling: false,
+        confirmButtonClass: 'btn btn-success',
+        confirmButtonText: 'Confirm',
+        cancelButtonClass: 'btn btn-secondary'
+      }).then(function(){
+        e.currentTarget.submit();
+      });
+  });
 
   function chkSelected(rowNo, SubModuleId)
   {

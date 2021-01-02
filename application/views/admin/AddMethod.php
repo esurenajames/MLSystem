@@ -25,7 +25,7 @@
         <form action="<?php echo base_url(); ?>admin_controller/AddMethod/" id="frmInsert2" method="post">
           <div class="modal-body">
               <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-12">
                   <div class="form-group">
                     <label for="Method">Mode Name</label><br>
                     <input type="text" class="form-control" id="txtMethod" name="Method">
@@ -58,19 +58,17 @@
         <h3 class="box-title">List of Modes of Payment</h3>
       </div>
       <div class="box-body">
-        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewMethod">Add Mode of Payment</button>
+        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewMethod">Add Record</button>
         <br>
         <br>
         <form name="ApproverDocForm" method="post" id="ApproverDocForm">
           <table id="example1" class="table table-bordered table-hover">
             <thead>
             <tr>
-              <th>#</th>
+              <th>Reference No</th>
               <th>Mode</th>
-              <th>Description</th>
               <th>Status</th>
               <th>Date Created</th>
-              <th>Date Updated</th>
               <th>Action</th>
             </tr>
             </thead>
@@ -206,7 +204,6 @@
       "ajax": { url: '<?php echo base_url()."/datatables_controller/Methods/"; ?>', type: 'POST', "dataSrc": "" },
       "columns": [  { data: "ReferenceNo" }
                     , { data: "Method" }
-                    , { data: "Description" }
                     , {
                       data: "StatusId", "render": function (data, type, row) {
                         if(row.StatusId == 1){
@@ -221,14 +218,16 @@
                       }
                     },
                     { data: "DateCreated" }, 
-                    { data: "DateUpdated" }, 
                     {
                       data: "StatusId", "render": function (data, type, row) {
                       if(row.StatusId == 1){
-                          return '<a onclick="confirm(\'Are you sure you want to deactivate this Method of Payment?\', \''+row.MethodId+'\', 0)" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a> <a onclick="Edit('+row.MethodId+')" data-toggle="modal" data-target="#modalNewMethod" class="btn btn-info" title="Edit"><span class="fa fa-edit"></span></a>';
+                          return '<a onclick="confirm(\'Are you sure you want to deactivate this method of payment?\', \''+row.DisbursementId+'\', 0)" class="btn btn-sm btn-danger" title="Deactivate"><span class="fa fa-close"></span></a>';
+
+                           // <a onclick="Edit('+row.MethodId+')" data-toggle="modal" data-target="#modalNewMethod" class="btn btn-info" title="Edit"><span class="fa fa-edit"></span></a>
                         }
                         else if(row.StatusId == 0){
-                          return '<a onclick="confirm(\'Are you sure you want to re-activate this Method of Payment?\', \''+row.MethodId+'\', 1)" class="btn btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
+                          return 'N/A';
+                          // <a onclick="confirm(\'Are you sure you want to re-activate this Method of Payment?\', \''+row.MethodId+'\', 1)" class="btn btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>
                         }
                         else{
                           return "N/A";

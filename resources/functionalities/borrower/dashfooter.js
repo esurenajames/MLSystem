@@ -164,14 +164,6 @@
     }
   })
 
-
-
-
-
-
-
-
-
  // delete pababa
 
 
@@ -285,6 +277,22 @@
       success: function(data)
       {
         $('#selectProvince').html(data);
+      }
+    })
+  }
+
+  function changeRegion2(RegionId)
+  {
+    $.ajax({
+      url: baseUrl + "/admin_controller/getProvinces",
+      method: "POST",
+      data: { RegionId : RegionId },
+      beforeSend: function(){
+        $('.loading').show();
+      },
+      success: function(data)
+      {
+        $('#selectProvince2').html(data);
       }
     })
   }

@@ -1,7 +1,6 @@
-
-<!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
-  <!-- Content Header (Page header) -->
+
+  <?php if(in_array('11', $subModule)) { ?>
   <section class="content-header">
     <h1>
       Loan Collection
@@ -14,102 +13,109 @@
     </ol>
   </section>
 
-    <!-- Main content -->
-    <section class="content">
-      <div class="box">
-        <div class="box-header with-border">
-          <h3 class="box-title">Generate Loan Collections</h3>
-        </div>
-        <div class="box-body">
-          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/generateReport/1" method="post" enctype="multipart/form-data">
-            <div class="modal-body">
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label>Report Columns</label>
-                      <select class="form-control select2" name="columnNames[]" style="width: 100%;" multiple="">
-                        <option selected="">Loan Date</option>
-                        <option selected="">Application No.</option>
-                        <option selected="">Borrower Name</option>
-                        <option>Principal Per Collection</option>
-                        <option>Interest Per Collection</option>
-                        <option>Other Collections</option>
-                        <option selected="">Amount Paid</option>
-                        <option selected="">Change</option>
-                        <option selected="">Repayment Date</option>
-                        <option selected="">Penalty</option>
-                        <option selected="">Collected By</option>
-                        <option selected="">Collection Date</option>
-                        <option selected="">Creation Date</option>
-                      </select>
-                  </div>
-                </div>
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label>Report Name</label>
-                    <input type="text" class="form-control" value="Loan Collections" name="reportName">
-                  </div>
-                </div>
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label>Employee Name</label>
-                    <select name="employeeReport[]" required="" multiple="" class="form-control select2" id="selectEmployeeReport" style="width: 100%" id="selectEmployee3">
-                      <?php 
-                        echo '<option value="All">All</option>';
-                        foreach ($employee as $value) 
-                        {
-                          echo '<option value="'.$value['EmployeeNumber'].'">'.$value['Name'].'</option>';
-                        }
-                      ?>
+  <section class="content">
+    <div class="box">
+      <div class="box-header with-border">
+        <h3 class="box-title">Generate Loan Collections</h3>
+      </div>
+      <div class="box-body">
+        <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/generateReport/1" method="post" enctype="multipart/form-data">
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>Report Columns</label>
+                    <select class="form-control select2" name="columnNames[]" style="width: 100%;" multiple="">
+                      <option selected="">Loan Date</option>
+                      <option selected="">Application No.</option>
+                      <option selected="">Borrower Name</option>
+                      <option>Principal Per Collection</option>
+                      <option>Interest Per Collection</option>
+                      <option>Other Collections</option>
+                      <option selected="">Amount Paid</option>
+                      <option selected="">Change</option>
+                      <option selected="">Repayment Date</option>
+                      <option selected="">Penalty</option>
+                      <option selected="">Collected By</option>
+                      <option selected="">Collection Date</option>
+                      <option selected="">Creation Date</option>
                     </select>
-                  </div>
                 </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>Date From</label>
-                    <div class="input-group date">
-                      <div class="input-group-addon">
-                        <i class="fa fa-calendar"></i>
-                      </div>
-                      <input type="text" placeholder="Date Collected" class="form-control" name="DateFrom" required="" id="dateFrom">
-                    </div>
-                  </div>
+              </div>
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>Report Name</label>
+                  <input type="text" class="form-control" value="Loan Collections" name="reportName">
                 </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>Date To</label>
-                    <div class="input-group date">
-                      <div class="input-group-addon">
-                        <i class="fa fa-calendar"></i>
-                      </div>
-                      <input type="text" placeholder="Date Collected" class="form-control" name="DateTo" required="" id="dateTo">
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <label>Verified By</label>
-                  <select name="verifiedBy" required="" class="form-control"style="width: 100%"  id="selectEmployee">
-                  </select>
-                </div>
-                <div class="col-md-6">
-                  <label>Approved By</label>
-                  <select name="approvedBy" required="" class="form-control"style="width: 100%"  id="selectEmployee2">
+              </div>
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>Employee Name</label>
+                  <select name="employeeReport[]" required="" multiple="" class="form-control select2" id="selectEmployeeReport" style="width: 100%" id="selectEmployee3">
+                    <?php 
+                      echo '<option value="All">All</option>';
+                      foreach ($employee as $value) 
+                      {
+                        echo '<option value="'.$value['EmployeeNumber'].'">'.$value['Name'].'</option>';
+                      }
+                    ?>
                   </select>
                 </div>
               </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Date From</label>
+                  <div class="input-group date">
+                    <div class="input-group-addon">
+                      <i class="fa fa-calendar"></i>
+                    </div>
+                    <input type="text" placeholder="Date Collected" class="form-control" name="DateFrom" required="" id="dateFrom">
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Date To</label>
+                  <div class="input-group date">
+                    <div class="input-group-addon">
+                      <i class="fa fa-calendar"></i>
+                    </div>
+                    <input type="text" placeholder="Date Collected" class="form-control" name="DateTo" required="" id="dateTo">
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label>Verified By</label>
+                <select name="verifiedBy" required="" class="form-control"style="width: 100%"  id="selectEmployee">
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label>Approved By</label>
+                <select name="approvedBy" required="" class="form-control"style="width: 100%"  id="selectEmployee2">
+                </select>
+              </div>
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button class="btn btn-primary" type="submit">Submit</button>
-            </div>
-          </form>
-        </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button class="btn btn-primary" type="submit">Submit</button>
+          </div>
+        </form>
       </div>
-    </section>
-  <!-- /.content -->
-</div>
-<!-- /.content-wrapper -->
+    </div>
+  </section>
 
+  <?php } else { ?>
+    <br>
+    <br>
+    <div class="col-md-12">
+      <div class="callout callout-danger">
+        <h4>You have no access to this module!</h4>
+        <p>Please contact your admin to request for access!</p>
+      </div>
+    </div>
+  <?php } ?>
+</div>
 <footer class="main-footer">
   <div class="pull-right hidden-xs">
     <b>Version</b> 1.0.0

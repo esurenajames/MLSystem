@@ -64,8 +64,15 @@ class LMS extends CI_Controller {
 	      	, 'CreatedBy' => $_POST["txtUsername"]
 	      	, 'EmployeeNumber' => $result[0]['EmployeeNumber']
 	      );
+
+	      $data3 = array(
+	      	'Description' => 'Logged in.'
+	      	, 'CreatedBy' => $result[0]['EmployeeNumber']
+	      	, 'ManagerBranchId' => $result[0]['ManagerId']
+	      );
 	      $this->access->audit($data, 1);
 	      $this->access->audit($data2, 2);
+	      $this->access->audit($data3, 3);
 
 				redirect('home/Dashboard');
 			}
@@ -81,12 +88,7 @@ class LMS extends CI_Controller {
 		}
 		else /*if($_POST["btnProcess"] == 3)*/ // log out
 		{
-			if($this->session->userdata('EmployeeNumber') === '' || !empty($this->session->userdata('EmployeeNumber')))
-			{
-	     	$this->session->set_flashdata('error','Session expired.'); 
-	   		redirect(site_url());
-			}
-			else
+			if($_POST["btnProcess"] == 3)
 			{
 	     	$this->session->set_flashdata('logout','Account successfully logged out.'); 
 	      $data = array(
@@ -99,12 +101,24 @@ class LMS extends CI_Controller {
 	      	, 'CreatedBy' => $this->session->userdata('EmployeeNumber')
 	      	, 'EmployeeNumber' => $this->session->userdata('EmployeeNumber')
 	      );
+
+	      $data3 = array(
+	      	'Description' => 'Logged out.'
+	      	, 'CreatedBy' => $this->session->userdata('EmployeeNumber')
+	      	, 'ManagerBranchId' => $this->session->userdata('ManagerId')
+	      );
 	      $this->access->audit($data, 1);
 	      $this->access->audit($data2, 2);
+	      $this->access->audit($data3, 3);
 	      $loginSession = array(
 	        'logged_in' => 0,
 	      );
 	      $this->session->set_userdata($loginSession);
+	   		redirect(site_url());
+			}
+			else if($this->session->userdata('EmployeeNumber') === '' || !empty($this->session->userdata('EmployeeNumber')))
+			{
+	     	$this->session->set_flashdata('error','Session expired.'); 
 	   		redirect(site_url());
 			}
 		}

@@ -1,89 +1,96 @@
-
-<!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
-  <!-- Content Header (Page header) -->
-  <section class="content-header">
-    <h1>
-      Purposes
-    </h1>
-    <ol class="breadcrumb">
-      <li><a href="http://localhost/ELendingTool/home/Dashboard" class="active"><i class="fa fa-dashboard"></i>Dashboard</a></li>
-      <li><a href="#">System Setup</a></li>
-      <li><a href="#">Purposes</a></li>
-    </ol>
-  </section>
+  <?php if(in_array('36', $subModule)) { ?>
+    <section class="content-header">
+      <h1>
+        Purposes
+      </h1>
+      <ol class="breadcrumb">
+        <li><a href="http://localhost/ELendingTool/home/Dashboard" class="active"><i class="fa fa-dashboard"></i>Dashboard</a></li>
+        <li><a href="#">System Setup</a></li>
+        <li><a href="#">Purposes</a></li>
+      </ol>
+    </section>
 
-
-  <div class="modal fade" id="modalNewPurpose">
-    <div class="modal-dialog modal-md">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">Purpose Details</h4>
+    <div class="modal fade" id="modalNewPurpose">
+      <div class="modal-dialog modal-md">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Purpose Details</h4>
+          </div>
+          <form action="<?php echo base_url(); ?>admin_controller/AddPurpose/" id="frmInsert2" method="post">
+            <div class="modal-body">
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label for="Purpose">Purpose Name</label><br>
+                      <input type="text" class="form-control" id="txtPurpose" name="Purpose">
+                      <input type="hidden" class="form-control" id="txtFormType" name="FormType" value="1">
+                      <input type="hidden" class="form-control" id="txtPurposeId" name="PurposeId">
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label for="Description">Description</label>
+                      <textarea type="text" class="form-control" id="txtDescription" name="Description" placeholder="Description"></textarea>
+                    </div>
+                  </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+          </form>
         </div>
-        <form action="<?php echo base_url(); ?>admin_controller/AddPurpose/" id="frmInsert2" method="post">
-          <div class="modal-body">
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="Purpose">Purpose Name</label><br>
-                    <input type="text" class="form-control" id="txtPurpose" name="Purpose">
-                    <input type="hidden" class="form-control" id="txtFormType" name="FormType" value="1">
-                    <input type="hidden" class="form-control" id="txtPurposeId" name="PurposeId">
-                  </div>
-                </div>
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label for="Description">Description</label>
-                    <textarea type="text" class="form-control" id="txtDescription" name="Description" placeholder="Description"></textarea>
-                  </div>
-                </div>
-              </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary">Submit</button>
-          </div>
-        </form>
+        <!-- /.modal-content -->
       </div>
-      <!-- /.modal-content -->
+      <!-- /.modal-dialog -->
     </div>
-    <!-- /.modal-dialog -->
-  </div>
 
-  <section class="content">
-    <div class="box">
-      <div class="box-header with-border">
-        <h3 class="box-title">List of Purposes</h3>
+    <section class="content">
+      <div class="box">
+        <div class="box-header with-border">
+          <h3 class="box-title">List of Purposes</h3>
+        </div>
+        <div class="box-body">
+          <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewPurpose">Add Record</button>
+          <br>
+          <br>
+          <form name="ApproverDocForm" method="post" id="ApproverDocForm">
+            <table id="example1" class="table table-bordered table-hover">
+              <thead>
+              <tr>
+                <th>Reference No</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Date Created</th>
+                <th>Date Updated</th>
+                <th>Action</th>
+              </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </form>
+        </div>
       </div>
-      <div class="box-body">
-        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewPurpose">Add Purpose</button>
-        <br>
-        <br>
-        <form name="ApproverDocForm" method="post" id="ApproverDocForm">
-          <table id="example1" class="table table-bordered table-hover">
-            <thead>
-            <tr>
-              <th>#</th>
-              <th>Name</th>
-              <th>Description</th>
-              <th>Status</th>
-              <th>Date Created</th>
-              <th>Date Updated</th>
-              <th>Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            </tbody>
-          </table>
-        </form>
+    </section>
+
+  <?php } else { ?>
+    <br>
+    <br>
+    <div class="col-md-12">
+      <div class="callout callout-danger">
+        <h4>You have no access to this module!</h4>
+        <p>Please contact your admin to request for access!</p>
       </div>
     </div>
-  </section>
-  <!-- /.content -->
+  <?php } ?>
+
 </div>
-<!-- /.content-wrapper -->
 
 <footer class="main-footer">
   <div class="pull-right hidden-xs">
@@ -227,10 +234,11 @@
                     {
                       data: "StatusId", "render": function (data, type, row) {
                       if(row.StatusId == 1){
-                          return '<a onclick="confirm(\'Are you sure you want to deactivate this Purpose?\', \''+row.PurposeId+'\', 0)" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a> <a onclick="Edit('+row.PurposeId+')" data-toggle="modal" data-target="#modalNewPurpose" class="btn btn-info" title="Edit"><span class="fa fa-edit"></span></a>';
+                          return '<a onclick="confirm(\'Are you sure you want to deactivate this purpose?\', \''+row.PurposeId+'\', 0)" class="btn btn-sm btn-danger" title="Deactivate"><span class="fa fa-close"></span></a>';
+                           // <a onclick="Edit('+row.PurposeId+')" data-toggle="modal" data-target="#modalNewPurpose" class="btn btn-info" title="Edit"><span class="fa fa-edit"></span></a>
                         }
                         else if(row.StatusId == 0){
-                          return '<a onclick="confirm(\'Are you sure you want to re-activate this Purpose?\', \''+row.PurposeId+'\', 1)" class="btn btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
+                          return '<a onclick="confirm(\'Are you sure you want to re-activate this purpose?\', \''+row.PurposeId+'\', 1)" class="btn btn-sm btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
                         }
                         else{
                           return "N/A";

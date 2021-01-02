@@ -1,71 +1,70 @@
-
-<!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
-  <!-- Content Header (Page header) -->
-  <section class="content-header">
-    <h1>
-      Additional Charges
-    </h1>
-    <ol class="breadcrumb">
-      <li><a href="http://localhost/ELendingTool/home/Dashboard" class="active"><i class="fa fa-dashboard"></i>Dashboard</a></li>
-      <li><a href="#">System Setup</a></li>
-      <li><a href="#">Additional Chaarges</a></li>
-    </ol>
-  </section>
+
+  <?php if(in_array('40', $subModule)) { ?>
+    <section class="content-header">
+      <h1>
+        Additional Charges
+      </h1>
+      <ol class="breadcrumb">
+        <li><a href="http://localhost/ELendingTool/home/Dashboard" class="active"><i class="fa fa-dashboard"></i>Dashboard</a></li>
+        <li><a href="#">System Setup</a></li>
+        <li><a href="#">Additional Chaarges</a></li>
+      </ol>
+    </section>
 
 
-  <div class="modal fade" id="modalNewCharges">
-    <div class="modal-dialog modal-md">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">Additional Charge Details</h4>
+    <div class="modal fade" id="modalNewCharges">
+      <div class="modal-dialog modal-md">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Additional Charge Details</h4>
+          </div>
+          <form action="<?php echo base_url(); ?>admin_controller/AddCharge/" id="frmInsert2" method="post">
+            <div class="modal-body">
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="ConditionalType">Type <span class="text-red">*</span></label><br>
+                      <select class="form-control" required="" style="width: 100%" name="ChargeType" id="selectCharges">
+                        <option value="1">Percentage</option>
+                        <option value="0">Fixed Amount</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="ConditionalName">Name <span class="text-red">*</span></label><br>
+                      <input type="text" class="form-control" required="" id="txtConditionalName" name="ConditionalName">
+                      <input type="hidden" class="form-control" name="FormType" id="txtFormType" value="1">
+                      <input type="hidden" class="form-control" id="txtChargeId" name="ChargeId">
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label for="Description">Description</label>
+                      <textarea type="text" class="form-control" id="txtDescription" name="Description" placeholder="Description"></textarea>
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label for="ConditionalName">Amount <span class="text-red">*</span></label><br>
+                      <input type="number" class="form-control" required="" id="txtAmount" name="Amount">
+                    </div>
+                  </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+          </form>
         </div>
-        <form action="<?php echo base_url(); ?>admin_controller/AddCharge/" id="frmInsert2" method="post">
-          <div class="modal-body">
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="ConditionalType">Type <span class="text-red">*</span></label><br>
-                    <select class="form-control" required="" style="width: 100%" name="ChargeType" id="selectCharges">
-                      <option value="1">Percentage</option>
-                      <option value="0">Fixed Amount</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="ConditionalName">Name <span class="text-red">*</span></label><br>
-                    <input type="text" class="form-control" required="" id="txtConditionalName" name="ConditionalName">
-                    <input type="hidden" class="form-control" name="FormType" id="txtFormType" value="1">
-                    <input type="hidden" class="form-control" id="txtChargeId" name="ChargeId">
-                  </div>
-                </div>
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label for="Description">Description</label>
-                    <textarea type="text" class="form-control" id="txtDescription" name="Description" placeholder="Description"></textarea>
-                  </div>
-                </div>
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label for="ConditionalName">Amount <span class="text-red">*</span></label><br>
-                    <input type="number" class="form-control" required="" id="txtAmount" name="Amount">
-                  </div>
-                </div>
-              </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary">Submit</button>
-          </div>
-        </form>
+        <!-- /.modal-content -->
       </div>
-      <!-- /.modal-content -->
+      <!-- /.modal-dialog -->
     </div>
-    <!-- /.modal-dialog -->
-  </div>
 
     <section class="content">
       <div class="box">
@@ -98,6 +97,17 @@
         </div>
       </div>
     </section>
+
+  <?php } else { ?>
+    <br>
+    <br>
+    <div class="col-md-12">
+      <div class="callout callout-danger">
+        <h4>You have no access to this module!</h4>
+        <p>Please contact your admin to request for access!</p>
+      </div>
+    </div>
+  <?php } ?>
   <!-- /.content -->
 </div>
 <!-- /.content-wrapper -->

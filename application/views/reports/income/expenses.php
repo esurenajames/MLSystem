@@ -1,20 +1,19 @@
 
-<!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
-  <!-- Content Header (Page header) -->
-  <section class="content-header">
-    <h1>
-      Expense Report
-    </h1>
-    <ol class="breadcrumb">
-      <li><a href="#" class="active"><i class="fa fa-dashboard"></i> Dashboard</a></li>
-      <li>Reports</li>
-      <li>Expense Report</a></li>
-    </h1>
-    </ol>
-  </section>
 
-    <!-- Main content -->
+  <?php if(in_array('53', $subModule)) { ?>
+    <section class="content-header">
+      <h1>
+        Expense Report
+      </h1>
+      <ol class="breadcrumb">
+        <li><a href="#" class="active"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        <li>Reports</li>
+        <li>Expense Report</a></li>
+      </h1>
+      </ol>
+    </section>
+
     <section class="content">
       <div class="box">
         <div class="box-header with-border">
@@ -95,7 +94,16 @@
         </div>
       </div>
     </section>
-  <!-- /.content -->
+  <?php } else { ?>
+    <br>
+    <br>
+    <div class="col-md-12">
+      <div class="callout callout-danger">
+        <h4>You have no access to this module!</h4>
+        <p>Please contact your admin to request for access!</p>
+      </div>
+    </div>
+  <?php } ?>
 </div>
 <!-- /.content-wrapper -->
 

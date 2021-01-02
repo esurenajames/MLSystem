@@ -1254,7 +1254,7 @@
                   $ProfilePic = $this->loanapplication_model->getProfilePicture($detail["BorrowerId"]);
                   if($ProfilePic['FileName'] == null)
                   {
-                    echo '<img src="'.base_url().'/borrowerpicture/default.gif" class="profile-user-img img-responsive img-circle" alt="User Image" style="width: 100px">';
+                    echo '<img src="'.base_url().'/employeeupload/default.gif" class="profile-user-img img-responsive img-circle" alt="User Image" style="width: 100px">';
                   }
                   else
                   {

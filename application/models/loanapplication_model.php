@@ -1354,8 +1354,7 @@ class loanapplication_model extends CI_Model
                                                     ON EMP.EmployeeNumber = PM.CreatedBy
                                                   INNER JOIN R_Bank BNK
                                                     ON BNK.BankId = PM.ChangeId
-                                                    WHERE A.StatusId = 1
-                                                    AND PM.StatusId = 1
+                                                    WHERE PM.StatusId = 1
                                                     ".$search."
                                                     ORDER BY PM.DateCollected DESC
     ");

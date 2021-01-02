@@ -1619,7 +1619,7 @@ class employee_controller extends CI_Controller {
     }
     // notification
       $this->session->set_flashdata('alertTitle','Success!'); 
-      $this->session->set_flashdata('alertText','Record successfully added!'); 
+      $this->session->set_flashdata('alertText','Access successfully saved!'); 
       $this->session->set_flashdata('alertType','success'); 
       redirect('home/accessmanagement/'. $this->uri->segment(3));
   }

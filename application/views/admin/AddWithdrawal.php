@@ -1,191 +1,199 @@
-
-<!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
-  <!-- Content Header (Page header) -->
-  <section class="content-header">
-    <h1>
-      Deposits
-    </h1>
-    <ol class="breadcrumb">
-      <li><a href="http://localhost/ELendingTool/home/Dashboard" class="active"><i class="fa fa-dashboard"></i>Dashboard</a></li>
-      <li><a href="#">System Setup</a></li>
-      <li><a href="#">Add Deposit</a></li>
-    </ol>
-  </section>
 
+  <?php if(in_array('14', $subModule)) { ?>
 
-
-  <div class="modal fade" id="modalFilter">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">Filter</h4>
-        </div>
-        <div class="modal-body">
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label>Status</label>
-                <select class="form-control" id="Status" required="">
-                  <option value="1">Active</option>
-                  <option value="0">Deactivated</option>
-                </select>
-              </div>
-            </div>
-            <div class="col-md-12">
-              <div class="form-group">
-                <label>Deposit Type</label>
-                <select class="form-control select2" style="width: 100%" id="selectDepositType" required="">
-                  <?php 
-                    echo $DepositType;
-                  ?>
-                </select>
-              </div>
-            </div>
-            <div class="col-md-12">
-              <div class="form-group">
-                <label>Created By</label>
-                <select class="form-control select2" style="width: 100%" id="selectCreatedBy" required="">
-                  <?php 
-                    echo $CreatedBy;
-                  ?>
-                </select>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label>Deposit Range From</label>
-                <input type="number" min="0" value="0" class="form-control" id="txtDepositFrom" required="">
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label>Deposit Range To</label>
-                <input type="number" min="0" value="0" class="form-control" id="txtDepositTo" required="">
-                </select>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label>Date of Deposit From</label>
-                <select class="form-control select2" style="width: 100%" id="dateDepositFrom" required="">
-                  <?php 
-                    echo $DepositDate;
-                  ?>
-                </select>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label>Date of Deposit To</label>
-                <select class="form-control select2" style="width: 100%" id="dateDepositTo" required="">
-                  <?php 
-                    echo $DepositDate;
-                  ?>
-                </select>
-              </div>
-            </div>
+    <section class="content-header">
+      <h1>
+        Deposits
+      </h1>
+      <ol class="breadcrumb">
+        <li><a href="http://localhost/ELendingTool/home/Dashboard" class="active"><i class="fa fa-dashboard"></i>Dashboard</a></li>
+        <li><a href="#">System Setup</a></li>
+        <li><a href="#">Add Deposit</a></li>
+      </ol>
+    </section>
+    <div class="modal fade" id="modalFilter">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Filter</h4>
           </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <a onclick="filterPage()" class="btn btn-primary">Submit</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal fade" id="modalNewWithdrawal">
-    <div class="modal-dialog modal-md">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">Add Deposit</h4>
-        </div>
-        <form action="<?php echo base_url(); ?>admin_controller/AddDeposit/" id="frmInsert2" method="post">
           <div class="modal-body">
             <div class="row">
               <div class="col-md-12">
                 <div class="form-group">
-                  <label for="Withdrawal">Type of Deposit</label><br>
-                  <select class="form-control" style="width: 100%" required="" name="Withdrawal" id="SelectWithdrawal">
-                  <?php
-                    echo $WithdrawalType;
-                  ?>
+                  <label>Status</label>
+                  <select class="form-control" id="Status" required="">
+                    <option value="1">Active</option>
+                    <option value="0">Deactivated</option>
                   </select>
                 </div>
               </div>
               <div class="col-md-12">
                 <div class="form-group">
-                  <label for="Amount">Amount</label><br>
-                  <input type="number" class="form-control" step="0.25" required="" id="txtAmount" name="Amount">
-                  <input type="hidden" class="form-control"  id="txtFormType" name="FormType" value="1">
-                  <input type="hidden" class="form-control"  id="txtWithdrawalId" name="WithdrawalId">
+                  <label>Deposit Type</label>
+                  <select class="form-control select2" style="width: 100%" id="selectDepositType" required="">
+                    <?php 
+                      echo $DepositType;
+                    ?>
+                  </select>
                 </div>
               </div>
               <div class="col-md-12">
                 <div class="form-group">
-                  <div class="form-group">
-                    <label>Date of Deposit</label>
-                    <div class="input-group date">
-                      <div class="input-group-addon">
-                        <i class="fa fa-calendar"></i>
-                      </div>
-                      <input type="text" class="form-control" required="" name="DateWithdrawal" id="DateWithdrawal">
-                    </div>
-                    <!-- /.input group -->
-                  </div>
+                  <label>Created By</label>
+                  <select class="form-control select2" style="width: 100%" id="selectCreatedBy" required="">
+                    <?php 
+                      echo $CreatedBy;
+                    ?>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Deposit Range From</label>
+                  <input type="number" min="0" value="0" class="form-control" id="txtDepositFrom" required="">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Deposit Range To</label>
+                  <input type="number" min="0" value="0" class="form-control" id="txtDepositTo" required="">
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Date of Deposit From</label>
+                  <select class="form-control select2" style="width: 100%" id="dateDepositFrom" required="">
+                    <?php 
+                      echo $DepositDate;
+                    ?>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Date of Deposit To</label>
+                  <select class="form-control select2" style="width: 100%" id="dateDepositTo" required="">
+                    <?php 
+                      echo $DepositDate;
+                    ?>
+                  </select>
                 </div>
               </div>
             </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <a onclick="filterPage()" class="btn btn-primary">Submit</a>
           </div>
-        </form>
-      </div>
-      <!-- /.modal-content -->
-    </div>
-    <!-- /.modal-dialog -->
-  </div>
-
-  <section class="content">
-    <div class="box">
-      <div class="box-header with-border">
-        <h3 class="box-title">List of Deposits</h3>
-      </div>
-      <div class="box-body">
-        <div class="pull-right">
-          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalNewWithdrawal">Add Deposit</button>
-          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalFilter">Filter</button>
         </div>
-        <br>
-        <br>
-        <form name="ApproverDocForm" method="post" id="ApproverDocForm">
-          <table id="example1" class="table table-bordered table-hover">
-            <thead>
-            <tr>
-              <th>Reference No</th>
-              <th>Deposit Type</th>
-              <th>Amount</th>
-              <th>Date of Deposit</th>
-              <th>Date Creation</th>
-              <th>Created By</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            </tbody>
-          </table>
-        </form>
       </div>
     </div>
-  </section>
+
+    <div class="modal fade" id="modalNewWithdrawal">
+      <div class="modal-dialog modal-md">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Add Deposit</h4>
+          </div>
+          <form action="<?php echo base_url(); ?>admin_controller/AddDeposit/" id="frmInsert2" method="post">
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label for="Withdrawal">Type of Deposit</label><br>
+                    <select class="form-control" style="width: 100%" required="" name="Withdrawal" id="SelectWithdrawal">
+                    <?php
+                      echo $WithdrawalType;
+                    ?>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label for="Amount">Amount</label><br>
+                    <input type="number" class="form-control" step="0.25" required="" id="txtAmount" name="Amount">
+                    <input type="hidden" class="form-control"  id="txtFormType" name="FormType" value="1">
+                    <input type="hidden" class="form-control"  id="txtWithdrawalId" name="WithdrawalId">
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <div class="form-group">
+                      <label>Date of Deposit</label>
+                      <div class="input-group date">
+                        <div class="input-group-addon">
+                          <i class="fa fa-calendar"></i>
+                        </div>
+                        <input type="text" class="form-control" required="" name="DateWithdrawal" id="DateWithdrawal">
+                      </div>
+                      <!-- /.input group -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+          </form>
+        </div>
+        <!-- /.modal-content -->
+      </div>
+      <!-- /.modal-dialog -->
+    </div>
+
+    <section class="content">
+      <div class="box">
+        <div class="box-header with-border">
+          <h3 class="box-title">List of Deposits</h3>
+        </div>
+        <div class="box-body">
+          <div class="pull-right">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalNewWithdrawal">Add Deposit</button>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalFilter">Filter</button>
+          </div>
+          <br>
+          <br>
+          <form name="ApproverDocForm" method="post" id="ApproverDocForm">
+            <table id="example1" class="table table-bordered table-hover">
+              <thead>
+              <tr>
+                <th>Reference No</th>
+                <th>Deposit Type</th>
+                <th>Amount</th>
+                <th>Date of Deposit</th>
+                <th>Date Creation</th>
+                <th>Created By</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </form>
+        </div>
+      </div>
+    </section>
+
+  <?php } else { ?>
+    <br>
+    <br>
+    <div class="col-md-12">
+      <div class="callout callout-danger">
+        <h4>You have no access to this module!</h4>
+        <p>Please contact your admin to request for access!</p>
+      </div>
+    </div>
+  <?php } ?>
 </div>
 
 <footer class="main-footer">

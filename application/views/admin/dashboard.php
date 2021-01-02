@@ -19,6 +19,7 @@
   </section>
 
   <?php 
+
     $record = $this->maintenance_model->passwordValidity();
     $password = $this->maintenance_model->getPassword();
     if($record['IsNew'] == 1) { ?>
@@ -132,17 +133,17 @@
     <section class="content"> 
       <div class="row">
         <!-- 56 -->
-        <?php if(in_array('48', $subModule)) { ?>
+        <?php if(in_array('56', $subModule)) { ?>
           <div class="col-lg-3 col-xs-6">
             <div class="small-box bg-green">
               <div class="inner">
                 <h3><?php print_r(number_format(($totalFund['Total'] + $totalIncome['Total']) - ($totalExpense['Total'] + $TotalDisbursement['Total']), 2)) ?></h3>
-                <p>Current Fund</p>
+                <p>Current Fund </p>
               </div>
               <div class="icon">
                 <i class="fa fa-tachometer"></i>
               </div>
-              <a href="<?php echo base_url(); ?>home/AddInitialCapital" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+              <a class="small-box-footer"><small>Capital + Income - (Expenses + Disbursements)</small></a>
             </div>
           </div>
         <?php } ?>
@@ -189,7 +190,7 @@
           </div>
         <?php } ?>
         <!-- 60 -->
-        <?php if(in_array('48', $subModule)) { ?>
+        <?php if(in_array('62', $subModule)) { ?>
           <div class="col-lg-3 col-xs-6">
             <div class="small-box bg-orange">
               <div class="inner">
@@ -203,7 +204,7 @@
             </div>
           </div>
         <?php } ?>
-        <?php if(in_array('48', $subModule)) { ?>
+        <?php if(in_array('55', $subModule)) { ?>
           <div class="col-lg-3 col-xs-6">
             <div class="small-box bg-light-blue">
               <div class="inner">
@@ -218,7 +219,7 @@
           </div>
         <?php } ?>
         <!--  57 -->
-        <?php if(in_array('48', $subModule)) { ?>
+        <?php if(in_array('57', $subModule)) { ?>
           <div class="col-lg-3 col-xs-6">
             <div class="small-box bg-purple">
               <div class="inner">
@@ -247,7 +248,7 @@
           </div>
         <?php } ?>
         <!-- 58 -->
-        <?php if(in_array('48', $subModule)) { ?>
+        <?php if(in_array('58', $subModule)) { ?>
           <div class="col-lg-3 col-xs-6">
             <div class="small-box bg-olive-active">
               <div class="inner">
@@ -262,7 +263,7 @@
           </div>
         <?php } ?>
         <!-- 59 -->
-        <?php if(in_array('48', $subModule)) { ?>
+        <?php if(in_array('59', $subModule)) { ?>
           <div class="col-lg-3 col-xs-6">
             <div class="small-box bg-teal">
               <div class="inner">
@@ -762,7 +763,7 @@
     }
     else
     {
-      value = value;
+      value = $('#yearAge').val();
     }
 
     if(reportType == 'Bar Graph')
@@ -4017,7 +4018,7 @@
         e.preventDefault(); 
         swal({
           title: 'Confirm',
-          text: 'Are you sure you sure with this password?',
+          text: 'Are you sure with this password?',
           type: 'info',
           showCancelButton: true,
           buttonsStyling: false,

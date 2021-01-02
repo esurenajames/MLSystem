@@ -1,61 +1,70 @@
-
-<!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
-  <!-- Content Header (Page header) -->
-  <section class="content-header">
-    <h1>
-      Database Management
-    </h1>
-    <ol class="breadcrumb">
-      <li><a href="<?php echo base_url(); ?>home/Dashboard" class="active"><i class="fa fa-dashboard"></i>Dashboard</a></li>
-      <li><a href="#">System Setup</a></li>
-      <li><a href="#">Database Management</a></li>
-    </ol>
-  </section>
 
-  <section class="content">
-    <div class="box">
-      <div class="box-header with-border">
-        <h3 class="box-title">Truncate Database</h3>
+  <?php if(in_array('54', $subModule)) { ?>
+    <section class="content-header">
+      <h1>
+        Database Management
+      </h1>
+      <ol class="breadcrumb">
+        <li><a href="<?php echo base_url(); ?>home/Dashboard" class="active"><i class="fa fa-dashboard"></i>Dashboard</a></li>
+        <li><a href="#">System Setup</a></li>
+        <li><a href="#">Database Management</a></li>
+      </ol>
+    </section>
+
+    <section class="content">
+      <div class="box">
+        <div class="box-header with-border">
+          <h3 class="box-title">Truncate Database</h3>
+        </div>
+        <div class="box-body">
+          <form autocomplete="off" action="<?php echo base_url(); ?>admin_controller/truncateBranchDB/" id="frmInsert" method="post">
+                <div class="modal-body">
+            <div class="row">
+              <div class="col-md-12">
+                <label>Username</label>
+                <input type="" placeholder="Username" name="Username" id="txtUsername" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="exampleInputEmail1">Password<span class="text-red">*</span></label>
+                  <div class="form-group" id="colorSuccess">
+                    <label class="control-label" id="lblSuccess" style="display: none" for="inputSuccess"><i class="fa fa-check"></i></label>
+                    <input type="password" class="form-control" name="NewPassword" id="txtNewPassword" placeholder="Enter password">
+                    <span id="successMessage" style="display: none" class="help-block"></span>
+                  </div>
+                  <!-- <input type="password" id="txtNewPassword" class="form-control" id="exampleInputEmail1"> -->
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="exampleInputEmail1">Confirm Password<span class="text-red">*</span></label>
+                  <div class="form-group" id="colorSuccess2">
+                    <label class="control-label" id="lblSuccess2" style="display: none" for="txtConfirmPassword"><i class="fa fa-check"></i></label>
+                    <input type="password" class="form-control" name="confirmPassword" placeholder="Confirm password" id="txtConfirmPassword" oninput="checkPasswordMatch(this.value);">
+                    <span id="successMessage2" style="display: none" class="help-block"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <br>
+            <div class="pull-right">
+              <button class="btn btn-sm btn-danger">Submit</button>
+            </div>
+          </form>
+        </div>
       </div>
-      <div class="box-body">
-        <form autocomplete="off" action="<?php echo base_url(); ?>admin_controller/truncateBranchDB/" id="frmInsert" method="post">
-              <div class="modal-body">
-          <div class="row">
-            <div class="col-md-12">
-              <label>Username</label>
-              <input type="" placeholder="Username" name="Username" id="txtUsername" class="form-control">
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="exampleInputEmail1">Password<span class="text-red">*</span></label>
-                <div class="form-group" id="colorSuccess">
-                  <label class="control-label" id="lblSuccess" style="display: none" for="inputSuccess"><i class="fa fa-check"></i></label>
-                  <input type="password" class="form-control" name="NewPassword" id="txtNewPassword" placeholder="Enter password">
-                  <span id="successMessage" style="display: none" class="help-block"></span>
-                </div>
-                <!-- <input type="password" id="txtNewPassword" class="form-control" id="exampleInputEmail1"> -->
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="exampleInputEmail1">Confirm Password<span class="text-red">*</span></label>
-                <div class="form-group" id="colorSuccess2">
-                  <label class="control-label" id="lblSuccess2" style="display: none" for="txtConfirmPassword"><i class="fa fa-check"></i></label>
-                  <input type="password" class="form-control" placeholder="Confirm password" id="txtConfirmPassword" oninput="checkPasswordMatch(this.value);">
-                  <span id="successMessage2" style="display: none" class="help-block"></span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <br>
-          <div class="pull-right">
-            <button class="btn btn-sm btn-danger">Submit</button>
-          </div>
-        </form>
+    </section>
+  <?php } else { ?>
+    <br>
+    <br>
+    <div class="col-md-12">
+      <div class="callout callout-danger">
+        <h4>You have no access to this module!</h4>
+        <p>Please contact your admin to request for access!</p>
       </div>
     </div>
-  </section>
+  <?php } ?>
 </div>
 
 <footer class="main-footer">

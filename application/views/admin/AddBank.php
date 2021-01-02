@@ -1,5 +1,3 @@
-
-<!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
   <!-- Content Header (Page header) -->
   <section class="content-header">
@@ -69,7 +67,7 @@
             <table id="example1" class="table table-bordered table-hover">
               <thead>
               <tr>
-                <th>#</th>
+                <th>Reference No</th>
                 <th>Bank</th>
                 <th>Description</th>
                 <th>Account No.</th>

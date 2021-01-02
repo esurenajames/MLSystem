@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>LMS | <?php print_r($header) ?></title>
+  <title>E-Lending | <?php print_r($header) ?></title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <!-- Bootstrap 3.3.7 -->
@@ -55,17 +55,11 @@
 <div class="wrapper">
 
   <header class="main-header">
-    <!-- Logo -->
     <a href="<?php echo base_url(); ?>resources/index2.html" class="logo">
-      <!-- mini logo for sidebar mini 50x50 pixels -->
       <span class="logo-mini"><b>L</b>MS</span>
-      <!-- logo for regular state and mobile devices -->
-      <!-- <span class="logo-lg"><b>LendingMS</b></span> -->
       <span class="logo-lg"><img src="<?php echo base_url(); ?>/resources/ELENDiNG.png" style="width: 100%; height: 100%" ></span>
     </a>
-    <!-- Header Navbar: style can be found in header.less -->
     <nav class="navbar navbar-static-top">
-      <!-- Sidebar toggle button-->
       <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
         <span class="sr-only">Toggle navigation</span>
         <span class="icon-bar"></span>
@@ -79,12 +73,11 @@
                 <span class="hidden-xs"> <?php print_r($this->session->userdata('Name')) ?> </span>
               </a>
               <ul class="dropdown-menu">
-                <!-- User image -->
                 <li class="user-header">
                   <?php
                     if(!isset($profilePicture[0]['FileName']))
                     {
-                      echo '<img src="'.base_url().'borrowerpicture/default.gif" class="profile-user-img img-responsive img-circle" alt="User Image" style="width: 100px">';
+                      echo '<img src="'.base_url().'employeeUpload/default.gif" class="profile-user-img img-responsive img-circle" alt="User Image" style="width: 100px">';
                     }
                     else
                     {

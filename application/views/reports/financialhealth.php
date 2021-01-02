@@ -1,14 +1,12 @@
-
-<!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
-  <!-- Content Header (Page header) -->
-  <section class="content-header">
-    <h1>
-      Financial Health Report
-    </h1>
-  </section>
 
-    <!-- Main content -->
+  <?php if(in_array('51', $subModule)) { ?>
+
+    <section class="content-header">
+      <h1>
+        Financial Health Report
+      </h1>
+    </section>
     <section class="content">
       <div class="box">
         <div class="box-header with-border">
@@ -62,6 +60,17 @@
         </div>
       </div>
     </section>
+
+  <?php } else { ?>
+    <br>
+    <br>
+    <div class="col-md-12">
+      <div class="callout callout-danger">
+        <h4>You have no access to this module!</h4>
+        <p>Please contact your admin to request for access!</p>
+      </div>
+    </div>
+  <?php } ?>
   <!-- /.content -->
 </div>
 <!-- /.content-wrapper -->

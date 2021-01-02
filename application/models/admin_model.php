@@ -269,6 +269,7 @@ class admin_model extends CI_Model
                                                 FROM R_Requirements
                                                   WHERE Name = '".$data['Name']."'
                                                   AND Description = '".$data['Description']."'
+                                                  AND StatusId = 1
       ");
       $data = $query_string->num_rows();
       return $data;
@@ -333,9 +334,8 @@ class admin_model extends CI_Model
     function countMethod($data)
     {
       $query_string = $this->db->query("SELECT  * 
-                                                FROM R_MethodOfPayment
+                                                FROM R_Disbursement
                                                   WHERE Name = '".$data['Name']."'
-                                                  AND Description = '".$data['Description']."'
       ");
       $data = $query_string->num_rows();
       return $data;
@@ -406,7 +406,6 @@ class admin_model extends CI_Model
       $query_string = $this->db->query("SELECT  * 
                                                 FROM R_LoanStatus
                                                   WHERE Name = '".$data['Name']."'
-                                                  AND Description = '".$data['Description']."'
 
       ");
       $data = $query_string->num_rows();
@@ -794,29 +793,36 @@ class admin_model extends CI_Model
                                               WHERE LoanId = ".$input['Id']."
         ")->row_array();
 
-        // update status
-          $set = array(
-            'StatusId' => $input['updateType'],
-            'UpdatedBy' => $EmployeeNumber,
-            'DateUpdated' => $DateNow,
-          );
-          $condition = array(
-            'LoanId' => $input['Id']
-          );
-          $table = 'R_Loans';
-          $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // admin audits finalss
-          if($input['updateType'] == 1)
-          {
-            $auditLogsManager = 'Re-activated loan #' .$Detail['ReferenceNo']. ' at the loan setup'; // main log
-            $auditAffectedEmployee = 'Re-activated loan #' .$Detail['ReferenceNo']. ' at the loan setup'; // main log
-          }
-          else if($input['updateType'] == 0)
-          {
-            $auditLogsManager = 'Deactivated loan #' .$Detail['ReferenceNo']. ' at the loan setup'; // main log
-            $auditAffectedEmployee = 'Deactivated loan #' .$Detail['ReferenceNo']. ' at the loan setup'; // main log
-          }
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
+        $count = $this->db->query("SELECT  COUNT(*) as ifUsed
+                                                    FROM t_application
+                                                          WHERE LoanId = ".$input['Id']."
+        ")->row_array();
+        if($count['ifUsed'] == 0)
+        {
+          // update status
+            $set = array(
+              'StatusId' => $input['updateType'],
+              'UpdatedBy' => $EmployeeNumber,
+              'DateUpdated' => $DateNow,
+            );
+            $condition = array(
+              'LoanId' => $input['Id']
+            );
+            $table = 'R_Loans';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+          // admin audits finalss
+            if($input['updateType'] == 1)
+            {
+              $auditLogsManager = 'Re-activated loan #' .$Detail['ReferenceNo']. ' at the loan setup'; // main log
+              $auditAffectedEmployee = 'Re-activated loan #' .$Detail['ReferenceNo']. ' at the loan setup'; // main log
+            }
+            else if($input['updateType'] == 0)
+            {
+              $auditLogsManager = 'Deactivated loan #' .$Detail['ReferenceNo']. ' at the loan setup'; // main log
+              $auditAffectedEmployee = 'Deactivated loan #' .$Detail['ReferenceNo']. ' at the loan setup'; // main log
+            }
+            $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
+        }
       }
       else if($input['tableType'] == 'Charge')
       {
@@ -889,31 +895,38 @@ class admin_model extends CI_Model
                                             FROM R_Requirements R
                                               WHERE RequirementId = ".$input['Id']."
         ")->row_array();
+        $count = $this->db->query("SELECT  COUNT(*) as ifUsed
+                                                    FROM application_has_requirement
+                                                      WHERE RequirementId = ".$input['Id']."
+                                                      AND StatusId = 1
+        ")->row_array();
+        if($count['ifUsed'] == 0)
+        {
+          // update status
+            $set = array(
+              'StatusId' => $input['updateType'],
+              'UpdatedBy' => $EmployeeNumber,
+              'DateUpdated' => $DateNow,
+            );
+            $condition = array(
+              'RequirementId' => $input['Id']
+            );
+            $table = 'R_Requirements';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
 
-        // update status
-          $set = array(
-            'StatusId' => $input['updateType'],
-            'UpdatedBy' => $EmployeeNumber,
-            'DateUpdated' => $DateNow,
-          );
-          $condition = array(
-            'RequirementId' => $input['Id']
-          );
-          $table = 'R_Requirements';
-          $this->maintenance_model->updateFunction1($set, $condition, $table);
-
-        // admin audits finalss
-          if($input['updateType'] == 1)
-          {
-            $auditLogsManager = 'Re-activated requirement #' .$Detail['ReferenceNo']. ' at the requirement setup'; // main log
-            $auditAffectedEmployee = 'Re-activated requirement #' .$Detail['ReferenceNo']. ' at the requirement setup'; // main log
-          }
-          else if($input['updateType'] == 0)
-          {
-            $auditLogsManager = 'Deactivated requirement #' .$Detail['ReferenceNo']. ' at the requirement setup'; // main log
-            $auditAffectedEmployee = 'Deactivated requirement #' .$Detail['ReferenceNo']. ' at the requirement setup'; // main log
-          }
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
+          // admin audits finalss
+            if($input['updateType'] == 1)
+            {
+              $auditLogsManager = 'Re-activated requirement #' .$Detail['ReferenceNo']. ' at the requirement setup'; // main log
+              $auditAffectedEmployee = 'Re-activated requirement #' .$Detail['ReferenceNo']. ' at the requirement setup'; // main log
+            }
+            else if($input['updateType'] == 0)
+            {
+              $auditLogsManager = 'Deactivated requirement #' .$Detail['ReferenceNo']. ' at the requirement setup'; // main log
+              $auditAffectedEmployee = 'Deactivated requirement #' .$Detail['ReferenceNo']. ' at the requirement setup'; // main log
+            }
+            $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
+        }
       }
       else if($input['tableType'] == 'Position')
       {
@@ -1000,62 +1013,75 @@ class admin_model extends CI_Model
                                                 WHERE PurposeId = ".$input['Id']."
         ")->row_array();
 
-        // update status
-          $set = array(
-            'StatusId' => $input['updateType'],
-            'UpdatedBy' => $EmployeeNumber,
-            'DateUpdated' => $DateNow,
-          );
-          $condition = array(
-            'PurposeId' => $input['Id']
-          );
-          $table = 'R_Purpose';
-          $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // admin audits finalss
-          if($input['updateType'] == 1)
-          {
-            $auditLogsManager = 'Re-activated purpose #' .$Detail['ReferenceNo']. ' at the purpose setup'; // main log
-            $auditAffectedEmployee = 'Re-activated purpose #' .$Detail['ReferenceNo']. ' at the purpose setup'; // main log
-          }
-          else if($input['updateType'] == 0)
-          {
-            $auditLogsManager = 'Deactivated purpose #' .$Detail['ReferenceNo']. ' at the purpose setup'; // main log
-            $auditAffectedEmployee = 'Deactivated purpose #' .$Detail['ReferenceNo']. ' at the purpose setup'; // main log
-          }
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
+
+        $count = $this->db->query("SELECT  COUNT(*) as ifUsed
+                                                    FROM t_application
+                                                          WHERE PurposeId = ".$input['Id']."
+        ")->row_array();
+        if($count['ifUsed'] == 0)
+        {
+          // update status
+            $set = array(
+              'StatusId' => $input['updateType'],
+              'UpdatedBy' => $EmployeeNumber,
+              'DateUpdated' => $DateNow,
+            );
+            $condition = array(
+              'PurposeId' => $input['Id']
+            );
+            $table = 'R_Purpose';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+          // admin audits finalss
+            if($input['updateType'] == 1)
+            {
+              $auditLogsManager = 'Re-activated purpose #' .$Detail['ReferenceNo']. ' at the purpose setup'; // main log
+              $auditAffectedEmployee = 'Re-activated purpose #' .$Detail['ReferenceNo']. ' at the purpose setup'; // main log
+            }
+            else if($input['updateType'] == 0)
+            {
+              $auditLogsManager = 'Deactivated purpose #' .$Detail['ReferenceNo']. ' at the purpose setup'; // main log
+              $auditAffectedEmployee = 'Deactivated purpose #' .$Detail['ReferenceNo']. ' at the purpose setup'; // main log
+            }
+            $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
+        }
       }
       else if($input['tableType'] == 'Method')
       {
         $Detail = $this->db->query("SELECT  Name
-                                                  , CONCAT('M-', LPAD(M.MethodId, 6, 0)) as ReferenceNo
-                                                    FROM R_MethodOfPayment M
-                                                      WHERE MethodId = ".$input['Id']."
+                                                  , CONCAT('MP-', LPAD(M.DisbursementId, 6, 0)) as ReferenceNo
+                                                    FROM R_Disbursement M
+                                                      WHERE DisbursementId = ".$input['Id']."
         ")->row_array();
 
-        // update status
-          $set = array(
-            'StatusId' => $input['updateType'],
-            'UpdatedBy' => $EmployeeNumber,
-            'DateUpdated' => $DateNow,
-          );
-          $condition = array(
-            'MethodId' => $input['Id']
-          );
-          $table = 'R_MethodOfPayment';
-          $this->maintenance_model->updateFunction1($set, $condition, $table);
-
-        // admin audits finalss
-          if($input['updateType'] == 1)
-          {
-            $auditLogsManager = 'Re-activated method of payment #' .$Detail['ReferenceNo']. ' at the method of payment setup'; // main log
-            $auditAffectedEmployee = 'Re-activated method of payment #' .$Detail['ReferenceNo']. ' at the method of payment setup'; // main log
-          }
-          else if($input['updateType'] == 0)
-          {
-            $auditLogsManager = 'Deactivated method of payment #' .$Detail['ReferenceNo']. ' at the method of payment setup'; // main log
-            $auditAffectedEmployee = 'Deactivated method of payment #' .$Detail['ReferenceNo']. ' at the method of payment setup'; // main log
-          }
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
+        $count = $this->db->query("SELECT  COUNT(*) as ifUsed
+                                                    FROM t_paymentsmade
+                                                      WHERE PositionId = ".$input['Id']."
+                                                      AND StatusId = 1
+        ")->row_array();
+        if($count['ifUsed'] == 0)
+        {
+          // update status
+            $set = array(
+              'StatusId' => $input['updateType'],
+            );
+            $condition = array(
+              'DisbursementId' => $input['Id']
+            );
+            $table = 'R_Disbursement';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+          // admin audits finalss
+            if($input['updateType'] == 1)
+            {
+              $auditLogsManager = 'Re-activated method of payment #' .$Detail['ReferenceNo']. ' at the method of payment setup'; // main log
+              $auditAffectedEmployee = 'Re-activated method of payment #' .$Detail['ReferenceNo']. ' at the method of payment setup'; // main log
+            }
+            else if($input['updateType'] == 0)
+            {
+              $auditLogsManager = 'Deactivated method of payment #' .$Detail['ReferenceNo']. ' at the method of payment setup'; // main log
+              $auditAffectedEmployee = 'Deactivated method of payment #' .$Detail['ReferenceNo']. ' at the method of payment setup'; // main log
+            }
+            $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
+        }
       }
       else if($input['tableType'] == 'Category')
       {
@@ -1092,21 +1118,19 @@ class admin_model extends CI_Model
       else if($input['tableType'] == 'LoanStatus')
       {
         $Detail = $this->db->query("SELECT  Name
-                                            , CONCAT('LST-', LPAD(LS.LoanStatusId, 6, 0)) as ReferenceNo
-                                            FROM R_LoanStatus LS
+                                            , CONCAT('ALS-', LPAD(LS.LoanStatusId, 6, 0)) as ReferenceNo
+                                            FROM Application_has_Status LS
                                               WHERE LoanStatusId = ".$input['Id']."
         ")->row_array();
 
         // update status
           $set = array(
             'StatusId' => $input['updateType'],
-            'UpdatedBy' => $EmployeeNumber,
-            'DateUpdated' => $DateNow,
           );
           $condition = array(
             'LoanStatusId' => $input['Id']
           );
-          $table = 'R_LoanStatus';
+          $table = 'Application_has_Status';
           $this->maintenance_model->updateFunction1($set, $condition, $table);
 
         // admin audits finalss
@@ -1271,30 +1295,38 @@ class admin_model extends CI_Model
                                                 WHERE RepaymentId = ".$input['Id']."
         ")->row_array();
 
-        // update status
-          $set = array(
-            'StatusId' => $input['updateType'],
-            'UpdatedBy' => $EmployeeNumber,
-            'DateUpdated' => $DateNow,
-          );
-          $condition = array(
-            'RepaymentId' => $input['Id']
-          );
-          $table = 'R_RepaymentCycle';
-          $this->maintenance_model->updateFunction1($set, $condition, $table);
 
-        // admin audits finalss
-          if($input['updateType'] == 1)
-          {
-            $auditLogsManager = 'Re-activated repayment cycle #' .$Detail['ReferenceNo']. ' at the repayment cycle setup'; // main log
-            $auditAffectedEmployee = 'Re-activated repayment cycle #' .$Detail['ReferenceNo']. ' at the repayment cycle setup'; // main log
-          }
-          else if($input['updateType'] == 0)
-          {
-            $auditLogsManager = 'Deactivated repayment cycle #' .$Detail['ReferenceNo']. ' at the repayment cycle setup'; // main log
-            $auditAffectedEmployee = 'Deactivated repayment cycle #' .$Detail['ReferenceNo']. ' at the repayment cycle setup'; // main log
-          }
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
+        $count = $this->db->query("SELECT  COUNT(*) as ifUsed
+                                                    FROM t_application
+                                                      WHERE RepaymentId = ".$input['Id']."
+        ")->row_array();
+        if($count['ifUsed'] == 0)
+        {
+          // update status
+            $set = array(
+              'StatusId' => $input['updateType'],
+              'UpdatedBy' => $EmployeeNumber,
+              'DateUpdated' => $DateNow,
+            );
+            $condition = array(
+              'RepaymentId' => $input['Id']
+            );
+            $table = 'R_RepaymentCycle';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+
+          // admin audits finalss
+            if($input['updateType'] == 1)
+            {
+              $auditLogsManager = 'Re-activated repayment cycle #' .$Detail['ReferenceNo']. ' at the repayment cycle setup'; // main log
+              $auditAffectedEmployee = 'Re-activated repayment cycle #' .$Detail['ReferenceNo']. ' at the repayment cycle setup'; // main log
+            }
+            else if($input['updateType'] == 0)
+            {
+              $auditLogsManager = 'Deactivated repayment cycle #' .$Detail['ReferenceNo']. ' at the repayment cycle setup'; // main log
+              $auditAffectedEmployee = 'Deactivated repayment cycle #' .$Detail['ReferenceNo']. ' at the repayment cycle setup'; // main log
+            }
+            $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
+        }
       }
       else if($input['tableType'] == 'Disbursement')
       {
@@ -1304,30 +1336,38 @@ class admin_model extends CI_Model
                                               WHERE DisbursementId = ".$input['Id']."
         ")->row_array();
 
-        // update status
-          $set = array(
-            'StatusId' => $input['updateType'],
-            'UpdatedBy' => $EmployeeNumber,
-            'DateUpdated' => $DateNow,
-          );
-          $condition = array(
-            'DisbursementId' => $input['Id']
-          );
-          $table = 'R_Disbursement';
-          $this->maintenance_model->updateFunction1($set, $condition, $table);
+        $count = $this->db->query("SELECT  COUNT(*) as ifUsed
+                                                    FROM application_has_disbursement
+                                                      WHERE DisbursedBy = ".$input['Id']."
+                                                      AND StatusId = 1
+        ")->row_array();
+        if($count['ifUsed'] == 0)
+        {
+          // update status
+            $set = array(
+              'StatusId' => $input['updateType'],
+              'UpdatedBy' => $EmployeeNumber,
+              'DateUpdated' => $DateNow,
+            );
+            $condition = array(
+              'DisbursementId' => $input['Id']
+            );
+            $table = 'R_Disbursement';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
 
-        // admin audits finalss
-          if($input['updateType'] == 1)
-          {
-            $auditLogsManager = 'Re-activated disbursement type #' .$Detail['ReferenceNo']. ' at the disbursements setup'; // main log
-            $auditAffectedEmployee = 'Re-activated disbursement type #' .$Detail['ReferenceNo']. ' at the disbursements setup'; // main log
-          }
-          else if($input['updateType'] == 0)
-          {
-            $auditLogsManager = 'Deactivated disbursement type #' .$Detail['ReferenceNo']. ' at the disbursements setup'; // main log
-            $auditAffectedEmployee = 'Deactivated disbursement type #' .$Detail['ReferenceNo']. ' at the disbursements setup'; // main log
-          }
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
+          // admin audits finalss
+            if($input['updateType'] == 1)
+            {
+              $auditLogsManager = 'Re-activated disbursement type #' .$Detail['ReferenceNo']. ' at the disbursements setup'; // main log
+              $auditAffectedEmployee = 'Re-activated disbursement type #' .$Detail['ReferenceNo']. ' at the disbursements setup'; // main log
+            }
+            else if($input['updateType'] == 0)
+            {
+              $auditLogsManager = 'Deactivated disbursement type #' .$Detail['ReferenceNo']. ' at the disbursements setup'; // main log
+              $auditAffectedEmployee = 'Deactivated disbursement type #' .$Detail['ReferenceNo']. ' at the disbursements setup'; // main log
+            }
+            $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
+        }
       }
       else if($input['tableType'] == 'Capital')
       {
@@ -1530,6 +1570,20 @@ class admin_model extends CI_Model
       }
     }
 
+    function getLogs()
+    {
+      $query_string = $this->db->query("SELECT  L.Description
+                                                , L.Remarks
+                                                , DATE_FORMAT(L.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                , CONCAT(FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as Name
+                                                FROM R_Logs L
+                                                  INNER JOIN R_Employee EMP
+                                                    ON EMP.EmployeeNumber = L.CreatedBy
+                                                      ORDER BY DateCreated DESC
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
     
 
 

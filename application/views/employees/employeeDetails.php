@@ -403,7 +403,7 @@
             <?php
               if($detail['FileName'] == null)
               {
-                echo '<img src="'.base_url().'borrowerpicture/default.gif" class="profile-user-img img-responsive img-circle" alt="User Image" style="width: 100px">';
+                echo '<img src="'.base_url().'employeeUpload/default.gif" class="profile-user-img img-responsive img-circle" alt="User Image" style="width: 100px">';
               }
               else
               {

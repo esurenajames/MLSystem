@@ -383,16 +383,17 @@ class maintenance_model extends CI_Model
                                                 THEN RC.Type
                                                 ELSE GROUP_CONCAT(RHC.Date ORDER BY RHC.Date ASC)
                                               END as RepaymentName
+                                          , CONCAT('RC-', LPAD(RC.RepaymentId, 6, 0)) as ReferenceNo 
                                           , RC.RepaymentId
                                           , RC.StatusId
                                           , RC.CreatedBy
                                           , DATE_FORMAT(RC.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                          , RC.DateCreated as rawDateCreated
                                           , DATE_FORMAT(RC.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
                                           FROM r_repaymentcycle RC
                                               LEFT JOIN  repaymentcycle_has_content RHC
                                                   ON RC.RepaymentId = RHC.RepaymentId
-                                                    WHERE RC.StatusId = 1
-                                                    AND RHC.StatusId = 1
+                                                    WHERE RHC.StatusId = 1
                                                     GROUP BY RC.RepaymentId
                                                     ORDER BY RHC.Date DESC
       ");
@@ -435,9 +436,11 @@ class maintenance_model extends CI_Model
                                                 , RequirementId
                                                 , RQ.IsMandatory
                                                 , RQ.Description
+                                                , CONCAT('REQ-', LPAD(RQ.RequirementId, 6, 0)) as ReferenceNo 
                                                 , RQ.CreatedBy
                                                 , RQ.StatusId
                                                 , DATE_FORMAT(RQ.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                , RQ.DateCreated as rawDateCreated
                                                 , DATE_FORMAT(RQ.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
                                                 FROM R_Requirements RQ
       ");
@@ -479,14 +482,12 @@ class maintenance_model extends CI_Model
     function getAllMethods()
     {
       $query_string = $this->db->query("SELECT M.Name as Method
-                                                , CONCAT('M-', LPAD(M.MethodId, 6, 0)) as ReferenceNo 
-                                                , MethodId
-                                                , M.Description
+                                                , CONCAT('MP-', LPAD(M.DisbursementId, 6, 0)) as ReferenceNo 
+                                                , DisbursementId
                                                 , M.CreatedBy
                                                 , M.StatusId
                                                 , DATE_FORMAT(M.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
-                                                , DATE_FORMAT(M.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
-                                                FROM R_MethodOfPayment M
+                                                FROM r_disbursement M
       ");
       $data = $query_string->result_array();
       return $data;
@@ -584,14 +585,14 @@ class maintenance_model extends CI_Model
     function getAllLoanStatus()
     {
       $query_string = $this->db->query("SELECT LS.Name as LoanStatus
-                                                , CONCAT('LS-', LPAD(LS.LoanStatusId, 6, 0)) as ReferenceNo 
+                                                , CONCAT('ALS-', LPAD(LS.LoanStatusId, 6, 0)) as ReferenceNo
+                                                , IsApprovable
+                                                , IsEditable
                                                 , LoanStatusId
-                                                , LS.Description
                                                 , LS.CreatedBy
                                                 , LS.StatusId
                                                 , DATE_FORMAT(LS.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
-                                                , DATE_FORMAT(LS.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
-                                                FROM R_LoanStatus LS
+                                                FROM application_has_status LS
       ");
       $data = $query_string->result_array();
       return $data;
