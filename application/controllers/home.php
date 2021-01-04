@@ -936,6 +936,7 @@ class home extends CI_Controller {
 		$data['Position'] = $this->maintenance_model->getPosition();
 		$data['Roles'] = $this->maintenance_model->getRoles();
 		$data['Status'] = $this->maintenance_model->getBorrowerStatus();
+		$data['detail'] = $this->employee_model->getEmployeeDetailsEmpNo();
 
 		
 		$data['ageYear'] = $this->maintenance_model->getYearFilter('r_borrowers');

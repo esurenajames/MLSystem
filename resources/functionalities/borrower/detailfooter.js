@@ -24,7 +24,7 @@
         success: function(data)
         {
           $('#displaySpouse').show();
-          $('#borrowerSpouseForm').hide();
+          $('#btnSpouseView').hide();
 
           $('#lblBorrowerSpouse').html('View Spouse Details');
           $('#lblSpouseName').html(data['Name']);
@@ -1009,5 +1009,11 @@
       $('#btnCameraUpload').show();
       $('#uploadPic').show();
     })
+
+    $('#modalBorrowerDetails').on('hidden.bs.modal', function () {
+      $('#btnSpouseView').show();
+    })
+
+
 
   })

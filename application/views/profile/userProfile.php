@@ -550,8 +550,8 @@
 
     var rowNo = 0;
     $('#dtblAudit').DataTable({
-      // "aoColumnDefs": [{ "bVisible": false, "aTargets": [4] }],
-      "order": [[0, "desc"]]
+      "aoColumnDefs": [{ "bVisible": false, "aTargets": [4] }],
+      "order": [[4, "desc"]]
     });
     $('#example2').DataTable({
       "aoColumnDefs": [{ "bVisible": false, "aTargets": [4] }],

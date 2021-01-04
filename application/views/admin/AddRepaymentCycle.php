@@ -165,14 +165,27 @@
           },
           success: function(data)
           {
-            refreshPage();
-            swal({
-              title: 'Success!',
-              text: 'Repayment Cycle successfully updated!',
-              type: 'success',
-              buttonsStyling: false,
-              confirmButtonClass: 'btn btn-primary'
-            });
+            if(data == 1)
+            {
+              refreshPage();
+              swal({
+                title: 'Success!',
+                text: 'Successfully updated!',
+                type: 'success',
+                buttonsStyling: false,
+                confirmButtonClass: 'btn btn-primary'
+              });
+            }
+            else
+            {
+              swal({
+                title: 'Info!',
+                text: 'Record is in use, record cannot be updated!',
+                type: 'info',
+                buttonsStyling: false,
+                confirmButtonClass: 'btn btn-primary'
+              });
+            }
           },
           error: function (response) 
           {

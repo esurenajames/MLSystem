@@ -268,6 +268,78 @@ class employee_model extends CI_Model
       return $data;
     }
 
+    function getEmployeeDetailsEmpNo()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query_string = $this->db->query("SELECT DISTINCT EMP.EmployeeId
+                                                , EMP.EmployeeNumber
+                                                , S.name as Salutation
+                                                , EMP.FirstName
+                                                , acronym(EMP.MiddleName) as MiddleInitial
+                                                , EMP.LastName
+                                                , EMP.ExtName
+                                                , SX.Name as Sex
+                                                , N.Description as Nationality
+                                                , C.name as CivilStatus
+                                                , DATE_FORMAT(EMP.DateOfBirth, '%d %b %Y') as DateOfBirth
+                                                , DATE_FORMAT(EMP.DateHired, '%d %b %Y') as DateHired
+                                                , EMP.StatusId
+                                                , SS.Name as StatusDescription
+                                                , SS.EmployeeStatusId as EmployeeStatusId
+
+                                                , S.SalutationId
+                                                , EMP.MiddleName
+                                                , SX.SexId
+                                                , N.NationalityId
+                                                , N.Description as NationalityName
+                                                , C.CivilStatusId
+                                                , EMP.DateOfBirth as RawDOB
+                                                , EMP.DateHired as RawDateHired
+                                                , P.PositionId
+                                                , P.Name as PositionName
+                                                , DATE_FORMAT(EMP.DateOfBirth, '%Y-%b-%d') as RawDateOfBirth
+                                                , DATE_FORMAT(EMP.DateHired, '%Y-%b-%d') as RawDH
+                                                , B.Name
+                                                , B.Code
+                                                , B.Description as BranchDesc
+                                                , MNG.FirstName as MngFirstName
+                                                , acronym(MNG.MiddleName) as MngMiddleInitial
+                                                , MNG.LastName as MngLastName
+                                                , MNG.EmployeeNumber as MngEmployeeNumber
+                                                , BM.ManagerBranchId
+                                                , PP.FileName
+                                                , BE.BranchId
+                                                FROM r_Employee EMP
+                                                  INNER JOIN R_Salutation S
+                                                    ON S.SalutationId = EMP.Salutation
+                                                  INNER JOIN R_Sex SX
+                                                    ON SX.SexId = EMP.Sex
+                                                  INNER JOIN r_nationality N
+                                                    ON N.NationalityId = EMP.Nationality
+                                                  INNER JOIN r_civilstatus C
+                                                    ON C.CivilStatusId = EMP.CivilStatus
+                                                  INNER JOIN R_Position P
+                                                    ON P.PositionId = EMP.PositionId
+                                                  INNER JOIN branch_has_employee BE
+                                                    ON BE.EmployeeNumber = EMP.EmployeeNumber
+                                                  INNER JOIN Employee_has_status SS
+                                                    ON SS.EmployeeStatusId = EMP.StatusId
+                                                  LEFT JOIN branch_has_manager BM
+                                                    ON BM.ManagerBranchId = BE.ManagerBranchId
+                                                  LEFT JOIN r_branches B
+                                                    ON B.BranchId = BE.BranchId
+                                                  LEFT JOIN r_employee MNG
+                                                    ON MNG.EmployeeNumber = BM.EmployeeNumber
+                                                  LEFT JOIN r_profilepicture PP
+                                                    ON PP.EmployeeNumber = EMP.EmployeeNumber
+                                                    AND PP.StatusId = 1
+                                                    WHERE EMP.EmployeeNumber = '$EmployeeNumber'
+
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
     function getNameOfCategory($input)
     {
       $EmployeeNumber = $this->session->userdata('EmployeeNumber');

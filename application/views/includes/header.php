@@ -55,7 +55,7 @@
 <div class="wrapper">
 
   <header class="main-header">
-    <a href="<?php echo base_url(); ?>resources/index2.html" class="logo">
+    <a href="#" class="logo">
       <span class="logo-mini"><b>L</b>MS</span>
       <span class="logo-lg"><img src="<?php echo base_url(); ?>/resources/ELENDiNG.png" style="width: 100%; height: 100%" ></span>
     </a>

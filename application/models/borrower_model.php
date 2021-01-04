@@ -762,7 +762,7 @@ class borrower_model extends CI_Model
         {
           $count = $this->db->query("SELECT  COUNT(*) as ifUsed
                                                       FROM application_has_spouse
-                                                            WHERE SpouseId = ".$input['Id']."
+                                                            WHERE BorrowerSpouseId = ".$input['Id']."
                                                             AND StatusId = 1
           ")->row_array();
           if($count['ifUsed'] == 0)
@@ -926,40 +926,56 @@ class borrower_model extends CI_Model
       }
       else if($input['tableType'] == 'BorrowerPersonal')
       {
-        $BorrowerDetail = $this->db->query("SELECT  BRF.ReferenceId
-                                                  , B.BorrowerId
-                                                  , B.BorrowerNumber
-                                                  FROM borrower_has_reference BRF
-                                                    INNER JOIN R_Borrowers B
-                                                      ON B.BorrowerId = BRF.BorrowerId
-                                                    WHERE BRF.ReferenceId = ".$input['Id']."
+        $count = $this->db->query("SELECT  COUNT(*) as ifUsed
+                                                    FROM application_has_personalReference
+                                                          WHERE ReferenceId = ".$input['Id']."
+                                                          AND StatusId = 1
         ")->row_array();
-        $PersonalNumber = $this->db->query("SELECT LPAD(".$input['Id'].", 6, 0) as Id")->row_array();
-        if($input['updateType'] == 1 || $input['updateType'] == 0) // activate and deactivate Contact Number of Borrower
+        if($count['ifUsed'] == 0)
         {
-          // update status
-            $set = array(
-              'StatusId' => $input['updateType'],
-              'UpdatedBy' => $EmployeeNumber,
-              'DateUpdated' => $DateNow,
-            );
-            $condition = array(
-              'ReferenceId' => $input['Id']
-            );
-            $table = 'borrower_has_reference';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-          // admin audits finalss
-            if($input['updateType'] == 1)
-            {
-              $auditLogsManager = 'Re-activated personal reference record #RF-'.$PersonalNumber['Id'].' of borrower #'.$BorrowerDetail['BorrowerNumber'].'.';
-              $auditBorrowerDetails = 'Re-activated personal reference record #RF-'.$PersonalNumber['Id'].' in personal reference tab.';
-            }
-            else if($input['updateType'] == 0)
-            {
-              $auditLogsManager = 'Deactivated personal reference record #RF-'.$PersonalNumber['Id'].' of borrower #'.$BorrowerDetail['BorrowerNumber'].'.';
-              $auditBorrowerDetails = 'Deactivated personal reference record #RF-'.$PersonalNumber['Id'].' in personal reference tab.';
-            }
-            $this->auditBorrowerDetails($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditBorrowerDetails, $BorrowerDetail['BorrowerId']);
+          $BorrowerDetail = $this->db->query("SELECT  BRF.ReferenceId
+                                                    , B.BorrowerId
+                                                    , B.BorrowerNumber
+                                                    FROM borrower_has_reference BRF
+                                                      INNER JOIN R_Borrowers B
+                                                        ON B.BorrowerId = BRF.BorrowerId
+                                                      WHERE BRF.ReferenceId = ".$input['Id']."
+          ")->row_array();
+          $PersonalNumber = $this->db->query("SELECT LPAD(".$input['Id'].", 6, 0) as Id")->row_array();
+          if($input['updateType'] == 1 || $input['updateType'] == 0) // activate and deactivate Contact Number of Borrower
+          {
+            // update status
+              $set = array(
+                'StatusId' => $input['updateType'],
+                'UpdatedBy' => $EmployeeNumber,
+                'DateUpdated' => $DateNow,
+              );
+              $condition = array(
+                'ReferenceId' => $input['Id']
+              );
+              $table = 'borrower_has_reference';
+              $this->maintenance_model->updateFunction1($set, $condition, $table);
+            // admin audits finalss
+              if($input['updateType'] == 1)
+              {
+                $auditLogsManager = 'Re-activated personal reference record #RF-'.$PersonalNumber['Id'].' of borrower #'.$BorrowerDetail['BorrowerNumber'].'.';
+                $auditBorrowerDetails = 'Re-activated personal reference record #RF-'.$PersonalNumber['Id'].' in personal reference tab.';
+              }
+              else if($input['updateType'] == 0)
+              {
+                $auditLogsManager = 'Deactivated personal reference record #RF-'.$PersonalNumber['Id'].' of borrower #'.$BorrowerDetail['BorrowerNumber'].'.';
+                $auditBorrowerDetails = 'Deactivated personal reference record #RF-'.$PersonalNumber['Id'].' in personal reference tab.';
+              }
+              $this->auditBorrowerDetails($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditBorrowerDetails, $BorrowerDetail['BorrowerId']);
+
+              return 1;
+          }
+
+          return 1;
+        }
+        else
+        {
+          return 0;
         }
       }
       else if($input['tableType'] == 'BorrowerEducation')

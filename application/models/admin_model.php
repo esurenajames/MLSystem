@@ -565,6 +565,7 @@ class admin_model extends CI_Model
       $query_string = $this->db->query("SELECT  C.Amount
                                                 , CapitalId
                                                 , CONCAT('IC-', LPAD(C.CapitalId, 6, 0)) as ReferenceNo
+                                                , C.BranchId
                                                 FROM R_Capital C 
                                                   WHERE CapitalId = '$Id'
       ");
@@ -1055,7 +1056,7 @@ class admin_model extends CI_Model
 
         $count = $this->db->query("SELECT  COUNT(*) as ifUsed
                                                     FROM t_paymentsmade
-                                                      WHERE PositionId = ".$input['Id']."
+                                                      WHERE PaymentMethod = ".$input['Id']."
                                                       AND StatusId = 1
         ")->row_array();
         if($count['ifUsed'] == 0)
@@ -1326,6 +1327,11 @@ class admin_model extends CI_Model
               $auditAffectedEmployee = 'Deactivated repayment cycle #' .$Detail['ReferenceNo']. ' at the repayment cycle setup'; // main log
             }
             $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
+            return 1;
+        }
+        else
+        {
+          return 0;
         }
       }
       else if($input['tableType'] == 'Disbursement')
@@ -1346,8 +1352,6 @@ class admin_model extends CI_Model
           // update status
             $set = array(
               'StatusId' => $input['updateType'],
-              'UpdatedBy' => $EmployeeNumber,
-              'DateUpdated' => $DateNow,
             );
             $condition = array(
               'DisbursementId' => $input['Id']

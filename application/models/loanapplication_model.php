@@ -1356,6 +1356,7 @@ class loanapplication_model extends CI_Model
                                                     ON BNK.BankId = PM.ChangeId
                                                     WHERE PM.StatusId = 1
                                                     ".$search."
+                                                    GROUP BY A.ApplicationId, PM.DateCollected, PM.PaymentMadeId
                                                     ORDER BY PM.DateCollected DESC
     ");
     $data = $query_string->result_array();

@@ -1755,7 +1755,7 @@ class employee_controller extends CI_Controller {
             $time2 = strtotime($DH);
             $DateH = date('Y-m-d', $time2);
 
-            if($EmpType == 'EMPLOYEE') // get manager id
+            if($EmpType == 'EMPLOYEE' || $EmpType == 'Employee' || $EmpType == 'manager') // get manager id
             {
               $ManagerId = $this->maintenance_model->getReferenceId('ManagerBranchId', 'branch_has_manager', $Manager, 'EmployeeNumber');
 
@@ -1815,7 +1815,7 @@ class employee_controller extends CI_Controller {
 
               $rowCount = $rowCount + 1;
             }
-            else if($EmpType == 'MANAGER') // insert into manager table
+            else if($EmpType == 'MANAGER' || $EmpType == 'Manager'  || $EmpType == 'manager') // insert into manager table
             {
               // employee
                 $data = array(

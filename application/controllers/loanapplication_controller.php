@@ -437,7 +437,7 @@ class loanapplication_controller extends CI_Controller {
       $auditLogsManager = 'Created loan application #'.$TransactionNumber.'.';
       $auditAffectedEmployee = 'Created loan application #'.$TransactionNumber.'.';
       $auditAffectedTable = 'Created loan application.';
-      $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId');
+      $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $generatedId['ApplicationId'], 'application_has_notifications', 'ApplicationId');
     // notifications
       $this->session->set_flashdata('alertTitle','Success!'); 
       $this->session->set_flashdata('alertText','Successfully submitted loan application!'); 
@@ -480,24 +480,24 @@ class loanapplication_controller extends CI_Controller {
           $auditLogsManager = 'Restructured term type from ' . $ApplicationDetail['TermType'] . ' to ' . $_POST['TermType'] . ' in application #' . $transNo['TransactionNumber'];
           $this->auditLoanApplication($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditApplication, $this->uri->segment(3), null);
 
-        // insert Application_has_notification
-          $insertNotification = array(
-            'Description'                   => 'Restructured term type from ' . $ApplicationDetail['TermType'] . ' to ' . $_POST['TermType']
-            , 'ApplicationId'               => $this->uri->segment(3)
-            , 'CreatedBy'                   => $EmployeeNumber
-          );
-          $insertNotificationTable = 'Application_has_Notifications';
-          $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
-        // main audits
-          $RefNo = $this->maintenance_model->selectSpecific('t_application', 'ApplicationId', $this->uri->segment(3));
-          $insertData2 = array(
-            'Description'   => 'Restructured term type from ' . $ApplicationDetail['TermType'] . ' to ' . $_POST['TermType']
-            , 'CreatedBy'   => $EmployeeNumber
-          );
-          $auditTable1 = 'Employee_has_Notifications';
-          $auditTable2 = 'R_Logs';
-          $this->maintenance_model->insertFunction($insertData2, $auditTable1);
-          $this->maintenance_model->insertFunction($insertData2, $auditTable2);
+        // // insert Application_has_notification
+        //   $insertNotification = array(
+        //     'Description'                   => 'Restructured term type from ' . $ApplicationDetail['TermType'] . ' to ' . $_POST['TermType']
+        //     , 'ApplicationId'               => $this->uri->segment(3)
+        //     , 'CreatedBy'                   => $EmployeeNumber
+        //   );
+        //   $insertNotificationTable = 'Application_has_Notifications';
+        //   $this->maintenance_model->insertFunction($insertNotification, $insertNotificationTable);
+        // // main audits
+        //   $RefNo = $this->maintenance_model->selectSpecific('t_application', 'ApplicationId', $this->uri->segment(3));
+        //   $insertData2 = array(
+        //     'Description'   => 'Restructured term type from ' . $ApplicationDetail['TermType'] . ' to ' . $_POST['TermType']
+        //     , 'CreatedBy'   => $EmployeeNumber
+        //   );
+        //   $auditTable1 = 'Employee_has_Notifications';
+        //   $auditTable2 = 'R_Logs';
+        //   $this->maintenance_model->insertFunction($insertData2, $auditTable1);
+        //   $this->maintenance_model->insertFunction($insertData2, $auditTable2);
         // update
           $set = array( 
             'DateUpdated' => $DateNow, 

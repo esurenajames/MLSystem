@@ -565,6 +565,7 @@ class maintenance_model extends CI_Model
                                                 , AM.StatusId
                                                 , AM.Name
                                                 , BRNCH.Name as BranchName
+                                                , CONCAT(FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as AssignedTo
                                                 , AM.BranchId
                                                 , AM.CreatedBy
                                                 , AM.CriticalLevel
@@ -575,6 +576,8 @@ class maintenance_model extends CI_Model
                                                   ON C.CategoryId = AM.CategoryId
                                                     INNER JOIN R_Branches BRNCH
                                                       ON BRNCH.BranchId = AM.BranchId
+                                                    INNER JOIN R_Employee EMP
+                                                      ON EMP.EmployeeNumber = AM.CreatedBy
                                                       WHERE BRNCH.BranchId = $AssignedBranchId
                                                       ".$search."
       ");

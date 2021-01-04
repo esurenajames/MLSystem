@@ -29,7 +29,7 @@
                   <div class="col-md-6">
                     <div class="form-group">
                       <label for="Asset">Type of Asset</label><br>
-                      <select class="form-control" style="width: 100%" name="AssetType" id="selectType">
+                      <select class="form-control" required="" style="width: 100%" name="AssetType" id="selectType">
                         <option value="1">Tangible</option>
                         <option value="0">Intangible</option>
                       </select>
@@ -38,7 +38,7 @@
                   <div class="col-md-6">
                     <div class="form-group">
                       <label for="Asset">Asset Category</label><br>
-                      <select class="form-control" style="width: 100%" name="CategoryId" id="SelectCategory">
+                      <select class="form-control select2" style="width: 100%" required="" name="CategoryId" id="SelectCategory">
                       <?php
                         echo $Category;
                       ?>
@@ -48,25 +48,25 @@
                   <div class="col-md-12">
                     <div class="form-group">
                       <label>Asset Name</label>
-                      <input type="text" class="form-control" id="txtAssetName" name="AssetName" placeholder="Asset Name">
+                      <input type="text" class="form-control" id="txtAssetName" required="" name="AssetName" placeholder="Asset Name">
                     </div>
                   </div>
                   <div class="col-md-6">
                     <div class="form-group">
                       <label for="Stock">Stock</label>
-                      <input type="number" class="form-control" id="txtStock" name="Stock" placeholder="Stocks">
+                      <input type="number" class="form-control" id="txtStock" required="" name="Stock" placeholder="Stocks">
                     </div>
                   </div>
                   <div class="col-md-6">
                     <div class="form-group">
                       <label>Critical Level</label>
-                      <input type="number" class="form-control" id="txtCriticalLevel" name="CriticalLevel" placeholder="Critical Level">
+                      <input type="number" class="form-control" id="txtCriticalLevel" required="" name="CriticalLevel" placeholder="Critical Level">
                     </div>
                   </div>
                   <div class="col-md-6">
                     <div class="form-group">
                       <label for="Asset">Purchase Price</label><br>
-                      <input type="number" class="form-control" style="width: 100%" name="PurchasePrice" id="txtPurchasePrice" placeholder="0.00">
+                      <input type="number" class="form-control" style="width: 100%" required="" name="PurchasePrice" id="txtPurchasePrice" placeholder="0.00">
                       <input type="hidden" name="FormType" id="txtFormType" value="1">
                       <input type="hidden" name="AssetManagementId" id="txtAssetManagementId">
                       </select>
@@ -75,14 +75,14 @@
                   <div class="col-md-6">
                     <div class="form-group">
                       <label for="Asset">Replacement Value</label><br>
-                      <input type="number" class="form-control" style="width: 100%" name="ReplacementValue" id="txtReplacementValue" placeholder="0.00">
+                      <input type="number" class="form-control" style="width: 100%" required="" name="ReplacementValue" id="txtReplacementValue" placeholder="0.00">
                       </select>
                     </div>
                   </div>
                   <div class="col-md-6">
                     <div class="form-group">
                       <label for="Asset">Serial Number</label><br>
-                      <input type="text" class="form-control" style="width: 100%" name="SerialNumber" id="txtSerialNumber" placeholder="XXXXXXXXXXXX">
+                      <input type="text" class="form-control" style="width: 100%" required="" name="SerialNumber" id="txtSerialNumber" placeholder="XXXXXXXXXXXX">
                       </select>
                     </div>
                   </div>
@@ -95,7 +95,7 @@
                   <div class="col-md-12">
                     <div class="form-group">
                       <label for="Branch">Company Branch</label><br>
-                      <select class="form-control" style="width: 100%" name="BranchId" id="SelectBranch" onchange="selectEmployees(this.value)">
+                      <select class="form-control" style="width: 100%" name="BranchId" required="" id="SelectBranch" onchange="selectEmployees(this.value)">
                       <?php
                         echo $Branch;
                       ?>
@@ -105,7 +105,7 @@
                   <div class="col-md-12">
                     <div class="form-group">
                       <label>Assigned To</label><br>
-                      <select class="form-control" style="width: 100%" name="AssignedTo" id="selectAssignedTo">
+                      <select class="form-control select2" style="width: 100%" required="" disabled="" name="AssignedTo" id="selectAssignedTo">
                       </select>
                     </div>
                   </div>
@@ -189,7 +189,7 @@
                 <div class="col-md-12">
                   <div class="form-group">
                     <label>Asset Category</label>
-                    <select class="form-control" id="selectAssetCategory" required="">
+                    <select class="form-control select2" id="selectAssetCategory" required="">
                       <?php 
                         echo $Category;
                       ?>
@@ -236,6 +236,7 @@
               <tr>
                 <th>Reference No</th>
                 <th>Category</th>
+                <th>Assigned To</th>
                 <th>Asset</th>
                 <th>Purchase Price</th>
                 <th>Serial Number</th>
@@ -370,7 +371,7 @@
         $('#SelectBranch').val(data['BranchId']).change();
         $('#txtAssetManagementId').val(AssetManagementId);
         $('#txtFormType').val(2);
-        selectEmployees(data['BranchId'], data['AssignedTo']);
+        selectEmployees(data['BranchId'], data['AssignedTo'], 2);
       },
 
       error: function()
@@ -418,22 +419,26 @@
     }
   }
 
-  function selectEmployees(value, selectedEmployee)
+  function selectEmployees(value, selectedEmployee, option)
   {
     if(selectedEmployee == undefined)
     {
-      $.ajax({
-        url: "<?php echo base_url();?>" + "/admin_controller/getDropDownEmployees",
-        method: "POST",
-        data: { BranchId : value },
-        beforeSend: function(){
-          $('.loading').show();
-        },
-        success: function(data)
-        {
-          $('#selectAssignedTo').html(data);
-        }
-      })
+      if(option != 2)
+      {
+        $.ajax({
+          url: "<?php echo base_url();?>" + "/admin_controller/getDropDownEmployees",
+          method: "POST",
+          data: { BranchId : value },
+          beforeSend: function(){
+            $('.loading').show();
+          },
+          success: function(data)
+          {
+            $('#selectAssignedTo').html(data);
+            $('#selectAssignedTo').prop('disabled', false);
+          }
+        })
+      }
     }
     else
     {      
@@ -448,6 +453,7 @@
         {
           $('#selectAssignedTo').html(data);
           $('#selectAssignedTo').val(selectedEmployee).change();
+          $('#selectAssignedTo').prop('disabled', false);
         }
       })
     }
@@ -455,11 +461,13 @@
 
   $(function () {
 
+    $('.select2').select2();
     UserTable = $('#example1').DataTable({
       "pageLength": 10,
       "ajax": { url: '<?php echo base_url()."/datatables_controller/Assets/"; ?>', type: 'POST', "dataSrc": "" },
       "columns": [  { data: "ReferenceNo" }
                     , { data: "CategoryName" }
+                    , { data: "AssignedTo" }
                     , { data: "AssetName" }
                     , { data: "PurchaseValue" }
                     , { data: "SerialNumber" }
@@ -513,28 +521,20 @@
       "order": [[0, "asc"]]
     });
 
-    $("#frmInsert").on('submit', function (e) {
-      if(varNewPassword = 1 && varStatus == 1 && $('#txtNewPassword').val() == $('#txtConfirmPassword').val() && $('#txtOldPassword').val() != $('#txtNewPassword').val())
-      {
-        e.preventDefault(); 
-        swal({
-          title: 'Confirm',
-          text: 'Are you sure you sure with this password?',
-          type: 'info',
-          showCancelButton: true,
-          buttonsStyling: false,
-          confirmButtonClass: 'btn btn-success',
-          confirmButtonText: 'Confirm',
-          cancelButtonClass: 'btn btn-secondary'
-        }).then(function(){
-          e.currentTarget.submit();
-        });
-      }
-      else
-      {
-        alert('please make sure your new password is not equal to your old password!')
-        e.preventDefault();
-      }
+    $(".modalReset").on('submit', function (e) {
+      e.preventDefault(); 
+      swal({
+        title: 'Confirm',
+        text: 'Are you sure you want to proceed?',
+        type: 'info',
+        showCancelButton: true,
+        buttonsStyling: false,
+        confirmButtonClass: 'btn btn-success',
+        confirmButtonText: 'Confirm',
+        cancelButtonClass: 'btn btn-secondary'
+      }).then(function(){
+        e.currentTarget.submit();
+      });
     });
 
     $('#modalNewTangible').on('hide.bs.modal', function () {

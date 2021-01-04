@@ -887,7 +887,6 @@ class admin_controller extends CI_Controller {
           $insertDisbursement = array(
             'Name'                     => htmlentities($_POST['Disbursement'], ENT_QUOTES)
             , 'CreatedBy'           => $EmployeeNumber
-            , 'UpdatedBy'           => $EmployeeNumber
           );
           $insertDisbursementTable = 'R_DIsbursement';
           $this->maintenance_model->insertFunction($insertDisbursement, $insertDisbursementTable);
@@ -1569,6 +1568,19 @@ class admin_controller extends CI_Controller {
           );
           $insertCategoryTable = 'R_Category';
           $this->maintenance_model->insertFunction($insertCategory, $insertCategoryTable);
+        // get generated application id
+          $getData = array(
+            'table'                 => 'R_Category'
+            , 'column'              => 'CategoryId'
+            , 'CreatedBy'           => $EmployeeNumber
+          );
+          $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+        // admin audits
+          $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
+          $TransactionNumber = 'CAT-'.sprintf('%05d', $generatedId['CategoryId']);
+          $auditLogsManager = 'Added asset category #'. $TransactionNumber.' in asset management.';
+          $auditAffectedEmployee = 'added asset category #'. $TransactionNumber.'.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Category successfully recorded!'); 
@@ -1693,12 +1705,18 @@ class admin_controller extends CI_Controller {
           );
           $insertTangibleTable = 'R_AssetManagement';
           $this->maintenance_model->insertFunction($insertTangible, $insertTangibleTable);
+        // get generated application id
+          $getData = array(
+            'table'                 => 'R_AssetManagement'
+            , 'column'              => 'AssetManagementId'
+            , 'CreatedBy'           => $EmployeeNumber
+          );
+          $generatedId = $this->maintenance_model->getGeneratedId2($getData);
         // admin audits
           $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
-          $itemDetail = $this->maintenance_model->selectSpecific('r_assetmanagement', 'AssetManagementId', $_POST['AssetManagementId']);
-          $TransactionNumber = 'AM-'.sprintf('%05d', $itemDetail['AssetManagementId']);
-          $auditLogsManager = 'Added asset #'.htmlentities($_POST['AssetName'], ENT_QUOTES).' in asset management.';
-          $auditAffectedEmployee = 'added asset '.htmlentities($_POST['AssetName'], ENT_QUOTES).'.';
+          $TransactionNumber = 'AM-'.sprintf('%05d', $generatedId['AssetManagementId']);
+          $auditLogsManager = 'Added asset #'.htmlentities($TransactionNumber, ENT_QUOTES).' in asset management.';
+          $auditAffectedEmployee = 'Added asset #'.htmlentities($TransactionNumber, ENT_QUOTES).'.';
           $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
@@ -2881,6 +2899,7 @@ class admin_controller extends CI_Controller {
           $instertWithdrawal = array(
             'WithdrawalTypeId'                => htmlentities($_POST['Withdrawal'], ENT_QUOTES)
             , 'Amount'                        => htmlentities($_POST['Amount'], ENT_QUOTES)
+            , 'BranchId'                      => $AssignedBranch
             , 'DateWithdrawal'                => htmlentities($newformat, ENT_QUOTES)
             , 'CreatedBy'                     => $EmployeeNumber
           );
@@ -3140,6 +3159,7 @@ class admin_controller extends CI_Controller {
       $this->db->truncate('application_has_approver');
       $this->db->truncate('application_has_charges');
       $this->db->truncate('application_has_collaterals');
+      $this->db->truncate('application_has_comaker');
       $this->db->truncate('application_has_conditionalcharges');
       $this->db->truncate('application_has_disclosurestatement');
       $this->db->truncate('application_has_expense');
@@ -3236,6 +3256,7 @@ class admin_controller extends CI_Controller {
       $this->db->truncate('t_paymentsmade');
       $this->db->truncate('r_userrole_has_r_securityquestions');
       $this->db->truncate('R_UserAccess');
+      $this->db->truncate('employee_has_status');
                           // SET foreign_key_checks = 1 ;
       // application has status
         $insertData1 = array(
@@ -3287,6 +3308,16 @@ class admin_controller extends CI_Controller {
         $auditTableBS = 'r_borrowerstatus';
         $this->maintenance_model->insertFunction($insertDataBS1, $auditTableBS);
         $this->maintenance_model->insertFunction($insertDataBS2, $auditTableBS);
+      // employee status
+        $insertDataES1 = array(
+          'Name'          => 'Regular',
+        );
+        $insertDataES2 = array(
+          'Name'          => 'Deactivated',
+        );
+        $auditTableES = 'employee_has_status';
+        $this->maintenance_model->insertFunction($insertDataES1, $auditTableES);
+        $this->maintenance_model->insertFunction($insertDataES2, $auditTableES);
       // branch
         $insertDataB = array(
           'Name' => 'Taytay',

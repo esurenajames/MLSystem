@@ -136,14 +136,14 @@
               </div>
               <div class="col-md-6">
                 <div class="form-group">
-                  <label for="selectRegion">Province <span class="text-red">*</span></label>
+                  <label for="selectRegion">Province/City <span class="text-red">*</span></label>
                   <select class="form-control select2"  required="" id="selectProvince" onchange="changeProvince(this.value)" name="ProvinceId" style="width: 100%">
                   </select>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-group">
-                  <label for="selectCity">City <span class="text-red">*</span></label>
+                  <label for="selectCity">Municipality <span class="text-red">*</span></label>
                   <select class="form-control select2" required="" id="selectCity" onchange="changeCity(this.value)" name="CityId" style="width: 100%">
                   </select>
                 </div>
