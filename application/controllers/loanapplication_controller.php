@@ -3157,8 +3157,8 @@ class loanapplication_controller extends CI_Controller {
       $pdf->writeHTML($html, true, false, true, false, '');
 
       // Close and output PDF document
-      $pdf->Output('Form3.pdf', 'I');
-      // $pdf->Output(htmlentities($_POST['reportName'], ENT_QUOTES) .'.pdf', 'D');
+      // $pdf->Output('Form3.pdf', 'I');
+      $pdf->Output(htmlentities($_POST['reportName'], ENT_QUOTES) .'.pdf', 'D');
     }
     if($this->uri->segment(3) == 3) // loan application
     {

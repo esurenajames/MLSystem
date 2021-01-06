@@ -2654,7 +2654,6 @@ class admin_controller extends CI_Controller {
         'Name'                     => htmlentities($_POST['ExpenseType'], ENT_QUOTES)
       );
       $query = $this->admin_model->countExpenseType($data);
-      print_r($query);
       if($query == 0) // not existing
       {
         // insert Expense Type detail
@@ -2680,7 +2679,7 @@ class admin_controller extends CI_Controller {
           $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
-          $this->session->set_flashdata('alertText','Expense Type successfully recorded!'); 
+          $this->session->set_flashdata('alertText','Expense type successfully recorded!'); 
           $this->session->set_flashdata('alertType','success'); 
           redirect('home/AddExpenseType/'. $EmployeeId['EmployeeId']);
       }
@@ -2688,7 +2687,7 @@ class admin_controller extends CI_Controller {
       {
         // notification
           $this->session->set_flashdata('alertTitle','Warning!'); 
-          $this->session->set_flashdata('alertText','Expense Type already existing!'); 
+          $this->session->set_flashdata('alertText','Expense type already existing!'); 
           $this->session->set_flashdata('alertType','warning'); 
           redirect('home/AddExpenseType');
       }
@@ -2783,7 +2782,7 @@ class admin_controller extends CI_Controller {
           $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
-          $this->session->set_flashdata('alertText','Withdrawal type successfully recorded!'); 
+          $this->session->set_flashdata('alertText','Deposit type successfully recorded!'); 
           $this->session->set_flashdata('alertType','success'); 
           redirect('home/AddDepositType/'. $EmployeeId['EmployeeId']);
       }
@@ -2791,7 +2790,7 @@ class admin_controller extends CI_Controller {
       {
         // notification
           $this->session->set_flashdata('alertTitle','Warning!'); 
-          $this->session->set_flashdata('alertText','Withdrawal type already existing!'); 
+          $this->session->set_flashdata('alertText','Deposit type already existing!'); 
           $this->session->set_flashdata('alertType','warning'); 
           redirect('home/AddDepositType');
       }
@@ -2837,7 +2836,7 @@ class admin_controller extends CI_Controller {
           $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
       // notif
         $this->session->set_flashdata('alertTitle','Success!'); 
-        $this->session->set_flashdata('alertText','Type of withdrawal details successfully updated!'); 
+        $this->session->set_flashdata('alertText','Type of deposit details successfully updated!'); 
         $this->session->set_flashdata('alertType','success'); 
         redirect('home/AddDepositType/');
       }
@@ -2845,7 +2844,7 @@ class admin_controller extends CI_Controller {
       {
         // notif
         $this->session->set_flashdata('alertTitle','Warning!'); 
-        $this->session->set_flashdata('alertText','Type of withdrawal details already existing!'); 
+        $this->session->set_flashdata('alertText','Type of deposit details already existing!'); 
         $this->session->set_flashdata('alertType','warning'); 
         redirect('home/AddDepositType/');
       }
@@ -2894,7 +2893,7 @@ class admin_controller extends CI_Controller {
           $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
-          $this->session->set_flashdata('alertText','Withdrawal details successfully recorded!'); 
+          $this->session->set_flashdata('alertText','Deposit details successfully recorded!'); 
           $this->session->set_flashdata('alertType','success'); 
           redirect('home/AddDeposit/'. $EmployeeId['EmployeeId']);
       }
@@ -2902,7 +2901,7 @@ class admin_controller extends CI_Controller {
       {
         // notification
           $this->session->set_flashdata('alertTitle','Warning!'); 
-          $this->session->set_flashdata('alertText','Withdrawal details already existing!'); 
+          $this->session->set_flashdata('alertText','Deposit details already existing!'); 
           $this->session->set_flashdata('alertType','warning'); 
           redirect('home/AddDeposit');
       }
@@ -2955,7 +2954,7 @@ class admin_controller extends CI_Controller {
         $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
       // notif
         $this->session->set_flashdata('alertTitle','Success!'); 
-        $this->session->set_flashdata('alertText','Withdrawal details successfully updated!'); 
+        $this->session->set_flashdata('alertText','Deposit details successfully updated!'); 
         $this->session->set_flashdata('alertType','success'); 
         redirect('home/AddDeposit/');
     }

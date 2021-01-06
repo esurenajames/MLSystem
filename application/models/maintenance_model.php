@@ -731,7 +731,7 @@ class maintenance_model extends CI_Model
     function getAllWithdrawalType()
     {
       $query_string = $this->db->query("SELECT WT.Name as WithdrawalType
-                                                , CONCAT('WT-', LPAD(WT.WithdrawalTypeId, 6, 0)) as ReferenceNo
+                                                , CONCAT('DET-', LPAD(WT.WithdrawalTypeId, 6, 0)) as ReferenceNo
                                                 , WithdrawalTypeId
                                                 , WT.Description
                                                 , WT.StatusId

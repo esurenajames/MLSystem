@@ -878,6 +878,7 @@ class loanapplication_model extends CI_Model
                                         , IsMandatory
                                         FROM r_requirements
                                           WHERE StatusId = 1
+                                          AND RequirementId NOT IN (SELECT RequirementId FROM Application_has_Requirements WHERE StatusId = 5 OR StatusId = 7)
     ");
 
     $data = $query->result_array();
@@ -887,10 +888,18 @@ class loanapplication_model extends CI_Model
   function getRequirementSelected($ID)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $query = $this->db->query("SELECT   DISTINCT RequirementId
-                                        FROM application_has_requirements
-                                          WHERE StatusId = 1
-                                          AND ApplicationId = $ID
+    $query = $this->db->query("SELECT   DISTINCT AHR.RequirementId
+                                        , R.Name
+                                        , R.Description
+                                        , R.IsMandatory
+                                        FROM application_has_requirements AHR
+                                          INNER JOIN R_Requirements R
+                                            ON R.RequirementId = AHR.RequirementId
+                                          WHERE (AHR.StatusId = 5
+                                          OR
+                                          AHR.StatusId = 7
+                                          )
+                                          AND AHR.ApplicationId = $ID
     ");
 
     $data = $query->result_array();

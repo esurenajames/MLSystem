@@ -710,51 +710,53 @@
                       <?php
                         if($RequirementList != 0)
                         {
-                          $isChecked = 0; 
+                          $isChecked = 1; 
                           $isSelected = 0;
                           $rowCount = 0;
                           foreach ($RequirementList as $value) 
                           {
                             $rowCount = $rowCount + 1;
-                            foreach ($selectedRequirements as $selectedValue) 
-                            {
-                              if($selectedValue['RequirementId'] == $value['RequirementId'])
+                            echo "<tr>";
+                              if($value['IsMandatory'] == 1)
                               {
-                                if($value['IsMandatory'] == 1)
-                                {
-                                  $isChecked = 'checked disabled'; 
-                                  $isSelected = 1;
-                                }
-                                else
-                                {
-                                  $isChecked = 'checked';
-                                  $isSelected = 1;
-                                }
+                                echo "<td><center><label><input onclick='chkRequirements(".$rowCount.")' id='selectCheckReq".$rowCount."'type='checkbox' checked disabled value='".$value['Description']."'></label></center>
+                                  <input type='hidden' value='1' name='isRequirementSelected[]' id='isRequirementSelected".$rowCount."'></td>";
                               }
                               else
                               {
-                                if($value['IsMandatory'] == 1)
-                                {
-                                  $isChecked = 'checked disabled'; 
-                                  $isSelected = 1;
-                                }
-                                else
-                                {
-                                  $isChecked = '';
-                                  $isSelected = 0;
-                                }
+                                echo "<td><center><label><input onclick='chkRequirements(".$rowCount.")' id='selectCheckReq".$rowCount."'type='checkbox' value='".$value['Description']."'></label></center>
+                                <input type='hidden' value='0' name='isRequirementSelected[]' id='isRequirementSelected".$rowCount."'></td>";
                               }
-                            }
-
-                            echo "<tr>";
-                            echo "<td><center><label><input onclick='chkRequirements(".$rowCount.")' id='selectCheckReq".$rowCount."' ".$isChecked." type='checkbox' value='".$value['Description']."'></label></center></td>";
-                            echo "<td>".$value['Name']."</td>";
-                            echo "<td>".$value['Description']."
-                              <input type='hidden' name='RequirementId[]' id='txtRequirementId".$rowCount."' value='".$value['RequirementId']."'>
-                              <input type='hidden' value='".$isSelected."' name='isRequirementSelected[]' id='isRequirementSelected".$rowCount."'>
-                              <input type='hidden' name='RequirementNo[]' id='requirementRowCount".$rowCount."' value='".$rowCount."'>
+                            echo "<td>".$value['Name']."
+                                <input type='hidden' name='RequirementId[]' id='txtRequirementId".$rowCount."' value='".$value['RequirementId']."'>
+                                <input type='hidden' name='RequirementNo[]' id='requirementRowCount".$rowCount."' value='".$rowCount."'>
                             </td>";
+                            echo "<td>".$value['Description']."</td>";
                             echo "</tr>";
+                          }
+
+                          if($selectedRequirements != 0)
+                          {
+                            foreach ($selectedRequirements as $selectedValue) 
+                            {
+                              echo "<tr>";
+                              if($selectedValue['IsMandatory'] == 1)
+                              {
+                                echo "<td><center><label><input onclick='chkRequirements(".$rowCount.")' id='selectCheckReq".$rowCount."'type='checkbox' checked disabled value='".$selectedValue['Description']."'></label></center>
+                                  <input type='hidden' value='1' name='isRequirementSelected[]' id='isRequirementSelected".$rowCount."'></td>";
+                              }
+                              else
+                              {
+                                echo "<td><center><label><input onclick='chkRequirements(".$rowCount.")' id='selectCheckReq".$rowCount."'type='checkbox' checked value='".$selectedValue['Description']."'></label></center>
+                                  <input type='hidden' value='0' name='isRequirementSelected[]' id='isRequirementSelected".$rowCount."'></td>";
+                              }
+                              echo "<td>".$selectedValue['Name']."
+                                  <input type='hidden' name='RequirementId[]' id='txtRequirementId".$rowCount."' value='".$selectedValue['RequirementId']."'>
+                                  <input type='hidden' name='RequirementNo[]' id='requirementRowCount".$rowCount."' value='".$rowCount."'>
+                              </td>";
+                              echo "<td>".$selectedValue['Description']."</td>";
+                              echo "</tr>";
+                            }
                           }
                         }
                       ?>
