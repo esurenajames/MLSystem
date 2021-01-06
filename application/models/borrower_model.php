@@ -1578,7 +1578,7 @@ class borrower_model extends CI_Model
       return $data;
     }
 
-    function filterBorrower($StatusID)
+    function filterBorrower($StatusID, $CreatedBy, $From, $To)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT DISTINCT B.FirstName
@@ -1606,6 +1606,8 @@ class borrower_model extends CI_Model
                                                       WHERE EMP.StatusId = 2
                                                       AND BHE.BranchId = $AssignedBranchId
                                                       AND B.StatusId = $StatusID
+                                                      AND B.CreatedBy = '$CreatedBy'
+                                                      AND B.Dependents BETWEEN $From AND $To
       ");
       $data = $query_string->result_array();
       return $data;

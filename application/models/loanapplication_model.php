@@ -1688,12 +1688,14 @@ class loanapplication_model extends CI_Model
                                               , AO.Details
                                               , AO.Amount
                                               , AO.StatusId
-                                              , S.Description
+                                              , CASE
+                                                  WHEN AO.StatusId = 2
+                                                  THEN 'Active'
+                                                  ELSE 'Deactivated'
+                                                END as Description
                                               , DATE_FORMAT(AO.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                               , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as CreatedBy
                                               FROM Application_has_MonthlyObligation AO
-                                                INNER JOIN r_status S
-                                                  ON S.StatusId = AO.StatusId
                                                 LEFT JOIN R_Employee EMP
                                                   ON EMP.EmployeeNumber = AO.CreatedBy
                                                     WHERE AO.ApplicationId = $ID

@@ -2231,7 +2231,7 @@
                             }
                             echo "<tr>";
                             echo "<td>".$value['rowNumber']."</td>";
-                            echo "<td>".$value['Name']."</td>";
+                            echo "<td>".$value['RefName']."</td>";
                             echo "<td>".$value['Employer']."</td>";
                             echo "<td>".$value['MobileNo']."</td>";
                             echo "<td>".$value['DateCreated']."</td>";

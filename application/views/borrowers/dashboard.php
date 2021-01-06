@@ -2,7 +2,7 @@
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
 
-  <?php if(in_array('21', $subModule) && $detail['BranchId'] == $this->session->userdata('BranchId')) { ?>
+  <?php if((in_array('21', $subModule) || in_array('23', $subModule)) && $detail['BranchId'] == $this->session->userdata('BranchId')) { ?>
 
     <section class="content-header">
       <h1>
@@ -440,6 +440,28 @@
                   </select>
                 </div>
               </div>
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>Created By</label>
+                  <select style="width: 100%" required="" class="form-control select2" id="borrowerCreatedBy" required="">
+                    <?php 
+                      echo $CreatedBy;
+                    ?>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Dependent Range From</label>
+                  <input type="number" required="" id="borrowerDependentsFrom" class="form-control" name="">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Dependent Range To</label>
+                  <input type="number" required="" id="borrowerDependentsTo" class="form-control" name="">
+                </div>
+              </div>
             </div>
           </div>
           <div class="modal-footer">
@@ -458,8 +480,13 @@
         <div class="box-body">
           <div class="pull-right">
             <!-- <a href="<?php echo base_url(); ?>loanapplication_controller/generateReport/4" class="btn btn-primary btn-md" >Generate Report</a> -->
-            <button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#modalNewRecord">Add Borrower</button>
-            <button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#modalImport2">Import Borrower</button>
+
+            <?php if((in_array('21', $subModule)) && $detail['BranchId'] == $this->session->userdata('BranchId')) { ?>
+              <button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#modalNewRecord">Add Borrower</button>
+              <button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#modalImport2">Import Borrower</button>
+            <?php } else { ?>
+
+            <?php } ?>
             <a data-toggle="modal" data-target="#modalFilter" class="btn btn-primary btn-md" >Filter</a>
           </div>
           <br>
@@ -588,7 +615,7 @@
   }
 
   function filterPage(){
-    var url = '<?php echo base_url()."borrower_controller/filterBorrower/"; ?>' + $('#borrowerStatus').val();
+    var url = '<?php echo base_url()."borrower_controller/filterBorrower/"; ?>' + $('#borrowerStatus').val()+ '/'+ $('#borrowerCreatedBy').val()+ '/'+ $('#borrowerDependentsFrom').val()+ '/'+ $('#borrowerDependentsTo').val();
     UserTable.ajax.url(url).load();
     $('#modalFilter').modal('hide');
   }

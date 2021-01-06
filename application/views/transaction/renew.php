@@ -83,7 +83,7 @@
                   </div>
                   <br>
                   <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                       <div class="form-group">
                         <label>Source<span class="text-red">*</span></label><br>
                         <select class="form-control" onchange="functionSourceChange(this.value); loanSummary()" id="selectSource" style="width: 100%" required="" name="SourceType">
@@ -98,7 +98,7 @@
                         </div>
                       </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                       <div class="form-group">
                         <label>Purpose<span class="text-red">*</span></label><br>
                         <select class="form-control" style="width: 100%" onchange="loanSummary()" id="selectPurpose" name="PurposeId">
@@ -118,22 +118,6 @@
                           ?>
                         </select>
                         <a target="_blank" href="<?php echo base_url();?>/home/AddPurpose"> Add/Edit Purpose</a>
-                      </div>
-                    </div>
-                    <div class="col-md-4">
-                      <div class="form-group">
-                        <div class="form-group">
-                            <div class="form-group">
-                              <label>Loan Release Date <span class="text-red">*</span></label>
-                              <div class="input-group date">
-                                <div class="input-group-addon">
-                                  <i class="fa fa-calendar"></i>
-                                </div>
-                                <input type="text" placeholder="Date of Birth" class="form-control" onchange="loanSummary()" name="loanReleaseDate" required="" id="loanReleaseDate">
-                              </div>
-                              <!-- /.input group -->
-                            </div>
-                        </div>
                       </div>
                     </div>
                   </div>
@@ -548,10 +532,6 @@
                       <label>Purpose</label>
                       <h6 id="lblPurpose"></h6>
                     </div>
-                    <div class="col-md-3">
-                      <label>Loan Release Date</label>
-                      <h6 id="lblReleaseDate"></h6>
-                    </div>
                   </div>
                   <div class="row">
                     <div class="col-md-3">
@@ -730,6 +710,8 @@
                       <?php
                         if($RequirementList != 0)
                         {
+                          $isChecked = 0; 
+                          $isSelected = 0;
                           $rowCount = 0;
                           foreach ($RequirementList as $value) 
                           {

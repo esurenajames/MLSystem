@@ -3284,10 +3284,10 @@ class admin_controller extends CI_Controller {
         $this->maintenance_model->insertFunction($insertDataBS2, $auditTableBS);
       // employee status
         $insertDataES1 = array(
-          'Name'          => 'Regular',
+          'Name'          => 'Deactivated',
         );
         $insertDataES2 = array(
-          'Name'          => 'Deactivated',
+          'Name'          => 'Regular',
         );
         $auditTableES = 'employee_has_status';
         $this->maintenance_model->insertFunction($insertDataES1, $auditTableES);

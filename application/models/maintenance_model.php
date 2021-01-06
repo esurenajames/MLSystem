@@ -1277,6 +1277,23 @@ class maintenance_model extends CI_Model
       return $output;
     }
 
+    function getBorrowerCreator()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT   CONCAT(EMP.LastName, ', ', EMP.FirstName) as Name
+                                          , B.CreatedBy
+                                          FROM r_borrowers B
+                                            INNER JOIN R_Employee EMP
+                                              ON EMP.EmployeeNumber = B.CreatedBy
+      ");
+      $output = '';
+      foreach ($query->result() as $row)
+      {
+        $output .= '<option value="'.$row->CreatedBy.'">'.$row->Name.'</option>';
+      }
+      return $output;
+    }
+
     function getEmployeeStatus()
     {
       $EmployeeNumber = $this->session->userdata('EmployeeNumber');
@@ -1913,6 +1930,7 @@ class maintenance_model extends CI_Model
     /*Total Users*/
     function getTotalUsers()
     {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
       $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT  COALESCE(COUNT(*)) as Total
                                                 FROM r_employee EMP
@@ -1923,6 +1941,8 @@ class maintenance_model extends CI_Model
                                                               WHERE UR.StatusId = 1
                                                                 AND EMP.StatusId = 2
                                                                 AND BE.BranchId = $AssignedBranchId
+                                                                AND EMP.EmployeeNumber != '000000'
+                                                                AND EMP.EmployeeNumber != '$EmployeeNumber'
       ");
       $data = $query_string->row_array();
       return $data;

@@ -672,12 +672,6 @@ class employee_controller extends CI_Controller {
           );
           $insertTableAddress = 'r_address';
           $this->maintenance_model->insertFunction($insertDataAddress, $insertTableAddress);
-        // get address id
-          $generatedIdData = array(
-            'table'                 => 'r_address'
-            , 'column'              => 'AddressId'
-          );
-          $AddressId = $this->maintenance_model->getGeneratedId($generatedIdData);
         // Update existing primary address
           if($_POST['isPrimary'] == 1)
           {
@@ -692,6 +686,12 @@ class employee_controller extends CI_Controller {
             $table = 'employee_has_address';
             $this->maintenance_model->updateFunction1($set, $condition, $table);
           }
+        // get address id
+          $generatedIdData = array(
+            'table'                 => 'r_address'
+            , 'column'              => 'AddressId'
+          );
+          $AddressId = $this->maintenance_model->getGeneratedId($generatedIdData);
         // insert into employee address      
           $insertDataAddress2 = array(
             'EmployeeNumber'                    => $this->uri->segment(4)
@@ -702,12 +702,19 @@ class employee_controller extends CI_Controller {
           );
           $insertTableAddress2 = 'employee_has_address';
           $this->maintenance_model->insertFunction($insertDataAddress2, $insertTableAddress2);
+        // get address id
+          $generatedIdData2 = array(
+            'table'                 => 'employee_has_address'
+            , 'column'              => 'EmployeeAddressId'
+          );
+          $AddressId2 = $this->maintenance_model->getGeneratedId($generatedIdData2);
 
         // admin audits finals
-          $TransactionNumber = 'ADD-'.sprintf('%06d', $AddressId['AddressId']);
+          $TransactionNumber = 'ADD-'.sprintf('%06d', $AddressId2['EmployeeAddressId']);
           $auditLogsManager = 'Added new address #'.$TransactionNumber.' for employee #'.$EmployeeNumber['EmployeeNumber'].' in address tab.';
           $auditAffectedEmployee = 'Added new address #'.$TransactionNumber.' in address tab.';
           $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $this->uri->segment(4));
+
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Employee Address successfully recorded!'); 

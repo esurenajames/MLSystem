@@ -3,19 +3,19 @@
 </style>
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
-  <!-- Content Header (Page header) -->
-  <section class="content-header">
-    <h1>
-      Access Management
-    </h1>
-    <ol class="breadcrumb">
-      <li><a href="#" class="active"><i class="fa fa-dashboard"></i> Dashboard</a></li>
-      <li>Employee List</a></li>
-      <li>Access Management</a></li>
-    </ol>
-  </section>
+  <?php if(in_array('60', $subModule) && $Detail['BranchId'] == $this->session->userdata('BranchId')) { ?>
 
-    <!-- Main content -->
+    <section class="content-header">
+      <h1>
+        Access Management
+      </h1>
+      <ol class="breadcrumb">
+        <li><a href="#" class="active"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        <li>Employee List</a></li>
+        <li>Access Management</a></li>
+      </ol>
+    </section>
+
     <section class="content">
       <div class="box">
         <div class="box-header with-border">
@@ -31,6 +31,7 @@
                 <?php
                   $rowNo = 0;
                   $moduleNo = 0;
+                  $selectedModule = 0;
                   foreach ($Modules as $value) 
                   {
                     $moduleNo++;
@@ -50,6 +51,7 @@
                           {
                             $isSelected = 'checked';
                             $selectedValue = 1;
+                            $selectedModule = $selectedModule + 1;
                           }
                         }
                         echo '<tr>';
@@ -76,9 +78,19 @@
         </div>
       </div>
     </section>
-  <!-- /.content -->
+
+  <?php } else { ?>
+    <br>
+    <br>
+    <div class="col-md-12">
+      <div class="callout callout-danger">
+        <h4>You have no access to this module!</h4>
+        <p>Please contact your admin to request for access!</p>
+      </div>
+    </div>
+  <?php } ?>
+
 </div>
-<!-- /.content-wrapper -->
 
 <footer class="main-footer">
   <div class="pull-right hidden-xs">

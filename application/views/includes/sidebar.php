@@ -32,7 +32,7 @@
 
         <li <?php if($sidebar == 'Dashboard' && $sidebarMenu == 'Dashboard'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/Dashboard"><i class="fa fa-dashboard"></i>Dashboard</a></li>
 
-        <?php if(in_array('1', $access)) { ?>
+        <?php if(in_array('8', $access)) { ?>
           <li <?php if($sidebar == 'BorrowerManagement'){echo 'class="treeview active"';} else {echo 'class="treeview"';}?>>
             <a href="#">
               <i class="fa fa-users"></i>Borrower Management

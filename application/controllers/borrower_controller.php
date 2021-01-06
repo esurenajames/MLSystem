@@ -1355,7 +1355,7 @@ class borrower_controller extends CI_Controller {
         );
         $newId = $this->maintenance_model->getGeneratedId($generatedIdData1);
 
-        $TransactionNumber = 'EA-'.sprintf('%06d', $newId['BorrowerCoMakerId']);
+        $TransactionNumber = 'EA-'.sprintf('%06d', $newId['BorrowerEmailId']);
         $auditLogsManager = 'Added new email #'.$TransactionNumber.' for borrower #'.$borrowerDetail['BorrowerNumber'].'.';
         $auditAffectedEmployee = 'Added new email #'.$TransactionNumber.' for borrower #'.$borrowerDetail['BorrowerNumber'].'.';
         $auditAffectedTable = 'Added new email #'.$TransactionNumber.' in emails tab.';
@@ -1740,7 +1740,7 @@ class borrower_controller extends CI_Controller {
 
   function filterBorrower()
   {
-    $result = $this->borrower_model->filterBorrower($this->uri->segment(3));
+    $result = $this->borrower_model->filterBorrower($this->uri->segment(3), $this->uri->segment(4), $this->uri->segment(5), $this->uri->segment(6));
     foreach($result as $key=>$row)
     {
       $result[$key]['TotalLoans'] = $this->borrower_model->getTotalLoans($row['BorrowerId']);
