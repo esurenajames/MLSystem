@@ -437,7 +437,7 @@ class loanapplication_controller extends CI_Controller {
       $auditLogsManager = 'Created loan application #'.$TransactionNumber.'.';
       $auditAffectedEmployee = 'Created loan application #'.$TransactionNumber.'.';
       $auditAffectedTable = 'Created loan application.';
-      $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $generatedId['ApplicationId'], 'application_has_notifications', 'ApplicationId');
+      $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $generatedId['ApplicationId'], 'application_has_notifications', 'ApplicationId', null);
     // notifications
       $this->session->set_flashdata('alertTitle','Success!'); 
       $this->session->set_flashdata('alertText','Successfully submitted loan application!'); 
@@ -938,7 +938,7 @@ class loanapplication_controller extends CI_Controller {
           $auditLogsManager = 'Approved re-structuring for application #'.$transNo['TransactionNumber'].'.';
           $auditAffectedEmployee = 'Approved re-structuring for application #'.$transNo['TransactionNumber'].'.';
           $auditAffectedTable = 'Approved re-structuring.';
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId');
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId', $_POST['Description']);
       }
       else
       {
@@ -949,7 +949,7 @@ class loanapplication_controller extends CI_Controller {
           $auditLogsManager = 'Approved application #'.$transNo['TransactionNumber'].'.';
           $auditAffectedEmployee = 'Approved application #'.$transNo['TransactionNumber'].'.';
           $auditAffectedTable = 'Approved.';
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId');
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId', $_POST['Description']);
       }
 
       $ProcessedApprovers = $this->loanapplication_model->getProcessedApprovers($this->uri->segment(3));
@@ -1082,7 +1082,7 @@ class loanapplication_controller extends CI_Controller {
         $auditLogsManager = 'Disapproved application #'.$transNo['TransactionNumber'].'.';
         $auditAffectedEmployee = 'Disapproved application #'.$transNo['TransactionNumber'].'.';
         $auditAffectedTable = 'Disapproved.';
-        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId');
+        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId', $_POST['Description']);
     }
     else if($_POST['ApprovalType'] == 3) // deactivated charge
     {
@@ -1102,7 +1102,7 @@ class loanapplication_controller extends CI_Controller {
         $auditLogsManager = 'Deactivated charge #'.$TransactionNumber . ' in charges tab ' .$loanDetail['TransactionNumber'].'.';
         $auditAffectedEmployee = 'Deactivated charge #'.$TransactionNumber . ' in charges tab ' .$loanDetail['TransactionNumber'].'.';
         $auditAffectedTable = 'Deactivated charge #'.$TransactionNumber . ' in charges tab.';
-        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $loanDetail['ApplicationId'], 'application_has_notifications', 'ApplicationId');
+        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $loanDetail['ApplicationId'], 'application_has_notifications', 'ApplicationId', null);
     }
     else if($_POST['ApprovalType'] == 4) // deactivated payment
     {
@@ -1191,7 +1191,7 @@ class loanapplication_controller extends CI_Controller {
         $auditLogsManager = 'Deactivated payment #'.$TransactionNumber . ' in collections tab ' .$loanDetail['TransactionNumber'].'.';
         $auditAffectedEmployee = 'Deactivated payment #'.$TransactionNumber . ' in collections tab ' .$loanDetail['TransactionNumber'].'.';
         $auditAffectedTable = 'Deactivated payment #'.$TransactionNumber . ' in collections tab.';
-        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $loanDetail['ApplicationId'], 'application_has_notifications', 'ApplicationId');
+        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $loanDetail['ApplicationId'], 'application_has_notifications', 'ApplicationId', null);
 
         // get generated application id
           $getData2 = array(
@@ -1248,7 +1248,7 @@ class loanapplication_controller extends CI_Controller {
           $auditLogsManager = 'Added comment #'.$TransactionNumber.' in monthly comments for application #'.$ApplicationDetail['TransactionNumber'].'.';
           $auditAffectedEmployee = 'Added comment #'.$TransactionNumber.' in comments tab for application #'.$ApplicationDetail['TransactionNumber'].'.';
           $auditAffectedTable = 'Added comment #'.$TransactionNumber.' in comments tab.';
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $ApplicationDetail['ApplicationId'], 'application_has_notifications', 'ApplicationId');
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $ApplicationDetail['ApplicationId'], 'application_has_notifications', 'ApplicationId', null);
 
       $path = './uploads/';
 
@@ -1354,7 +1354,7 @@ class loanapplication_controller extends CI_Controller {
           $auditLogsManager = 'Added monthly obligation #'.$TransactionNumber.' in monthly obligations tab for application #'.$ApplicationDetail['TransactionNumber'].'.';
           $auditAffectedEmployee = 'Added monthly obligation #'.$TransactionNumber.' in monthly obligations tab for application #'.$ApplicationDetail['TransactionNumber'].'.';
           $auditAffectedTable = 'Added monthly obligation #'.$TransactionNumber.' in monthly obligations tab.';
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $ApplicationDetail['ApplicationId'], 'application_has_notifications', 'ApplicationId');
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $ApplicationDetail['ApplicationId'], 'application_has_notifications', 'ApplicationId', null);
           $this->forRestart($this->uri->segment(3));
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
@@ -1424,7 +1424,7 @@ class loanapplication_controller extends CI_Controller {
           $auditLogsManager = 'Updated monthly obligation #'.$TransactionNumber.' in monthly obligations tab for application #'.$ApplicationDetail['TransactionNumber'].'.';
           $auditAffectedEmployee = 'Updated monthly obligation #'.$TransactionNumber.' in monthly obligations tab for application #'.$ApplicationDetail['TransactionNumber'].'.';
           $auditAffectedTable = 'Updated monthly obligation #'.$TransactionNumber.' in monthly obligations tab.';
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $ApplicationDetail['ApplicationId'], 'application_has_notifications', 'ApplicationId');
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $ApplicationDetail['ApplicationId'], 'application_has_notifications', 'ApplicationId', null);
         // notif
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Monthly obligation details successfully updated!'); 
@@ -1484,7 +1484,7 @@ class loanapplication_controller extends CI_Controller {
           $auditLogsManager = 'Added monthly expense #'.$TransactionNumber.' in monthly expenses tab for application #'.$ApplicationDetail['TransactionNumber'].'.';
           $auditAffectedEmployee = 'Added monthly expense #'.$TransactionNumber.' in monthly expenses tab for application #'.$ApplicationDetail['TransactionNumber'].'.';
           $auditAffectedTable = 'Added monthly expense #'.$TransactionNumber.' in monthly expenses tab.';
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $ApplicationDetail['ApplicationId'], 'application_has_notifications', 'ApplicationId');
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $ApplicationDetail['ApplicationId'], 'application_has_notifications', 'ApplicationId', null);
           $this->forRestart($this->uri->segment(3));
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
@@ -1554,7 +1554,7 @@ class loanapplication_controller extends CI_Controller {
           $auditLogsManager = 'Updated monthly expense #'.$TransactionNumber.' in monthly expenses tab for application #'.$ApplicationDetail['TransactionNumber'].'.';
           $auditAffectedEmployee = 'Updated monthly expense #'.$TransactionNumber.' in monthly expenses tab for application #'.$ApplicationDetail['TransactionNumber'].'.';
           $auditAffectedTable = 'Updated monthly expense #'.$TransactionNumber.' in monthly expenses tab.';
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $ApplicationDetail['ApplicationId'], 'application_has_notifications', 'ApplicationId');
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $ApplicationDetail['ApplicationId'], 'application_has_notifications', 'ApplicationId', null);
         // notif
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Monthly expense details successfully updated!'); 
@@ -1606,7 +1606,7 @@ class loanapplication_controller extends CI_Controller {
           $auditLogsManager = 'Added other source of income #'.$TransactionNumber.' in other sources of income tab for application #'.$ApplicationDetail['TransactionNumber'].'.';
           $auditAffectedEmployee = 'Added other source of income #'.$TransactionNumber.' in other sources of income tab for application #'.$ApplicationDetail['TransactionNumber'].'.';
           $auditAffectedTable = 'Added other source of income #'.$TransactionNumber.' in other sources of income tab.';
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $ApplicationDetail['ApplicationId'], 'application_has_notifications', 'ApplicationId');
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $ApplicationDetail['ApplicationId'], 'application_has_notifications', 'ApplicationId', null);
           $this->forRestart($this->uri->segment(3));
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
@@ -1676,7 +1676,7 @@ class loanapplication_controller extends CI_Controller {
           $auditLogsManager = 'Updated other source of income #'.$TransactionNumber.' in other sources of income tab for application #'.$ApplicationDetail['TransactionNumber'].'.';
           $auditAffectedEmployee = 'Updated other source of income #'.$TransactionNumber.' in other sources of income tab for application #'.$ApplicationDetail['TransactionNumber'].'.';
           $auditAffectedTable = 'Updated other source of income #'.$TransactionNumber.' in other sources of income tab.';
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $ApplicationDetail['ApplicationId'], 'application_has_notifications', 'ApplicationId');
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $ApplicationDetail['ApplicationId'], 'application_has_notifications', 'ApplicationId', null);
         // notif
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Source of Income details successfully updated!'); 
@@ -1730,7 +1730,7 @@ class loanapplication_controller extends CI_Controller {
           $auditLogsManager = 'Added disbursement #'.$TransactionNumber.' in disbursements tab for application #'.$loanDetails['TransactionNumber'].'.';
           $auditAffectedEmployee = 'Added disbursement #'.$TransactionNumber.' in disbursements tab for application #'.$loanDetails['TransactionNumber'].'.';
           $auditAffectedTable = 'Added disbursement #'.$TransactionNumber.' in disbursements tab.';
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $loanDetails['ApplicationId'], 'application_has_notifications', 'ApplicationId');
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $loanDetails['ApplicationId'], 'application_has_notifications', 'ApplicationId', null);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Disbursement details successfully recorded!'); 
@@ -1783,7 +1783,7 @@ class loanapplication_controller extends CI_Controller {
           $auditLogsManager = 'Added requirement #'.$TransactionNumber.' in requirements tab for application #'.$loanDetails['TransactionNumber'].'.';
           $auditAffectedEmployee = 'Added requirement #'.$TransactionNumber.' in requirements tab for application #'.$loanDetails['TransactionNumber'].'.';
           $auditAffectedTable = 'Added requirement #'.$TransactionNumber.' in requirements tab.';
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId');
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId', null);
         // check if to restart
             $this->forRestart($this->uri->segment(3));
         // notification
@@ -1948,7 +1948,7 @@ class loanapplication_controller extends CI_Controller {
           $auditLogsManager = 'Uploaded document for requirement #'.$TransactionNumber.' in requirements tab for application #'.$RequirementDetail['TransactionNumber'].'.';
           $auditAffectedEmployee = 'Uploaded document for #'.$TransactionNumber.' in requirements tab for application #'.$RequirementDetail['TransactionNumber'].'.';
           $auditAffectedTable = 'Uploaded document for #'.$TransactionNumber.' in requirements tab.';
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $RequirementDetail['ApplicationId'], 'application_has_notifications', 'ApplicationId');
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $RequirementDetail['ApplicationId'], 'application_has_notifications', 'ApplicationId', null);
           $this->forRestart($this->uri->segment(3));
       }
       else
@@ -2002,7 +2002,7 @@ class loanapplication_controller extends CI_Controller {
         $auditLogsManager = 'Added collateral #'.$TransactionNumber.' in collaterals tab for application #'.$ApplicationDetail['TransactionNumber'].'.';
         $auditAffectedEmployee = 'Added collateral #'.$TransactionNumber.' in collaterals tab for application #'.$ApplicationDetail['TransactionNumber'].'.';
         $auditAffectedTable = 'Added collateral #'.$TransactionNumber.' in collaterals tab.';
-        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId');
+        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId', null);
       // insert collateral into loan
         $insertData2 = array(
           'CollateralId'         => $generatedId['CollateralId'],
@@ -2195,7 +2195,7 @@ class loanapplication_controller extends CI_Controller {
         $auditLogsManager = 'Updated collateral details #'.$TransactionNumber.' in collaterals tab for application #'.$ApplicationDetail['TransactionNumber'].'.';
         $auditAffectedEmployee = 'Updated collateral details #'.$TransactionNumber.' in collaterals tab for application #'.$ApplicationDetail['TransactionNumber'].'.';
         $auditAffectedTable = 'Updated collateral details #'.$TransactionNumber.' in collaterals tab.';
-        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $appId['ApplicationId'], 'application_has_notifications', 'ApplicationId');
+        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $appId['ApplicationId'], 'application_has_notifications', 'ApplicationId', null);
       // upload documents
         $path = './uploads/';
         $config = array(
@@ -2336,7 +2336,7 @@ class loanapplication_controller extends CI_Controller {
       $auditLogsManager = 'Added charge #'.$TransactionNumber.' in charge tab for application #'.$loanDetails['TransactionNumber'].'.';
       $auditAffectedEmployee = 'Added charge #'.$TransactionNumber.' in charge tab for application #'.$loanDetails['TransactionNumber'].'.';
       $auditAffectedTable = 'Added charge #'.$TransactionNumber.' in charges tab.';
-      $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $Id, 'application_has_notifications', 'ApplicationId');
+      $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $Id, 'application_has_notifications', 'ApplicationId', null);
     // check if to restart
         $this->forRestart($this->uri->segment(3));
 
@@ -2484,7 +2484,7 @@ class loanapplication_controller extends CI_Controller {
           $auditLogsManager = 'Added penalty #'.$TransactionNumber.' in penalty tab for application #'.$ApplicationDetail['TransactionNumber'].'.';
           $auditAffectedEmployee = 'Added penalty #'.$TransactionNumber.' in penalty tab for application #'.$ApplicationDetail['TransactionNumber'].'.';
           $auditAffectedTable = 'Added penalty #'.$TransactionNumber.' in penalty tab.';
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $ApplicationDetail['ApplicationId'], 'application_has_notifications', 'ApplicationId');
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $ApplicationDetail['ApplicationId'], 'application_has_notifications', 'ApplicationId', null);
 
       // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
@@ -2581,7 +2581,7 @@ class loanapplication_controller extends CI_Controller {
             $auditLogsManager = 'Added penalty #'.$TransactionNumber.' in penalty tab for application #'.$ApplicationDetail['TransactionNumber'].'.';
             $auditAffectedEmployee = 'Added penalty #'.$TransactionNumber.' in penalty tab for application #'.$ApplicationDetail['TransactionNumber'].'.';
             $auditAffectedTable = 'Added penalty #'.$TransactionNumber.' in penalty tab.';
-            $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $ApplicationDetail['ApplicationId'], 'application_has_notifications', 'ApplicationId');
+            $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $ApplicationDetail['ApplicationId'], 'application_has_notifications', 'ApplicationId', null);
         }
       // admin audits finals
         $ApplicationDetail = $this->maintenance_model->selectSpecific('t_application', 'ApplicationId', $this->uri->segment(3));
@@ -2589,7 +2589,7 @@ class loanapplication_controller extends CI_Controller {
         $auditLogsManager = 'Added payment #'.$TransactionNumber.' in collections tab for application #'.$ApplicationDetail['TransactionNumber'].'.';
         $auditAffectedEmployee = 'Added payment #'.$TransactionNumber.' in collections tab for application #'.$ApplicationDetail['TransactionNumber'].'.';
         $auditAffectedTable = 'Added payment #'.$TransactionNumber.' in collections tab.';
-        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $ApplicationDetail['ApplicationId'], 'application_has_notifications', 'ApplicationId');
+        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $ApplicationDetail['ApplicationId'], 'application_has_notifications', 'ApplicationId', null);
       // notification
         $this->session->set_flashdata('alertTitle','Success!'); 
         $this->session->set_flashdata('alertText','Successfully added payment!'); 
@@ -4295,13 +4295,14 @@ class loanapplication_controller extends CI_Controller {
     redirect('home/loandetail/' . $_POST['ApplicationId']);
   }
 
-  function finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $ManagerId, $AffectedEmployeeNumber, $auditLoanDets, $ApplicationId, $independentTable, $independentColumn)
+  function finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $ManagerId, $AffectedEmployeeNumber, $auditLoanDets, $ApplicationId, $independentTable, $independentColumn, $remarks)
   {
     $CreatedBy = $this->session->userdata('EmployeeNumber');
     $DateNow = date("Y-m-d H:i:s");
     $insertMainLog = array(
       'Description'       => $auditLogsManager
       , 'CreatedBy'       => $CreatedBy
+      , 'Remarks'         => htmlentities($remarks, ENT_QUOTES)
     );
     $auditTable1 = 'R_Logs';
     $this->maintenance_model->insertFunction($insertMainLog, $auditTable1);
@@ -4309,6 +4310,7 @@ class loanapplication_controller extends CI_Controller {
       'Description'         => $auditLogsManager
       , 'ManagerBranchId'   => $ManagerId
       , 'CreatedBy'         => $CreatedBy
+      , 'Remarks'         => htmlentities($remarks, ENT_QUOTES)
     );
     $auditTable3 = 'manager_has_notifications';
     $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable3);
@@ -4316,13 +4318,15 @@ class loanapplication_controller extends CI_Controller {
       'Description'       => $auditAffectedEmployee
       , 'EmployeeNumber'  => $AffectedEmployeeNumber
       , 'CreatedBy'       => $CreatedBy
+      , 'Remarks'         => htmlentities($remarks, ENT_QUOTES)
     );
     $auditTable2 = 'employee_has_notifications';
     $this->maintenance_model->insertFunction($insertEmpLog, $auditTable2);
     $insertApplicationLog = array(
-      'Description'       => $auditLoanDets
-      , ''.$independentColumn.''   => $ApplicationId
-      , 'CreatedBy'       => $CreatedBy
+      'Description'                 => $auditLoanDets
+      , ''.$independentColumn.''    => $ApplicationId
+      , 'CreatedBy'                 => $CreatedBy
+      , 'Remarks'                   => htmlentities($remarks, ENT_QUOTES)
     );
     $auditLoanApplicationTable = $independentTable;
     $this->maintenance_model->insertFunction($insertApplicationLog, $auditLoanApplicationTable);
@@ -4366,7 +4370,7 @@ class loanapplication_controller extends CI_Controller {
       $auditLogsManager = 'Added personal reference #'.$ReferenceNo['RefNo'].' in personal reference tab to application #'.$TransNo['TransactionNumber'].'.';
       $auditAffectedEmployee = 'Added personal reference #'.$ReferenceNo['RefNo'].' in personal reference tab to application #'.$TransNo['TransactionNumber'].'.';
       $auditAffectedTable = 'Added personal reference #'.$ReferenceNo['RefNo'].'.';
-      $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId');
+      $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId', null);
 
     // notification
       $this->session->set_flashdata('alertTitle','Success!'); 
@@ -4413,7 +4417,7 @@ class loanapplication_controller extends CI_Controller {
         $auditLogsManager = 'Added co-maker #'.$ReferenceNo['RefNo'].' in co-maker tab to application #'.$TransNo['TransactionNumber'].'.';
         $auditAffectedEmployee = 'Added co-maker #'.$ReferenceNo['RefNo'].' in co-maker tab to application #'.$TransNo['TransactionNumber'].'.';
         $auditAffectedTable = 'Added co-maker #'.$ReferenceNo['RefNo'].' co-maker tab.';
-        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId');
+        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId', null);
 
       // notification
         $this->session->set_flashdata('alertTitle','Success!'); 
@@ -4448,7 +4452,7 @@ class loanapplication_controller extends CI_Controller {
         $auditLogsManager = 'Added spouse #'.$ReferenceNo['RefNo'].' in spouse tab to application #'.$TransNo['TransactionNumber'].'.';
         $auditAffectedEmployee = 'Added spouse #'.$ReferenceNo['RefNo'].' in spouse tab to application #'.$TransNo['TransactionNumber'].'.';
         $auditAffectedTable = 'Added spouse #'.$ReferenceNo['RefNo'].' in spouse tab.';
-        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId');
+        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId', null);
 
       // notification
         $this->session->set_flashdata('alertTitle','Success!'); 
@@ -4473,7 +4477,7 @@ class loanapplication_controller extends CI_Controller {
         $auditLogsManager = 'Added employment #'.$ReferenceNo['RefNo'].' in employment tab to application #'.$TransNo['TransactionNumber'].'.';
         $auditAffectedEmployee = 'Added employment #'.$ReferenceNo['RefNo'].' in employment tab to application #'.$TransNo['TransactionNumber'].'.';
         $auditAffectedTable = 'Added employment #'.$ReferenceNo['RefNo'].' employment tab.';
-        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId');
+        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId', null);
 
       // notification
         $this->session->set_flashdata('alertTitle','Success!'); 
@@ -4508,7 +4512,7 @@ class loanapplication_controller extends CI_Controller {
         $auditLogsManager = 'Added contact #'.$ReferenceNo['RefNo'].' in contact tab to application #'.$TransNo['TransactionNumber'].'.';
         $auditAffectedEmployee = 'Added contact #'.$ReferenceNo['RefNo'].' in contact tab to application #'.$TransNo['TransactionNumber'].'.';
         $auditAffectedTable = 'Added contact #'.$ReferenceNo['RefNo'].' contact tab.';
-        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId');
+        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId', null);
 
       // notification
         $this->session->set_flashdata('alertTitle','Success!'); 
@@ -4543,7 +4547,7 @@ class loanapplication_controller extends CI_Controller {
         $auditLogsManager = 'Added email #'.$ReferenceNo['RefNo'].' in email tab to application #'.$TransNo['TransactionNumber'].'.';
         $auditAffectedEmployee = 'Added email #'.$ReferenceNo['RefNo'].' in email tab to application #'.$TransNo['TransactionNumber'].'.';
         $auditAffectedTable = 'Added email #'.$ReferenceNo['RefNo'].' email tab.';
-        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId');
+        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId', null);
 
       // notification
         $this->session->set_flashdata('alertTitle','Success!'); 
@@ -4578,7 +4582,7 @@ class loanapplication_controller extends CI_Controller {
         $auditLogsManager = 'Added education #'.$ReferenceNo['RefNo'].' in education tab to application #'.$TransNo['TransactionNumber'].'.';
         $auditAffectedEmployee = 'Added education #'.$ReferenceNo['RefNo'].' in education tab to application #'.$TransNo['TransactionNumber'].'.';
         $auditAffectedTable = 'Added education #'.$ReferenceNo['RefNo'].' education tab.';
-        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId');
+        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId', null);
 
       // notification
         $this->session->set_flashdata('alertTitle','Success!'); 
@@ -4603,7 +4607,7 @@ class loanapplication_controller extends CI_Controller {
         $auditLogsManager = 'Added address #'.$ReferenceNo['RefNo'].' in address tab to application #'.$TransNo['TransactionNumber'].'.';
         $auditAffectedEmployee = 'Added address #'.$ReferenceNo['RefNo'].' in address tab to application #'.$TransNo['TransactionNumber'].'.';
         $auditAffectedTable = 'Added address #'.$ReferenceNo['RefNo'].' address tab.';
-        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId');
+        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'application_has_notifications', 'ApplicationId', null);
 
       // notification
         $this->session->set_flashdata('alertTitle','Success!'); 

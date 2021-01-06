@@ -1284,7 +1284,7 @@
                     print_r($detail['StatusDescription'] . '/' . $detail['ApprovalType']);
                   }
 
-                  if($detail['ForRestructuring'] != 1) // pending for restructure
+                  if($detail['ForRestructuring'] != 1 && $detail['StatusId'] != 4) // pending for restructure
                   {
                     echo ' <a data-toggle="modal" href="#" data-target="#modalStatus">Edit Status</a>';
                   }
@@ -1563,7 +1563,7 @@
                 <div class="tab-pane" id="tabRepayments">
                 	<h4>Collections</h4>
                   <?php 
-                    if($detail['StatusId'] == 1)
+                    if($detail['StatusId'] == 1 || $detail['StatusId'] == 4)
                     {
                       echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalRepayment" onclick="computePayment()">Add Record</a>';
                     }
@@ -1695,7 +1695,7 @@
                   <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/penaltySettings/<?php print_r($detail['ApplicationId']) ?>" method="post">
                     <h4>Penalties</h4>
                     <?php 
-                      if($detail['StatusId'] == 1)
+                      if($detail['StatusId'] == 1 || $detail['StatusId'] == 4)
                       {
                         echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalPenalty">Add Record</a>';
                       }

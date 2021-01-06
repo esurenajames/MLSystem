@@ -563,7 +563,7 @@ class home extends CI_Controller {
 		$data['requirementType'] = $this->maintenance_model->getRequirementType();
 		$data['loanStatus'] = $this->maintenance_model->getLoanStatus();
 		$data['borrowerList'] = $this->maintenance_model->getBorrowerList();
-		$data['RequirementList'] = $this->loanapplication_model->getRequirementForApplication();
+		$data['RequirementList'] = $this->loanapplication_model->getRequirementForApplication2();
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);

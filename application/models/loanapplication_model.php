@@ -885,6 +885,21 @@ class loanapplication_model extends CI_Model
     return $data;
   }
 
+  function getRequirementForApplication2()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $query = $this->db->query("SELECT   DISTINCT RequirementId
+                                        , Name
+                                        , Description
+                                        , IsMandatory
+                                        FROM r_requirements
+                                          WHERE StatusId = 1
+    ");
+
+    $data = $query->result_array();
+    return $data;
+  }
+
   function getRequirementSelected($ID)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');

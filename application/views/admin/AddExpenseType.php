@@ -19,7 +19,7 @@
               <span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title">Add Expense Type</h4>
           </div>
-          <form action="<?php echo base_url(); ?>admin_controller/AddExpenseType/" id="frmInsert2" method="post">
+          <form action="<?php echo base_url(); ?>admin_controller/AddExpenseType/" class="frmInsert" method="post">
             <div class="modal-body">
                 <div class="row">
                   <div class="col-md-12">
@@ -247,13 +247,11 @@
       "order": [[0, "asc"]]
     });
 
-    $("#frmInsert").on('submit', function (e) {
-      if(varNewPassword = 1 && varStatus == 1 && $('#txtNewPassword').val() == $('#txtConfirmPassword').val() && $('#txtOldPassword').val() != $('#txtNewPassword').val())
-      {
+    $(".frmInsert").on('submit', function (e) {
         e.preventDefault(); 
         swal({
           title: 'Confirm',
-          text: 'Are you sure you sure with this password?',
+          text: 'Are you sure you want confirm?',
           type: 'info',
           showCancelButton: true,
           buttonsStyling: false,
@@ -263,12 +261,6 @@
         }).then(function(){
           e.currentTarget.submit();
         });
-      }
-      else
-      {
-        alert('please make sure your new password is not equal to your old password!')
-        e.preventDefault();
-      }
     });
 
 

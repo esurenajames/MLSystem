@@ -1370,7 +1370,7 @@
               $.each(data, function (a, b) {
                 row = row + 1; 
 
-                if(b.ChargeType == 'Percentage')
+                if(b.ChargeType == 1)
                 {
                   total = parseInt(b.Amount)/100 * parseInt(PrincipalAmount);
                   amount = parseInt(b.Amount).toLocaleString('en-US', {minimumFractionDigits: 2}) + '%';
@@ -1452,7 +1452,7 @@
       if($('#selectCheck'+rowId+'').is(":checked") == true)
       {
         $('#isSelected'+rowId+'').val(1)
-        if(ChargeType == 'Percentage')
+        if(ChargeType == 1)
         {
           displayTotal = parseInt(displayTotal) +  parseInt(ChargeAmount)/100 * parseInt(PrincipalAmount);
         }
@@ -1464,7 +1464,7 @@
       else
       {
         $('#isSelected'+rowId+'').val(0)
-        if(ChargeType == 'Percentage')
+        if(ChargeType == 1)
         {
           displayTotal = parseInt(displayTotal) - parseInt(ChargeAmount)/100 * parseInt(PrincipalAmount);
         }
@@ -1748,7 +1748,7 @@
 
                 $.each(data, function (a, b) {
                   rowsss = rowsss + 1;
-                  if(b.ChargeType == 'Percentage')
+                  if(b.ChargeType == 1)
                   {
                     total = parseInt(b.Amount)/100 * parseInt(PrincipalAmount);
                     amount = parseInt(b.Amount).toLocaleString('en-US', {minimumFractionDigits: 2}) + '%';
