@@ -830,7 +830,7 @@ class admin_model extends CI_Model
       else if($input['tableType'] == 'Charge')
       {
         $Detail = $this->db->query("SELECT  Name
-                                                  , CONCAT('CHRG-', LPAD(CH.ChargeId, 6, 0)) as ReferenceNo
+                                                  , CONCAT('CH-', LPAD(CH.ChargeId, 6, 0)) as ReferenceNo
                                                   FROM R_Charges CH
                                                     WHERE ChargeId = ".$input['Id']."
         ")->row_array();
@@ -899,7 +899,7 @@ class admin_model extends CI_Model
                                               WHERE RequirementId = ".$input['Id']."
         ")->row_array();
         $count = $this->db->query("SELECT  COUNT(*) as ifUsed
-                                                    FROM application_has_requirement
+                                                    FROM application_has_requirements
                                                       WHERE RequirementId = ".$input['Id']."
                                                       AND StatusId = 1
         ")->row_array();
@@ -1378,7 +1378,7 @@ class admin_model extends CI_Model
       else if($input['tableType'] == 'Capital')
       {
         $Detail = $this->db->query("SELECT  Amount
-                                            , CONCAT('CAP-', LPAD(C.CapitalId, 6, 0)) as ReferenceNo
+                                            , CONCAT('IC-', LPAD(C.CapitalId, 6, 0)) as ReferenceNo
                                             FROM R_Capital C
                                               WHERE CapitalId = ".$input['Id']."
         ")->row_array();

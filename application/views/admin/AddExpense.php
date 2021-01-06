@@ -19,7 +19,7 @@
               <span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title">Add Expenses</h4>
           </div>
-          <form action="<?php echo base_url(); ?>admin_controller/AddExpense/" id="frmInsert2" method="post">
+          <form action="<?php echo base_url(); ?>admin_controller/AddExpense/" class="frminsert" method="post">
             <div class="modal-body">
                 <div class="row">
                   <div class="col-md-12">
@@ -205,6 +205,9 @@
 <div class="loading" style="display: none">Loading&#8230;</div>
 <?php $this->load->view('includes/footer'); ?>
 
+
+
+<script src="<?php echo base_url(); ?>resources/functionalities/AddNotif.js"></script>
 <script>
   var varStatus = 0;
   var varNewPassword = 0;
@@ -357,31 +360,6 @@
       // "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
       "order": [[0, "asc"]]
     });
-
-    $("#frmInsert").on('submit', function (e) {
-      if(varNewPassword = 1 && varStatus == 1 && $('#txtNewPassword').val() == $('#txtConfirmPassword').val() && $('#txtOldPassword').val() != $('#txtNewPassword').val())
-      {
-        e.preventDefault(); 
-        swal({
-          title: 'Confirm',
-          text: 'Are you sure you sure with this password?',
-          type: 'info',
-          showCancelButton: true,
-          buttonsStyling: false,
-          confirmButtonClass: 'btn btn-success',
-          confirmButtonText: 'Confirm',
-          cancelButtonClass: 'btn btn-secondary'
-        }).then(function(){
-          e.currentTarget.submit();
-        });
-      }
-      else
-      {
-        alert('please make sure your new password is not equal to your old password!')
-        e.preventDefault();
-      }
-    });
-
 
     $('#DateExpense').daterangepicker({
         "startDate": moment().format('DD MMM YY'),

@@ -1302,7 +1302,7 @@ class admin_controller extends CI_Controller {
       $query = $this->admin_model->countPurpose($data);
       if($query == 0) // not existing
       {
-        // insert Bank details
+        // insert purpose details
           $insertPurpose = array(
              'Name'                    => htmlentities($_POST['Purpose'], ENT_QUOTES)
             , 'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
@@ -1319,7 +1319,7 @@ class admin_controller extends CI_Controller {
           );
           $generatedId = $this->maintenance_model->getGeneratedId2($getData);
         // admin audits finalss
-          $TransactionNumber = 'PUR-'.sprintf('%06d', $generatedId['PurposeId']);
+          $TransactionNumber = 'PP-'.sprintf('%06d', $generatedId['PurposeId']);
           $auditLogsManager = 'Added loan purpose #'.$TransactionNumber.' in purpose setup.';
           $auditAffectedEmployee = 'Added loan purpose #'.$TransactionNumber.' in purpose setup.';
           $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
@@ -2508,12 +2508,12 @@ class admin_controller extends CI_Controller {
         $insertRepaymentTable = 'repaymentcycle_has_content';
         $this->maintenance_model->insertFunction($insertRepayment, $insertRepaymentTable);
     }
-    // admin audits finalss
+      // admin audits finalss
       $TransactionNumber = 'RC-'.sprintf('%06d', $generatedId['RepaymentId']);
       $auditLogsManager = 'Added repayment cycle #'.$TransactionNumber.' in repayment cycle setup.';
       $auditAffectedEmployee = 'Added repayment cycle #'.$TransactionNumber.' in  repayment cycle setup.';
       $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
-    // notification
+      // notification
       $this->session->set_flashdata('alertTitle','Success!'); 
       $this->session->set_flashdata('alertText','Repayment Cycle successfully recorded!'); 
       $this->session->set_flashdata('alertType','success'); 
@@ -2542,6 +2542,19 @@ class admin_controller extends CI_Controller {
           );
           $insertCapitalTable = 'R_Capital';
           $this->maintenance_model->insertFunction($instertCapital, $insertCapitalTable);
+        // get generated application id
+          $getData = array(
+            'table'                 => 'R_Capital'
+            , 'column'              => 'CapitalId'
+            , 'CreatedBy'           => $EmployeeNumber
+          );
+          $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+        // admin audits finalss
+          $detail = $this->maintenance_model->selectSpecific('R_Capital', 'CapitalId', $_POST['CapitalId']);
+          $TransactionNumber = 'IC-'.sprintf('%06d', $generatedId['CapitalId']);
+          $auditLogsManager = 'Added initial capital #'.$TransactionNumber.' in initial capital setup.';
+          $auditAffectedEmployee = 'Added initial capital #'.$TransactionNumber.' in initial capital setup.';
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
           $this->session->set_flashdata('alertText','Initial Capital successfully recorded!'); 
@@ -2555,50 +2568,6 @@ class admin_controller extends CI_Controller {
           $this->session->set_flashdata('alertText','Initial Capital already existing!'); 
           $this->session->set_flashdata('alertType','warning'); 
           redirect('home/AddInitialCapital');
-      }
-    }
-    else if($_POST['FormType'] == 2) // Edit Initial Capital 
-    {
-      $data = array(
-        'Type'                     => htmlentities($_POST['Repayment'], ENT_QUOTES)
-      );
-      $query = $this->admin_model->countOccupation($data);
-      print_r($query);
-      if($query == 0)
-      {
-        if($RepaymentDetail['Name'] != htmlentities($_POST['Repayment'], ENT_QUOTES))
-        {
-          // add into audit table
-            $auditDetail = 'Updated details of  '.$RepaymentDetail['Type'].' to '.htmlentities($_POST['Repayment'], ENT_QUOTES);
-            $insertAudit = array(
-              'Description' => $auditDetail,
-              'CreatedBy' => $EmployeeNumber
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertAudit, $auditTable);
-          // update function
-            $set = array( 
-            'Type'                     => htmlentities($_POST['Repayment'], ENT_QUOTES)
-            );
-            $condition = array( 
-              'RepaymentId' => $_POST['RepaymentId']
-            );
-            $table = 'R_RepaymentCycle';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-        }
-      // notif
-        $this->session->set_flashdata('alertTitle','Success!'); 
-        $this->session->set_flashdata('alertText','Repayment Cycle details successfully updated!'); 
-        $this->session->set_flashdata('alertType','success'); 
-        redirect('home/AddRepaymentCycle/');
-      }
-      else // if existing
-      {
-        // notif
-        $this->session->set_flashdata('alertTitle','Warning!'); 
-        $this->session->set_flashdata('alertText','Repayment Cycle details already existing!'); 
-        $this->session->set_flashdata('alertType','warning'); 
-        redirect('home/AddRepaymentCycle/');
       }
     }
   }
