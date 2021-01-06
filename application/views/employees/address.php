@@ -53,7 +53,7 @@
         }
         else
         {
-          $action = 'N/A';
+          $action = '<a onclick="confirmAddress(\'Are you sure you want to re-activate this address?\', \''.$value['EmployeeAddressId'].'\', 1)" class="btn btn-warning btn-sm" title="Deactivate"><span class="fa fa-refresh"></span></a>';
         }
         echo "<td>".$status."</td>";
         echo "<td>".$action."</td>";

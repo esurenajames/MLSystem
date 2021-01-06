@@ -693,7 +693,7 @@
                 <div class="col-md-12">
                   <select class="select2 form-control" id="dropDownSelection" style="width: 100%" name="ReferenceId">
                   </select>
-                  <input type="" id="txtReferenceType" value="Comaker" name="ReferenceType">
+                  <input type="hidden" id="txtReferenceType" value="Comaker" name="ReferenceType">
                 </div>
                 <br>
                 <br>

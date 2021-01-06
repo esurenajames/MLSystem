@@ -202,7 +202,7 @@
       },
       success: function(data)
       {
-        $('#selectCharges').val(data['Type']).change();
+        $('#selectCharges').val(data['ChargeType']).change();
         $('#txtConditionalName').val(data['Name']);
         $('#txtDescription').val(data['Description']);
         $('#txtAmount').val(data['Amount']);

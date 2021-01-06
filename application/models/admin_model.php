@@ -223,6 +223,7 @@ class admin_model extends CI_Model
                                                   WHERE Name = '".$data['Name']."'
                                                   AND Description = '".$data['Description']."'
                                                   AND ChargeType = '".$data['ChargeType']."'
+                                                  AND Amount = '".$data['Amount']."'
       ");
       $data = $query_string->num_rows();
       return $data;
@@ -233,6 +234,7 @@ class admin_model extends CI_Model
       $query_string = $this->db->query("SELECT  ChargeType
                                                 , Name
                                                 , Description
+                                                , Amount
                                                 FROM R_Charges 
                                                   WHERE ChargeId = '$Id'
       ");
@@ -789,7 +791,7 @@ class admin_model extends CI_Model
       else if($input['tableType'] == 'Loan')
       {
         $Detail = $this->db->query("SELECT  Name
-                                            , CONCAT('LN-', LPAD(L.LoanId, 6, 0)) as ReferenceNo
+                                            , CONCAT('LT-', LPAD(L.LoanId, 6, 0)) as ReferenceNo
                                             FROM R_Loans L
                                               WHERE LoanId = ".$input['Id']."
         ")->row_array();
@@ -1009,7 +1011,7 @@ class admin_model extends CI_Model
       else if($input['tableType'] == 'Purpose')
       {
         $Detail = $this->db->query("SELECT  Name
-                                            , CONCAT('PUR-', LPAD(PP.PurposeId, 6, 0)) as ReferenceNo
+                                            , CONCAT('PP-', LPAD(PP.PurposeId, 6, 0)) as ReferenceNo
                                               FROM R_Purpose PP
                                                 WHERE PurposeId = ".$input['Id']."
         ")->row_array();
