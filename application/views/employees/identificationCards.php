@@ -34,7 +34,7 @@
         else if($value['StatusId'] == 0)
         {
           $status = "<span class='badge bg-red'>Deactivated</span>";
-          $action = '<a class="btn btn-sm btn-success" href="' . base_url() .'/admin_controller/download/1/'.$value['EmployeeIdentificationId'].'" title="Download"><span class="fa fa-download"></span></a>';
+          $action = '<a class="btn btn-sm btn-success" href="' . base_url() .'/admin_controller/download/1/'.$value['EmployeeIdentificationId'].'" title="Download"><span class="fa fa-download"></span></a> <a onclick="confirm(\'Are you sure you want to re-activate this Id?\', \''.$value['EmployeeIdentificationId'].'\', 1)" class="btn btn-warning btn-sm" title="Deactivate"><span class="fa fa-refresh"></span></a>';
         }
 
         echo "<td>".$status."</td>";

@@ -1527,7 +1527,6 @@
                       <th>Reference No</th>
                       <th>Action</th>
                       <th>Remarks</th>
-                      <th>Action</th>
                       <th>By</th>
                       <th>Date Creation</th>
                       <th>Date Creation</th>
@@ -1546,10 +1545,6 @@
                           if($value['FileName'] != '')
                           {
                             echo '<td><a href="'.base_url().'/home/download/1/'.$value['NotificationId'].'" title="Download">'.$value['FileName'].'</a></td>';
-                          }
-                          else
-                          {
-                            echo '<td>N/A</td>';
                           }
                           echo "<td>".$value['CreatedBy']."</td>";
                           echo "<td>".$value['DateCreated']."</td>";
