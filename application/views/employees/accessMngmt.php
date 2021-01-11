@@ -67,6 +67,45 @@
                     }
                     echo '</tr>';
                   }
+                  // $moduleNo++;
+                  // $branchRow = 0;
+                  // echo '<tr>';
+                  // echo '<td><h4></label> Branch Management <label></h4></td>';
+                  //   foreach ($Branch as $brnch) 
+                  //   {
+                  //     $rowNo++;
+                  //     $branchRow++;
+
+                  //     foreach ($branchAccess as $sub) 
+                  //     {
+                  //       if($brnch['BranchId'] == $sub['BranchId'])
+                  //       {
+                  //         echo '<tr>';
+                  //         echo '<td>'.$branchRow.'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label>
+                  //           <input type="checkbox" checked value="'.$branchRow.'" onclick="chkSelected2(this.value, '.$branchRow.')" id="selectCheck2'.$branchRow.'" class="checkCharges"> '.$brnch['Name'].'</label> 
+                  //           <input type="" value="'.$brnch['Code'].'" name="Code[]">
+                  //           <input type="" id="txtIsSelected2'.$branchRow.'" value="1" class="" name="isSelected[]">
+                  //           <input type="" class="12" value="'.$brnch['BranchId'].'" name="BranchId[]">
+                  //           <input type="" value="'.$rowNo.'" name="countRow[]">
+                  //           <input type="" value="Branch" name="countRow[]">
+                  //         </td>';
+                  //         echo '</tr>';
+                  //       }
+                  //       else
+                  //       {
+                  //         echo '<tr>';
+                  //         echo '<td>'.$branchRow.'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label>
+                  //           <input type="checkbox" value="'.$branchRow.'" onclick="chkSelected2(this.value, '.$branchRow.')" id="selectCheck2'.$branchRow.'" class="checkCharges"> '.$brnch['Name'].'</label> 
+                  //           <input type="" value="'.$brnch['Code'].'" name="Code[]">
+                  //           <input type="" id="txtIsSelected2'.$branchRow.'" value="0" class="" name="isSelected[]">
+                  //           <input type="" class="12" value="'.$brnch['BranchId'].'" name="BranchId[]">
+                  //           <input type="" value="'.$rowNo.'" name="countRow[]">
+                  //         </td>';
+                  //         echo '</tr>';
+                  //       }
+                  //     }
+                  //   }
+                  // echo '</tr>';
                 ?>
               </tbody>
             </table>
@@ -142,7 +181,19 @@
     }
   }
 
-  function chkModule(rowNo, ModuleId)
+  function chkSelected2(rowNo, SubModuleId)
+  {
+    var checkBox = document.getElementById("selectCheck2"+SubModuleId+"");
+    // If the checkbox is checked, display the output text
+    if (checkBox.checked == true){
+      $('#txtIsSelected2'+SubModuleId+'').val(1);
+    } else {
+      $('#txtIsSelected2'+SubModuleId+'').val(0);
+    }
+    alert($('#txtIsSelected2'+SubModuleId+'').val())
+  }
+
+  function chkModule(rowNo, ModuleId, value)
   {
     var checkBox = document.getElementById("selectModule"+rowNo+"");
     // If the checkbox is checked, display the output text
@@ -150,11 +201,13 @@
       $("."+ModuleId+"").each(function( index ) {
         $('#txtIsSelected'+this.value+'').val(1);
         document.getElementById("selectCheck"+this.value+"").checked = true;
+        alert(this.value)
       });
     } else {
       $("."+ModuleId+"").each(function( index ) {
         $('#txtIsSelected'+this.value+'').val(0);
         document.getElementById("selectCheck"+this.value+"").checked = false;
+        alert(this.value)
       });
     }
   }

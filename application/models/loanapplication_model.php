@@ -553,9 +553,15 @@ class loanapplication_model extends CI_Model
                                           ON B.BankId = P.BankId
                                             WHERE P.ApplicationId = $Id
     ");
-
-    $data = $query->result_array();
-    return $data;
+    if($query->num_rows() > 0)
+    {
+      $data = $query->result_array();
+      return $data;
+    }
+    else 
+    {
+      return 0;
+    }
   }
 
   function getInterestPaid($Id)
@@ -1428,8 +1434,15 @@ class loanapplication_model extends CI_Model
                                                   ON EMP.EmployeeNumber = AHN.CreatedBy
                                                     WHERE A.ApplicationId = $ID
     ");
-    $data = $query_string->result_array();
-    return $data;
+    if($query_string->num_rows() > 0)
+    {
+      $data = $query_string->result_array();
+      return $data;
+    }
+    else 
+    {
+      return 0;
+    }
   }
 
   function DisplayPenalty($Id)
@@ -1499,8 +1512,15 @@ class loanapplication_model extends CI_Model
                                                       ON S.StatusId = AR.StatusId
                                                      WHERE AR.ApplicationId = $ID
     ");
-    $data = $query_string->result_array();
-    return $data;
+    if($query_string->num_rows() > 0)
+    {
+      $data = $query_string->result_array();
+      return $data;
+    }
+    else 
+    {
+      return 0;
+    }
   }
 
   function getCollateralType($ID)
@@ -1549,8 +1569,15 @@ class loanapplication_model extends CI_Model
                                                   ON CT.CollateralTypeId = C.CollateralTypeId
                                                     WHERE AHC.ApplicationId = $ID
     ");
-    $data = $query_string->result_array();
-    return $data;
+    if($query_string->num_rows() > 0)
+    {
+      $data = $query_string->result_array();
+      return $data;
+    }
+    else 
+    {
+      return 0;
+    }
   }
 
   function getDisbursementDisplay($ID)
@@ -1574,8 +1601,15 @@ class loanapplication_model extends CI_Model
                                                   ON S.StatusId = AHD.StatusId
                                                     WHERE AHD.ApplicationId = $ID
     ");
-    $data = $query_string->result_array();
-    return $data;
+    if($query_string->num_rows() > 0)
+    {
+      $data = $query_string->result_array();
+      return $data;
+    }
+    else 
+    {
+      return 0;
+    }
   }
 
   function getIncome($ID)
@@ -1599,8 +1633,15 @@ class loanapplication_model extends CI_Model
                                                   ON EMP.EmployeeNumber = AI.CreatedBy
                                                     WHERE AI.ApplicationId = $ID
     ");
-    $data = $query_string->result_array();
-    return $data;
+    if($query_string->num_rows() > 0)
+    {
+      $data = $query_string->result_array();
+      return $data;
+    }
+    else 
+    {
+      return 0;
+    }
   }
 
   function getDisbursements($ID)
@@ -1622,8 +1663,15 @@ class loanapplication_model extends CI_Model
                                                   ON CT.CollateralTypeId = C.CollateralTypeId
                                                     WHERE AHC.ApplicationId = $ID
     ");
-    $data = $query_string->result_array();
-    return $data;
+    if($query_string->num_rows() > 0)
+    {
+      $data = $query_string->result_array();
+      return $data;
+    }
+    else 
+    {
+      return 0;
+    }
   }
 
   function displayCharges($ID)
@@ -1659,8 +1707,15 @@ class loanapplication_model extends CI_Model
                                                   ON EMP.EmployeeNumber = AHC.CreatedBy
                                                     WHERE AHC.ApplicationId = $ID
     ");
-    $data = $query_string->result_array();
-    return $data;
+    if($query_string->num_rows() > 0)
+    {
+      $data = $query_string->result_array();
+      return $data;
+    }
+    else 
+    {
+      return 0;
+    }
   }
 
   function getRepaymentCount($Id)
@@ -1724,8 +1779,15 @@ class loanapplication_model extends CI_Model
                                                   ON EMP.EmployeeNumber = AO.CreatedBy
                                                     WHERE AO.ApplicationId = $ID
     ");
-    $data = $query_string->result_array();
-    return $data;
+    if($query_string->num_rows() > 0)
+    {
+      $data = $query_string->result_array();
+      return $data;
+    }
+    else 
+    {
+      return 0;
+    }
   }
 
   function countExpense($data)
@@ -3819,8 +3881,15 @@ class loanapplication_model extends CI_Model
                                                     ON EMP.EmployeeNumber = AP.CreatedBy
                                                     WHERE A.ApplicationId = $Id
       ");
-      $data = $query_string->result_array();
-      return $data;
+      if($query_string->num_rows() > 0)
+      {
+        $data = $query_string->result_array();
+        return $data;
+      }
+      else 
+      {
+        return 0;
+      }
     }
 
     function getApplicationCoMaker($Id)
@@ -3844,8 +3913,15 @@ class loanapplication_model extends CI_Model
                                                     ON EMP.EmployeeNumber = AP.CreatedBy
                                                     WHERE A.ApplicationId = $Id
       ");
-      $data = $query_string->result_array();
-      return $data;
+      if($query_string->num_rows() > 0)
+      {
+        $data = $query_string->result_array();
+        return $data;
+      }
+      else 
+      {
+        return 0;
+      }
     }
 
     function getApplicationSpouse($Id)
@@ -3871,8 +3947,15 @@ class loanapplication_model extends CI_Model
                                                       ON EMP.EmployeeNumber = AHS.CreatedBy
                                                       WHERE A.ApplicationId = $Id
       ");
-      $data = $query_string->result_array();
-      return $data;
+      if($query_string->num_rows() > 0)
+      {
+        $data = $query_string->result_array();
+        return $data;
+      }
+      else 
+      {
+        return 0;
+      }
     }
 
     function getApplicationEmployment($Id)
@@ -3908,8 +3991,15 @@ class loanapplication_model extends CI_Model
                                                     ON I.IndustryId = BHS.IndustryId
                                                     WHERE A.ApplicationId = $Id
       ");
-      $data = $query_string->result_array();
-      return $data;
+      if($query_string->num_rows() > 0)
+      {
+        $data = $query_string->result_array();
+        return $data;
+      }
+      else 
+      {
+        return 0;
+      }
     }
 
     function getApplicationContact($Id)
@@ -3932,8 +4022,15 @@ class loanapplication_model extends CI_Model
                                                     ON EC.ContactNumberId = CN.ContactNumberId
                                                     WHERE A.ApplicationId = $Id
       ");
-      $data = $query_string->result_array();
-      return $data;
+      if($query_string->num_rows() > 0)
+      {
+        $data = $query_string->result_array();
+        return $data;
+      }
+      else 
+      {
+        return 0;
+      }
     }
 
     function getApplicationEmail($Id)
@@ -3956,8 +4053,15 @@ class loanapplication_model extends CI_Model
                                                     ON EE.EmailId = E.EmailId
                                                       WHERE A.ApplicationId = $Id
       ");
-      $data = $query_string->result_array();
-      return $data;
+      if($query_string->num_rows() > 0)
+      {
+        $data = $query_string->result_array();
+        return $data;
+      }
+      else 
+      {
+        return 0;
+      }
     }
 
     function getApplicationEducation($Id)
@@ -3983,8 +4087,15 @@ class loanapplication_model extends CI_Model
                                                     ON ED.EducationId = BEDU.EducationId
                                                       WHERE A.ApplicationId = $Id
       ");
-      $data = $query_string->result_array();
-      return $data;
+      if($query_string->num_rows() > 0)
+      {
+        $data = $query_string->result_array();
+        return $data;
+      }
+      else 
+      {
+        return 0;
+      }
     }
 
     function getApplicationAddress($Id)
@@ -4018,7 +4129,14 @@ class loanapplication_model extends CI_Model
                                                     ON R.regCode = B.regCode
                                                       WHERE AHA.ApplicationId = $Id
       ");
-      $data = $query_string->result_array();
-      return $data;
+      if($query_string->num_rows() > 0)
+      {
+        $data = $query_string->result_array();
+        return $data;
+      }
+      else 
+      {
+        return 0;
+      }
     }
 }

@@ -925,6 +925,32 @@ class employee_model extends CI_Model
       return $data;
     }
 
+    function branchManagement($EmployeeNumber)
+    {
+      $EmployeeNumber = $this->db->query("SELECT LPAD($EmployeeNumber, 6, 0) as EmployeeNumber")->row_array();
+      $query_string = $this->db->query("SELECT  CN.PhoneType
+                                                , Number
+                                                , EC.StatusId
+                                                , EC.CreatedBy
+                                                , EC.EmployeeContactId
+                                                , EC.IsPrimary
+                                                , EMP.FirstName
+                                                , EMP.LastName
+                                                , CONCAT('CN-', LPAD(EC.EmployeeContactId, 6, 0)) as rowNumber
+                                                , acronym(EMP.MiddleName) as MiddleInitial
+                                                , DATE_FORMAT(EC.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                                , DATE_FORMAT(EC.DateUpdated, '%d %b %Y %h:%i %p') as DateUpdated
+                                                FROM R_ContactNumbers CN
+                                                  INNER JOIN Employee_has_contactNumbers EC
+                                                    ON EC.ContactNumberId = CN.ContactNumberId
+                                                  INNER JOIN R_Employee EMP
+                                                    ON EMP.EmployeeNumber = EC.CreatedBy
+                                                      WHERE EC.EmployeeNumber = ".$EmployeeNumber['EmployeeNumber']."
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
     function employeeAddress($EmployeeId)
     {
       $EmployeeNumber = $this->db->query("SELECT LPAD($EmployeeId, 6, 0) as EmployeeNumber")->row_array();
@@ -1039,6 +1065,20 @@ class employee_model extends CI_Model
       return $data;
     }
 
+    function getBranchManagement()
+    {
+      $query_string = $this->db->query("SELECT  BranchId
+                                                , Name
+                                                , StatusId
+                                                , Code
+                                                , CONCAT(Code, '-', LPAD(BranchId, 6, 0)) as BranchCode
+                                                FROM r_branches
+                                                      WHERE StatusId = 1
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
     function getSubmodules()
     {
       $query_string = $this->db->query("SELECT  DISTINCT Description
@@ -1064,6 +1104,18 @@ class employee_model extends CI_Model
                                                 FROM R_UserAccess
                                                 WHERE EmployeeNumber = '$EmployeeNumber'
                                                   AND StatusId = 1
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getBranchAccess($Id)
+    {
+      $EmployeeNumber = sprintf('%06d', $Id);
+      $query_string = $this->db->query("SELECT  DISTINCT BranchId
+                                                FROM branch_has_employee BHE
+                                                      WHERE EmployeeNumber = '$EmployeeNumber'
+                                                      AND StatusId = 1
       ");
       $data = $query_string->result_array();
       return $data;

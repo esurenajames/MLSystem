@@ -1535,21 +1535,24 @@
                     <tbody>
                       <?php 
                         $rowNumber = 0;
-                        foreach ($LoanHistory as $value) 
+                        if($LoanHistory > 0)
                         {
-                          $rowNumber = $rowNumber + 1;
-                          echo "<tr>";
-                          echo "<td>".sprintf('%06d', $rowNumber)."</td>";
-                          echo "<td>".$value['Description']."</td>";
-                          echo "<td>".$value['Remarks']."</td>";
-                          if($value['FileName'] != '')
+                          foreach ($LoanHistory as $value) 
                           {
-                            echo '<td><a href="'.base_url().'/home/download/1/'.$value['NotificationId'].'" title="Download">'.$value['FileName'].'</a></td>';
+                            $rowNumber = $rowNumber + 1;
+                            echo "<tr>";
+                            echo "<td>".sprintf('%06d', $rowNumber)."</td>";
+                            echo "<td>".$value['Description']."</td>";
+                            echo "<td>".$value['Remarks']."</td>";
+                            if($value['FileName'] != '')
+                            {
+                              echo '<td><a href="'.base_url().'/home/download/1/'.$value['NotificationId'].'" title="Download">'.$value['FileName'].'</a></td>';
+                            }
+                            echo "<td>".$value['CreatedBy']."</td>";
+                            echo "<td>".$value['DateCreated']."</td>";
+                            echo "<td>".$value['rawDateCreated']."</td>";
+                            echo "</tr>";
                           }
-                          echo "<td>".$value['CreatedBy']."</td>";
-                          echo "<td>".$value['DateCreated']."</td>";
-                          echo "<td>".$value['rawDateCreated']."</td>";
-                          echo "</tr>";
                         }
                       ?>
                     </tbody>
@@ -1658,29 +1661,32 @@
                     <tbody>
                       <?php 
                         $rowNumber = 0;
-                        foreach ($disbursement as $value) 
+                        if($disbursement != 0)
                         {
-                          $rowNumber = $rowNumber + 1;
-                          echo "<tr>";
-                          echo "<td>".$value['ReferenceNo']."</td>";
-                          echo "<td>".number_format($value['Amount'], 2)."</td>";
-                          echo "<td>".$value['DisbursedThrough']."</td>";
-                          echo "<td>".$value['Description']."</td>";
-                          echo "<td>".$value['Name']."</td>";
-                          echo "<td>".$value['DateCreated']."</td>";
-                          if($value['StatusId'] == 1)
+                          foreach ($disbursement as $value) 
                           {
-                            $status = "<span class='badge bg-green'>Active</span>";
-                            $action = '<a onclick="confirm(\'Are you sure you want to deactivate this disbursement record?\', \''.$value['DisbursementId'].'\', 0, \'Disbursements\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                            $rowNumber = $rowNumber + 1;
+                            echo "<tr>";
+                            echo "<td>".$value['ReferenceNo']."</td>";
+                            echo "<td>".number_format($value['Amount'], 2)."</td>";
+                            echo "<td>".$value['DisbursedThrough']."</td>";
+                            echo "<td>".$value['Description']."</td>";
+                            echo "<td>".$value['Name']."</td>";
+                            echo "<td>".$value['DateCreated']."</td>";
+                            if($value['StatusId'] == 1)
+                            {
+                              $status = "<span class='badge bg-green'>Active</span>";
+                              $action = '<a onclick="confirm(\'Are you sure you want to deactivate this disbursement record?\', \''.$value['DisbursementId'].'\', 0, \'Disbursements\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                            }
+                            else
+                            {
+                              $status = "<span class='badge bg-red'>Deactivated</span>";
+                              $action = 'N/A';
+                            }
+                            echo "<td>".$status."</td>";
+                            echo "<td>".$action."</td>";
+                            echo "</tr>";
                           }
-                          else
-                          {
-                            $status = "<span class='badge bg-red'>Deactivated</span>";
-                            $action = 'N/A';
-                          }
-                          echo "<td>".$status."</td>";
-                          echo "<td>".$action."</td>";
-                          echo "</tr>";
                         }
                       ?>
                     </tbody>
@@ -1778,27 +1784,30 @@
                     <tbody>
                       <?php 
                         $rowNumber = 0;
-                        foreach ($collateral as $value) 
+                        if($collateral != 0)
                         {
-                          echo "<tr>";
-                          echo "<td>".$value['ReferenceNo']."</td>";
-                          echo "<td>".$value['ProductName']."</td>";
-                          echo "<td>".$value['CurrentStatus']."</td>";
-                          echo "<td>".number_format($value['Value'], 2)."</td>";
-                          echo "<td>".$value['CollateralType']."</td>";
-                          echo "<td>".$value['DateRegistered']."</td>";
-                          echo "<td>".$value['DateCreated']."</td>";
-                          $action = '<a onclick="confirm(\'Are you sure you want to re-activate this collateral record?\', \''.$value['CollateralId'].'\', 2, \'Collaterals\') "class="btn btn-warning btn-sm" title="Re-activate"><span class="fa fa-refresh"></span></a>';
-                          if($detail['BranchId'] == $this->session->userdata('BranchId'))
+                          foreach ($collateral as $value) 
                           {
-                            echo '<td><a class="btn btn-default btn-sm" data-toggle="modal" data-target="#modalCollateral" title="View" onclick="viewCollateral('.$value['CollateralId'].', 1)"><span class="fa fa-info-circle"></span></a> <a class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalCollateral" title="Edit" onclick="viewCollateral('.$value['CollateralId'].', 2)"><span class="fa fa-edit"></span></a> </td> ';
+                            echo "<tr>";
+                            echo "<td>".$value['ReferenceNo']."</td>";
+                            echo "<td>".$value['ProductName']."</td>";
+                            echo "<td>".$value['CurrentStatus']."</td>";
+                            echo "<td>".number_format($value['Value'], 2)."</td>";
+                            echo "<td>".$value['CollateralType']."</td>";
+                            echo "<td>".$value['DateRegistered']."</td>";
+                            echo "<td>".$value['DateCreated']."</td>";
+                            $action = '<a onclick="confirm(\'Are you sure you want to re-activate this collateral record?\', \''.$value['CollateralId'].'\', 2, \'Collaterals\') "class="btn btn-warning btn-sm" title="Re-activate"><span class="fa fa-refresh"></span></a>';
+                            if($detail['BranchId'] == $this->session->userdata('BranchId'))
+                            {
+                              echo '<td><a class="btn btn-default btn-sm" data-toggle="modal" data-target="#modalCollateral" title="View" onclick="viewCollateral('.$value['CollateralId'].', 1)"><span class="fa fa-info-circle"></span></a> <a class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalCollateral" title="Edit" onclick="viewCollateral('.$value['CollateralId'].', 2)"><span class="fa fa-edit"></span></a> </td> ';
+                            }
+                            else
+                            {
+                              echo '<td></td>';
+                            }
+                            echo "<td>".$value['rawDateCreated']."</td>";
+                            echo "</tr>";
                           }
-                          else
-                          {
-                            echo '<td></td>';
-                          }
-                          echo "<td>".$value['rawDateCreated']."</td>";
-                          echo "</tr>";
                         }
                       ?>
                     </tbody>
@@ -1828,41 +1837,44 @@
                     <tbody>
                       <?php 
                         $rowNumber = 0;
-                        foreach ($requirementList as $value) 
+                        if($requirementList != 0)
                         {
-                          $rowNumber = $rowNumber + 1;
-                          echo "<tr>";
-                          echo "<td>".$value['ReferenceNo']."</td>";
-                          echo "<td>".$value['Name']."</td>";
-                          echo "<td>".$value['DateCreated']."</td>";
-                          echo "<td>".$value['Description']."</td>";
-                          if ($value['StatusId'] == 7) // Submitted 
+                          foreach ($requirementList as $value) 
                           {
-                            $action = '<a href="'.base_url().'/home/download/2/'.$value['ApplicationRequirementId'].'" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a>  <a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationRequirementId'].')" class="btn btn-success btn-sm" title="Upload"><span class="fa fa-upload"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this requirement?\', '.$value['ApplicationRequirementId'].', 6, \'Requirements\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
-                          }
-                          else if($value['StatusId'] == 2) // submitted
-                          {
-                            $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationRequirementId'].')" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a><a onclick="confirm(\'Are you sure you want to deactivate this requirement?\', '.$value['ApplicationRequirementId'].', 6, \'Requirements\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
-                          }
-                          else if($value['StatusId'] == 6) // deactivated
-                          {
-                            $action = 'N/A';
-                          }
-                          else 
-                          {
-                            $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationRequirementId'].')" class="btn btn-success btn-sm" title="Upload"><span class="fa fa-upload"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this requirement?\', '.$value['ApplicationRequirementId'].', 2, \'Requirements\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
-                          }
+                            $rowNumber = $rowNumber + 1;
+                            echo "<tr>";
+                            echo "<td>".$value['ReferenceNo']."</td>";
+                            echo "<td>".$value['Name']."</td>";
+                            echo "<td>".$value['DateCreated']."</td>";
+                            echo "<td>".$value['Description']."</td>";
+                            if ($value['StatusId'] == 7) // Submitted 
+                            {
+                              $action = '<a href="'.base_url().'/home/download/2/'.$value['ApplicationRequirementId'].'" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a>  <a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationRequirementId'].')" class="btn btn-success btn-sm" title="Upload"><span class="fa fa-upload"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this requirement?\', '.$value['ApplicationRequirementId'].', 6, \'Requirements\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                            }
+                            else if($value['StatusId'] == 2) // submitted
+                            {
+                              $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationRequirementId'].')" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a><a onclick="confirm(\'Are you sure you want to deactivate this requirement?\', '.$value['ApplicationRequirementId'].', 6, \'Requirements\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                            }
+                            else if($value['StatusId'] == 6) // deactivated
+                            {
+                              $action = 'N/A';
+                            }
+                            else 
+                            {
+                              $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationRequirementId'].')" class="btn btn-success btn-sm" title="Upload"><span class="fa fa-upload"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this requirement?\', '.$value['ApplicationRequirementId'].', 2, \'Requirements\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                            }
 
-                          if($detail['BranchId'] == $this->session->userdata('BranchId'))
-                          {
-                            echo '<td>'.$action.'</td>';
+                            if($detail['BranchId'] == $this->session->userdata('BranchId'))
+                            {
+                              echo '<td>'.$action.'</td>';
+                            }
+                            else
+                            {
+                              echo "<td>N/A</td>";
+                            }
+                            echo "<td>".$value['rawDateCreated']."</td>";
+                            echo "</tr>";
                           }
-                          else
-                          {
-                            echo "<td>N/A</td>";
-                          }
-                          echo "<td>".$value['rawDateCreated']."</td>";
-                          echo "</tr>";
                         }
                       ?>
                     </tbody>
@@ -1894,49 +1906,53 @@
                     <tbody>
                       <?php 
                         $rowNumber = 0;
-                        foreach ($chargeList as $value) 
+                        if($chargeList != 0)
                         {
-                          $rowNumber = $rowNumber + 1;
-                          echo "<tr>";
-                          echo "<td>".$value['ReferenceNo']."</td>";
-                          echo "<td>".$value['Name']."</td>";
-                          echo "<td>".$value['Amount']."</td>";
-                          if($value['ChargeType'] == 1) // pecentage
+                          foreach ($chargeList as $value) 
                           {
-                            echo "<td>Percentage</td>";
-                            echo "<td> Php ".number_format($value['Amount']/100 * $value['LoanAmount'], 2)."</td>";
+                            $rowNumber = $rowNumber + 1;
+                            echo "<tr>";
+                            echo "<td>".$value['ReferenceNo']."</td>";
+                            echo "<td>".$value['Name']."</td>";
+                            echo "<td>".$value['Amount']."</td>";
+                            if($value['ChargeType'] == 1) // pecentage
+                            {
+                              echo "<td>Percentage</td>";
+                              echo "<td> ".number_format($value['Amount']/100 * $value['LoanAmount'], 2)."%</td>";
+                            }
+                            else
+                            { 
+                              echo "<td>Flat Rate</td>";
+                              echo "<td> Php ".number_format($value['Amount'])."</td>";
+                            }
+                            if($value['StatusId'] == 1) // Pending 
+                             {
+                              $status = "<span class='badge bg-orange'>Pending</span>";
+                              $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationChargeId'].')" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this charge?\', \''.$value['ApplicationChargeId'].'\', 6, \'Charge\')" class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
+                            }
+                            else if($value['StatusId'] == 2) // paid
+                            {
+                              $status = "<span class='badge bg-green'>Paid</span>";
+                              $action = '<a onclick="confirm(\'Are you sure you want to deactivate this charge? Please make sure that you cancel the corresponding payment collection in the collections as well tab.\', '.$value['ApplicationChargeId'].', 2, \'Charge\')" class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
+                            }
+                            else // deactivated
+                            {
+                              $status = "<span class='badge bg-red'>Deactivated</span>";
+                              $action = 'N/A';
+                            }
+
+                            echo '<td>'.$status.'</td>';
+                            echo "<td>".$value['DateCreated']."</td>";
+                            if($detail['BranchId'] == $this->session->userdata('BranchId'))
+                            {
+                              echo '<td>'.$action.'</td>';
+                            }
+                            else
+                            {
+                              echo "<td>N/A</td>";
+                            }
+                            echo "</tr>";
                           }
-                          else
-                          { 
-                            echo "<td>Flat Rate</td>";
-                            echo "<td> Php ".number_format($value['Amount'])."</td>";
-                          }
-                          if($value['StatusId'] == 1) // Pending 
-                           {
-                            $status = "<span class='badge bg-orange'>Pending</span>";
-                            $action = '<a data-toggle="modal" data-target="#modalUpload" onclick="uploadRequirementsChange('.$value['ApplicationChargeId'].')" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this charge?\', \''.$value['ApplicationChargeId'].'\', 6, \'Charge\')" class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
-                          }
-                          else if($value['StatusId'] == 2) // paid
-                          {
-                            $status = "<span class='badge bg-green'>Paid</span>";
-                            $action = '<a onclick="confirm(\'Are you sure you want to deactivate this charge? Please make sure that you cancel the corresponding payment collection in the collections as well tab.\', '.$value['ApplicationChargeId'].', 2, \'Charge\')" class="btn btn-danger btn-sm" title="Cancel"><span class="fa fa-close"></span></a>';
-                          }
-                          else // deactivated
-                          {
-                            $status = "<span class='badge bg-red'>Deactivated</span>";
-                            $action = 'N/A';
-                          }
-                          echo '<td>'.$status.'</td>';
-                          echo "<td>".$value['DateCreated']."</td>";
-                          if($detail['BranchId'] == $this->session->userdata('BranchId'))
-                          {
-                            echo '<td>'.$action.'</td>';
-                          }
-                          else
-                          {
-                            echo "<td>N/A</td>";
-                          }
-                          echo "</tr>";
                         }
                       ?>
                     </tbody>
@@ -1968,36 +1984,39 @@
                     <tbody>
                       <?php 
                         $rowNumber = 0;
-                        foreach ($income as $value) 
+                        if($income > 0)
                         {
-                          $rowNumber = $rowNumber + 1;
-                          echo "<tr>";
-                          echo "<td>".$value['ReferenceNo']."</td>";
-                          echo "<td>".$value['Source']."</td>";
-                          echo "<td>".$value['Details']."</td>";
-                          echo "<td>".number_format($value['Amount'], 2)."</td>";
-                          echo "<td>".$value['Name']."</td>";
-                          echo "<td>".$value['DateCreated']."</td>";
-                          if($value['StatusId'] == 2)
+                          foreach ($income as $value) 
                           {
-                            $status = "<span class='badge bg-green'>Active</span>";
-                            $action = '<a onclick="EditIncome(\''.$value['IncomeId'].'\', \'Edit\')" data-toggle="modal" data-target="#modalIncome" class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this Source of Income record?\', \''.$value['IncomeId'].'\', 6, \'Incomes\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                            $rowNumber = $rowNumber + 1;
+                            echo "<tr>";
+                            echo "<td>".$value['ReferenceNo']."</td>";
+                            echo "<td>".$value['Source']."</td>";
+                            echo "<td>".$value['Details']."</td>";
+                            echo "<td>".number_format($value['Amount'], 2)."</td>";
+                            echo "<td>".$value['Name']."</td>";
+                            echo "<td>".$value['DateCreated']."</td>";
+                            if($value['StatusId'] == 2)
+                            {
+                              $status = "<span class='badge bg-green'>Active</span>";
+                              $action = '<a onclick="EditIncome(\''.$value['IncomeId'].'\', \'Edit\')" data-toggle="modal" data-target="#modalIncome" class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this Source of Income record?\', \''.$value['IncomeId'].'\', 6, \'Incomes\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                            }
+                            else
+                            {
+                              $status = "<span class='badge bg-red'>Deactivated</span>";
+                              $action = '<a onclick="confirm(\'Are you sure you want to re-activate this Source of Income record?\', \''.$value['IncomeId'].'\', 2, \'Incomes\')" class="btn btn-warning" title="Re-Activate"><span class="fa fa-refresh"></span></a>';
+                            }
+                            echo "<td>".$status."</td>";
+                            if($detail['BranchId'] == $this->session->userdata('BranchId'))
+                            {
+                              echo '<td>'.$action.'</td>';
+                            }
+                            else
+                            {
+                              echo "<td>N/A</td>";
+                            }
+                            echo "</tr>";
                           }
-                          else
-                          {
-                            $status = "<span class='badge bg-red'>Deactivated</span>";
-                            $action = '<a onclick="confirm(\'Are you sure you want to re-activate this Source of Income record?\', \''.$value['IncomeId'].'\', 2, \'Incomes\')" class="btn btn-warning" title="Re-Activate"><span class="fa fa-refresh"></span></a>';
-                          }
-                          echo "<td>".$status."</td>";
-                          if($detail['BranchId'] == $this->session->userdata('BranchId'))
-                          {
-                            echo '<td>'.$action.'</td>';
-                          }
-                          else
-                          {
-                            echo "<td>N/A</td>";
-                          }
-                          echo "</tr>";
                         }
                       ?>
                     </tbody>
@@ -2030,36 +2049,39 @@
                     <tbody>
                       <?php 
                         $rowNumber = 0;
-                        foreach ($expense as $value) 
+                        if($expense > 0)
                         {
-                          $rowNumber = $rowNumber + 1;
-                          echo "<tr>";
-                          echo "<td>".$value['ReferenceNo']."</td>";
-                          echo "<td>".$value['Source']."</td>";
-                          echo "<td>".$value['Details']."</td>";
-                          echo "<td>".number_format($value['Amount'], 2)."</td>";
-                          echo "<td>".$value['CreatedBy']."</td>";
-                          echo "<td>".$value['DateCreated']."</td>";
-                          if($value['StatusId'] == 2)
+                          foreach ($expense as $value) 
                           {
-                            $status = "<span class='badge bg-green'>Active</span>";
-                            $action = '<a onclick="EditExpense(\''.$value['ExpenseId'].'\', \'Edit\')" data-toggle="modal" data-target="#modalExpense" class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this expense record?\', \''.$value['ExpenseId'].'\', 6, \'Expenses\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                            $rowNumber = $rowNumber + 1;
+                            echo "<tr>";
+                            echo "<td>".$value['ReferenceNo']."</td>";
+                            echo "<td>".$value['Source']."</td>";
+                            echo "<td>".$value['Details']."</td>";
+                            echo "<td>".number_format($value['Amount'], 2)."</td>";
+                            echo "<td>".$value['CreatedBy']."</td>";
+                            echo "<td>".$value['DateCreated']."</td>";
+                            if($value['StatusId'] == 2)
+                            {
+                              $status = "<span class='badge bg-green'>Active</span>";
+                              $action = '<a onclick="EditExpense(\''.$value['ExpenseId'].'\', \'Edit\')" data-toggle="modal" data-target="#modalExpense" class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this expense record?\', \''.$value['ExpenseId'].'\', 6, \'Expenses\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                            }
+                            else
+                            {
+                              $status = "<span class='badge bg-red'>Deactivated</span>";
+                              $action = '<a onclick="confirm(\'Are you sure you want to re-activate this Expense record?\', \''.$value['ExpenseId'].'\', 2, \'Expenses\')" class="btn btn-warning" title="Re-Activate"><span class="fa fa-refresh"></span></a>';
+                            }
+                            echo "<td>".$status."</td>";
+                            if($detail['BranchId'] == $this->session->userdata('BranchId'))
+                            {
+                              echo '<td>'.$action.'</td>';
+                            }
+                            else
+                            {
+                              echo "<td>N/A</td>";
+                            }
+                            echo "</tr>";
                           }
-                          else
-                          {
-                            $status = "<span class='badge bg-red'>Deactivated</span>";
-                            $action = '<a onclick="confirm(\'Are you sure you want to re-activate this Expense record?\', \''.$value['ExpenseId'].'\', 2, \'Expenses\')" class="btn btn-warning" title="Re-Activate"><span class="fa fa-refresh"></span></a>';
-                          }
-                          echo "<td>".$status."</td>";
-                          if($detail['BranchId'] == $this->session->userdata('BranchId'))
-                          {
-                            echo '<td>'.$action.'</td>';
-                          }
-                          else
-                          {
-                            echo "<td>N/A</td>";
-                          }
-                          echo "</tr>";
                         }
                       ?>
                     </tbody>
@@ -2092,36 +2114,39 @@
                     <tbody>
                       <?php 
                         $rowNumber = 0;
-                        foreach ($obligations as $value) 
+                        if($obligations > 0)
                         {
-                          $rowNumber = $rowNumber + 1;
-                          echo "<tr>";
-                          echo "<td>".$value['ReferenceNo']."</td>";
-                          echo "<td>".$value['Source']."</td>";
-                          echo "<td>".$value['Details']."</td>";
-                          echo "<td>".number_format($value['Amount'], 2)."</td>";
-                          echo "<td>".$value['Description']."</td>";
-                          echo "<td>".$value['CreatedBy']."</td>";
-                          echo "<td>".$value['DateCreated']."</td>";
-                          if($value['StatusId'] == 2)
+                          foreach ($obligations as $value) 
                           {
-                            $status = "<span class='badge bg-green'>Active</span>";
-                            $action = '<a onclick="EditObligation(\''.$value['MonthlyObligationId'].'\', \'Edit\')" data-toggle="modal" data-target="#modalObligation" class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this obligation record?\', \''.$value['MonthlyObligationId'].'\', 6, \'Obligations\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                            $rowNumber = $rowNumber + 1;
+                            echo "<tr>";
+                            echo "<td>".$value['ReferenceNo']."</td>";
+                            echo "<td>".$value['Source']."</td>";
+                            echo "<td>".$value['Details']."</td>";
+                            echo "<td>".number_format($value['Amount'], 2)."</td>";
+                            echo "<td>".$value['Description']."</td>";
+                            echo "<td>".$value['CreatedBy']."</td>";
+                            echo "<td>".$value['DateCreated']."</td>";
+                            if($value['StatusId'] == 2)
+                            {
+                              $status = "<span class='badge bg-green'>Active</span>";
+                              $action = '<a onclick="EditObligation(\''.$value['MonthlyObligationId'].'\', \'Edit\')" data-toggle="modal" data-target="#modalObligation" class="btn btn-primary btn-sm" title="Edit"><span class="fa fa-edit"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this obligation record?\', \''.$value['MonthlyObligationId'].'\', 6, \'Obligations\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                            }
+                            else
+                            {
+                              $status = "<span class='badge bg-red'>Deactivated</span>";
+                              $action = '<a onclick="confirm(\'Are you sure you want to re-activate this Obligation record?\', \''.$value['MonthlyObligationId'].'\', 2, \'Obligations\')" class="btn btn-warning" title="Re-Activate"><span class="fa fa-refresh"></span></a>';
+                            }
+                            if($detail['BranchId'] == $this->session->userdata('BranchId'))
+                            {
+                              echo '<td>'.$action.'</td>';
+                            }
+                            else
+                            {
+                              echo "<td>N/A</td>";
+                            }
+                            echo "</tr>";                        
                           }
-                          else
-                          {
-                            $status = "<span class='badge bg-red'>Deactivated</span>";
-                            $action = '<a onclick="confirm(\'Are you sure you want to re-activate this Obligation record?\', \''.$value['MonthlyObligationId'].'\', 2, \'Obligations\')" class="btn btn-warning" title="Re-Activate"><span class="fa fa-refresh"></span></a>';
-                          }
-                          if($detail['BranchId'] == $this->session->userdata('BranchId'))
-                          {
-                            echo '<td>'.$action.'</td>';
-                          }
-                          else
-                          {
-                            echo "<td>N/A</td>";
-                          }
-                          echo "</tr>";                        
                         }
                       ?>
                     </tbody>
@@ -2265,28 +2290,31 @@
                       </thead>
                       <tbody>
                         <?php
-                          foreach ($Spouse as $value) 
+                          if($Spouse > 0)
                           {
-                            echo "<tr>";
-                            echo "<td>".$value['rowNumber']."</td>";
-                            echo "<td>".$value['SpouseName']."</td>";
-                            echo "<td>".$value['DateOfBirth']."</td>";
-                            echo "<td>".$value['Sex']."</td>";
-                            echo "<td>".$value['DateCreated']."</td>";
-                            if($value['StatusId'] == 1)
+                            foreach ($Spouse as $value) 
                             {
-                              $status = "<span class='badge bg-green'>Active</span>";
-                              $action = '<a class="btn btn-sm btn-default" href="'.base_url().'home/borrowerdetails/'.$detail['BorrowerId'].'" target="_blank" title="View"><span class="fa fa-info-circle"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this spouse?\', \''.$value['ApplicationSpouseId'].'\', 0, \'BorrowerSpouse\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
-                            }
-                            else if($value['StatusId'] == 0)
-                            {
-                              $status = "<span class='badge bg-red'>Deactivated</span>";
-                              $action = '<a onclick="confirm(\'Are you sure you want to re-activate this spouse?\', \''.$value['ApplicationSpouseId'].'\', 1, \'BorrowerSpouse\')" class="btn btn-warning btn-sm" title="Re-activate"><span class="fa fa-refresh"></span></a>';
-                            }
+                              echo "<tr>";
+                              echo "<td>".$value['rowNumber']."</td>";
+                              echo "<td>".$value['SpouseName']."</td>";
+                              echo "<td>".$value['DateOfBirth']."</td>";
+                              echo "<td>".$value['Sex']."</td>";
+                              echo "<td>".$value['DateCreated']."</td>";
+                              if($value['StatusId'] == 1)
+                              {
+                                $status = "<span class='badge bg-green'>Active</span>";
+                                $action = '<a class="btn btn-sm btn-default" href="'.base_url().'home/borrowerdetails/'.$detail['BorrowerId'].'" target="_blank" title="View"><span class="fa fa-info-circle"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this spouse?\', \''.$value['ApplicationSpouseId'].'\', 0, \'BorrowerSpouse\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                              }
+                              else if($value['StatusId'] == 0)
+                              {
+                                $status = "<span class='badge bg-red'>Deactivated</span>";
+                                $action = '<a onclick="confirm(\'Are you sure you want to re-activate this spouse?\', \''.$value['ApplicationSpouseId'].'\', 1, \'BorrowerSpouse\')" class="btn btn-warning btn-sm" title="Re-activate"><span class="fa fa-refresh"></span></a>';
+                              }
 
-                            echo "<td>".$status."</td>";
-                            echo "<td>".$action."</td>";
-                            echo "</tr>";
+                              echo "<td>".$status."</td>";
+                              echo "<td>".$action."</td>";
+                              echo "</tr>";
+                            }
                           }
                         ?>
                       </tbody>
@@ -2318,28 +2346,31 @@
                       </thead>
                       <tbody>
                         <?php
-                          foreach ($Employment as $value) 
+                          if($Employment > 0)
                           {
-                            echo "<tr>";
-                            echo "<td>".$value['rowNumber']."</td>";
-                            echo "<td>".$value['EmployerStatus']."</td>";
-                            echo "<td>".$value['EmployerName']."</td>";
-                            echo "<td>".$value['DateHired']."</td>";
-                            echo "<td>".$value['DateCreated']."</td>";
-                            if($value['StatusId'] == 1)
+                            foreach ($Employment as $value) 
                             {
-                              $status = "<span class='badge bg-green'>Active</span>";
-                              $action = '<a class="btn btn-sm btn-default" href="'.base_url().'home/borrowerdetails/'.$detail['BorrowerId'].'" target="_blank" title="View"><span class="fa fa-info-circle"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this employer?\', \''.$value['ApplicationEmployerId'].'\', 0, \'BorrowerEmployer\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
-                            }
-                            else if($value['StatusId'] == 0)
-                            {
-                              $status = "<span class='badge bg-red'>Deactivated</span>";
-                              $action = '<a onclick="confirm(\'Are you sure you want to re-activate this employer?\', \''.$value['ApplicationEmployerId'].'\', 1, \'BorrowerEmployer\')" class="btn btn-success btn-sm" title="Deactivate"><span class="fa fa-refresh"></span></a>';
-                            }
+                              echo "<tr>";
+                              echo "<td>".$value['rowNumber']."</td>";
+                              echo "<td>".$value['EmployerStatus']."</td>";
+                              echo "<td>".$value['EmployerName']."</td>";
+                              echo "<td>".$value['DateHired']."</td>";
+                              echo "<td>".$value['DateCreated']."</td>";
+                              if($value['StatusId'] == 1)
+                              {
+                                $status = "<span class='badge bg-green'>Active</span>";
+                                $action = '<a class="btn btn-sm btn-default" href="'.base_url().'home/borrowerdetails/'.$detail['BorrowerId'].'" target="_blank" title="View"><span class="fa fa-info-circle"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this employer?\', \''.$value['ApplicationEmployerId'].'\', 0, \'BorrowerEmployer\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                              }
+                              else if($value['StatusId'] == 0)
+                              {
+                                $status = "<span class='badge bg-red'>Deactivated</span>";
+                                $action = '<a onclick="confirm(\'Are you sure you want to re-activate this employer?\', \''.$value['ApplicationEmployerId'].'\', 1, \'BorrowerEmployer\')" class="btn btn-success btn-sm" title="Deactivate"><span class="fa fa-refresh"></span></a>';
+                              }
 
-                            echo "<td>".$status."</td>";
-                            echo "<td>".$action."</td>";
-                            echo "</tr>";
+                              echo "<td>".$status."</td>";
+                              echo "<td>".$action."</td>";
+                              echo "</tr>";
+                            }
                           }
                         ?>
                       </tbody>
@@ -2371,42 +2402,45 @@
                       </thead>
                       <tbody>
                         <?php
-                          foreach ($ContactNumber as $value) 
+                          if($ContactNumber > 0)
                           {
-                            echo "<tr>";
-                            echo "<td>".$value['rowNumber']."</td>";
-                            echo "<td>".$value['PhoneType']."</td>";
-                            echo "<td>".$value['Number']."</td>";
-                            if($value['IsPrimary'] == 1)
+                            foreach ($ContactNumber as $value) 
                             {
-                              echo "<td>Yes</td>";
-                            }
-                            else
-                            {
-                              echo "<td>No</td>";
-                            }
+                              echo "<tr>";
+                              echo "<td>".$value['rowNumber']."</td>";
+                              echo "<td>".$value['PhoneType']."</td>";
+                              echo "<td>".$value['Number']."</td>";
+                              if($value['IsPrimary'] == 1)
+                              {
+                                echo "<td>Yes</td>";
+                              }
+                              else
+                              {
+                                echo "<td>No</td>";
+                              }
 
-                            if($value['StatusId'] == 1)
-                            {
-                              $status = "<span class='badge bg-green'>Active</span>";
-                            }
-                            else if($value['StatusId'] == 0)
-                            {
-                              $status = "<span class='badge bg-red'>Deactivated</span>";
-                            }
+                              if($value['StatusId'] == 1)
+                              {
+                                $status = "<span class='badge bg-green'>Active</span>";
+                              }
+                              else if($value['StatusId'] == 0)
+                              {
+                                $status = "<span class='badge bg-red'>Deactivated</span>";
+                              }
 
-                            if($value['StatusId'] == 1)
-                            {
-                              $action = '<a onclick="confirm(\'Are you sure you want to deactivate this contact detail?\', \''.$value['ApplicationContactId'].'\', 0 , \'BorrowerContact\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                              if($value['StatusId'] == 1)
+                              {
+                                $action = '<a onclick="confirm(\'Are you sure you want to deactivate this contact detail?\', \''.$value['ApplicationContactId'].'\', 0 , \'BorrowerContact\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                              }
+                              else 
+                              {
+                                $action = '<a onclick="confirm(\'Are you sure you want to re-activate this contact detail?\', \''.$value['ApplicationContactId'].'\', 1 , \'BorrowerContact\')" class="btn btn-warning btn-sm" title="Deactivate"><span class="fa fa-refresh"></span></a>';
+                              }
+                              echo "<td>".$value['DateCreated']."</td>";
+                              echo "<td>".$status."</td>";
+                              echo "<td>".$action."</td>";
+                              echo "</tr>";
                             }
-                            else 
-                            {
-                              $action = '<a onclick="confirm(\'Are you sure you want to re-activate this contact detail?\', \''.$value['ApplicationContactId'].'\', 1 , \'BorrowerContact\')" class="btn btn-warning btn-sm" title="Deactivate"><span class="fa fa-refresh"></span></a>';
-                            }
-                            echo "<td>".$value['DateCreated']."</td>";
-                            echo "<td>".$status."</td>";
-                            echo "<td>".$action."</td>";
-                            echo "</tr>";
                           }
                         ?>
                       </tbody>
@@ -2438,40 +2472,43 @@
                       </thead>
                       <tbody>
                         <?php
-                          foreach ($Address as $value)
+                          if($Address > 0)
                           {
-                            echo "<tr>";
-                            echo "<td>".$value['rowNumber']."</td>";
-                            echo "<td>".$value['HouseNo'].", ".$value['brgyDesc'].", ".$value['cityMunDesc'].", ".$value['provDesc'].", ".$value['regDesc']."</td>";
-                            echo "<td>".$value['AddressType']."</td>";
-                            if($value['IsPrimary'] == 1)
+                            foreach ($Address as $value)
                             {
-                              echo "<td>Yes</td>";
+                              echo "<tr>";
+                              echo "<td>".$value['rowNumber']."</td>";
+                              echo "<td>".$value['HouseNo'].", ".$value['brgyDesc'].", ".$value['cityMunDesc'].", ".$value['provDesc'].", ".$value['regDesc']."</td>";
+                              echo "<td>".$value['AddressType']."</td>";
+                              if($value['IsPrimary'] == 1)
+                              {
+                                echo "<td>Yes</td>";
+                              }
+                              else
+                              {
+                                echo "<td>No</td>";
+                              }
+                              if($value['StatusId'] == 1)
+                              {
+                                $status = "<span class='badge bg-green'>Active</span>";
+                              }
+                              else if($value['StatusId'] == 0)
+                              {
+                                $status = "<span class='badge bg-red'>Deactivated</span>";
+                              }
+                              if($value['StatusId'] == 1)
+                              {
+                                $action = '<a class="btn btn-sm btn-default" href="'.base_url().'home/borrowerdetails/'.$detail['BorrowerId'].'" target="_blank" title="View"><span class="fa fa-info-circle"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this address?\', \''.$value['ApplicationAddressId'].'\', 0,\'BorrowerAddress\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                              }
+                              else
+                              {
+                                $action = '<a onclick="confirm(\'Are you sure you want to re-activate this address?\', \''.$value['ApplicationAddressId'].'\', 1, \'BorrowerAddress\')" class="btn btn-warning btn-sm" title="Reactivate"><span class="fa fa-refresh"></span></a>';
+                              }
+                              echo "<td>".$value['DateCreated']."</td>";
+                              echo "<td>".$status."</td>";
+                              echo "<td>".$action."</td>";
+                              echo "</tr>";
                             }
-                            else
-                            {
-                              echo "<td>No</td>";
-                            }
-                            if($value['StatusId'] == 1)
-                            {
-                              $status = "<span class='badge bg-green'>Active</span>";
-                            }
-                            else if($value['StatusId'] == 0)
-                            {
-                              $status = "<span class='badge bg-red'>Deactivated</span>";
-                            }
-                            if($value['StatusId'] == 1)
-                            {
-                              $action = '<a class="btn btn-sm btn-default" href="'.base_url().'home/borrowerdetails/'.$detail['BorrowerId'].'" target="_blank" title="View"><span class="fa fa-info-circle"></span></a> <a onclick="confirm(\'Are you sure you want to deactivate this address?\', \''.$value['ApplicationAddressId'].'\', 0,\'BorrowerAddress\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
-                            }
-                            else
-                            {
-                              $action = '<a onclick="confirm(\'Are you sure you want to re-activate this address?\', \''.$value['ApplicationAddressId'].'\', 1, \'BorrowerAddress\')" class="btn btn-warning btn-sm" title="Reactivate"><span class="fa fa-refresh"></span></a>';
-                            }
-                            echo "<td>".$value['DateCreated']."</td>";
-                            echo "<td>".$status."</td>";
-                            echo "<td>".$action."</td>";
-                            echo "</tr>";
                           }
                         ?>
                       </tbody>
@@ -2503,42 +2540,45 @@
                       </thead>
                       <tbody>
                         <?php
-                          foreach ($EmailAddress as $value) 
+                          if($Address > 0)
                           {
-                            echo "<tr>";
-                            echo "<td>".$value['rowNumber']."</td>";
-                            echo "<td>".$value['EmailAddress']."</td>";
-                            if($value['IsPrimary'] == 1)
+                            foreach ($EmailAddress as $value) 
                             {
-                              echo "<td>Yes</td>";
-                            }
-                            else
-                            {
-                              echo "<td>No</td>";
-                            }
+                              echo "<tr>";
+                              echo "<td>".$value['rowNumber']."</td>";
+                              echo "<td>".$value['EmailAddress']."</td>";
+                              if($value['IsPrimary'] == 1)
+                              {
+                                echo "<td>Yes</td>";
+                              }
+                              else
+                              {
+                                echo "<td>No</td>";
+                              }
 
-                            if($value['StatusId'] == 1)
-                            {
-                              $status = "<span class='badge bg-green'>Active</span>";
-                            }
-                            else if($value['StatusId'] == 0)
-                            {
-                              $status = "<span class='badge bg-red'>Deactivated</span>";
-                            }
+                              if($value['StatusId'] == 1)
+                              {
+                                $status = "<span class='badge bg-green'>Active</span>";
+                              }
+                              else if($value['StatusId'] == 0)
+                              {
+                                $status = "<span class='badge bg-red'>Deactivated</span>";
+                              }
 
-                            if($value['StatusId'] == 1)
-                            {
-                              $action = '<a onclick="confirm(\'Are you sure you want to deactivate this email?\', \''.$value['ApplicationEmailId'].'\', 0, \'BorrowerEmail\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                              if($value['StatusId'] == 1)
+                              {
+                                $action = '<a onclick="confirm(\'Are you sure you want to deactivate this email?\', \''.$value['ApplicationEmailId'].'\', 0, \'BorrowerEmail\')" class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                              }
+                              else
+                              {
+                                $action = '<a onclick="confirm(\'Are you sure you want to re-activate this email?\', \''.$value['ApplicationEmailId'].'\', 1, \'BorrowerEmail\')" class="btn btn-warning btn-sm" title="Deactivate"><span class="fa fa-refresh"></span></a>';
+                              }
+                              echo "<td>".$value['DateCreated']."</td>";
+                              echo "<td>".$status."</td>";
+                              echo "<td>".$action."</td>";
+                              echo "<td>".$value['rawDateCreated']."</td>";
+                              echo "</tr>";
                             }
-                            else
-                            {
-                              $action = '<a onclick="confirm(\'Are you sure you want to re-activate this email?\', \''.$value['ApplicationEmailId'].'\', 1, \'BorrowerEmail\')" class="btn btn-warning btn-sm" title="Deactivate"><span class="fa fa-refresh"></span></a>';
-                            }
-                            echo "<td>".$value['DateCreated']."</td>";
-                            echo "<td>".$status."</td>";
-                            echo "<td>".$action."</td>";
-                            echo "<td>".$value['rawDateCreated']."</td>";
-                            echo "</tr>";
                           }
                         ?>
                       </tbody>
@@ -2571,7 +2611,7 @@
                       </thead>
                       <tbody>
                         <?php
-                            if(!empty($Education))
+                            if($Education > 0)
                             {
                               foreach ($Education as $value) 
                               {
@@ -2627,42 +2667,45 @@
                     <tbody>
                       <?php 
                         $rowNumber = 0;
-                        foreach ($comments as $value) 
+                        if($Address > 0)
                         {
-                          $rowNumber = $rowNumber + 1;
-                          echo "<tr>";
-                          echo "<td>".$value['ReferenceNo']."</td>";
-                          echo "<td>".$value['Comment']."</td>";
-                          echo "<td>".$value['Name']."</td>";
-                          echo "<td>".$value['DateCreated']."</td>";
-                          if($value['StatusId'] == 1)
+                          foreach ($comments as $value) 
                           {
-                            echo "<td>Active</td>";
-                          }
-                          else
-                          {
-                            echo "<td>Deactivated</td>";
-                          }
-                          if($detail['BranchId'] == $this->session->userdata('BranchId'))
-                          {
+                            $rowNumber = $rowNumber + 1;
+                            echo "<tr>";
+                            echo "<td>".$value['ReferenceNo']."</td>";
+                            echo "<td>".$value['Comment']."</td>";
+                            echo "<td>".$value['Name']."</td>";
+                            echo "<td>".$value['DateCreated']."</td>";
                             if($value['StatusId'] == 1)
                             {
-                              $action = '<a onclick="confirm(\'Are you sure you want to deactivate this comment?\', \''.$value['CommentId'].'\', 6, \'Comment\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                              echo "<td>Active</td>";
                             }
                             else
                             {
-                              $action = '';
+                              echo "<td>Deactivated</td>";
                             }
-                            if($value['FileName'] != null)
+                            if($detail['BranchId'] == $this->session->userdata('BranchId'))
                             {
-                              echo '<td><a href="'.base_url().'/home/download/3/'.$value['CommentId'].'" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a> '.$action.'</td> ';
+                              if($value['StatusId'] == 1)
+                              {
+                                $action = '<a onclick="confirm(\'Are you sure you want to deactivate this comment?\', \''.$value['CommentId'].'\', 6, \'Comment\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                              }
+                              else
+                              {
+                                $action = '';
+                              }
+                              if($value['FileName'] != null)
+                              {
+                                echo '<td><a href="'.base_url().'/home/download/3/'.$value['CommentId'].'" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a> '.$action.'</td> ';
+                              }
+                              else
+                              {
+                                echo '<td>'.$action.'</td> ';
+                              }
                             }
-                            else
-                            {
-                              echo '<td>'.$action.'</td> ';
-                            }
+                            echo "</tr>";
                           }
-                          echo "</tr>";
                         }
                       ?>
                     </tbody>
@@ -2778,8 +2821,8 @@
 
   var rowNumber = 0;
   $('#dtblHistory').DataTable({
-    "aoColumnDefs": [{ "bVisible": false, "aTargets": [6] }],
-    "order": [[6, "desc"]]
+    "aoColumnDefs": [{ "bVisible": false, "aTargets": [5] }],
+    "order": [[5, "desc"]]
   });
 
   $('#dtblCharges').DataTable({

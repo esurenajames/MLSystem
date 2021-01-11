@@ -1549,6 +1549,7 @@ class borrower_model extends CI_Model
     function getAllList()
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
+      $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT DISTINCT B.FirstName
                                                 , acronym (B.MiddleName) as MI
                                                 , B.LastName

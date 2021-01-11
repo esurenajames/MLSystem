@@ -10,7 +10,7 @@ class access extends CI_Model
     function checkUser($input)
     {
       $query_string = $this->db->query("SELECT  *
-                                                FROM R_Userrole U
+                                                FROM R_UserRole U
                                                   INNER JOIN R_Employee EMP
                                                       ON EMP.EmployeeNumber = U.EmployeeNumber
                                                       WHERE U.EmployeeNumber = '".$input['username']."'
@@ -37,7 +37,7 @@ class access extends CI_Model
                                                 -- , EMP.ManagerId as ManagerId
                                                 , BE.ManagerBranchId as ManagerId
                                                 , (SELECT COUNT(*) FROM branch_has_manager WHERE EmployeeNumber = EMP.EmployeeNumber AND StatusId = 1) isManager
-                                                FROM R_Userrole U
+                                                FROM R_UserRole U
                                                   INNER JOIN R_Employee EMP
                                                       ON EMP.EmployeeNumber = U.EmployeeNumber
                                                   LEFT JOIN branch_has_employee BE

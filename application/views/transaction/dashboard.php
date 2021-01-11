@@ -76,6 +76,40 @@
           </div>
         </div>
       </div>
+
+      <div class="modal fade" id="modalImport2">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">Import Borrower</h4>
+            </div>
+              <form role="form" id="upload_form3" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="txtHouseNo">Excel Attachment <span class="text-red">*</span></label>
+                        <input type="file" id="form3UploadExcel" name="form3UploadExcel" accept=".xls, .xlsx" required>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Download Format <span class="text-red">*</span></label><br>
+                        <a class="btn btn-sm btn-success" href="<?php echo base_url();?>/employeeUpload/BorrowerUpload.xlsx" title="Download">Download</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+              </form>
+          </div>
+        </div>
+      </div>
     	<!-- BORROWER DETAILS -->
   	    <div class="box">
   	      <div class="box-header with-border">
@@ -84,6 +118,7 @@
   		    <div class="box-body">
             <div class="pull-right">            
               <a data-toggle="modal" data-target="#modalFilter" class="btn btn-primary btn-md" >Filter</a>
+              <a data-toggle="modal" data-target="#modalImport2" class="btn btn-primary btn-md" >Import</a>
             </div>
             <br>
             <br>

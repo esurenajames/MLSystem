@@ -24,6 +24,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |
 */
 $config['base_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/ELendingTool/';
+// $config['base_url'] = 'http://webapps-qa.giatechph.com//';
+
 
 /*
 |--------------------------------------------------------------------------

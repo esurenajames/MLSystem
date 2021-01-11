@@ -779,10 +779,11 @@ class home extends CI_Controller {
 		$header['header'] = 'Employee Details';
 		$sidebar['access'] = $this->sidebar_model->checkSideBar();
 		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$data['detail'] = $this->employee_model->getEmployeeDetails($Id);
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 
+		$data['detail'] = $this->employee_model->getEmployeeDetails($Id);
+		$data['BranchManagement'] = $this->employee_model->branchManagement($Id);
 		$data['EmailAddress'] = $this->employee_model->employeeEmails($Id);
 		$data['ContactNumber'] = $this->employee_model->contactNumbers($Id);
 		$data['Address'] = $this->employee_model->employeeAddress($Id);
@@ -887,6 +888,8 @@ class home extends CI_Controller {
 		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['Modules'] = $this->employee_model->getAccessManagement();
+		$data['Branch'] = $this->employee_model->getBranchManagement();
+		$data['branchAccess'] = $this->employee_model->getBranchAccess($Id);
 		$data['SubModule'] = $this->employee_model->getSubmodules();
 		$data['UserAccess'] = $this->employee_model->getModuleAccess($Id);
 		$data['Detail'] = $this->employee_model->getEmployeeDetail($Id);

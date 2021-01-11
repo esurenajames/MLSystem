@@ -568,6 +568,14 @@ $(function () {
     "order": [[3, "desc"]]
   });
   
+  $('#dtblBranch').DataTable({
+    "pageLength": 10,
+    // "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
+    "order": [[3, "desc"]]
+  });
+
+
+  
   dtblAudit = $('#dtblAudit').DataTable({
     "pageLength": 10,
     "aoColumnDefs": [{ "bVisible": false, "aTargets": [4] }],
