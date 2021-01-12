@@ -41,7 +41,7 @@
               </span>
             </a>
             <ul class="treeview-menu">
-              <?php if(in_array('1', $subModule)) { ?>
+              <?php if(in_array('21', $subModule) || in_array('22', $subModule) || in_array('23', $subModule)) { ?>
                 <li <?php if($sidebar == 'BorrowerManagement' && $sidebarMenu == 'BorrowerManagement'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/borrowers"><i class="fa fa-circle-o"></i>Borrowers</a></li>
               <?php } ?>
               <?php if(in_array('26', $subModule)) { ?>
