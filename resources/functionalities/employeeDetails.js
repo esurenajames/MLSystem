@@ -2,6 +2,56 @@
 
   var baseUrl = base_url + '/ELendingTool'; // initial url for javascripts
 
+
+  function chkEmployeeType(radioValue)
+  {
+    if(radioValue == 'Manager'){
+      $('#DivEmployee').slideUp();
+    }
+    else
+    {
+      $('#DivEmployee').slideDown();
+    }
+  }
+
+  
+  function changeBranch(BranchId, ManagerBranchId)
+  {
+    if(ManagerBranchId != null)
+    {
+      $.ajax({
+        url: baseUrl + "/admin_controller/getManagers",
+        method: "POST",
+        data: { BranchId : BranchId },
+        beforeSend: function(){
+          $('.loading').show();
+        },
+        success: function(data)
+        {
+          $('#selectManager').html(data);
+          $('#selectManager').val(ManagerBranchId).change();
+          $('.loading').hide();
+        }
+      })
+    }
+    else
+    {
+      $.ajax({
+        url: baseUrl + "/admin_controller/getManagers",
+        method: "POST",
+        data: { BranchId : BranchId },
+        beforeSend: function(){
+          $('.loading').show();
+        },
+        success: function(data)
+        {
+          $('#selectManager').html(data);
+          $('.loading').hide();
+        }
+      })
+    }
+  }
+
   function confirm(Text, EmployeeContactId, updateType)
   { 
     swal({
@@ -35,6 +85,7 @@
               buttonsStyling: false,
               confirmButtonClass: 'btn btn-primary'
             });
+            $('.loading').hide();
           },
           error: function (response) 
           {
@@ -84,6 +135,7 @@
               buttonsStyling: false,
               confirmButtonClass: 'btn btn-primary'
             });
+            $('.loading').hide();
           },
           error: function (response) 
           {
@@ -112,6 +164,7 @@
       success: function(data)
       {
         $('#selectProvince').html(data);
+            $('.loading').hide();
       }
     })
   }
@@ -128,6 +181,7 @@
       success: function(data)
       {
         $('#selectCity').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -144,6 +198,7 @@
       success: function(data)
       {
         $('#selectBarangay').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -182,6 +237,7 @@
             });
 
             location.reload();
+            $('.loading').hide();
           },
           error: function (response) 
           {
@@ -231,6 +287,7 @@
             });
 
             location.reload();
+            $('.loading').hide();
           },
           error: function (response) 
           {
@@ -271,6 +328,16 @@
         $('#selectCivilStatus').val(data['CivilStatusId']).change();
         $('#selectPosition').val(data['PositionId']).change();
         $('#selectStatusId').val(data['StatusId']).change();
+        if(data['EmployeeType'] > 0)
+        {
+          $('#selectEmpType').val('Manager').change();
+        }
+        else
+        {
+          $('#selectEmpType').val('Employee').change();
+          $('#selectBranch').val(data['BranchId']).change();
+          changeBranch(data['BranchId'], data['ManagerBranchId']);
+        }
 
         $('#DateOfBirth').daterangepicker({
             "startDate": moment(data['RawDOB']).format('DD MMM YY'),
@@ -302,6 +369,7 @@
             },
         }, function(start, end, label){
         });
+            $('.loading').hide();
       },
       error: function()
       {
@@ -368,6 +436,7 @@
               },
           }, function(start, end, label){
           });
+            $('.loading').hide();
         },
         error: function()
         {
@@ -541,6 +610,7 @@ $(function () {
     success: function(data)
     {
       $('#selectRegion').html(data);
+            $('.loading').hide();
     }
   })
 

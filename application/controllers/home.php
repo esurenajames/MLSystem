@@ -52,6 +52,7 @@ class home extends CI_Controller {
 
 	function Dashboard()
 	{
+    $AssignedBranchId = $this->session->userdata('BranchId');
 		$sidebar['sidebar'] = 'Dashboard';
 		$sidebar['sidebarMenu'] = 'Dashboard';
 		$header['header'] = 'Dashboard';
@@ -62,21 +63,22 @@ class home extends CI_Controller {
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['securityQuestions'] = $this->employee_model->getSecurityQuestions();
 
-		$data['totalBorrower'] = $this->maintenance_model->getTotalBorrower();
-		$data['TotalInterest'] = $this->maintenance_model->getTotalInterestCollected();
-		$data['totalExpense'] = $this->maintenance_model->getTotalExpenses();
-		$data['TotalTransaction'] = $this->maintenance_model->getTransactions();
-		$data['dailyIncome'] = $this->maintenance_model->getDailyIncome();
-		$data['dailyPenalties'] = $this->maintenance_model->getDailyPenalties();
-		$data['dailyApprovedLoans'] = $this->maintenance_model->getApprovedDaily();
-		$data['dailyDisbursement'] = $this->maintenance_model->getDailyDisbursement();
-		$data['dailyExpenses'] = $this->maintenance_model->getDailyExpenses();
-		$data['TotalDisbursement'] = $this->maintenance_model->getTotalDisbursement();
-		$data['totalIncome'] = $this->maintenance_model->getTotalIncome();
-		$data['totalFund'] = $this->maintenance_model->getCurrentFund();
-		$data['totalActiveLoans'] = $this->maintenance_model->getActiveLoans();
-		$data['totalEmployees'] = $this->maintenance_model->getTotalEmployees();
-		$data['totalUsers'] = $this->maintenance_model->getTotalUsers();
+		$data['TotalInterest'] = $this->maintenance_model->getTotalInterestCollected($AssignedBranchId);
+		$data['totalExpense'] = $this->maintenance_model->getTotalExpenses($AssignedBranchId);
+		$data['TotalTransaction'] = $this->maintenance_model->getTransactions($AssignedBranchId);
+		$data['dailyIncome'] = $this->maintenance_model->getDailyIncome($AssignedBranchId);
+		$data['dailyPenalties'] = $this->maintenance_model->getDailyPenalties($AssignedBranchId);
+		$data['dailyApprovedLoans'] = $this->maintenance_model->getApprovedDaily($AssignedBranchId);
+		$data['dailyDisbursement'] = $this->maintenance_model->getDailyDisbursement($AssignedBranchId);
+		$data['dailyExpenses'] = $this->maintenance_model->getDailyExpenses($AssignedBranchId);
+		$data['TotalDisbursement'] = $this->maintenance_model->getTotalDisbursement($AssignedBranchId);
+		$data['totalIncome'] = $this->maintenance_model->getTotalIncome($AssignedBranchId);
+		$data['totalFund'] = $this->maintenance_model->getCurrentFund($AssignedBranchId);
+		$data['totalActiveLoans'] = $this->maintenance_model->getActiveLoans($AssignedBranchId);
+		$data['totalBorrower'] = $this->maintenance_model->getTotalBorrower($AssignedBranchId);
+		$data['totalEmployees'] = $this->maintenance_model->getTotalEmployees($AssignedBranchId);
+		$data['totalUsers'] = $this->maintenance_model->getTotalUsers($AssignedBranchId);
+		$data['Branch'] = $this->maintenance_model->getBranches();
 
 		// FOR BAR CHARTS
 		$data['ageYear'] = $this->maintenance_model->getYearFilter('r_borrowers');
@@ -118,6 +120,7 @@ class home extends CI_Controller {
 		$data['ApplicationList'] = $this->loanapplication_model->getLoanApplications();
 		$data['CollectedBy'] = $this->loanapplication_model->getCollectedBy();
 		$data['CollectionDate'] = $this->loanapplication_model->getCollectionDate();
+		$data['Branch'] = $this->maintenance_model->getBranches();
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
 		$this->load->view('admin/collection', $data);
@@ -474,6 +477,7 @@ class home extends CI_Controller {
 		$data['ExpenseType'] = $this->maintenance_model->getExpenseType2();
 		$data['CreatedBy'] = $this->maintenance_model->getExpenseCreatedBy();
 		$data['ExpenseDate'] = $this->maintenance_model->getExpenseDate();
+		$data['Branch'] = $this->maintenance_model->getBranches();
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
@@ -511,6 +515,7 @@ class home extends CI_Controller {
 		$data['DepositType'] = $this->maintenance_model->getWithdrawalType2();
 		$data['CreatedBy'] = $this->maintenance_model->getDepositCreatedBy();
 		$data['DepositDate'] = $this->maintenance_model->getDepositDate();
+		$data['Branch'] = $this->maintenance_model->getBranches();
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
@@ -530,6 +535,7 @@ class home extends CI_Controller {
 		$data['Status'] = $this->maintenance_model->getLoanStatus();
 		$data['borrowerList'] = $this->loanapplication_model->getBorrowerLoanList();
 		$data['LoanType'] = $this->loanapplication_model->getLoanTypesList();
+		$data['Branch'] = $this->maintenance_model->getBranches();
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
@@ -870,6 +876,9 @@ class home extends CI_Controller {
 		$data['Branch'] = $this->maintenance_model->getBranches();
 		$data['Position'] = $this->maintenance_model->getPosition();
 		$data['Roles'] = $this->maintenance_model->getRoles();
+		$data['EmployeeStats'] = $this->maintenance_model->getFilterEmployeeStatus();
+		$data['EmployeeManager'] = $this->maintenance_model->getFilterEmployeeManager();
+		$data['EmployeeDateHired'] = $this->maintenance_model->getFilterEmployeeDateHired();
 		$data['Detail'] = $this->employee_model->getEmployeeDetail($this->session->userdata('EmployeeId'));
 
 		$this->load->view('includes/header', $header);
@@ -1019,6 +1028,7 @@ class home extends CI_Controller {
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['employee'] = $this->employee_model->getEmployeeList();
+		$data['Branch'] = $this->maintenance_model->getBranches();
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
@@ -1037,6 +1047,7 @@ class home extends CI_Controller {
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['ExpenseType'] = $this->maintenance_model->getExpenseTypeReport();
+		$data['Branch'] = $this->maintenance_model->getBranches();
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
@@ -1056,6 +1067,7 @@ class home extends CI_Controller {
 		$data['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['ExpenseType'] = $this->maintenance_model->getExpenseTypeReport();
 		$data['ageYear'] = $this->maintenance_model->getYearFilter('r_borrowers');
+		$data['Branch'] = $this->maintenance_model->getBranches();
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
@@ -1074,6 +1086,7 @@ class home extends CI_Controller {
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['Year'] = $this->maintenance_model->getYearFilter('r_borrowers');
+		$data['Branch'] = $this->maintenance_model->getBranches();
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
@@ -1092,6 +1105,7 @@ class home extends CI_Controller {
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['Year'] = $this->maintenance_model->getYearFilter('T_Application');
+		$data['Branch'] = $this->maintenance_model->getBranches();
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
@@ -1110,6 +1124,7 @@ class home extends CI_Controller {
 		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['profilePicture'] = $this->sidebar_model->getProfilePicture();
 		$data['Year'] = $this->maintenance_model->getYearFilter('T_Application');
+		$data['Branch'] = $this->maintenance_model->getBranches();
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);

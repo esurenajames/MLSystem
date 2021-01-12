@@ -200,7 +200,8 @@ class datatables_controller extends CI_Controller {
 		$AssetCategory = $this->uri->segment(4);
 		$PurchaseRangeFrom = $this->uri->segment(5);
 		$PurchaseRangeTo = $this->uri->segment(6);
-		$result = $this->maintenance_model->getAllAssets($Status, $AssetCategory, $PurchaseRangeFrom, $PurchaseRangeTo);
+		$BranchId = $this->uri->segment(7);
+		$result = $this->maintenance_model->getAllAssets($Status, $AssetCategory, $PurchaseRangeFrom, $PurchaseRangeTo, $BranchId);
 		foreach($result as $key=>$row)
 		{
 			$result[$key]['Name'] = $this->maintenance_model->getUserCreated($row['CreatedBy']);
@@ -297,7 +298,8 @@ class datatables_controller extends CI_Controller {
 		$ExpenseTo = $this->uri->segment(7);
 		$dateExpenseFrom = $this->uri->segment(8);
 		$dateExpenseTo = $this->uri->segment(9);
-		$result = $this->maintenance_model->getAllExpenses($Status, $ExpenseType, $CreatedBy, $ExpenseFrom, $ExpenseTo, $dateExpenseFrom, $dateExpenseTo);
+		$branchId = $this->uri->segment(10);
+		$result = $this->maintenance_model->getAllExpenses($Status, $ExpenseType, $CreatedBy, $ExpenseFrom, $ExpenseTo, $dateExpenseFrom, $dateExpenseTo, $branchId);
 		foreach($result as $key=>$row)
 		{
 			$result[$key]['Name'] = $this->maintenance_model->getUserCreated($row['CreatedBy']);
@@ -324,7 +326,8 @@ class datatables_controller extends CI_Controller {
 		$DepositTo = $this->uri->segment(7);
 		$dateDepositFrom = $this->uri->segment(8);
 		$dateDepositTo = $this->uri->segment(9);
-		$result = $this->maintenance_model->getAllWithdrawals($Status, $DepositType, $CreatedBy, $DepositFrom, $DepositTo, $dateDepositFrom, $dateDepositTo);
+		$branchId = $this->uri->segment(10);
+		$result = $this->maintenance_model->getAllWithdrawals($Status, $DepositType, $CreatedBy, $DepositFrom, $DepositTo, $dateDepositFrom, $dateDepositTo, $branchId);
 		foreach($result as $key=>$row)
 		{
 			$result[$key]['Name'] = $this->maintenance_model->getUserCreated($row['CreatedBy']);
@@ -366,7 +369,7 @@ class datatables_controller extends CI_Controller {
 
 	function filterLoans()
 	{
-		$result = $this->loanApplication_model->filterLoans($this->uri->segment(3), $this->uri->segment(4), $this->uri->segment(5));
+		$result = $this->loanApplication_model->filterLoans($this->uri->segment(3), $this->uri->segment(4), $this->uri->segment(5), $this->uri->segment(6));
 		foreach($result as $key=>$row)
 		{
 			$result[$key]['CreatedBy'] = $this->maintenance_model->getUserCreated($row['CreatedBy']);
@@ -402,7 +405,8 @@ class datatables_controller extends CI_Controller {
 		$CollectedBy = $this->uri->segment(5);
 		$dateFrom = $this->uri->segment(6);
 		$dateTo = $this->uri->segment(7);
-		$result = $this->loanApplication_model->getCollectionsManagement($ApplicationId, $LoanId, $CollectedBy, $dateFrom, $dateTo);
+		$BranchId = $this->uri->segment(8);
+		$result = $this->loanApplication_model->getCollectionsManagement($ApplicationId, $LoanId, $CollectedBy, $dateFrom, $dateTo, $BranchId);
 		echo json_encode($result);
 	}
 

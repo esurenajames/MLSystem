@@ -132,21 +132,46 @@ class maintenance_model extends CI_Model
       return $data;
     }
 
-    function getTotalBorrower()
+    function getTotalBorrower($selectedBranch)
     {
-      $BranchId = $this->session->userdata('BranchId');
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $search = '';
+      $defaultSearch = ' AND B.BranchId = '. $AssignedBranchId;
+      if($selectedBranch == 'All')
+      {
+        $search = '';
+        $defaultSearch = '';
+      }
+      else if($selectedBranch != '')
+      {
+        $search = ' AND B.BranchId = ' . $selectedBranch;
+        $defaultSearch = '';
+      }
       $query_string = $this->db->query("SELECT DISTINCT COUNT(DISTINCT BorrowerId) as Total 
-                                              FROM r_borrowers
-                                                WHERE BranchId = $BranchId
-                                                AND StatusId = 1
+                                              FROM r_borrowers B
+                                                WHERE StatusId = 1
+                                                ".$search."
+                                                ".$defaultSearch."
       ");
       $data = $query_string->row_array();
       return $data;
     }
 
-    function getTotalInterestCollected()
+    function getTotalInterestCollected($selectedBranch)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
+      $search = '';
+      $defaultSearch = ' AND B.BranchId = '. $AssignedBranchId;
+      if($selectedBranch == 'All')
+      {
+        $search = '';
+        $defaultSearch = '';
+      }
+      else if($selectedBranch != '')
+      {
+        $search = ' AND B.BranchId = ' . $selectedBranch;
+        $defaultSearch = '';
+      }
       $query_string = $this->db->query("SELECT DISTINCT COALESCE(SUM(DISTINCT PM.InterestAmount), 0) as Total
                                                 FROM t_paymentsmade PM
                                                   INNER JOIN t_application A
@@ -154,7 +179,8 @@ class maintenance_model extends CI_Model
                                                   INNER JOIN R_Borrowers B
                                                     ON B.BorrowerId = A.BorrowerId
                                                     WHERE PM.IsInterest = 1
-                                                    AND B.BranchId = $AssignedBranchId
+                                                    ".$search."
+                                                    ".$defaultSearch."
                                                     AND PM.StatusId = 1
                                                     AND DATE_FORMAT(PM.DateCreated, '%Y-%m-%d')  = DATE_FORMAT(NOW(), '%Y-%m-%d')
       ");
@@ -162,45 +188,108 @@ class maintenance_model extends CI_Model
       return $data;
     }
 
-    function getDailyExpenses()
+    function getDailyExpenses($selectedBranch)
     {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $search = '';
+      $defaultSearch = ' AND BranchId = '. $AssignedBranchId;
+      if($selectedBranch == 'All')
+      {
+        $search = '';
+        $defaultSearch = '';
+      }
+      else if($selectedBranch != '')
+      {
+        $search = ' AND BranchId = ' . $selectedBranch;
+        $defaultSearch = '';
+      }
       $query_string = $this->db->query("SELECT  FORMAT(COALESCE(SUM(Amount), 0), 2) as Total
                                                 FROM r_expense
                                                     WHERE DATE_FORMAT(DateCreated, '%Y-%m-%d')  = DATE_FORMAT(NOW(), '%Y-%m-%d')
                                                     AND StatusId = 1
+                                                    ".$search."
+                                                    ".$defaultSearch."
       ");
       $data = $query_string->row_array();
       return $data;
     }
 
-    function getTotalIncome()
+    function getTotalIncome($selectedBranch)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
-      $query_string = $this->db->query("SELECT  COALESCE(SUM(Amount), 0) as Total
-                                                FROM t_paymentsmade
-                                                    WHERE StatusId = 1
-                                                    AND Amount > 0
+      $search = '';
+      $defaultSearch = ' AND B.BranchId = '. $AssignedBranchId;
+      if($selectedBranch == 'All')
+      {
+        $search = '';
+        $defaultSearch = '';
+      }
+      else if($selectedBranch != '')
+      {
+        $search = ' AND B.BranchId = ' . $selectedBranch;
+        $defaultSearch = '';
+      }
+      $query_string = $this->db->query("SELECT  COALESCE(SUM(PM.Amount), 0) as Total
+                                                FROM t_paymentsmade PM
+                                                  INNER JOIN t_application A
+                                                    ON A.ApplicationId = PM.ApplicationId
+                                                  INNER JOIN R_Borrowers B
+                                                    ON B.BorrowerId = A.BorrowerId
+                                                    WHERE PM.StatusId = 1
+                                                    AND PM.Amount > 0
+                                                    ".$search."
+                                                    ".$defaultSearch."
       ");
       $data = $query_string->row_array();
       return $data;
     }
 
-    function getDailyIncome()
+    function getDailyIncome($selectedBranch)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
-      $query_string = $this->db->query("SELECT  COALESCE(SUM(Amount), 0) as Total
-                                                FROM t_paymentsmade
-                                                    WHERE DATE_FORMAT(DateCreated, '%Y-%m-%d')  = DATE_FORMAT(NOW(), '%Y-%m-%d')
-                                                    AND StatusId = 1
-                                                    AND Amount > 0
+      $search = '';
+      $defaultSearch = ' AND B.BranchId = '. $AssignedBranchId;
+      if($selectedBranch == 'All')
+      {
+        $search = '';
+        $defaultSearch = '';
+      }
+      else if($selectedBranch != '')
+      {
+        $search = ' AND B.BranchId = ' . $selectedBranch;
+        $defaultSearch = '';
+      }
+      $query_string = $this->db->query("SELECT  COALESCE(SUM(PM.Amount), 0) as Total
+                                                FROM t_paymentsmade PM
+                                                  INNER JOIN t_application A
+                                                    ON A.ApplicationId = PM.ApplicationId
+                                                  INNER JOIN R_Borrowers B
+                                                    ON B.BorrowerId = A.BorrowerId
+                                                    WHERE DATE_FORMAT(PM.DateCreated, '%Y-%m-%d')  = DATE_FORMAT(NOW(), '%Y-%m-%d')
+                                                    AND PM.StatusId = 1
+                                                    AND PM.Amount > 0
+                                                    ".$search."
+                                                    ".$defaultSearch."
       ");
       $data = $query_string->row_array();
       return $data;
     }
 
-    function getDailyPenalties()
+    function getDailyPenalties($selectedBranch)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
+      $search = '';
+      $defaultSearch = ' AND B.BranchId = '. $AssignedBranchId;
+      if($selectedBranch == 'All')
+      {
+        $search = '';
+        $defaultSearch = '';
+      }
+      else if($selectedBranch != '')
+      {
+        $search = ' AND B.BranchId = ' . $selectedBranch;
+        $defaultSearch = '';
+      }
       $query_string = $this->db->query("SELECT  COALESCE(SUM(PM.TotalPenalty), 0) as Total
                                                 FROM application_has_penalty PM
                                                   INNER JOIN t_application A
@@ -211,81 +300,148 @@ class maintenance_model extends CI_Model
                                                     AND PM.StatusId = 1
                                                     AND PM.Amount > 0
                                                     AND A.StatusId = 1
-                                                    AND B.BranchId = $AssignedBranchId
+                                                    ".$search."
+                                                    ".$defaultSearch."
       ");
       $data = $query_string->row_array();
       return $data;
     }
 
-    function getApprovedDaily()
+    function getApprovedDaily($selectedBranch)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
+      $search = '';
+      $defaultSearch = ' AND B.BranchId = '. $AssignedBranchId;
+      if($selectedBranch == 'All')
+      {
+        $search = '';
+        $defaultSearch = '';
+      }
+      else if($selectedBranch != '')
+      {
+        $search = ' AND B.BranchId = ' . $selectedBranch;
+        $defaultSearch = '';
+      }
       $query_string = $this->db->query("SELECT  COUNT(A.ApplicationId) as Total
                                                 FROM t_application A
                                                   INNER JOIN R_Borrowers B
                                                     ON B.BorrowerId = A.BorrowerId
                                                     WHERE DATE_FORMAT(DateApproved, '%Y-%m-%d') = DATE_FORMAT(NOW(), '%Y-%m-%d')
                                                     AND A.StatusId = 1
-                                                    AND B.BranchId = $AssignedBranchId
+                                                    ".$search."
+                                                    ".$defaultSearch."
       ");
       $data = $query_string->row_array();
       return $data;
     }
 
-    function getCurrentFund()
+    function getCurrentFund($selectedBranch)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
+      $search = '';
+      $defaultSearch = ' AND BranchId = '. $AssignedBranchId;
+      if($selectedBranch == 'All')
+      {
+        $search = '';
+        $defaultSearch = '';
+      }
+      else if($selectedBranch != '')
+      {
+        $search = ' AND BranchId = ' . $selectedBranch;
+        $defaultSearch = '';
+      }
       $query_string = $this->db->query("SELECT  COALESCE(SUM(Amount), 0) as Total
                                                 FROM r_capital
-                                                  WHERE BranchId = $AssignedBranchId
-                                                  AND StatusId = 1
+                                                  WHERE StatusId = 1
+                                                  ".$search."
+                                                  ".$defaultSearch."
       ");
       $data = $query_string->row_array();
       return $data;
     }
 
-    function getDailyDisbursement()
+    function getDailyDisbursement($selectedBranch)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
+      $search = '';
+      $defaultSearch = ' AND B.BranchId = '. $AssignedBranchId;
+      if($selectedBranch == 'All')
+      {
+        $search = '';
+        $defaultSearch = '';
+      }
+      else if($selectedBranch != '')
+      {
+        $search = ' AND B.BranchId = ' . $selectedBranch;
+        $defaultSearch = '';
+      }
       $query_string = $this->db->query("SELECT  COALESCE(SUM(Amount), 0) as Total
                                                 FROM Application_has_Disbursement AHD
                                                   INNER JOIN t_application A
                                                       ON A.ApplicationId = AHD.ApplicationId
                                                     INNER JOIN R_Borrowers B
                                                       ON B.BorrowerId = A.BorrowerId
-                                                      WHERE B.BranchId = $AssignedBranchId
-                                                      AND DATE_FORMAT(AHD.DateCreated, '%Y-%m-%d') = DATE_FORMAT(NOW(), '%Y-%m-%d')
+                                                      WHERE DATE_FORMAT(AHD.DateCreated, '%Y-%m-%d') = DATE_FORMAT(NOW(), '%Y-%m-%d')
                                                       AND AHD.StatusId = 1
                                                       AND A.StatusId = 1
+                                                      ".$search."
+                                                      ".$defaultSearch."
       ");
       $data = $query_string->row_array();
       return $data;
     }
 
-    function getTotalDisbursement()
+    function getTotalDisbursement($selectedBranch)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
+      $search = '';
+      $defaultSearch = ' AND B.BranchId = '. $AssignedBranchId;
+      if($selectedBranch == 'All')
+      {
+        $search = '';
+        $defaultSearch = '';
+      }
+      else if($selectedBranch != '')
+      {
+        $search = ' AND B.BranchId = ' . $selectedBranch;
+        $defaultSearch = '';
+      }
       $query_string = $this->db->query("SELECT  COALESCE(SUM(Amount), 0) as Total
                                                 FROM Application_has_Disbursement AHD
                                                   INNER JOIN t_application A
                                                       ON A.ApplicationId = AHD.ApplicationId
                                                     INNER JOIN R_Borrowers B
                                                       ON B.BorrowerId = A.BorrowerId
-                                                      WHERE B.BranchId = $AssignedBranchId
-                                                      AND AHD.StatusId = 1
+                                                      WHERE AHD.StatusId = 1
                                                       AND A.StatusId = 1
+                                                      ".$search."
+                                                      ".$defaultSearch."
       ");
       $data = $query_string->row_array();
       return $data;
     }
 
-    function getTotalExpenses()
+    function getTotalExpenses($selectedBranch)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
+      $search = '';
+      $defaultSearch = ' AND BranchId = '. $AssignedBranchId;
+      if($selectedBranch == 'All')
+      {
+        $search = '';
+        $defaultSearch = '';
+      }
+      else if($selectedBranch != '')
+      {
+        $search = ' AND BranchId = ' . $selectedBranch;
+        $defaultSearch = '';
+      }
+
       $query_string = $this->db->query("SELECT  COALESCE(SUM(Amount), 0) as Total
                                                 FROM r_expense
                                                     WHERE StatusId = 1
-                                                    AND BranchId = $AssignedBranchId
+                                                    ".$search."
+                                                    ".$defaultSearch."
       ");
       $data = $query_string->row_array();
       return $data;
@@ -509,7 +665,7 @@ class maintenance_model extends CI_Model
       return $data;
     }
 
-    function getAllAssets($Status, $AssetCategory, $PurchaseRangeFrom, $PurchaseRangeTo)
+    function getAllAssets($Status, $AssetCategory, $PurchaseRangeFrom, $PurchaseRangeTo, $BranchId)
     {
       $search = '';
       if($PurchaseRangeFrom != '' && $PurchaseRangeTo != '')
@@ -536,6 +692,15 @@ class maintenance_model extends CI_Model
       if($AssetCategory != '')
       {
         $search .= " AND AM.CategoryId = " . $AssetCategory;
+      }
+
+      if($BranchId == 'All')
+      {
+        $search .= " ";
+      }
+      else if($BranchId != '')
+      {
+        $search .= " AND AM.BranchId = " . $BranchId;
       }
       $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT FORMAT(PurchaseValue, 2) PurchaseValue 
@@ -578,7 +743,7 @@ class maintenance_model extends CI_Model
                                                       ON BRNCH.BranchId = AM.BranchId
                                                     INNER JOIN R_Employee EMP
                                                       ON EMP.EmployeeNumber = AM.CreatedBy
-                                                      WHERE BRNCH.BranchId = $AssignedBranchId
+                                                      WHERE EMP.StatusId = 2
                                                       ".$search."
       ");
       $data = $query_string->result_array();
@@ -681,30 +846,68 @@ class maintenance_model extends CI_Model
       return $data;
     }
 
-    function getAllExpenses($Status, $ExpenseType, $CreatedBy, $ExpenseFrom, $ExpenseTo, $dateExpenseFrom, $dateExpenseTo)
+    function getAllExpenses($Status, $ExpenseType, $CreatedBy, $ExpenseFrom, $ExpenseTo, $dateExpenseFrom, $dateExpenseTo, $branchId)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
       $search = '';
-      if($dateExpenseFrom != '' && $dateExpenseTo != '')
-      {
-        $search .= " AND DATE_FORMAT(EX.DateExpense, '%b-%d-%Y') BETWEEN '".$dateExpenseFrom."' AND '".$dateExpenseTo."'";
-      }
-      if($Status != '')
-      {
-        $search .= " AND EX.StatusId = " . $Status;
-      }
-      if($ExpenseType != '')
-      {
-        $search .= " AND EX.ExpenseTypeId = " . $ExpenseType;
-      }
-      if($CreatedBy != '')
-      {
-        $search .= " AND EX.CreatedBy = " . $CreatedBy;
-      }
-      if($ExpenseFrom != '' && $ExpenseTo != '')
-      {
-        $search .= " AND EX.Amount BETWEEN '".$ExpenseFrom."' AND '".$ExpenseTo."'";
-      }
+      $defaultSearch = 'WHERE EX.BranchId = ' . $AssignedBranchId;
+      // expense date range
+        if($dateExpenseFrom != '' && $dateExpenseTo != '')
+        {
+          $defaultSearch = '';
+          $search .= "WHERE ";
+          $search .= " DATE_FORMAT(EX.DateExpense, '%b-%d-%Y') BETWEEN '".$dateExpenseFrom."' AND '".$dateExpenseTo."'";
+        }
+      // status
+        if($Status == 'All')
+        {
+          $defaultSearch = '';
+          $search .= " ";
+        }
+        else if($Status != '')
+        {
+          $defaultSearch = '';
+          $search .= " AND EX.StatusId = " . $Status;
+        }
+      // expense type
+        if($ExpenseType == 'All')
+        {
+          $defaultSearch = '';
+          $search .= " ";
+        }
+        else if($ExpenseType != '')
+        {
+          $defaultSearch = '';
+          $search .= " AND EX.ExpenseTypeId = " . $ExpenseType;
+        }
+      // created by
+        if($CreatedBy == 'All')
+        {
+          $defaultSearch = '';
+          $search .= " ";
+        }
+        else if($CreatedBy != '')
+        {
+          $defaultSearch = '';
+          $search .= " AND EX.CreatedBy = " . $CreatedBy;
+        }
+      // expense amount
+        if($ExpenseFrom != '' && $ExpenseTo != '')
+        {
+          $defaultSearch = '';
+          $search .= " AND EX.Amount BETWEEN '".$ExpenseFrom."' AND '".$ExpenseTo."'";
+        }
+      // branch
+        if($branchId == 'All')
+        {
+          $defaultSearch = '';
+          $search .= " ";
+        }
+        else if($branchId != '')
+        {
+          $defaultSearch = '';
+          $search .= " AND EX.BranchId = " . $branchId;
+        }
       $query_string = $this->db->query("SELECT ET.Name as Expense
                                                 , CONCAT('EXP-', LPAD(EX.ExpenseId, 6, 0)) as ReferenceNo
                                                 , EX.ExpenseTypeId
@@ -716,13 +919,16 @@ class maintenance_model extends CI_Model
                                                 , DATE_FORMAT(EX.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                                 , DATE_FORMAT(EX.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
                                                 , DATE_FORMAT(EX.DateExpense, '%b %d, %Y') as DateExpense
+                                                , BRNCH.Name as Branch
                                                 FROM R_Expense EX
                                                   INNER JOIN R_ExpenseType ET
                                                     ON ET.ExpenseTypeId = EX.ExpenseTypeId
                                                   INNER JOIN R_Employee EMP
                                                     ON EMP.EmployeeNumber = EX.CreatedBy
-                                                    WHERE EX.BranchId = $AssignedBranchId
+                                                  INNER JOIN R_Branches BRNCH
+                                                    ON BRNCH.BranchId = EX.BranchId
                                                     ".$search."
+                                                    ".$defaultSearch."
       ");
       $data = $query_string->result_array();
       return $data;
@@ -746,30 +952,68 @@ class maintenance_model extends CI_Model
       return $data;
     }
 
-    function getAllWithdrawals($Status, $DepositType, $CreatedBy, $DepositFrom, $DepositTo, $dateDepositFrom, $dateDepositTo)
+    function getAllWithdrawals($Status, $DepositType, $CreatedBy, $DepositFrom, $DepositTo, $dateDepositFrom, $dateDepositTo, $BranchId)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
       $search = '';
-      if($dateDepositFrom != '' && $dateDepositTo != '')
-      {
-        $search .= " AND DATE_FORMAT(W.DateWithdrawal, '%b-%d-%Y') BETWEEN '".$dateDepositFrom."' AND '".$dateDepositTo."'";
-      }
-      if($Status != '')
-      {
-        $search .= " AND W.StatusId = " . $Status;
-      }
-      if($DepositType != '')
-      {
-        $search .= " AND W.WithdrawalTypeId = " . $DepositType;
-      }
-      if($CreatedBy != '')
-      {
-        $search .= " AND W.CreatedBy = " . $CreatedBy;
-      }
-      if($DepositFrom != '' && $DepositTo != '')
-      {
-        $search .= " AND W.Amount BETWEEN '".$DepositFrom."' AND '".$DepositTo."'";
-      }
+      $defaultSearch = 'WHERE W.BranchId = ' . $AssignedBranchId;
+      // date 
+        if($dateDepositFrom != '' && $dateDepositTo != '')
+        {
+          $search .= " WHERE ";
+          $search .= " DATE_FORMAT(W.DateWithdrawal, '%b-%d-%Y') BETWEEN '".$dateDepositFrom."' AND '".$dateDepositTo."'";
+          $defaultSearch = ' ';
+        }
+      // status
+        if($Status == 'All')
+        {
+          $search .= " ";
+          $defaultSearch = ' ';
+        }
+        else if($Status != '')
+        {
+          $search .= " AND W.StatusId = " . $Status;
+          $defaultSearch = ' ';
+        }
+      // deposit type        
+        if($DepositType == 'All')
+        {
+          $search .= " ";
+          $defaultSearch = ' ';
+        }
+        else if($DepositType != '')
+        {
+          $search .= " AND W.WithdrawalTypeId = " . $DepositType;
+          $defaultSearch = ' ';
+        }
+      // created by       
+        if($CreatedBy == 'All')
+        {
+          $search .= " ";
+          $defaultSearch = ' ';
+        }
+        else if($CreatedBy != '')
+        {
+          $search .= " AND W.CreatedBy = " . $CreatedBy;
+          $defaultSearch = ' ';
+        }
+      // amount
+        if($DepositFrom != '' && $DepositTo != '')
+        {
+          $search .= " AND W.Amount BETWEEN '".$DepositFrom."' AND '".$DepositTo."'";
+          $defaultSearch = ' ';
+        }
+      // created by       
+        if($BranchId == 'All')
+        {
+          $search .= " ";
+          $defaultSearch = ' ';
+        }
+        else if($BranchId != '')
+        {
+          $search .= " AND W.BranchId = " . $BranchId;
+          $defaultSearch = ' ';
+        }
       $query_string = $this->db->query("SELECT WT.Name as Withdrawal
                                                 , CONCAT('DEP-', LPAD(W.WithdrawalId, 6, 0)) as ReferenceNo
                                                 , W.WithdrawalTypeId
@@ -781,12 +1025,15 @@ class maintenance_model extends CI_Model
                                                 , DATE_FORMAT(W.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
                                                 , DATE_FORMAT(W.DateWithdrawal, '%b %d, %Y') as DateWithdrawal
                                                 , CONCAT(FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as CreatedBy
+                                                , BRNCH.Name as Branch
                                                 FROM R_Withdrawal W
                                                   INNER JOIN R_WithdrawalType WT
                                                     ON W.WithdrawalTypeId = WT.WithdrawalTypeId
                                                   INNER JOIN R_Employee EMP
                                                     ON EMP.EmployeeNumber = W.CreatedBy
-                                                    WHERE W.BranchId = $AssignedBranchId
+                                                  INNER JOIN R_Branches BRNCH
+                                                    ON BRNCH.BranchId = W.BranchId
+                                                    ".$defaultSearch."
                                                     ".$search."
       ");
       $data = $query_string->result_array();
@@ -814,9 +1061,12 @@ class maintenance_model extends CI_Model
                                                 , CONCAT(FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as CreatedBy
                                                 , DATE_FORMAT(LG.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                                 , LG.DateCreated as rawDateCreated
+                                                , BRNCH.Name as Branch
                                                 FROM R_Logs LG
                                                   INNER JOIN R_Employee EMP
                                                     ON EMP.EmployeeNumber = LG.CreatedBy
+                                                  INNER JOIN R_Branches BRNCH
+                                                    ON BRNCH.BranchId = LG.BranchId
       ");
       $data = $query_string->result_array();
       return $data;
@@ -960,7 +1210,7 @@ class maintenance_model extends CI_Model
                                           WHERE StatusId = 1
                                             ORDER BY Name ASC
       ");
-      $output = '<option selected value="">Select Branch</option>';
+      $output = '';
       foreach ($query->result() as $row)
       {
         $output .= '<option value="'.$row->BranchId.'">'.$row->Name.'</option>';
@@ -1011,7 +1261,7 @@ class maintenance_model extends CI_Model
                                           WHERE StatusId = 1
                                             ORDER BY Name ASC
       ");
-      $output = '<option selected value="">Select Category</option>';
+      $output = '';
       foreach ($query->result() as $row)
       {
         $output .= '<option data-city="'.$row->Name.'"  value="'.$row->CategoryId.'">'.$row->Name.'</option>';
@@ -1307,6 +1557,60 @@ class maintenance_model extends CI_Model
       foreach ($query->result() as $row)
       {
         $output .= '<option value="'.$row->EmployeeStatusId.'">'.$row->Name.'</option>';
+      }
+      return $output;
+    }
+
+    function getFilterEmployeeStatus()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT DISTINCT EHS.EmployeeStatusId
+                                        , EHS.Name
+                                          FROM R_Employee EMP
+                                            INNER JOIN Employee_has_status EHS
+                                              ON EHS.EmployeeStatusId = EMP.StatusId
+                                              WHERE EHS.StatusId = 1
+                                              ORDER BY EHS.Name ASC
+      ");
+      $output = '<option selected>All</option>';
+      foreach ($query->result() as $row)
+      {
+        $output .= '<option value="'.$row->EmployeeStatusId.'">'.$row->Name.'</option>';
+      }
+      return $output;
+    }
+
+    function getFilterEmployeeManager()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT   DISTINCT CONCAT(EMP.LastName, ', ', EMP.FirstName) as Name
+                                          , EMP.EmployeeNumber
+                                          , BHM.ManagerBranchId
+                                          FROM branch_has_manager BHM
+                                                INNER JOIN r_employee EMP
+                                                    ON EMP.EmployeeNumber = BHM.EmployeeNumber
+                                                    AND BHM.StatusId = 1
+      ");
+      $output = '<option selected>All</option>';
+      foreach ($query->result() as $row)
+      {
+        $output .= '<option value="'.$row->ManagerBranchId.'">'.$row->Name.' | '.$row->EmployeeNumber.'</option>';
+      }
+      return $output;
+    }
+
+    function getFilterEmployeeDateHired()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT   DISTINCT DATE_FORMAT(DateHired, '%b %d, %Y') as DateHired
+                                          , DATE_FORMAT(DateHired, '%Y-%b-%d') as rawDateHired
+                                          FROM r_employee EMP
+                                                WHERE DateHired IS NOT NULL
+      ");
+      $output = '';
+      foreach ($query->result() as $row)
+      {
+        $output .= '<option value="'.$row->rawDateHired.'">'.$row->DateHired.'</option>';
       }
       return $output;
     }
@@ -1674,7 +1978,7 @@ class maintenance_model extends CI_Model
                                           , BorrowerId
                                           FROM R_Borrowers
                                             WHERE StatusId = 1
-                                            AND BranchId = $AssignedBranchId
+                                            -- AND BranchId = $AssignedBranchId
       ");
       $output = '<option selected disabled value="">Select Borrower Name</option>';
       foreach ($query->result() as $row)
@@ -1718,8 +2022,21 @@ class maintenance_model extends CI_Model
       }
 
     /*AGE*/
-    function getAge($Year)
+    function getAge($Year, $BranchId)
     {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $search = '';
+      $defaultSearch = ' AND BranchId = '. $AssignedBranchId;
+      if($BranchId == 'All')
+      {
+        $search = '';
+        $defaultSearch = '';
+      }
+      else if($BranchId != '')
+      {
+        $search = ' AND BranchId = ' . $BranchId;
+        $defaultSearch = '';
+      }
       $query_string = $this->db->query("SELECT  DISTINCT CASE
                                                   WHEN YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 18 AND 24
                                                     THEN '18-24 years old'
@@ -1741,58 +2058,122 @@ class maintenance_model extends CI_Model
                                                 , COUNT(YEAR(CURDATE()) - YEAR(DateOfBirth)) as TotalAge
                                                     FROM r_borrowers
                                                       WHERE DATE_FORMAT(DateCreated, '%Y') = '$Year'
+                                                      ".$search."
+                                                      ".$defaultSearch."
                                                       GROUP BY AgeBracket
       ");
       $data = $query_string->result_array();
       return $data;
     }
     /*EDUCATION*/
-    function getEducation($Year)
+    function getEducation($Year, $BranchId)
     {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $search = '';
+      $defaultSearch = ' AND B.BranchId = '. $AssignedBranchId;
+      if($BranchId == 'All')
+      {
+        $search = '';
+        $defaultSearch = '';
+      }
+      else if($BranchId != '')
+      {
+        $search = ' AND B.BranchId = ' . $BranchId;
+        $defaultSearch = '';
+      }
       $query_string = $this->db->query("SELECT  DISTINCT COUNT(BHE.BorrowerEducationId) as TotalBorrower
                                                 , ED.Name as Level
                                                 FROM r_education ED
                                                   LEFT JOIN borrower_has_education BHE
-                                                      ON BHE.EducationId = ED.EducationId
-                                                        AND BHE.StatusId = 1
-                                                        AND DATE_FORMAT(BHE.DateCreated, '%Y') = '$Year'
-                                                          GROUP BY ED.EducationId
+                                                    ON BHE.EducationId = ED.EducationId
+                                                  INNER JOIN R_Borrowers B
+                                                    ON B.BorrowerId = BHE.BorrowerId
+                                                    WHERE BHE.StatusId = 1
+                                                    AND DATE_FORMAT(BHE.DateCreated, '%Y') = '$Year'
+                                                    ".$search."
+                                                    ".$defaultSearch."
+                                                      GROUP BY ED.EducationId
       ");
       $data = $query_string->result_array();
       return $data;
     }
     /*GENDER*/
-    function getGender($Year)
+    function getGender($Year, $BranchId)
     {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $search = '';
+      $defaultSearch = ' AND B.BranchId = '. $AssignedBranchId;
+      if($BranchId == 'All')
+      {
+        $search = '';
+        $defaultSearch = '';
+      }
+      else if($BranchId != '')
+      {
+        $search = ' AND B.BranchId = ' . $BranchId;
+        $defaultSearch = '';
+      }
       $query_string = $this->db->query("SELECT  S.name
                                                 , COUNT(B.BorrowerId) as TotalGender
                                                 FROM r_borrowers B
                                                       INNER JOIN r_sex S
                                                           ON S.SexId = B.Sex
-                                                            AND DATE_FORMAT(B.DateCreated, '%Y') = '$Year'
+                                                          WHERE DATE_FORMAT(B.DateCreated, '%Y') = '$Year'
+                                                            ".$search."
+                                                            ".$defaultSearch."
                                                             GROUP BY S.name
       ");
       $data = $query_string->result_array();
       return $data;
     }
     /*OCCUPATION*/
-    function getOccupationPopulation($Year)
+    function getOccupationPopulation($Year, $BranchId)
     {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $search = '';
+      $defaultSearch = ' AND B.BranchId = '. $AssignedBranchId;
+      if($BranchId == 'All')
+      {
+        $search = '';
+        $defaultSearch = '';
+      }
+      else if($BranchId != '')
+      {
+        $search = ' AND B.BranchId = ' . $BranchId;
+        $defaultSearch = '';
+      }
       $query_string = $this->db->query("SELECT  DISTINCT COUNT(BHE.BorrowerId) as TotalBorrowers
                                                 , O.Name as Occupation
                                                 FROM r_occupation O
                                                   LEFT JOIN borrower_has_employer BHE
-                                                      ON O.OccupationId = BHE.PositionId
-                                                        AND DATE_FORMAT(BHE.DateCreated, '%Y') = '$Year'
-                                                        AND BHE.StatusId = 1
-                                                        GROUP BY O.OccupationId
+                                                    ON O.OccupationId = BHE.PositionId
+                                                  INNER JOIN R_Borrowers B
+                                                    ON B.BorrowerId = BHE.BorrowerId
+                                                      WHERE DATE_FORMAT(BHE.DateCreated, '%Y') = '$Year'
+                                                      AND BHE.StatusId = 1
+                                                      ".$search."
+                                                      ".$defaultSearch."
+                                                      GROUP BY O.OccupationId
       ");
       $data = $query_string->result_array();
       return $data;
     }
     /*INCOME LEVEL*/
-    function getIncomeLevelPopulation($Year)
+    function getIncomeLevelPopulation($Year, $BranchId)
     {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $search = '';
+      $defaultSearch = ' AND B.BranchId = '. $AssignedBranchId;
+      if($BranchId == 'All')
+      {
+        $search = '';
+        $defaultSearch = '';
+      }
+      else if($BranchId != '')
+      {
+        $search = ' AND B.BranchId = ' . $BranchId;
+        $defaultSearch = '';
+      }
       $query_string = $this->db->query("SELECT  DISTINCT CASE
                                                 WHEN SUM(AMOUNT) < 9250
                                                       THEN 'Less than PHP 9,250'
@@ -1812,9 +2193,13 @@ class maintenance_model extends CI_Model
                                                   , COUNT(A.BorrowerId) as TotalBorrowers
                                               FROM application_has_monthlyincome AHM
                                                     INNER JOIN t_application A
-                                                        ON A.ApplicationId = AHM.ApplicationId
-                                                        AND DATE_FORMAT(AHM.DateCreated, '%Y') = '$Year'
-                                                          GROUP BY BorrowerId
+                                                      ON A.ApplicationId = AHM.ApplicationId
+                                                    INNER JOIN R_Borrowers B
+                                                      ON B.BorrowerId = A.BorrowerId
+                                                      WHERE DATE_FORMAT(AHM.DateCreated, '%Y') = '$Year'
+                                                      ".$search."
+                                                      ".$defaultSearch."
+                                                        GROUP BY B.BorrowerId
       ");
       $data = $query_string->result_array();
       return $data;
@@ -1896,42 +2281,78 @@ class maintenance_model extends CI_Model
       return $data;
     }
     /*Active Loans*/
-    function getActiveLoans()
+    function getActiveLoans($selectedBranch)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
+      $search = '';
+      $defaultSearch = ' AND B.BranchId = '. $AssignedBranchId;
+      if($selectedBranch == 'All')
+      {
+        $search = '';
+        $defaultSearch = '';
+      }
+      else if($selectedBranch != '')
+      {
+        $search = ' AND B.BranchId = ' . $selectedBranch;
+        $defaultSearch = '';
+      }
       $query_string = $this->db->query("SELECT  COALESCE(COUNT(*), 0) as Total
                                                 FROM t_application A
                                                   INNER JOIN r_borrowers B
                                                     ON B.BorrowerId = A.BorrowerId
-                                                    WHERE B.BranchId = $AssignedBranchId
-                                                    AND A.StatusId = 1
+                                                    WHERE A.StatusId = 1
+                                                    ".$search."
+                                                    ".$defaultSearch."
       ");
       $data = $query_string->row_array();
       return $data;
     }
     /*Total Employees*/
-    function getTotalEmployees()
+    function getTotalEmployees($selectedBranch)
     {
-      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
       $AssignedBranchId = $this->session->userdata('BranchId');
+      $search = '';
+      $defaultSearch = ' AND BranchId = '. $AssignedBranchId;
+      if($selectedBranch == 'All')
+      {
+        $search = '';
+        $defaultSearch = '';
+      }
+      else if($selectedBranch != '')
+      {
+        $search = ' AND BranchId = ' . $selectedBranch;
+        $defaultSearch = '';
+      }
       $query_string = $this->db->query("SELECT  COALESCE(COUNT(DISTINCT EMP.EmployeeNumber)) as Total
                                                 FROM r_employee EMP
                                                       INNER JOIN branch_has_employee BE
                                                           ON BE.EmployeeNumber = EMP.EmployeeNumber
-                                                              WHERE BE.BranchId = $AssignedBranchId
-                                                                AND BE.StatusId = 1
+                                                              WHERE BE.StatusId = 1
                                                                 AND EMP.StatusId = 2
                                                                 AND EMP.EmployeeNumber != '000000'
-                                                                AND EMP.EmployeeNumber != '$EmployeeNumber'
+                                                                ".$search."
+                                                                ".$defaultSearch."
       ");
       $data = $query_string->row_array();
       return $data;
     }
     /*Total Users*/
-    function getTotalUsers()
+    function getTotalUsers($selectedBranch)
     {
       $EmployeeNumber = $this->session->userdata('EmployeeNumber');
       $AssignedBranchId = $this->session->userdata('BranchId');
+      $search = '';
+      $defaultSearch = ' AND BranchId = '. $AssignedBranchId;
+      if($selectedBranch == 'All')
+      {
+        $search = '';
+        $defaultSearch = '';
+      }
+      else if($selectedBranch != '')
+      {
+        $search = ' AND BranchId = ' . $selectedBranch;
+        $defaultSearch = '';
+      }
       $query_string = $this->db->query("SELECT  COALESCE(COUNT(*)) as Total
                                                 FROM r_employee EMP
                                                       INNER JOIN r_userrole UR
@@ -1940,9 +2361,9 @@ class maintenance_model extends CI_Model
                                                           ON BE.EmployeeNumber = EMP.EmployeeNumber
                                                               WHERE UR.StatusId = 1
                                                                 AND EMP.StatusId = 2
-                                                                AND BE.BranchId = $AssignedBranchId
                                                                 AND EMP.EmployeeNumber != '000000'
-                                                                AND EMP.EmployeeNumber != '$EmployeeNumber'
+                                                                ".$search."
+                                                                ".$defaultSearch."
       ");
       $data = $query_string->row_array();
       return $data;
@@ -2026,25 +2447,56 @@ class maintenance_model extends CI_Model
     }
 
     // MONTHLY REPORT COLLECTION
-    function getMonthlyCollection($Year)
+    function getMonthlyCollection($Year, $BranchId)
     {
-      $query_string = $this->db->query("SELECT  COALESCE(SUM(Amount), 0) as Total
-                                                , DATE_FORMAT(DateCreated, '%M') as Month
-                                                FROM t_paymentsmade
-                                                    WHERE DATE_FORMAT(DateCreated, '%Y') = '$Year'
-                                                    AND StatusId = 1
-                                                    AND Amount > 0
-                                                    GROUP BY DATE_FORMAT(DateCreated, '%M')
-                                                    ORDER BY DATE_FORMAT(DateCreated, '%m') ASC
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $search = '';
+      $defaultSearch = ' AND B.BranchId = '. $AssignedBranchId;
+      if($BranchId == 'All')
+      {
+        $search = '';
+        $defaultSearch = '';
+      }
+      else if($BranchId != '')
+      {
+        $search = ' AND B.BranchId = ' . $BranchId;
+        $defaultSearch = '';
+      }
+      $query_string = $this->db->query("SELECT  COALESCE(SUM(PM.Amount), 0) as Total
+                                                , COALESCE(DATE_FORMAT(PM.DateCreated, '%M'), 'NONE') as Month
+                                                FROM t_paymentsmade PM
+                                                  INNER JOIN t_application A
+                                                    ON A.ApplicationId = PM.ApplicationId
+                                                  INNER JOIN R_Borrowers B
+                                                    ON B.BorrowerId = A.BorrowerId
+                                                    WHERE DATE_FORMAT(PM.DateCreated, '%Y') = '$Year'
+                                                    ".$defaultSearch."
+                                                    ".$search."
+                                                    AND PM.StatusId = 1
+                                                    AND PM.Amount > 0
+                                                    GROUP BY DATE_FORMAT(PM.DateCreated, '%M')
+                                                    ORDER BY DATE_FORMAT(PM.DateCreated, '%m') ASC
       ");
       $data = $query_string->result_array();
       return $data;
     }
 
     // MONTHLY REPORT DISBURSEMENT
-    function getMonthlyDisbursement($Year)
+    function getMonthlyDisbursement($Year, $BranchId)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
+      $search = '';
+      $defaultSearch = ' AND B.BranchId = '. $AssignedBranchId;
+      if($BranchId == 'All')
+      {
+        $search = '';
+        $defaultSearch = '';
+      }
+      else if($BranchId != '')
+      {
+        $search = ' AND B.BranchId = ' . $BranchId;
+        $defaultSearch = '';
+      }
       $query_string = $this->db->query("SELECT  COALESCE(SUM(Amount), 0) as Total
                                                 , DATE_FORMAT(AHD.DateCreated, '%M') as Month
                                                 FROM Application_has_Disbursement AHD
@@ -2052,8 +2504,9 @@ class maintenance_model extends CI_Model
                                                       ON A.ApplicationId = AHD.ApplicationId
                                                     INNER JOIN R_Borrowers B
                                                       ON B.BorrowerId = A.BorrowerId
-                                                      WHERE B.BranchId = $AssignedBranchId
-                                                      AND DATE_FORMAT(AHD.DateCreated, '%Y') = '$Year'
+                                                      WHERE DATE_FORMAT(AHD.DateCreated, '%Y') = '$Year'
+                                                      ".$defaultSearch."
+                                                      ".$search."
                                                       AND AHD.StatusId = 1
                                                       AND A.StatusId = 1
                                                       GROUP BY DATE_FORMAT(AHD.DateCreated, '%M')
@@ -2064,18 +2517,31 @@ class maintenance_model extends CI_Model
     }
 
     // MONTHLY REPORT INTEREST
-    function getMonthlyInterest($Year)
+    function getMonthlyInterest($Year, $BranchId)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
-      $query_string = $this->db->query("SELECT DISTINCT COALESCE(SUM(DISTINCT PM.InterestAmount), 0) as Total
+      $search = '';
+      $defaultSearch = ' AND B.BranchId = '. $AssignedBranchId;
+      if($BranchId == 'All')
+      {
+        $search = '';
+        $defaultSearch = '';
+      }
+      else if($BranchId != '')
+      {
+        $search = ' AND B.BranchId = ' . $BranchId;
+        $defaultSearch = '';
+      }
+      $query_string = $this->db->query("SELECT DISTINCT COALESCE(SUM(PM.InterestAmount), 0) as Total
                                                 , DATE_FORMAT(PM.DateCreated, '%M') as Month
                                                 FROM t_paymentsmade PM
                                                   INNER JOIN t_application A
                                                     ON A.ApplicationId = PM.ApplicationId
                                                   INNER JOIN R_Borrowers B
                                                     ON B.BorrowerId = A.BorrowerId
-                                                    WHERE B.BranchId = $AssignedBranchId
-                                                    AND PM.IsInterest = 1
+                                                    WHERE PM.IsInterest = 1
+                                                    ".$defaultSearch."
+                                                    ".$search."
                                                     AND DATE_FORMAT(PM.DateCreated, '%Y') = '$Year'
                                                     AND PM.StatusId = 1
                                                     GROUP BY DATE_FORMAT(PM.DateCreated, '%M')
@@ -2093,5 +2559,30 @@ class maintenance_model extends CI_Model
       ");
       $result = $query->row_array();
       return $result;
+    }
+
+  // FILTER DASHBOARD
+    function getFilteredDashboard($Branch)
+    {
+      $dataArray = [];
+      $TotalBorrowers = $this->getTotalBorrower($Branch);
+      $TotalEmployees = $this->getTotalEmployees($Branch);
+      $TotalInterest = $this->maintenance_model->getTotalInterestCollected($Branch);
+      $totalExpense = $this->maintenance_model->getTotalExpenses($Branch);
+      $dailyIncome = $this->maintenance_model->getDailyIncome($Branch);
+      $TotalTransaction = $this->maintenance_model->getTransactions($Branch);
+      $dailyPenalties = $this->maintenance_model->getDailyPenalties($Branch);
+      $dailyApprovedLoans = $this->maintenance_model->getApprovedDaily($Branch);
+      $dailyDisbursement = $this->maintenance_model->getDailyDisbursement($Branch);
+      $dailyExpenses = $this->maintenance_model->getDailyExpenses($Branch);
+      $TotalDisbursement = $this->maintenance_model->getTotalDisbursement($Branch);
+      $totalIncome = $this->maintenance_model->getTotalIncome($Branch);
+      $totalFund = $this->maintenance_model->getCurrentFund($Branch);
+      $totalActiveLoans = $this->maintenance_model->getActiveLoans($Branch);
+      $totalUsers = $this->maintenance_model->getTotalUsers($Branch);
+
+      array_push($dataArray, $TotalBorrowers['Total'], $TotalEmployees['Total'], $TotalInterest['Total'], $totalExpense['Total'], $dailyIncome['Total'], $TotalTransaction['Total'], $dailyPenalties['Total'], $dailyApprovedLoans['Total'], $dailyDisbursement['Total'], $dailyExpenses['Total'], $TotalDisbursement['Total'], $totalIncome['Total'], $totalFund['Total'], $totalActiveLoans['Total'], $totalUsers['Total']);
+
+      return $dataArray;
     }
 }

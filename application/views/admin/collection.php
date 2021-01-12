@@ -24,6 +24,7 @@
                     <div class="form-group">
                       <label>Application #</label><br>
                       <select class="form-control select2" style="width: 100%" id="ApplicationId" required="">
+                        <option>All</option>
                         <?php 
                           echo $ApplicationList;
                         ?>
@@ -34,6 +35,7 @@
                     <div class="form-group">
                       <label>Loan Type</label>
                       <select class="form-control select2" style="width: 100%"  id="LoanId" required="">
+                        <option>All</option>
                         <?php 
                           echo $LoanType;
                         ?>
@@ -44,6 +46,7 @@
                     <div class="form-group">
                       <label>Collected By</label>
                       <select class="form-control select2" style="width: 100%"  id="CollectedBy" required="">
+                        <option>All</option>
                         <?php 
                           echo $CollectedBy;
                         ?>
@@ -66,6 +69,17 @@
                       <select class="form-control select2" style="width: 100%"  id="dateTo" required="">
                         <?php 
                           echo $CollectionDate;
+                        ?>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label>Branch</label>
+                      <select class="form-control select2" style="width: 100%"  id="BranchId" required="">
+                        <option>All</option>
+                        <?php 
+                          echo $Branch;
                         ?>
                       </select>
                     </div>
@@ -144,9 +158,11 @@
                   <th>Borrower Name</th>
                   <th>Loan Amount</th>
                   <th>Amount Paid</th>
+                  <th>Remarks</th>
                   <th>Collection Date</th>
                   <th>Date Creation</th>
                   <th>Collected By</th>
+                  <th>Branch</th>
                   <th>Action</th>
                 </tr>
                 </thead>
@@ -197,7 +213,7 @@
 
 
   function filterPage(){
-    var url = '<?php echo base_url()."datatables_controller/Collection/"; ?>' + $('#ApplicationId').val() + '/' + $('#LoanId').val() + '/' + $('#CollectedBy').val() + '/' + $('#dateFrom').val() + '/' + $('#dateTo').val();
+    var url = '<?php echo base_url()."datatables_controller/Collection/"; ?>' + $('#ApplicationId').val() + '/' + $('#LoanId').val() + '/' + $('#CollectedBy').val() + '/' + $('#dateFrom').val() + '/' + $('#dateTo').val() + '/' + $('#BranchId').val();
     UserTable.ajax.url(url).load();
     $('#modalFilter').modal('hide');
   }
@@ -212,9 +228,11 @@
                     { data: "BorrowerName" },
                     { data: "LoanAmount" },
                     { data: "AmountPaid" }, 
+                    { data: "Remarks" }, 
                     { data: "PaymentDate" }, 
                     { data: "DateCreated" }, 
-                    { data: "CollectedBy" }, 
+                    { data: "CollectedBy" },
+                    { data: "Branch" },
                     {
                       data: "ApplicationId", "render": function (data, type, row) {
                         return '<a class="btn btn-sm btn-default" href="<?php echo base_url(); ?>home/loandetail/'+row.ApplicationId+'" title="View"><span class="fa fa-info-circle"></span></a>';
@@ -222,8 +240,8 @@
                     },
                     { data: "DateCollected" }, 
       ],
-      "aoColumnDefs": [{ "bVisible": false, "aTargets": [8] }],
-      "order": [[8, "desc"]]
+      "aoColumnDefs": [{ "bVisible": false, "aTargets": [10] }],
+      "order": [[10, "desc"]]
     });
 
     $("#frmInsert").on('submit', function (e) {

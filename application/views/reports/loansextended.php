@@ -16,6 +16,16 @@
           <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/generateReport/5" method="post" enctype="multipart/form-data" id="generateReport">
             <div class="modal-body">
               <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label>Branch</label>
+                      <select class="form-control select2" name="BranchId" style="width: 100%;">
+                        <?php
+                          echo $Branch;
+                        ?>
+                      </select>
+                  </div>
+                </div>
                 <div class="col-md-6">
                   <label>Year From</label>
                   <select class="form-control" id="selectYearFrom" name="YearFrom" required="">

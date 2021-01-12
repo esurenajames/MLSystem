@@ -88,6 +88,7 @@ class loanapplication_controller extends CI_Controller {
         'CreatedBy'                 => $EmployeeNumber,
         'StatusId'                  => $_POST['LoanStatusId'],
         'ApprovalType'              => $_POST['ApprovalType'],
+        'BranchId'                  => $AssignedBranchId,
       );
       $auditTable = 't_application';
       $this->maintenance_model->insertFunction($insertData, $auditTable);
@@ -2298,6 +2299,7 @@ class loanapplication_controller extends CI_Controller {
         'ApplicationId'             => $Id,
         'ChargeId'                  => $_POST['ChargeId'],
         'LoanAmount'                => $loanDetails['PrincipalAmount'],
+        'Amount'                    => $_POST['chargeTotal'],
         'StatusId'                  => 2,
         'CreatedBy'                 => $EmployeeNumber
       );
@@ -2621,11 +2623,13 @@ class loanapplication_controller extends CI_Controller {
 
   function AuditFunction($auditLogsManager, $auditAffectedEmployee, $ManagerId, $AffectedEmployeeNumber)
   {
+    $AssignedBranchId = $this->session->userdata('BranchId');
     $CreatedBy = $this->session->userdata('EmployeeNumber');
     $DateNow = date("Y-m-d H:i:s");
     $insertMainLog = array(
       'Description'       => $auditLogsManager
       , 'CreatedBy'       => $CreatedBy
+      , 'BranchId'        => $AssignedBranchId
     );
     $auditTable1 = 'R_Logs';
     $this->maintenance_model->insertFunction($insertMainLog, $auditTable1);
@@ -2633,6 +2637,7 @@ class loanapplication_controller extends CI_Controller {
       'Description'         => $auditLogsManager
       , 'ManagerBranchId'   => $ManagerId
       , 'CreatedBy'         => $CreatedBy
+      , 'BranchId'        => $AssignedBranchId
     );
     $auditTable3 = 'manager_has_notifications';
     $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable3);
@@ -2640,6 +2645,7 @@ class loanapplication_controller extends CI_Controller {
       'Description'       => $auditAffectedEmployee
       , 'EmployeeNumber'  => $AffectedEmployeeNumber
       , 'CreatedBy'       => $CreatedBy
+      , 'BranchId'        => $AssignedBranchId
     );
     $auditTable2 = 'employee_has_notifications';
     $this->maintenance_model->insertFunction($insertEmpLog, $auditTable2);
@@ -2647,11 +2653,13 @@ class loanapplication_controller extends CI_Controller {
 
   function auditLoanApplication($auditLogsManager, $auditAffectedEmployee, $ManagerId, $AffectedEmployeeNumber, $auditLoanDets ,$ApplicationId, $Remarks)
   {
+    $AssignedBranchId = $this->session->userdata('BranchId');
     $CreatedBy = $this->session->userdata('EmployeeNumber');
     $DateNow = date("Y-m-d H:i:s");
     $insertMainLog = array(
       'Description'       => $auditLogsManager
       , 'CreatedBy'       => $CreatedBy
+      , 'BranchId'        => $AssignedBranchId
     );
     $auditTable1 = 'R_Logs';
     $this->maintenance_model->insertFunction($insertMainLog, $auditTable1);
@@ -2659,6 +2667,7 @@ class loanapplication_controller extends CI_Controller {
       'Description'         => $auditLogsManager
       , 'ManagerBranchId'   => $ManagerId
       , 'CreatedBy'         => $CreatedBy
+      , 'BranchId'        => $AssignedBranchId
     );
     $auditTable3 = 'manager_has_notifications';
     $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable3);
@@ -2666,6 +2675,7 @@ class loanapplication_controller extends CI_Controller {
       'Description'       => $auditAffectedEmployee
       , 'EmployeeNumber'  => $AffectedEmployeeNumber
       , 'CreatedBy'       => $CreatedBy
+      , 'BranchId'        => $AssignedBranchId
     );
     $auditTable2 = 'employee_has_notifications';
     $this->maintenance_model->insertFunction($insertEmpLog, $auditTable2);
@@ -2673,6 +2683,7 @@ class loanapplication_controller extends CI_Controller {
       'Description'       => $auditLoanDets
       , 'ApplicationId'   => $ApplicationId
       , 'CreatedBy'       => $CreatedBy
+      , 'BranchId'        => $AssignedBranchId
     );
     $auditLoanApplicationTable = 'application_has_notifications';
     $this->maintenance_model->insertFunction($insertApplicationLog, $auditLoanApplicationTable);
@@ -2700,6 +2711,7 @@ class loanapplication_controller extends CI_Controller {
       $height = 500; 
       $pageLayout = array($width, $height); //  or array($height, $width) 
       $pdf->AddPage('L', $pageLayout);
+      $branch = $this->maintenance_model->selectSpecific('R_Branches', 'BranchId', $_POST['BranchId']);
 
       $html = '
         <style>
@@ -2718,7 +2730,7 @@ class loanapplication_controller extends CI_Controller {
         </style>
 
         <p>'.htmlentities($_POST['reportName'], ENT_QUOTES).'</p>
-        <p>'.htmlentities($_POST['DateFrom'], ENT_QUOTES).' - '.htmlentities($_POST['DateTo'], ENT_QUOTES).'</p>
+        <p>'.htmlentities($_POST['DateFrom'], ENT_QUOTES).' - '.htmlentities($_POST['DateTo'], ENT_QUOTES).'<br>'.htmlentities($branch['Name'], ENT_QUOTES).' Branch</p>
 
         <br>
         <br>
@@ -2779,6 +2791,7 @@ class loanapplication_controller extends CI_Controller {
             {
               if($column == 'Loan Date')
               {
+                $html .= '<th><strong>'.$column.'</strong></th>';
               }
               if($column == 'Application No.')
               {
@@ -2842,78 +2855,111 @@ class loanapplication_controller extends CI_Controller {
             $newformat = date('Y-m-d', $time);
             $time2 = strtotime($_POST['DateTo']);
             $newformat2 = date('Y-m-d', $time2);
-            $details = $this->loanapplication_model->getCollections($newformat, $newformat2, implode(", ", $stringArray), $employeeQuery);
-            foreach($details as $key => $current) {
+            $details = $this->loanapplication_model->getCollections($newformat, $newformat2, implode(", ", $stringArray), $employeeQuery, $_POST['BranchId']);
+
+            foreach($details as $key => $current) 
+            {
               $repayment = $this->loanapplication_model->getRepayments($current['ApplicationId']);
               $penalty = $this->loanapplication_model->getPenalties($current['ApplicationId']);
 
-              $totalPrincipalCollection = $totalPrincipalCollection  + floatval($current['rawPrincipalCollection']);
-              $toalInterestCollection = $toalInterestCollection  + floatval($current['rawInterestCollection']);
-              $totalOtherCollection = $totalOtherCollection  + floatval($current['rawAmountPaid']);
+              if($current['IsInterest'] == 1)
+              {
+                $toalInterestCollection = $toalInterestCollection  + floatval($current['rawInterestCollection']);
+              }
+              if($current['IsPrincipalCollection'] == 1)
+              {
+                $totalPrincipalCollection = $totalPrincipalCollection  + floatval($current['rawPrincipalCollection']);
+              }
+              if($current['IsOthers'] == 1)
+              {
+                $totalOtherCollection = $totalOtherCollection  + floatval($current['rawAmountPaid']);
+              }
+
               $totalChangeAmount = $totalChangeAmount  + floatval($current['rawChangeAmount']);
               $totalAmountPaid = $totalAmountPaid + floatval($current['AmountPaid']);
 
               $html .= '<tr>';
 
-              foreach($_POST['columnNames'] as $column) 
+              foreach($_POST['columnNames'] as $columns) 
               {
-                if($column == 'Loan Date')
+                if($columns == 'Loan Date')
                 {
                   $html .= '<td>' . $current['LoanDate'] . '</td>';
                 }
-                else if($column == 'Application No.')
+                if($columns === 'Application No.')
                 {
                   $html .= '<td>' . $current['TransactionNumber'] . '</td>';
                 }
-                else if($column == 'Borrower Name')
+                if($columns == 'Borrower Name')
                 {
                   $html .= '<td>' . $current['BorrowerName'] . '</td>';
                 }
-                else if($column == 'Principal Per Collection')
+                if($columns == 'Principal Per Collection')
                 {
-                  $html .= '<td>' . $current['principalCollection'] . '</td>';
+                  if($current['IsPrincipalCollection'] == 1)
+                  {
+                    $html .= '<td>' . $current['principalCollection'] . '</td>';
+                  }
+                  else
+                  {
+                    $html .= '<td>0.00</td>';
+                  }
                 }
-                else if($column == 'Interest Per Collection')
+                if($columns == 'Interest Per Collection')
                 {
-                  $html .= '<td>' . $current['interestPerCollection'] . '</td>';
+                  if($current['IsInterest'] == 1)
+                  {
+                    $html .= '<td>' . $current['interestPerCollection'] . '</td>';
+                  }
+                  else
+                  {
+                    $html .= '<td>0.00</td>';
+                  }
                 }
-                else if($column == 'Other Collections')
+                if($columns == 'Other Collections')
                 {
-                  $html .= '<td>' . $current['otherCollection'] . '</td>';
+                  if($current['IsOthers'] == 1)
+                  {
+                    $html .= '<td>' . $current['otherCollection'] . '</td>';
+                  }
+                  else
+                  {
+                    $html .= '<td>0.00</td>';
+                  }
                 }
-                else if($column == 'Repayment Date')
+                if($columns == 'Repayment Date')
                 {
                   $html .= '<td>' . $repayment['Name'] . '</td>';
                 }
-                else if($column == 'Change')
+                if($columns == 'Change')
                 {
                   $html .= '<td>' . $current['ChangeAmount'] . '</td>';
                 }
-                else if($column == 'Penalty')
+                if($columns == 'Penalty')
                 {
                   $html .= '<td>' . $penalty['Total'] . '</td>';
                 }
-                else if($column == 'Amount Paid')
+                if($columns == 'Amount Paid')
                 {
                   $html .= '<td>' . number_format($current['AmountPaid'], 2) . '</td>';
                 }
-                if($column == 'Collected By')
+                if($columns == 'Collected By')
                 {
                   $html .= '<td>' . $current['CollectedBy'] . '</td>';
                 }
-                if($column == 'Collection Date')
+                if($columns == 'Collection Date')
                 {
                   $html .= '<td>' . $current['dateCollected'] . '</td>';
                 }
-                if($column == 'Creation Date')
+                if($columns == 'Creation Date')
                 {
-                  $html .= '<td>' . $current['dateCreated'] . '</td>';
+                  $html .= '<td>' . $current['DateCreated'] . '</td>';
                 }
               }
               $html .= '</tr>';
             }
           $html .= '
-          <tbody>
+          </tbody>
           <tfoot>
             <tr>
             ';
@@ -2924,37 +2970,53 @@ class loanapplication_controller extends CI_Controller {
                 {
                   $html .= '<td></td>';
                 }
-                else if($column == 'Application No.')
+                if($column == 'Application No.')
                 {
                   $html .= '<td></td>';
                 }
-                else if($column == 'Borrower Name')
+                if($column == 'Borrower Name')
                 {
                   $html .= '<td></td>';
                 }
-                else if($column == 'Principal Per Collection')
+                if($column == 'Principal Per Collection')
                 {
                   $html .= '<td>Php '.number_format($totalPrincipalCollection, 2).'</td>';
                 }
-                else if($column == 'Interest Per Collection')
+                if($column == 'Interest Per Collection')
                 {
                   $html .= '<td>Php '.number_format($toalInterestCollection, 2).'</td>';
                 }
-                else if($column == 'Other Collections')
+                if($column == 'Other Collections')
                 {
                   $html .= '<td>Php '.number_format($totalOtherCollection, 2).'</td>';
                 }
-                else if($column == 'Repayment Date')
+                if($column == 'Repayment Date')
                 {
                   $html .= '<td></td>';
                 }
-                else if($column == 'Change')
+                if($column == 'Change')
                 {
                   $html .= '<td>Php '.number_format($totalChangeAmount, 2).'</td>';
                 }
-                else if($column == 'Amount Paid')
+                if($column == 'Amount Paid')
                 {
                   $html .= '<td>Php '.number_format($totalAmountPaid, 2).'</td>';
+                }
+                if($column == 'Penalty')
+                {
+                  $html .= '<td></td>';
+                }
+                if($column == 'Collected By')
+                {
+                  $html .= '<td></td>';
+                }
+                if($column == 'Collection Date')
+                {
+                  $html .= '<td></td>';
+                }
+                if($column == 'Creation Date')
+                {
+                  $html .= '<td></td>';
                 }
               }
 
@@ -2969,7 +3031,7 @@ class loanapplication_controller extends CI_Controller {
           <thead>
           <tr>
             <th><strong>Prepared By</strong></th>
-            <th>'.$this->session->userdata('Name').'</th>
+            <th>'.$this->session->userdata('EmployeeNumber').' - '.$this->session->userdata('Name').' - '.$employeeDetail['Position'].'</th>
             <th><strong>Verified By</strong></th>
             <th>'.$_POST['verifiedBy'].'</th>
             <th><strong>Approved By</strong></th>
@@ -2989,6 +3051,7 @@ class loanapplication_controller extends CI_Controller {
     }
     if($this->uri->segment(3) == 2) // expenses
     {
+      $branch = $this->maintenance_model->selectSpecific('R_Branches', 'BranchId', $_POST['BranchId']);
       $width = 300;  
       $height = 500; 
       $pageLayout = array($width, $height); //  or array($height, $width) 
@@ -3012,7 +3075,7 @@ class loanapplication_controller extends CI_Controller {
         </style>
 
         <p>'.htmlentities($_POST['reportName'], ENT_QUOTES).'</p>
-        <p>'.htmlentities($_POST['DateFrom'], ENT_QUOTES).' - '.htmlentities($_POST['DateTo'], ENT_QUOTES).'</p>
+        <p>'.htmlentities($_POST['DateFrom'], ENT_QUOTES).' - '.htmlentities($_POST['DateTo'], ENT_QUOTES).'<br>'.htmlentities($branch['Name'], ENT_QUOTES).' Branch</p>
 
         <br>
         <br>
@@ -3025,33 +3088,37 @@ class loanapplication_controller extends CI_Controller {
         ';
             foreach($_POST['columnNames'] as $column) 
             {
-                if($column == 'Expense No.')
-                {
-                  $html .= '<th><strong>'.$column.'</strong></th>';
-                }
-                if($column == 'Expense Type')
-                {
-                  $comma_separated = implode("','", $_POST['expenseType']);
-                  $expenseTypes = "'".$comma_separated."'";
-                  $query = 'AND EXT.ExpenseTypeId IN ('.$expenseTypes.')';
-                  $html .= '<th><strong>'.$column.'</strong></th>';
-                }
-                if($column == 'Amount')
-                {
-                  $html .= '<th><strong>'.$column.'</strong></th>';
-                }
-                if($column == 'Date of Expense')
-                {
-                  $html .= '<th><strong>'.$column.'</strong></th>';
-                }
-                if($column == 'Date of Creation')
-                {
-                  $html .= '<th><strong>'.$column.'</strong></th>';
-                }
-                if($column == 'Created By')
-                {
-                  $html .= '<th><strong>'.$column.'</strong></th>';
-                }
+              if($column == 'Expense No.')
+              {
+                $html .= '<th><strong>'.$column.'</strong></th>';
+              }
+              if($column == 'Expense Type')
+              {
+                $comma_separated = implode("','", $_POST['expenseType']);
+                $expenseTypes = "'".$comma_separated."'";
+                $query = 'AND EXT.ExpenseTypeId IN ('.$expenseTypes.')';
+                $html .= '<th><strong>'.$column.'</strong></th>';
+              }
+              if($column == 'Amount')
+              {
+                $html .= '<th><strong>'.$column.'</strong></th>';
+              }
+              if($column == 'Description')
+              {
+                $html .= '<th><strong>'.$column.'</strong></th>';
+              }
+              if($column == 'Date of Expense')
+              {
+                $html .= '<th><strong>'.$column.'</strong></th>';
+              }
+              if($column == 'Date of Creation')
+              {
+                $html .= '<th><strong>'.$column.'</strong></th>';
+              }
+              if($column == 'Created By')
+              {
+                $html .= '<th><strong>'.$column.'</strong></th>';
+              }
             }
             $html .='
           </tr>
@@ -3062,7 +3129,7 @@ class loanapplication_controller extends CI_Controller {
             $newformat = date('Y-m-d', $time);
             $time2 = strtotime($_POST['DateTo']);
             $newformat2 = date('Y-m-d', $time2);
-            $details = $this->loanapplication_model->getExpensesReport($newformat, $newformat2, $query);
+            $details = $this->loanapplication_model->getExpensesReport($newformat, $newformat2, $query, $_POST['BranchId']);
             foreach($details as $key => $current) {
               $totalExpense = $totalExpense  + floatval($current['Amount']);
 
@@ -3077,6 +3144,10 @@ class loanapplication_controller extends CI_Controller {
                 if($column == 'Expense Type')
                 {
                   $html .= '<td>' . $current['Name'] . '</td>';
+                }
+                if($column == 'Description')
+                {
+                  $html .= '<th><strong>'. $current['Description'].'</strong></th>';
                 }
                 if($column == 'Amount')
                 {
@@ -3113,6 +3184,10 @@ class loanapplication_controller extends CI_Controller {
                 {
                   $html .= '<td></td>';
                 }
+                if($column == 'Description')
+                {
+                  $html .= '<td></td>';
+                }
                 if($column == 'Amount')
                 {
                   $html .= '<td>Php ' . number_format($totalExpense, 2) . '</td>';
@@ -3142,7 +3217,7 @@ class loanapplication_controller extends CI_Controller {
           <thead>
           <tr>
             <th><strong>Prepared By</strong></th>
-            <th>'.$this->session->userdata('Name').'</th>
+            <th>'.$this->session->userdata('EmployeeNumber').' - '.$this->session->userdata('Name').' - '.$employeeDetail['Position'].'</th>
             <th><strong>Verified By</strong></th>
             <th>'.$_POST['verifiedBy'].'</th>
             <th><strong>Approved By</strong></th>
@@ -3461,7 +3536,7 @@ class loanapplication_controller extends CI_Controller {
     if($this->uri->segment(3) == 4) // demographics
     {
       $pdf->AddPage('L', 'A4');
-      $branchName = $this->maintenance_model->selectSpecific('R_Branches', 'BranchId', $this->session->userdata('BranchId'));
+      $branchName = $this->maintenance_model->selectSpecific('R_Branches', 'BranchId', $_POST['BranchId']);
 
       $html = '
         <style>
@@ -3484,7 +3559,7 @@ class loanapplication_controller extends CI_Controller {
         <br>
         <br>
         ';
-          $years = $this->loanapplication_model->getYearFilter2('r_borrowers', $_POST['YearFrom'], $_POST['YearTo']);
+          $years = $this->loanapplication_model->getYearFilter2('r_borrowers', $_POST['YearFrom'], $_POST['YearTo'], $_POST['BranchId']);
           $totalColumns = count($years) + 1;
           $blankColumns = count($years) + 2;
           // for ($i=0; $i < count($years); $i++) { 
@@ -3514,7 +3589,7 @@ class loanapplication_controller extends CI_Controller {
             <td>* 18 - 24 years old</td>';
             foreach ($years as $value) 
             {
-              $result = $this->loanapplication_model->getAge($value['Year'], 'YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 18 AND 24');
+              $result = $this->loanapplication_model->getAge($value['Year'], 'YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 18 AND 24', $_POST['BranchId']);
               $html .='<td>'.$result['TotalBorrowers'].'</td>';
             }
           $html .= '
@@ -3523,7 +3598,7 @@ class loanapplication_controller extends CI_Controller {
             <td>* 25 - 31 years old</td>';
             foreach ($years as $value) 
             {
-              $result = $this->loanapplication_model->getAge($value['Year'], 'YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 25 AND 31');
+              $result = $this->loanapplication_model->getAge($value['Year'], 'YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 25 AND 31', $_POST['BranchId']);
               $html .='<td>'.$result['TotalBorrowers'].'</td>';
             }
           $html .= '
@@ -3532,7 +3607,7 @@ class loanapplication_controller extends CI_Controller {
             <td>* 32 - 39 years old</td>';
             foreach ($years as $value) 
             {
-              $result = $this->loanapplication_model->getAge($value['Year'], 'YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 32 AND 39');
+              $result = $this->loanapplication_model->getAge($value['Year'], 'YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 32 AND 39', $_POST['BranchId']);
               $html .='<td>'.$result['TotalBorrowers'].'</td>';
             }
           $html .= '
@@ -3541,7 +3616,7 @@ class loanapplication_controller extends CI_Controller {
             <td>* 40 - 47 years old</td>';
             foreach ($years as $value) 
             {
-              $result = $this->loanapplication_model->getAge($value['Year'], 'YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 40 AND 47');
+              $result = $this->loanapplication_model->getAge($value['Year'], 'YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 40 AND 47', $_POST['BranchId']);
               $html .='<td>'.$result['TotalBorrowers'].'</td>';
             }
           $html .= '
@@ -3550,7 +3625,7 @@ class loanapplication_controller extends CI_Controller {
             <td>* 48 - 55 years old</td>';
             foreach ($years as $value) 
             {
-              $result = $this->loanapplication_model->getAge($value['Year'], 'YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 48 AND 55');
+              $result = $this->loanapplication_model->getAge($value['Year'], 'YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 48 AND 55', $_POST['BranchId']);
               $html .='<td>'.$result['TotalBorrowers'].'</td>';
             }
           $html .= '
@@ -3559,7 +3634,7 @@ class loanapplication_controller extends CI_Controller {
             <td>* 56 - 65 years old</td>';
             foreach ($years as $value) 
             {
-              $result = $this->loanapplication_model->getAge($value['Year'], 'YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 56 AND 65');
+              $result = $this->loanapplication_model->getAge($value['Year'], 'YEAR(CURDATE()) - YEAR(DateOfBirth) BETWEEN 56 AND 65', $_POST['BranchId']);
               $html .='<td>'.$result['TotalBorrowers'].'</td>';
             }
           $html .= '
@@ -3568,7 +3643,7 @@ class loanapplication_controller extends CI_Controller {
             <td>* Above 65 years old</td>';
             foreach ($years as $value) 
             {
-              $result = $this->loanapplication_model->getAge($value['Year'], 'YEAR(CURDATE()) - YEAR(DateOfBirth) > 65');
+              $result = $this->loanapplication_model->getAge($value['Year'], 'YEAR(CURDATE()) - YEAR(DateOfBirth) > 65', $_POST['BranchId']);
               $html .='<td>'.$result['TotalBorrowers'].'</td>';
             }
           $html .= '
@@ -3587,7 +3662,7 @@ class loanapplication_controller extends CI_Controller {
               $html .='<td>* '.$educationValues['Name'].'</td>';
                 foreach ($years as $yearlyValue) 
                 {
-                  $results = $this->loanapplication_model->getEducationYearly($yearlyValue['Year'], $educationValues['EducationId']);
+                  $results = $this->loanapplication_model->getEducationYearly($yearlyValue['Year'], $educationValues['EducationId'], $_POST['BranchId']);
                   $html .='<td>'.$results['TotalBorrowers'].'</td>';
                 }
               $html .='</tr>';
@@ -3607,7 +3682,7 @@ class loanapplication_controller extends CI_Controller {
               $html .='<td>* '.$sexValues['Name'].'</td>';
                 foreach ($years as $yearlyValue)
                 {
-                  $sexResult = $this->loanapplication_model->getSexYearly($yearlyValue['Year'], $sexValues['SexId']);
+                  $sexResult = $this->loanapplication_model->getSexYearly($yearlyValue['Year'], $sexValues['SexId'], $_POST['BranchId']);
                   $html .='<td>'.$sexResult['TotalBorrowers'].'</td>';
                 }
               $html .='</tr>';
@@ -3627,7 +3702,7 @@ class loanapplication_controller extends CI_Controller {
               $html .='<td>* '.$occupationValues['Name'].'</td>';
                 foreach ($years as $yearlyValue)
                 {
-                  $occupationResult = $this->loanapplication_model->getOccupationYearly($yearlyValue['Year'], $occupationValues['Id']);
+                  $occupationResult = $this->loanapplication_model->getOccupationYearly($yearlyValue['Year'], $occupationValues['Id'], $_POST['BranchId']);
                   $html .='<td>'.$occupationResult['TotalBorrowers'].'</td>';
                 }
               $html .='</tr>';
@@ -3647,7 +3722,7 @@ class loanapplication_controller extends CI_Controller {
               $html .='<td>* '.$incomeValues['IncomeLevel'].'</td>';
                 foreach ($years as $yearlyValue)
                 {
-                  $incomeResult = $this->loanapplication_model->getIncomeReport($yearlyValue['Year'], ' < 9250');
+                  $incomeResult = $this->loanapplication_model->getIncomeReport($yearlyValue['Year'], ' < 9250', $_POST['BranchId']);
                   $html .='<td>'.$incomeResult['TotalBorrowers'].'</td>';
                 }
               $html .='</tr>';
@@ -3667,7 +3742,7 @@ class loanapplication_controller extends CI_Controller {
               $html .='<td>* '.$sexValues['Name'].'</td>';
                 foreach ($years as $yearlyValue)
                 {
-                  $sexResult = $this->loanapplication_model->getMaitalStatusYearly($yearlyValue['Year'], $sexValues['Id']);
+                  $sexResult = $this->loanapplication_model->getMaitalStatusYearly($yearlyValue['Year'], $sexValues['Id'], $_POST['BranchId']);
                   $html .='<td>'.$sexResult['TotalBorrowers'].'</td>';
                 }
               $html .='</tr>';
@@ -3684,7 +3759,7 @@ class loanapplication_controller extends CI_Controller {
           $html .='<td>* Low Risk</td>';
             foreach ($years as $yearlyValue)
             {
-              $sexResult = $this->loanapplication_model->getRiskStatus($yearlyValue['Year'], 'Low Risk');
+              $sexResult = $this->loanapplication_model->getRiskStatus($yearlyValue['Year'], 'Low Risk', $_POST['BranchId']);
               $html .='<td>'.$sexResult['TotalBorrowers'].'</td>';
             }
           $html .='</tr>';
@@ -3692,7 +3767,7 @@ class loanapplication_controller extends CI_Controller {
           $html .='<td>* Medium Risk</td>';
             foreach ($years as $yearlyValue)
             {
-              $sexResult = $this->loanapplication_model->getRiskStatus($yearlyValue['Year'], 'Medium Risk');
+              $sexResult = $this->loanapplication_model->getRiskStatus($yearlyValue['Year'], 'Medium Risk', $_POST['BranchId']);
               $html .='<td>'.$sexResult['TotalBorrowers'].'</td>';
             }
           $html .='</tr>';
@@ -3700,7 +3775,7 @@ class loanapplication_controller extends CI_Controller {
           $html .='<td>* High Risk</td>';
             foreach ($years as $yearlyValue)
             {
-              $sexResult = $this->loanapplication_model->getRiskStatus($yearlyValue['Year'], 'High Risk');
+              $sexResult = $this->loanapplication_model->getRiskStatus($yearlyValue['Year'], 'High Risk', $_POST['BranchId']);
               $html .='<td>'.$sexResult['TotalBorrowers'].'</td>';
             }
           $html .='</tr>';
@@ -3719,7 +3794,7 @@ class loanapplication_controller extends CI_Controller {
     if($this->uri->segment(3) == 5) // loans
     {
       $pdf->AddPage('L', 'A4');
-      $branchName = $this->maintenance_model->selectSpecific('R_Branches', 'BranchId', $this->session->userdata('BranchId'));
+      $branchName = $this->maintenance_model->selectSpecific('R_Branches', 'BranchId', $_POST['BranchId']);
 
       $html = '
         <style>
@@ -3742,7 +3817,7 @@ class loanapplication_controller extends CI_Controller {
         <br>
         <br>
         ';
-          $years = $this->loanapplication_model->getLoansYear2($_POST['YearFrom'], $_POST['YearTo']);
+          $years = $this->loanapplication_model->getLoansYear2($_POST['YearFrom'], $_POST['YearTo'], $_POST['BranchId']);
           $totalColumns = count($years) + 1;
           $blankColumns = count($years) + 2;
           // for ($i=0; $i < count($years); $i++) { 
@@ -3763,7 +3838,7 @@ class loanapplication_controller extends CI_Controller {
         $html .='<td>a. Total Number of Borrowers</td>';
           foreach ($years as $yearlyValue)
           {
-            $result = $this->loanapplication_model->getTotalBorrowers($yearlyValue['Year']);
+            $result = $this->loanapplication_model->getTotalBorrowers($yearlyValue['Year'], $_POST['BranchId']);
             $html .='<td>'.$result['TotalBorrowers'].'</td>';
           }
         $html .='</tr>';
@@ -3775,7 +3850,7 @@ class loanapplication_controller extends CI_Controller {
           $html .='<td>b. Total Number of Loans</td>';
             foreach ($years as $yearlyValue)
             {
-              $result = $this->loanapplication_model->getTotalLoans($yearlyValue['Year']);
+              $result = $this->loanapplication_model->getTotalLoans($yearlyValue['Year'], $_POST['BranchId']);
               $html .='<td>'.$result['Total'].'</td>';
             }
           $html .='</tr>';
@@ -3786,7 +3861,7 @@ class loanapplication_controller extends CI_Controller {
           $html .='<td>i. National Capital Region (NCR)</td>';
             foreach ($years as $yearlyValue)
             {
-              $result = $this->loanapplication_model->getTotalBorrowerGeo($yearlyValue['Year'], 'NCR');
+              $result = $this->loanapplication_model->getTotalBorrowerGeo($yearlyValue['Year'], 'NCR', $_POST['BranchId']);
               $html .='<td>'.$result['TotalBorrowers'].'</td>';
             }
           $html .='</tr>';
@@ -3794,7 +3869,7 @@ class loanapplication_controller extends CI_Controller {
           $html .='<td>ii. Luzon</td>';
             foreach ($years as $yearlyValue)
             {
-              $result = $this->loanapplication_model->getTotalBorrowerGeo($yearlyValue['Year'], 'Luzon');
+              $result = $this->loanapplication_model->getTotalBorrowerGeo($yearlyValue['Year'], 'Luzon', $_POST['BranchId']);
               $html .='<td>'.$result['TotalBorrowers'].'</td>';
             }
           $html .='</tr>';
@@ -3802,7 +3877,7 @@ class loanapplication_controller extends CI_Controller {
           $html .='<td>iii. Visayas</td>';
             foreach ($years as $yearlyValue)
             {
-              $result = $this->loanapplication_model->getTotalBorrowerGeo($yearlyValue['Year'], 'Visayas');
+              $result = $this->loanapplication_model->getTotalBorrowerGeo($yearlyValue['Year'], 'Visayas', $_POST['BranchId']);
               $html .='<td>'.$result['TotalBorrowers'].'</td>';
             }
           $html .='</tr>';
@@ -3810,7 +3885,7 @@ class loanapplication_controller extends CI_Controller {
           $html .='<td>iv. Mindanao</td>';
             foreach ($years as $yearlyValue)
             {
-              $result = $this->loanapplication_model->getTotalBorrowerGeo($yearlyValue['Year'], 'Mindanao');
+              $result = $this->loanapplication_model->getTotalBorrowerGeo($yearlyValue['Year'], 'Mindanao', $_POST['BranchId']);
               $html .='<td>'.$result['TotalBorrowers'].'</td>';
             }
           $html .='</tr>';
@@ -3818,7 +3893,7 @@ class loanapplication_controller extends CI_Controller {
           $html .='<td>d. Type of Loans</td>';
             foreach ($years as $yearlyValue)
             {
-              $result = $this->loanapplication_model->getTotalTypeofLoans($yearlyValue['Year']);
+              $result = $this->loanapplication_model->getTotalTypeofLoans($yearlyValue['Year'], $_POST['BranchId']);
               $html .='<td>'.$result['Total'].'</td>';
             }
           $html .='</tr>';
@@ -3826,7 +3901,7 @@ class loanapplication_controller extends CI_Controller {
           $html .='<td>e. Total Loan Amount</td>';
             foreach ($years as $yearlyValue)
             {
-              $result = $this->loanapplication_model->getTotalLoanAmount($yearlyValue['Year']);
+              $result = $this->loanapplication_model->getTotalLoanAmount($yearlyValue['Year'], $_POST['BranchId']);
               $html .='<td>Php '.number_format($result['Total'], 2).'</td>';
             }
           $html .='</tr>';
@@ -3834,15 +3909,15 @@ class loanapplication_controller extends CI_Controller {
           $html .='<td>f. Tenors</td>';
             foreach ($years as $yearlyValue)
             {
-              $result = $this->loanapplication_model->getTotalLoanAmount($yearlyValue['Year']);
-              $html .='<td>Php '.$result['Total'].'</td>';
+              $result = $this->loanapplication_model->getTotalLoanAmount($yearlyValue['Year'], $_POST['BranchId']);
+              $html .='<td>Php '.number_format($result['Total'], 2).'</td>';
             }
           $html .='</tr>';
           $html .='<tr>';
           $html .='<td>g. Interest Rates</td>';
             foreach ($years as $yearlyValue)
             {
-              $result = $this->loanapplication_model->getTotalInterest($yearlyValue['Year']);
+              $result = $this->loanapplication_model->getTotalInterest($yearlyValue['Year'], $_POST['BranchId']);
               $html .='<td>Php '.number_format($result['Total'], 2).'</td>';
             }
           $html .='</tr>';
@@ -3850,7 +3925,7 @@ class loanapplication_controller extends CI_Controller {
           $html .='<td>h. Fees and Other Charges</td>';
             foreach ($years as $yearlyValue)
             {
-              $result = $this->loanapplication_model->getTotalCharges($yearlyValue['Year']);
+              $result = $this->loanapplication_model->getTotalCharges($yearlyValue['Year'], $_POST['BranchId']);
               $html .='<td>Php '.number_format($result['Total'], 2).'</td>';
             }
           $html .='</tr>';
@@ -3872,7 +3947,7 @@ class loanapplication_controller extends CI_Controller {
     if($this->uri->segment(3) == 6) // financial health
     {
       $pdf->AddPage('L', 'A4');
-      $branchName = $this->maintenance_model->selectSpecific('R_Branches', 'BranchId', $this->session->userdata('BranchId'));
+      $branchName = $this->maintenance_model->selectSpecific('R_Branches', 'BranchId', $_POST['BranchId']);
 
       $html = '
         <style>
@@ -3900,7 +3975,7 @@ class loanapplication_controller extends CI_Controller {
         <br>
         <br>
         ';
-          $years = $this->loanapplication_model->getLoansYear2($_POST['YearFrom'], $_POST['YearTo']);
+          $years = $this->loanapplication_model->getLoansYear2($_POST['YearFrom'], $_POST['YearTo'], $_POST['BranchId']);
           $totalColumns = count($years) + 1;
           $blankColumns = count($years) + 2;
           // for ($i=0; $i < count($years); $i++) { 
@@ -3921,8 +3996,8 @@ class loanapplication_controller extends CI_Controller {
           $html .='<td>a. Total Loan Portfolio</td>';
             foreach ($years as $yearlyValue)
             {
-              $result = $this->loanapplication_model->getTotalLoanAmount($yearlyValue['Year']);
-              $result2 = $this->loanapplication_model->getTotalInterest($yearlyValue['Year']);
+              $result = $this->loanapplication_model->getTotalLoanAmount($yearlyValue['Year'], $_POST['BranchId']);
+              $result2 = $this->loanapplication_model->getTotalInterest($yearlyValue['Year'], $_POST['BranchId']);
               $html .='<td>Php '.number_format($result['Total'] + $result2['Total'], 2).'</td>';
             }
           $html .='</tr>';
@@ -3930,7 +4005,7 @@ class loanapplication_controller extends CI_Controller {
           $html .='<td>b. Ratio of Non-Performing Loans to Total Loan Portfolio</td>';
             foreach ($years as $yearlyValue)
             {
-              $result = $this->loanapplication_model->getTotalLoanAmount($yearlyValue['Year']);
+              $result = $this->loanapplication_model->getTotalLoanAmount($yearlyValue['Year'], $_POST['BranchId']);
               $html .='<td>Php '.number_format($result['Total'], 2).'</td>';
             }
           $html .='</tr>';
@@ -3938,7 +4013,7 @@ class loanapplication_controller extends CI_Controller {
           $html .='<td>c. Past Due Ratio and Write-Off Ratio to Total Loan Portfolio</td>';
             foreach ($years as $yearlyValue)
             {
-              $result = $this->loanapplication_model->getTotalLoanAmount($yearlyValue['Year']);
+              $result = $this->loanapplication_model->getTotalLoanAmount($yearlyValue['Year'], $_POST['BranchId']);
               $html .='<td>Php '.number_format($result['Total'], 2).'</td>';
             }
           $html .='</tr>';
@@ -3946,7 +4021,7 @@ class loanapplication_controller extends CI_Controller {
           $html .='<td>d. Total Assets</td>';
             foreach ($years as $yearlyValue)
             {
-              $result = $this->loanapplication_model->getCurrentFund($yearlyValue['Year']);
+              $result = $this->loanapplication_model->getCurrentFund($yearlyValue['Year'], $_POST['BranchId']);
               $html .='<td>Php '.number_format($result['Total'], 2).'</td>';
             }
           $html .='</tr>';
@@ -3954,7 +4029,7 @@ class loanapplication_controller extends CI_Controller {
           $html .='<td>e. Gross Revenue</td>';
             foreach ($years as $yearlyValue)
             {
-              $result = $this->loanapplication_model->getTotalGross($yearlyValue['Year']);
+              $result = $this->loanapplication_model->getTotalGross($yearlyValue['Year'], $_POST['BranchId']);
               $html .='<td>Php '.number_format($result['Total'], 2).'</td>';
             }
           $html .='</tr>';
@@ -3962,8 +4037,8 @@ class loanapplication_controller extends CI_Controller {
           $html .='<td>f. Net Income</td>';
             foreach ($years as $yearlyValue)
             {
-              $result = $this->loanapplication_model->getTotalGross($yearlyValue['Year']);
-              $result2 = $this->loanapplication_model->getTotalExpenses($yearlyValue['Year']);
+              $result = $this->loanapplication_model->getTotalGross($yearlyValue['Year'], $_POST['BranchId']);
+              $result2 = $this->loanapplication_model->getTotalExpenses($yearlyValue['Year'], $_POST['BranchId']);
               $html .='<td>Php '.number_format($result['Total'] - $result2['Total'], 2).'</td>';
             }
           $html .='</tr>';
@@ -3985,8 +4060,8 @@ class loanapplication_controller extends CI_Controller {
     }
     if($this->uri->segment(3) == 7) // income statement
     {
+      $branch = $this->maintenance_model->selectSpecific('R_Branches', 'BranchId', $_POST['BranchId']);
       $pdf->AddPage('L', 'A4');
-      $branchName = $this->maintenance_model->selectSpecific('R_Branches', 'BranchId', $this->session->userdata('BranchId'));
 
       $html = '
         <style>
@@ -4006,7 +4081,7 @@ class loanapplication_controller extends CI_Controller {
         }
         </style>
 
-        <p>'.htmlentities($_POST['reportName'], ENT_QUOTES).'<br><small>'.$branchName['Name'].' Branch</small><br><small>'.htmlentities($_POST['DateFrom'], ENT_QUOTES).' - '.htmlentities($_POST['DateTo'], ENT_QUOTES).'</small><br><small>(Date From - Date To)</small></p>
+        <p>'.htmlentities($_POST['reportName'], ENT_QUOTES).'<br><small>'.$branch['Name'].' Branch</small><br><small>'.htmlentities($_POST['DateFrom'], ENT_QUOTES).' - '.htmlentities($_POST['DateTo'], ENT_QUOTES).'</small><br><small>(Date From - Date To)</small></p>
 
         <br>
         <br>
@@ -4046,8 +4121,26 @@ class loanapplication_controller extends CI_Controller {
             $html .= '</td>';
             $html .='</tr>';
             // income amount
-              $totalIncome = $this->loanapplication_model->getTotalCollections($_POST['DateFrom'], $_POST['DateTo']);
-              $totalCharges = $this->loanapplication_model->getTotalChargesStatement($_POST['DateFrom'], $_POST['DateTo']);
+              $totalCharges = $this->loanapplication_model->getTotalChargesStatement($_POST['DateFrom'], $_POST['DateTo'], $_POST['BranchId']);
+
+              $detailss = $this->loanapplication_model->getCollections2($_POST['DateFrom'], $_POST['DateTo'], $_POST['BranchId']);
+
+              $totalCollections = 0;
+              foreach($detailss as $key => $current) 
+              {
+                if($current['IsInterest'] == 1)
+                {
+                  $totalCollections = $totalCollections  + floatval($current['rawInterestCollection']);
+                }
+                if($current['IsPrincipalCollection'] == 1)
+                {
+                  $totalCollections = $totalCollections  + floatval($current['rawPrincipalCollection']);
+                }
+                if($current['IsOthers'] == 1)
+                {
+                  $totalCollections = $totalCollections  + floatval($current['rawAmountPaid']);
+                }
+              }
 
               $html .= '<tr>';
               $html .= '<td style="width: 5%">';
@@ -4059,7 +4152,7 @@ class loanapplication_controller extends CI_Controller {
               $html .= '<small>PHP</small> ';
               $html .= '</td>';
               $html .= '<td style="text-align: right">';
-              $html .= number_format($totalIncome['Total'], 2);
+              $html .= number_format($totalCollections, 2);
               $html .= '</td>';
               $html .='</tr>';
 
@@ -4087,7 +4180,7 @@ class loanapplication_controller extends CI_Controller {
               $html .= '<small>PHP</small>';
               $html .= '</td>';
               $html .= '<td style="text-align: right;background-color:#ccd5dc">';
-              $html .= number_format($totalIncome['Total'] + $totalCharges['Total'], 2);
+              $html .= number_format($totalCollections + $totalCharges['Total'], 2);
               $html .= '</td>';
               $html .='</tr>';
 
@@ -4099,7 +4192,7 @@ class loanapplication_controller extends CI_Controller {
             $html .= '</tr>';
             // expense amount
               $totalExpenses = 0;
-              $expensesDesc = $this->loanapplication_model->getExpensesStatement($_POST['DateFrom'], $_POST['DateTo']);
+              $expensesDesc = $this->loanapplication_model->getExpensesStatement($_POST['DateFrom'], $_POST['DateTo'], $_POST['BranchId']);
               foreach ($expensesDesc as $key => $value) 
               {
                 $totalExpenses = $totalExpenses + $value['Amount'];
@@ -4138,7 +4231,7 @@ class loanapplication_controller extends CI_Controller {
             $html .= 'Gross Income';
             $html .= '</td>';
             $html .= '<td style="text-align: right; background-color:#ccd5dc" colspan="2">';
-            $html .= number_format(($totalIncome['Total'] + $totalCharges['Total']), 2);
+            $html .= number_format(($totalCollections + $totalCharges['Total']), 2);
             $html .= '</td>';
             $html .='</tr>';
 
@@ -4148,7 +4241,7 @@ class loanapplication_controller extends CI_Controller {
             $html .= 'Net Income';
             $html .= '</td>';
             $html .= '<td style="text-align: right; background-color:#ccd5dc" colspan="2">';
-            $html .= number_format(($totalIncome['Total'] + $totalCharges['Total']) - $totalExpenses, 2);
+            $html .= number_format(($totalCollections + $totalCharges['Total']) - $totalExpenses, 2);
             $html .= '</td>';
             $html .='</tr>';
 
@@ -4161,7 +4254,7 @@ class loanapplication_controller extends CI_Controller {
           <thead>
           <tr>
             <th><strong>Prepared By</strong></th>
-            <th>'.$this->session->userdata('Name').' - '.$employeeDetail['Position'].'</th>
+            <th>'.$this->session->userdata('EmployeeNumber').' - '.$this->session->userdata('Name').' - '.$employeeDetail['Position'].'</th>
             <th><strong>Verified By</strong></th>
             <th>'.$_POST['verifiedBy'].'</th>
             <th><strong>Approved By</strong></th>
@@ -4298,11 +4391,13 @@ class loanapplication_controller extends CI_Controller {
   function finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $ManagerId, $AffectedEmployeeNumber, $auditLoanDets, $ApplicationId, $independentTable, $independentColumn, $remarks)
   {
     $CreatedBy = $this->session->userdata('EmployeeNumber');
+    $AssignedBranchId = $this->session->userdata('BranchId');
     $DateNow = date("Y-m-d H:i:s");
     $insertMainLog = array(
       'Description'       => $auditLogsManager
       , 'CreatedBy'       => $CreatedBy
       , 'Remarks'         => htmlentities($remarks, ENT_QUOTES)
+      , 'BranchId'        => $AssignedBranchId
     );
     $auditTable1 = 'R_Logs';
     $this->maintenance_model->insertFunction($insertMainLog, $auditTable1);
@@ -4310,7 +4405,8 @@ class loanapplication_controller extends CI_Controller {
       'Description'         => $auditLogsManager
       , 'ManagerBranchId'   => $ManagerId
       , 'CreatedBy'         => $CreatedBy
-      , 'Remarks'         => htmlentities($remarks, ENT_QUOTES)
+      , 'Remarks'           => htmlentities($remarks, ENT_QUOTES)
+      , 'BranchId'          => $AssignedBranchId
     );
     $auditTable3 = 'manager_has_notifications';
     $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable3);
@@ -4327,6 +4423,7 @@ class loanapplication_controller extends CI_Controller {
       , ''.$independentColumn.''    => $ApplicationId
       , 'CreatedBy'                 => $CreatedBy
       , 'Remarks'                   => htmlentities($remarks, ENT_QUOTES)
+      , 'BranchId'                  => $AssignedBranchId
     );
     $auditLoanApplicationTable = $independentTable;
     $this->maintenance_model->insertFunction($insertApplicationLog, $auditLoanApplicationTable);

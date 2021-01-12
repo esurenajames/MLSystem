@@ -20,6 +20,7 @@
       success: function(data)
       {
         $('#selectCity').html(data);
+            $('.loading').hide();
       }
     })
   }
@@ -36,6 +37,7 @@
       success: function(data)
       {
         $('#selectBarangay').html(data);
+            $('.loading').hide();
       }
     })
   }
@@ -52,6 +54,7 @@
       success: function(data)
       {
         $('#selectCity2').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -68,6 +71,7 @@
       success: function(data)
       {
         $('#selectBarangay2').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -132,6 +136,7 @@
               buttonsStyling: false,
               confirmButtonClass: 'btn btn-primary'
             });
+            $('.loading').hide();
           },
           error: function (response) 
           {
@@ -161,6 +166,7 @@
     {
       $('#selectRegion').html(data);
       $('#selectRegion2').html(data);
+      $('.loading').hide();
     }
   })
 
@@ -200,6 +206,7 @@
               buttonsStyling: false,
               confirmButtonClass: 'btn btn-primary'
             });
+            $('.loading').hide();
           },
           error: function (response) 
           {
@@ -249,6 +256,7 @@
               buttonsStyling: false,
               confirmButtonClass: 'btn btn-primary'
             });
+            $('.loading').hide();
           },
           error: function (response) 
           {
@@ -277,6 +285,7 @@
       success: function(data)
       {
         $('#selectProvince').html(data);
+            $('.loading').hide();
       }
     })
   }
@@ -293,6 +302,7 @@
       success: function(data)
       {
         $('#selectProvince2').html(data);
+            $('.loading').hide();
       }
     })
   }
@@ -309,6 +319,7 @@
       success: function(data)
       {
         $('#selectCity').html(data);
+            $('.loading').hide();
       }
     })
   }
@@ -325,6 +336,7 @@
       success: function(data)
       {
         $('#selectBarangay').html(data);
+            $('.loading').hide();
       }
     })
   }
@@ -362,6 +374,7 @@
               confirmButtonClass: 'btn btn-primary'
             });
 
+            $('.loading').hide();
             location.reload();
           },
           error: function (response) 
@@ -412,6 +425,7 @@
             });
 
             location.reload();
+            $('.loading').hide();
           },
           error: function (response) 
           {
@@ -479,6 +493,7 @@
             },
         }, function(start, end, label){
         });
+            $('.loading').hide();
       },
       error: function()
       {

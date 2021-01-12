@@ -1740,7 +1740,7 @@ class borrower_controller extends CI_Controller {
 
   function filterBorrower()
   {
-    $result = $this->borrower_model->filterBorrower($this->uri->segment(3), $this->uri->segment(4), $this->uri->segment(5), $this->uri->segment(6));
+    $result = $this->borrower_model->filterBorrower($this->uri->segment(3), $this->uri->segment(4), $this->uri->segment(5), $this->uri->segment(6), $this->uri->segment(7));
     foreach($result as $key=>$row)
     {
       $result[$key]['TotalLoans'] = $this->borrower_model->getTotalLoans($row['BorrowerId']);

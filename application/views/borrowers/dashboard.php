@@ -2,7 +2,7 @@
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
 
-  <?php if((in_array('21', $subModule) || in_array('23', $subModule)) && $detail['BranchId'] == $this->session->userdata('BranchId')) { ?>
+  <?php if((in_array('21', $subModule) || in_array('23', $subModule))) { ?>
 
     <section class="content-header">
       <h1>
@@ -132,7 +132,7 @@
                   <div class="col-md-4">
                     <div class="form-group">
                       <label for="txtDependents">No. of Dependents <span class="text-red">*</span></label>
-                      <input type="number" class="form-control" id="txtDependents" name="NoDependents" required="" placeholder="No. of dependents">
+                      <input type="number" class="form-control" value="0" id="txtDependents" name="NoDependents" required="" placeholder="No. of dependents">
                     </div>
                   </div>
                   <div class="col-md-12">
@@ -434,6 +434,7 @@
                 <div class="form-group">
                   <label>Status</label>
                   <select class="form-control" id="borrowerStatus" required="">
+                    <option value="All">All</option>
                     <?php 
                       echo $Status;
                     ?>
@@ -444,6 +445,7 @@
                 <div class="form-group">
                   <label>Created By</label>
                   <select style="width: 100%" required="" class="form-control select2" id="borrowerCreatedBy" required="">
+                    <option value="All">All</option>
                     <?php 
                       echo $CreatedBy;
                     ?>
@@ -452,14 +454,23 @@
               </div>
               <div class="col-md-6">
                 <div class="form-group">
-                  <label>Dependent Range From</label>
-                  <input type="number" required="" id="borrowerDependentsFrom" class="form-control" name="">
+                  <label>Dependent Range From <span class="text-red">*</span></label>
+                  <input type="number" required="" value="0" id="borrowerDependentsFrom" class="form-control" name="">
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-group">
-                  <label>Dependent Range To</label>
-                  <input type="number" required="" id="borrowerDependentsTo" class="form-control" name="">
+                  <label>Dependent Range To <span class="text-red">*</span></label>
+                  <input type="number" required="" value="10" id="borrowerDependentsTo" class="form-control" name="">
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>Branch <span class="text-red">*</span></label>
+                  <select class="form-control select2" required="" style="width: 100%" id="branchId" >
+                    <option value="All">All</option>
+                    <?php echo $Branch; ?>
+                  </select>
                 </div>
               </div>
             </div>
@@ -481,7 +492,7 @@
           <div class="pull-right">
             <!-- <a href="<?php echo base_url(); ?>loanapplication_controller/generateReport/4" class="btn btn-primary btn-md" >Generate Report</a> -->
 
-            <?php if((in_array('21', $subModule)) && $detail['BranchId'] == $this->session->userdata('BranchId')) { ?>
+            <?php if((in_array('21', $subModule))) { ?>
               <button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#modalNewRecord">Add Borrower</button>
               <button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#modalImport2">Import Borrower</button>
             <?php } else { ?>
@@ -495,6 +506,7 @@
             <table id="example1" class="table table-bordered table-hover">
               <thead>
               <tr>
+                <th>Branch</th>
                 <th>Borrower Name</th>
                 <th>No. of Dependents</th>
                 <th>No. of Loans</th>
@@ -551,6 +563,8 @@
 </script>
 
 <script>
+
+  $('#branchId').val(1).change();
 
   function ReportType(value)
   {
@@ -615,9 +629,22 @@
   }
 
   function filterPage(){
-    var url = '<?php echo base_url()."borrower_controller/filterBorrower/"; ?>' + $('#borrowerStatus').val()+ '/'+ $('#borrowerCreatedBy').val()+ '/'+ $('#borrowerDependentsFrom').val()+ '/'+ $('#borrowerDependentsTo').val();
-    UserTable.ajax.url(url).load();
-    $('#modalFilter').modal('hide');
+    if($('#borrowerDependentsFrom').val() >= 0 && $('#borrowerDependentsTo').val() >= 0 && $('#borrowerDependentsFrom').val() != '' && $('#borrowerDependentsTo').val() != '' && $('#borrowerCreatedBy').val() != '')
+    {
+      var url = '<?php echo base_url()."borrower_controller/filterBorrower/"; ?>' + $('#borrowerStatus').val()+ '/'+ $('#borrowerCreatedBy').val()+ '/'+ $('#borrowerDependentsFrom').val()+ '/'+ $('#borrowerDependentsTo').val()+ '/'+ $('#branchId').val();
+      UserTable.ajax.url(url).load();
+      $('#modalFilter').modal('hide');
+    }
+    else
+    {
+      swal({
+        title: 'Info!',
+        text: 'Please make sure that all required fields are filled out!',
+        type: 'warning',
+        buttonsStyling: false,
+        confirmButtonClass: 'btn btn-primary'
+      });
+    }
   }
 
   $('#datepicker').daterangepicker({
@@ -702,7 +729,8 @@
       "pageLength": 10,
       "ajax": { url: '<?php echo base_url()."/borrower_controller/getAllList/"; ?>', type: 'POST', "dataSrc": "" },
       "columns": [  
-                    { data: "Name" }
+                    { data: "Branch" }
+                    , { data: "Name" }
                     , { data: "Dependents" }
                     , { data: "TotalLoans" }
                     , { data: "CreatedBy" }

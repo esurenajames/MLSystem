@@ -25,10 +25,21 @@
               <div class="row">
                 <div class="col-md-12">
                   <div class="form-group">
+                    <label>Branch</label>
+                      <select class="form-control select2" name="BranchId" style="width: 100%;">
+                        <?php
+                          echo $Branch;
+                        ?>
+                      </select>
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-group">
                     <label>Report Columns</label>
                       <select class="form-control select2" id="reportColumns" onchange="expenseType(this.value)" name="columnNames[]" style="width: 100%;" multiple="">
                         <option selected="">Expense No.</option>
                         <option selected="">Expense Type</option>
+                        <option selected="">Description</option>
                         <option selected="">Amount</option>
                         <option selected="">Date of Expense</option>
                         <option selected="">Date of Creation</option>

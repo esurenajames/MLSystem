@@ -24,14 +24,24 @@
             <div class="row">
               <div class="col-md-12">
                 <div class="form-group">
+                  <label>Branch</label>
+                    <select class="form-control select2" name="BranchId" style="width: 100%;">
+                      <?php
+                        echo $Branch;
+                      ?>
+                    </select>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="form-group">
                   <label>Report Columns</label>
                     <select class="form-control select2" name="columnNames[]" style="width: 100%;" multiple="">
                       <option selected="">Loan Date</option>
                       <option selected="">Application No.</option>
                       <option selected="">Borrower Name</option>
-                      <option>Principal Per Collection</option>
-                      <option>Interest Per Collection</option>
-                      <option>Other Collections</option>
+                      <option selected="">Principal Per Collection</option>
+                      <option selected="">Interest Per Collection</option>
+                      <option selected="">Other Collections</option>
                       <option selected="">Amount Paid</option>
                       <option selected="">Change</option>
                       <option selected="">Repayment Date</option>

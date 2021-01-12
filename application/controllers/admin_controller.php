@@ -3474,65 +3474,65 @@ class admin_controller extends CI_Controller {
       }
   }
 
-  function submitApplication()
+  function getFilteredDashboard()
   {
-    print_r($_POST['Approvers']);
-    print_r($_POST['Details']);
-    print_r($_POST['ObligationDetails']);
+    $output = $this->maintenance_model->getFilteredDashboard($this->input->post('branchId'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
   }
 
   function getAgePopulation()
   {
-    $output = $this->maintenance_model->getAge($this->input->post('yearFilter'));
+    $output = $this->maintenance_model->getAge($this->input->post('yearFilter'), $this->input->post('branchId'));
     $this->output->set_output(print(json_encode($output)));
     exit();
   }
 
   function getEducationPopulation()
   {
-    $output = $this->maintenance_model->getEducation($this->input->post('yearFilter'));
+    $output = $this->maintenance_model->getEducation($this->input->post('yearFilter'), $this->input->post('branchId'));
     $this->output->set_output(print(json_encode($output)));
     exit();
   }
 
   function getGenderPopulation()
   {
-    $output = $this->maintenance_model->getGender($this->input->post('yearFilter'));
+    $output = $this->maintenance_model->getGender($this->input->post('yearFilter'), $this->input->post('branchId'));
     $this->output->set_output(print(json_encode($output)));
     exit();
   }
 
   function getOccupationPopulation()
   {
-    $output = $this->maintenance_model->getOccupationPopulation($this->input->post('yearFilter'));
+    $output = $this->maintenance_model->getOccupationPopulation($this->input->post('yearFilter'), $this->input->post('branchId'));
     $this->output->set_output(print(json_encode($output)));
     exit();
   }
 
   function getIncomeLevelPopulation()
   {
-    $output = $this->maintenance_model->getIncomeLevelPopulation($this->input->post('yearFilter'));
+    $output = $this->maintenance_model->getIncomeLevelPopulation($this->input->post('yearFilter'), $this->input->post('branchId'));
     $this->output->set_output(print(json_encode($output)));
     exit();
   }
 
   function getMonthlyCollection()
   {
-    $output = $this->maintenance_model->getMonthlyCollection($this->input->post('yearFilter'));
+    $output = $this->maintenance_model->getMonthlyCollection($this->input->post('yearFilter'), $this->input->post('branchId'));
     $this->output->set_output(print(json_encode($output)));
     exit();
   }
 
   function getMonthlyDisbursement()
   {
-    $output = $this->maintenance_model->getMonthlyDisbursement($this->input->post('yearFilter'));
+    $output = $this->maintenance_model->getMonthlyDisbursement($this->input->post('yearFilter'), $this->input->post('branchId'));
     $this->output->set_output(print(json_encode($output)));
     exit();
   }
 
   function getMonthlyInterest()
   {
-    $output = $this->maintenance_model->getMonthlyInterest($this->input->post('yearFilter'));
+    $output = $this->maintenance_model->getMonthlyInterest($this->input->post('yearFilter'), $this->input->post('branchId'));
     $this->output->set_output(print(json_encode($output)));
     exit();
   }
@@ -3602,11 +3602,13 @@ class admin_controller extends CI_Controller {
 
   function AuditFunction($auditLogsManager, $auditAffectedEmployee, $ManagerId, $AffectedEmployeeNumber)
   {
+    $AssignedBranchId = $this->session->userdata('BranchId');
     $CreatedBy = $this->session->userdata('EmployeeNumber');
     $DateNow = date("Y-m-d H:i:s");
     $insertMainLog = array(
       'Description'       => $auditLogsManager
       , 'CreatedBy'       => $CreatedBy
+      , 'BranchId'        => $AssignedBranchId
     );
     $auditTable1 = 'R_Logs';
     $this->maintenance_model->insertFunction($insertMainLog, $auditTable1);
@@ -3614,6 +3616,7 @@ class admin_controller extends CI_Controller {
       'Description'         => $auditLogsManager
       , 'ManagerBranchId'   => $ManagerId
       , 'CreatedBy'         => $CreatedBy
+      , 'BranchId'        => $AssignedBranchId
     );
     $auditTable3 = 'manager_has_notifications';
     $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable3);
@@ -3621,6 +3624,7 @@ class admin_controller extends CI_Controller {
       'Description'       => $auditAffectedEmployee
       , 'EmployeeNumber'  => $AffectedEmployeeNumber
       , 'CreatedBy'       => $CreatedBy
+      , 'BranchId'        => $AssignedBranchId
     );
     $auditTable2 = 'employee_has_notifications';
     $this->maintenance_model->insertFunction($insertEmpLog, $auditTable2);
@@ -3628,11 +3632,13 @@ class admin_controller extends CI_Controller {
 
   function finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $ManagerId, $AffectedEmployeeNumber, $auditLoanDets, $ApplicationId, $independentTable, $independentColumn)
   {
+    $AssignedBranchId = $this->session->userdata('BranchId');
     $CreatedBy = $this->session->userdata('EmployeeNumber');
     $DateNow = date("Y-m-d H:i:s");
     $insertMainLog = array(
       'Description'       => $auditLogsManager
       , 'CreatedBy'       => $CreatedBy
+      , 'BranchId'        => $AssignedBranchId
     );
     $auditTable1 = 'R_Logs';
     $this->maintenance_model->insertFunction($insertMainLog, $auditTable1);
@@ -3640,6 +3646,7 @@ class admin_controller extends CI_Controller {
       'Description'         => $auditLogsManager
       , 'ManagerBranchId'   => $ManagerId
       , 'CreatedBy'         => $CreatedBy
+      , 'BranchId'        => $AssignedBranchId
     );
     $auditTable3 = 'manager_has_notifications';
     $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable3);
@@ -3647,6 +3654,7 @@ class admin_controller extends CI_Controller {
       'Description'       => $auditAffectedEmployee
       , 'EmployeeNumber'  => $AffectedEmployeeNumber
       , 'CreatedBy'       => $CreatedBy
+      , 'BranchId'        => $AssignedBranchId
     );
     $auditTable2 = 'employee_has_notifications';
     $this->maintenance_model->insertFunction($insertEmpLog, $auditTable2);
@@ -3657,6 +3665,7 @@ class admin_controller extends CI_Controller {
         'Description'       => $auditLoanDets
         , ''.$independentColumn.''   => $ApplicationId
         , 'CreatedBy'       => $CreatedBy
+        , 'BranchId'        => $AssignedBranchId
       );
       $auditLoanApplicationTable = $independentTable;
       $this->maintenance_model->insertFunction($insertApplicationLog, $auditLoanApplicationTable);

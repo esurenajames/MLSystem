@@ -11,15 +11,24 @@
 <div class="content-wrapper">
   <section class="content-header">
     <h1>
-      Dashboard
+      Dashboard 
+        <label> | Branch</label>
+        <div class="form-group">
+          <select class="form-control select2" style="width: 100%" onchange="filterDashboard()" id="selectBranch">
+            <option>All</option>
+            <?php 
+              echo $Branch;
+            ?>
+          </select>
+          <!-- <a class="btn btn-sm btn-primary" ><span class="fa fa-search"></span></a> -->
+        </div>
     </h1>
     <ol class="breadcrumb">
       <li><a href="#" class="active"><i class="fa fa-dashboard"></i> Dashboard</a></li>
     </ol>
   </section>
 
-  <?php 
-
+  <?php
     $record = $this->maintenance_model->passwordValidity();
     $password = $this->maintenance_model->getPassword();
     if($record['IsNew'] == 1) { ?>
@@ -137,7 +146,7 @@
           <div class="col-lg-3 col-xs-6">
             <div class="small-box bg-green">
               <div class="inner">
-                <h3><?php print_r(number_format(($totalFund['Total'] + $totalIncome['Total']) - ($totalExpense['Total'] + $TotalDisbursement['Total']), 2)) ?></h3>
+                <h3 id="lblCurrentFund"><?php print_r(number_format(($totalFund['Total'] + $totalIncome['Total']) - ($totalExpense['Total'] + $TotalDisbursement['Total']), 2)) ?></h3>
                 <p>Current Fund </p>
               </div>
               <div class="icon">
@@ -151,7 +160,7 @@
           <div class="col-lg-3 col-xs-6">
             <div class="small-box bg-green">
               <div class="inner">
-                <h3><?php print_r(number_format($dailyIncome['Total'] + $dailyPenalties['Total'], 2)) ?></h3>
+                <h3 id="lblDailyIncome"><?php print_r(number_format($dailyIncome['Total'] + $dailyPenalties['Total'], 2)) ?></h3>
                 <p>Daily Income</p>
               </div>
               <div class="icon">
@@ -165,7 +174,7 @@
           <div class="col-lg-3 col-xs-6">
             <div class="small-box bg-green">
               <div class="inner">
-                <h3><?php print_r(number_format($TotalInterest['Total'], 2)) ?></h3>
+                <h3 id="lblTotalInterest"><?php print_r(number_format($TotalInterest['Total'], 2)) ?></h3>
                 <p>Daily Interest Collected</p>
               </div>
               <div class="icon">
@@ -179,7 +188,7 @@
           <div class="col-lg-3 col-xs-6">
             <div class="small-box bg-red">
               <div class="inner">
-                <h3><?php print_r($dailyExpenses['Total']) ?></h3>
+                <h3 id="lblDailyExpense"><?php print_r($dailyExpenses['Total']) ?></h3>
                 <p>Daily Expense</p>
               </div>
               <div class="icon">
@@ -194,7 +203,7 @@
           <div class="col-lg-3 col-xs-6">
             <div class="small-box bg-orange">
               <div class="inner">
-                <h3><?php print_r(number_format($dailyDisbursement['Total'], 2)) ?></h3>
+                <h3 id="lblDailyDisbursement"><?php print_r(number_format($dailyDisbursement['Total'], 2)) ?></h3>
                 <p>Daily Disbursement</p>
               </div>
               <div class="icon">
@@ -208,7 +217,7 @@
           <div class="col-lg-3 col-xs-6">
             <div class="small-box bg-light-blue">
               <div class="inner">
-                <h3><?php print_r($dailyApprovedLoans['Total']) ?></h3>
+                <h3 id="lblDailyApprovedLoans"><?php print_r($dailyApprovedLoans['Total']) ?></h3>
                 <p>Daily Approved Loans</p>
               </div>
               <div class="icon">
@@ -223,7 +232,7 @@
           <div class="col-lg-3 col-xs-6">
             <div class="small-box bg-purple">
               <div class="inner">
-                <h3><?php print_r($totalActiveLoans['Total']) ?></h3>
+                <h3 id="lblTotalActiveLoans"><?php print_r($totalActiveLoans['Total']) ?></h3>
                 <p>Active Loans</p>
               </div>
               <div class="icon">
@@ -237,7 +246,7 @@
           <div class="col-lg-3 col-xs-6">
             <div class="small-box bg-yellow">
               <div class="inner">
-                <h3><?php print_r($totalBorrower['Total']) ?></h3>
+                <h3 id="lblTotalBorrowers"><?php print_r($totalBorrower['Total']) ?></h3>
                 <p>Total Borrowers</p>
               </div>
               <div class="icon">
@@ -252,7 +261,7 @@
           <div class="col-lg-3 col-xs-6">
             <div class="small-box bg-olive-active">
               <div class="inner">
-                <h3><?php print_r($totalEmployees['Total']) ?></h3>
+                <h3 id="lblTotalEmployees"><?php print_r($totalEmployees['Total']) ?></h3>
                 <p>Total Employees</p>
               </div>
               <div class="icon">
@@ -267,7 +276,7 @@
           <div class="col-lg-3 col-xs-6">
             <div class="small-box bg-teal">
               <div class="inner">
-                <h3><?php print_r($totalUsers['Total']) ?></h3>
+                <h3 id="lblTotalUsers"><?php print_r($totalUsers['Total']) ?></h3>
                 <p>Total Users</p>
               </div>
               <div class="icon">
@@ -297,7 +306,6 @@
         <!-- </div>
       </div> -->
 
-
       <?php if(in_array('50', $subModule)) { ?>
         <div class="box box-primary">
           <div class="box-header with-border">
@@ -308,7 +316,6 @@
             </div>
           </div>
           <div class="box-body">
-
             <div class="nav-tabs-custom">
               <ul class="nav nav-tabs">
                 <li class="active"><a href="#tabM1" data-toggle="tab">Collections</a></li>
@@ -325,7 +332,7 @@
                   <h5>Collections</h5>
                   <div class="pull-left">
                     <label>Report Type</label>
-                    <select class="form-control" id="selectCollectionReport" onchange="changeCollectionReport(this.value)">
+                    <select class="form-control classSelectReportType" id="selectCollectionReport" onchange="changeCollectionReport(this.value)">
                       <option selected="">Bar Graph</option>
                       <option>Pie Chart</option>
                       <option>Line Graph</option>
@@ -348,10 +355,10 @@
                   </div>
                 </div>
                 <div class="tab-pane" id="tabM2">
-                  <h5>Collections</h5>
+                  <h5>Disbursements</h5>
                   <div class="pull-left">
                     <label>Report Type</label>
-                    <select class="form-control" id="selectDisbursementReport" onchange="changeDisbursementReport(this.value)">
+                    <select class="form-control classSelectReportType" id="selectDisbursementReport" onchange="changeDisbursementReport(this.value)">
                       <option selected="">Bar Graph</option>
                       <option>Pie Chart</option>
                       <option>Line Graph</option>
@@ -377,7 +384,7 @@
                   <h5>Interest Collected</h5>
                   <div class="pull-left">
                     <label>Report Type</label>
-                    <select class="form-control" id="selectInterest" onchange="changeInterestReport(this.value)">
+                    <select class="form-control classSelectReportType" id="selectInterest" onchange="changeInterestReport(this.value)">
                       <option selected="">Bar Graph</option>
                       <option>Pie Chart</option>
                       <option>Line Graph</option>
@@ -543,7 +550,7 @@
                   <h5>AGE</h5>
                   <div class="pull-left">
                     <label>Report Type</label>
-                    <select class="form-control" id="selectAgeReport" onchange="changeAgeReport(this.value)">
+                    <select class="form-control classSelectReportType" id="selectAgeReport" onchange="changeAgeReport(this.value)">
                       <option selected="">Bar Graph</option>
                       <option>Pie Chart</option>
                       <option>Line Graph</option>
@@ -569,7 +576,7 @@
                   <h5>EDUCATION</h5>
                   <div class="pull-left">
                     <label>Report Type</label>
-                    <select class="form-control" id="selectEducationReport" onchange="changeEducationReport(this.value)">
+                    <select class="form-control classSelectReportType" id="selectEducationReport" onchange="changeEducationReport(this.value)">
                       <option selected="">Bar Graph</option>
                       <option>Pie Chart</option>
                     </select>
@@ -597,7 +604,7 @@
                   <h5>GENDER</h5>
                   <div class="pull-left">
                     <label>Report Type</label>
-                    <select class="form-control" id="selectGenderReport" onchange="changeGenderReport(this.value)">
+                    <select class="form-control classSelectReportType" id="selectGenderReport" onchange="changeGenderReport(this.value)">
                       <option selected="">Bar Graph</option>
                       <option>Pie Chart</option>
                     </select>
@@ -625,7 +632,7 @@
                   <h5>OCCUPATION</h5>
                   <div class="pull-left">
                     <label>Report Type</label>
-                    <select class="form-control" id="selectOccupationReport" onchange="changeOccupationReport(this.value)">
+                    <select class="form-control classSelectReportType" id="selectOccupationReport" onchange="changeOccupationReport(this.value)">
                       <option selected="">Bar Graph</option>
                       <option>Pie Chart</option>
                     </select>
@@ -653,7 +660,7 @@
                   <h5>INCOME LEVEL</h5>
                   <div class="pull-left">
                     <label>Report Type</label>
-                    <select class="form-control" id="selectIncomeReport" onchange="changeIncomeReport(this.value)">
+                    <select class="form-control classSelectReportType" id="selectIncomeReport" onchange="changeIncomeReport(this.value)">
                       <option selected="">Bar Graph</option>
                       <option>Pie Chart</option>
                     </select>
@@ -676,25 +683,6 @@
                   <div class="chart" id="divIncomeChart">
                   </div>
                 </div>
-                <!-- <div class="tab-pane" id="tabMS">
-                  <h5>MARITAL STATUS</h5>
-                  <div class="pull-right">
-                    <select class="form-control" onchange="selectMaritalFilter(this.value)">
-                      <?php 
-                        foreach ($MaritalYear as $value) 
-                        {
-                          $selected = (date("Y") == $value['Year']) ? 'selected' : '';
-                          echo '<option '.$selected.'>'.$value['Year'].'</option>';
-                        }
-                      ?>
-                    </select>
-                  </div>
-                  <br>
-                  <hr>
-                  <div class="chart">
-                    <canvas id="chartMarital" style="height:250px"></canvas>
-                  </div>
-                </div> -->
               </div>
             </div>
           </div>
@@ -743,6 +731,7 @@
 <?php $this->load->view('includes/footer'); ?>
 
 <script>
+  $('.select2').select2();
   if("<?php print_r($this->session->flashdata('alertTitle')) ?>" != '')
   {
     swal({
@@ -751,6 +740,53 @@
       type: '<?php print_r($this->session->flashdata('alertType')) ?>',
       buttonsStyling: false,
       confirmButtonClass: 'btn btn-primary'
+    });
+  }
+// dashboard filter
+  $('#selectBranch').val('<?php print_r($this->session->userdata('BranchId')) ?>').change();
+  function filterDashboard()
+  {
+    $.ajax({
+      url: "<?php echo base_url(); ?>admin_controller/getFilteredDashboard",
+      type: "POST",
+      async: false,
+      dataType: "JSON",
+      data : {
+        branchId : $('#selectBranch').val()
+      },
+      beforeSend: function(){
+          $('.loading').show();
+      },
+      success: function(data) {
+        $('#lblTotalInterest').html(parseInt(data[2]).toLocaleString('en-US', {minimumFractionDigits: 2}));
+        $('#lblDailyExpense').html(parseInt(data[3]).toLocaleString('en-US', {minimumFractionDigits: 2}));
+        $('#lblDailyIncome').html(parseInt(data[4]).toLocaleString('en-US', {minimumFractionDigits: 2}));
+        $('#lblDailyDisbursement').html(parseInt(data[8]).toLocaleString('en-US', {minimumFractionDigits: 2}));
+        $('#lblDailyApprovedLoans').html(data[7]);
+        $('#lblTotalActiveLoans').html(data[13]);
+        $('#lblTotalBorrowers').html(data[0]);
+        $('#lblTotalEmployees').html(data[1]);
+        $('#lblTotalUsers').html(data[1]);
+        $('#lblCurrentFund').html(parseInt((parseInt(data[12]) + parseInt(data[11])) - (parseInt(data[2]) + parseInt(data[10]))).toLocaleString('en-US', {minimumFractionDigits: 2}));
+
+        $('.classSelectReportType').val('Bar Graph').change();
+
+        changeCollectionReport('Bar Graph');
+        changeDisbursementReport('Bar Graph');
+        changeInterestReport('Bar Graph');
+        changeAgeReport('Bar Graph');
+
+        changeAgeReport('Bar Graph')
+        changeEducationReport('Bar Graph')
+        changeGenderReport('Bar Graph')
+        changeOccupationReport('Bar Graph')
+        changeIncomeReport('Bar Graph')
+
+        $('.loading').hide();
+      },
+      error: function(data) {
+        console.log(data);
+      }
     });
   }
 
@@ -779,6 +815,7 @@
         dataType: "JSON",
         data : {
           yearFilter : value
+          , branchId : $('#selectBranch').val()
         },
         success: function(data) {var bracket = [];
           var age = [];
@@ -867,6 +904,7 @@
         dataType: "JSON",
         data : {
           yearFilter : value
+          , branchId : $('#selectBranch').val()
         },
         success: function(data) {
           var bracket = [];
@@ -960,6 +998,7 @@
         dataType: "JSON",
         data : {
           yearFilter : $('#yearEducation').val()
+          , branchId : $('#selectBranch').val()
         },
         success: function(data) {
           var bracket = [];
@@ -1032,6 +1071,7 @@
         dataType: "JSON",
         data : {
           yearFilter : $('#yearEducation').val()
+          , branchId : $('#selectBranch').val()
         },
         success: function(data) {
           var bracket = [];
@@ -1125,6 +1165,7 @@
         dataType: "JSON",
         data : {
           yearFilter : $('#selectGenderYear').val()
+          , branchId : $('#selectBranch').val()
         },
         success: function(data) {
           var bracket = [];
@@ -1197,6 +1238,7 @@
         dataType: "JSON",
         data : {
           yearFilter : $('#selectGenderYear').val()
+          , branchId : $('#selectBranch').val()
         },
         success: function(data) {
           var bracket = [];
@@ -1281,6 +1323,7 @@
         dataType: "JSON",
         data : {
           yearFilter : $('#selectOccupationYear').val()
+          , branchId : $('#selectBranch').val()
         },
         success: function(data) {
           var bracket = [];
@@ -1353,6 +1396,7 @@
         dataType: "JSON",
         data : {
           yearFilter : $('#selectGenderYear').val()
+          , branchId : $('#selectBranch').val()
         },
         success: function(data) {
           var bracket = [];
@@ -1439,6 +1483,7 @@
         dataType: "JSON",
         data : {
           yearFilter : $('#selectIncomeYear').val()
+          , branchId : $('#selectBranch').val()
         },
         success: function(data) {
           var bracket = [];
@@ -1509,6 +1554,7 @@
         dataType: "JSON",
         data : {
           yearFilter : $('#selectIncomeYear').val()
+          , branchId : $('#selectBranch').val()
         },
         success: function(data) {
           var bracket = [];
@@ -1580,6 +1626,9 @@
     }
   }
 
+
+
+
   function changeCollectionReport(reportValue)
   {
     $('#divM1Chart').html('');
@@ -1593,6 +1642,7 @@
         dataType: "JSON",
         data : {
           yearFilter : $('#selectColectionYear').val()
+          , branchId : $('#selectBranch').val()
         },
         success: function(data) {
           var bracket = [];
@@ -1677,6 +1727,7 @@
         dataType: "JSON",
         data : {
           yearFilter : $('#selectColectionYear').val()
+          , branchId : $('#selectBranch').val()
         },
         success: function(data) {
           var bracket = [];
@@ -1755,6 +1806,7 @@
         dataType: "JSON",
         data : {
           yearFilter : $('#selectColectionYear').val()
+          , branchId : $('#selectBranch').val()
         },
         success: function(data) {
           var bracket = [];
@@ -1830,6 +1882,7 @@
         dataType: "JSON",
         data : {
           yearFilter : $('#selectDisbursementYear').val()
+          , branchId : $('#selectBranch').val()
         },
         success: function(data) {
           var bracket = [];
@@ -1914,6 +1967,7 @@
         dataType: "JSON",
         data : {
           yearFilter : $('#selectDisbursementYear').val()
+          , branchId : $('#selectBranch').val()
         },
         success: function(data) {
           var bracket = [];
@@ -1992,6 +2046,7 @@
         dataType: "JSON",
         data : {
           yearFilter : $('#selectDisbursementYear').val()
+          , branchId : $('#selectBranch').val()
         },
         success: function(data) {
           var bracket = [];
@@ -2066,7 +2121,8 @@
         async: false,
         dataType: "JSON",
         data : {
-          yearFilter : $('#selectIncomeYear').val()
+          yearFilter : $('#selectDisbursementYear').val()
+          , branchId : $('#selectBranch').val()
         },
         success: function(data) {
           var bracket = [];
@@ -2150,7 +2206,8 @@
         async: false,
         dataType: "JSON",
         data : {
-          yearFilter : $('#selectIncomeYear').val()
+          yearFilter : $('#selectDisbursementYear').val()
+          , branchId : $('#selectBranch').val()
         },
         success: function(data) {
           var bracket = [];
@@ -2228,7 +2285,8 @@
         async: false,
         dataType: "JSON",
         data : {
-          yearFilter : $('#selectIncomeYear').val()
+          yearFilter : $('#selectDisbursementYear').val()
+          , branchId : $('#selectBranch').val()
         },
         success: function(data) {
           var bracket = [];
@@ -2290,243 +2348,6 @@
       });
     }
   }
-
-  // function changeLoansReport(reportValue)
-  // {
-  //   $('#divM3Chart').html('');
-  //   $('#divM3Chart').html('<canvas id="M3Chart" style="height:230px"></canvas>');
-  //   if(reportValue == 'Line Graph')
-  //   {
-  //     $.ajax({
-  //       url: "<?php echo base_url(); ?>admin_controller/getMonthlyDisbursement",
-  //       type: "POST",
-  //       async: false,
-  //       dataType: "JSON",
-  //       data : {
-  //         yearFilter : $('#selectDisbursementYear').val()
-  //       },
-  //       success: function(data) {
-  //         var bracket = [];
-  //         var age = [];
-
-  //         for(var i in data) {
-  //           bracket.push(data[i].Month);
-  //           age.push(data[i].Total);
-  //         }
-
-  //         var chartdata = {
-  //           labels: bracket,
-  //           datasets : [
-  //             {
-  //               label: 'Age Bracket',
-  //               fillColor           : 'rgb(54, 145, 236)',
-  //               strokeColor         : 'rgb(26, 114, 203)',
-  //               pointColor          : 'rgba(210, 214, 222, 1)',
-  //               data: age
-  //             }
-  //           ]
-  //         };          
-
-  //         var areaChartOptions = {
-  //           //Boolean - If we should show the scale at all
-  //           showScale               : true,
-  //           //Boolean - Whether grid lines are shown across the chart
-  //           scaleShowGridLines      : false,
-  //           //String - Colour of the grid lines
-  //           scaleGridLineColor      : 'rgb(89, 97, 247)',
-  //           //Number - Width of the grid lines
-  //           scaleGridLineWidth      : 1,
-  //           //Boolean - Whether to show horizontal lines (except X axis)
-  //           scaleShowHorizontalLines: true,
-  //           //Boolean - Whether to show vertical lines (except Y axis)
-  //           scaleShowVerticalLines  : true,
-  //           //Boolean - Whether the line is curved between points
-  //           bezierCurve             : true,
-  //           //Number - Tension of the bezier curve between points
-  //           bezierCurveTension      : 0.3,
-  //           //Boolean - Whether to show a dot for each point
-  //           pointDot                : false,
-  //           //Number - Radius of each point dot in pixels
-  //           pointDotRadius          : 4,
-  //           //Number - Pixel width of point dot stroke
-  //           pointDotStrokeWidth     : 1,
-  //           //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
-  //           pointHitDetectionRadius : 20,
-  //           //Boolean - Whether to show a stroke for datasets
-  //           datasetStroke           : true,
-  //           //Number - Pixel width of dataset stroke
-  //           datasetStrokeWidth      : 2,
-  //           //Boolean - Whether to fill the dataset with a color
-  //           datasetFill             : true,
-  //           //Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
-  //           maintainAspectRatio     : true,
-  //           //Boolean - whether to make the chart responsive to window resizing
-  //           responsive              : true
-  //         }
-
-  //         // barChartOptions.datasetFill = false
-  //         // barChart.Line(barChartData, barChartOptions)
-
-  //         var lineChartCanvas          = $('#M2Chart').get(0).getContext('2d')
-  //         var lineChart                = new Chart(lineChartCanvas)
-  //         var lineChartOptions         = areaChartOptions
-  //         lineChartOptions.datasetFill = false
-  //         lineChart.Line(chartdata, lineChartOptions)
-  //       },
-  //       error: function(data) {
-  //         console.log(data);
-  //       }
-  //     });
-  //   }
-  //   else if(reportValue == 'Pie Chart')
-  //   {
-  //     var PieData = [];
-  //     $.ajax({
-  //       url: "<?php echo base_url(); ?>admin_controller/getMonthlyDisbursement",
-  //       type: "POST",
-  //       async: false,
-  //       dataType: "JSON",
-  //       data : {
-  //         yearFilter : $('#selectDisbursementYear').val()
-  //       },
-  //       success: function(data) {
-  //         var bracket = [];
-  //         var pieChartCanvas = $("#M2Chart").get(0).getContext("2d");
-  //         var pieChart = new Chart(pieChartCanvas);
-  //         var PieData = [];
-
-  //         data.forEach(function(e) {
-  //             var random_color = '#' + Math.floor(Math.random() * 16777215).toString(16);
-  //             bracket.push({
-  //               value: e.Total,
-  //               color: random_color,
-  //               highlight: random_color,
-  //               label: e.Month
-  //             });
-  //         });
-
-  //         // var chartdata = {
-  //         //   labels: bracket,
-  //         //   datasets : [
-  //         //     {
-  //         //       label: 'Age Population',
-  //         //       fillColor           : 'rgb(54, 145, 236)',
-  //         //       strokeColor         : 'rgb(26, 114, 203)',
-  //         //       pointColor          : 'rgba(210, 214, 222, 1)',
-  //         //       data: age
-  //         //     }
-  //         //   ]
-  //         // };
-
-  //         // var barChartCanvas                   = $('#chartEducation').get(0).getContext('2d')
-  //         // var barChart                         = new Chart(barChartCanvas)
-  //         // var barChartData                     = chartdata
-  //         var pieOptions = {
-  //             //Boolean - Whether we should show a stroke on each segment
-  //             segmentShowStroke: true,
-  //             //String - The colour of each segment stroke
-  //             segmentStrokeColor: "#fff",
-  //             //Number - The width of each segment stroke
-  //             segmentStrokeWidth: 2,
-  //             //Number - The percentage of the chart that we cut out of the middle
-  //             percentageInnerCutout: 0, // This is 0 for Pie charts
-  //             //Number - Amount of animation steps
-  //             animationSteps: 100,
-  //             //String - Animation easing effect
-  //             // animationEasing: "easeOutBounce",
-  //             //Boolean - Whether we animate the rotation of the Doughnut
-  //             animateRotate: true,
-  //             //Boolean - Whether we animate scaling the Doughnut from the centre
-  //             animateScale: false,
-  //             //Boolean - whether to make the chart responsive to window resizing
-  //             responsive: true,
-  //             // Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
-  //             maintainAspectRatio: true,
-  //             //String - A legend template
-  //             legendTemplate: "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>"
-  //         };
-
-  //         // barChartOptions.datasetFill = false
-
-  //         // $('#educationChart').html('');
-  //         // $('#educationChart').html('<canvas id="chartEducation" style="height:230px"></canvas>');
-  //         pieChart.Doughnut(bracket, pieOptions);
-  //       },
-  //       error: function(data) {
-  //         console.log(data);
-  //       }
-  //     });
-  //   }
-  //   if(reportValue == 'Bar Graph')
-  //   {
-  //     $.ajax({
-  //       url: "<?php echo base_url(); ?>admin_controller/getLoanType",
-  //       type: "POST",
-  //       async: false,
-  //       dataType: "JSON",
-  //       data : {
-  //         yearFilter : $('#loanYear').val()
-  //       },
-  //       success: function(data) {
-  //         var bracket = [];
-  //         var age = [];
-
-  //         for(var i in data) {
-  //           bracket.push(data[i].Name);
-  //           age.push(data[i].Total);
-  //         }
-
-  //         var chartdata = {
-  //           labels: bracket,
-  //           datasets : [
-  //             {
-  //               label: 'Marital Status',
-  //               fillColor           : 'rgb(54, 145, 236)',
-  //               strokeColor         : 'rgb(26, 114, 203)',
-  //               pointColor          : 'rgba(210, 214, 222, 1)',
-  //               data: age
-  //             }
-  //           ]
-  //         };
-
-  //         var barChartCanvas                   = $('#M3Chart').get(0).getContext('2d')
-  //         var barChart                         = new Chart(barChartCanvas)
-  //         var barChartData                     = chartdata
-  //         var barChartOptions                  = {
-  //           //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
-  //           scaleBeginAtZero        : true,
-  //           //Boolean - Whether grid lines are shown across the chart
-  //           scaleShowGridLines      : true,
-  //           //String - Colour of the grid lines
-  //           scaleGridLineColor      : 'rgba(0,0,0,.05)',
-  //           //Number - Width of the grid lines
-  //           scaleGridLineWidth      : 1,
-  //           //Boolean - Whether to show horizontal lines (except X axis)
-  //           scaleShowHorizontalLines: true,
-  //           //Boolean - Whether to show vertical lines (except Y axis)
-  //           scaleShowVerticalLines  : true,
-  //           //Boolean - If there is a stroke on each bar
-  //           barShowStroke           : true,
-  //           //Number - Pixel width of the bar stroke
-  //           barStrokeWidth          : 2,
-  //           //Number - Spacing between each of the X value sets
-  //           barValueSpacing         : 5,
-  //           //Number - Spacing between data sets within X values
-  //           barDatasetSpacing       : 1,
-  //           //Boolean - whether to make the chart responsive
-  //           responsive              : true,
-  //           maintainAspectRatio     : true
-  //         }
-
-  //         barChartOptions.datasetFill = false
-  //         barChart.Bar(barChartData, barChartOptions)
-  //       },
-  //       error: function(data) {
-  //         console.log(data);
-  //       }
-  //     });
-  //   }
-  // }
 
 // for password
   var varStatus = 0;
@@ -2675,6 +2496,7 @@
         dataType: "JSON",
         data : {
           yearFilter : value
+          , branchId : $('#selectBranch').val()
         },
         success: function(data) {
           var bracket = [];
@@ -2745,6 +2567,7 @@
         dataType: "JSON",
         data : {
           yearFilter : value
+          , branchId : $('#selectBranch').val()
         },
         success: function(data) {
           var bracket = [];
@@ -2834,6 +2657,7 @@
         dataType: "JSON",
         data : {
           yearFilter : value
+          , branchId : $('#selectBranch').val()
         },
         success: function(data) {
           var bracket = [];
@@ -2936,6 +2760,7 @@
         dataType: "JSON",
         data : {
           yearFilter : value
+          , branchId : $('#selectBranch').val()
         },
         success: function(data) {
           var bracket = [];
@@ -3006,6 +2831,7 @@
         dataType: "JSON",
         data : {
           yearFilter : value
+          , branchId : $('#selectBranch').val()
         },
         success: function(data) {
           var bracket = [];
@@ -3108,6 +2934,7 @@
         dataType: "JSON",
         data : {
           yearFilter : value
+          , branchId : $('#selectBranch').val()
         },
         success: function(data) {
           var bracket = [];
@@ -3431,6 +3258,7 @@
         dataType: "JSON",
         data : {
           yearFilter : $('#selectIncomeYear').val()
+          , branchId : $('#selectBranch').val()
         },
         success: function(data) {
           var bracket = [];
@@ -3501,6 +3329,7 @@
         dataType: "JSON",
         data : {
           yearFilter : $('#selectIncomeYear').val()
+          , branchId : $('#selectBranch').val()
         },
         success: function(data) {
           var bracket = [];
@@ -3651,6 +3480,7 @@
       dataType: "JSON",
       data : {
         yearFilter : value
+          , branchId : $('#selectBranch').val()
       },
       success: function(data) {
         var bracket = [];
@@ -3734,6 +3564,7 @@
       dataType: "JSON",
       data : {
         yearFilter : value
+          , branchId : $('#selectBranch').val()
       },
       success: function(data) {
         var bracket = [];

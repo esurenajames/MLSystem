@@ -11,7 +11,7 @@
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
 
-  <?php if(in_array('22', $subModule) && $detail['BranchId'] == $this->session->userdata('BranchId')) { ?>
+  <?php if(in_array('22', $subModule)) { ?>
 
       <section class="content-header">
         <h1>

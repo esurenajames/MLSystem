@@ -314,6 +314,69 @@
         </div>
       </div>
 
+      <div class="modal fade" id="modalFilter">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">Filter</h4>
+            </div>
+              <form role="form" id="upload_form3" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                  <div class="row">
+                    <div class="col-md-12">
+                      <label>Branch</label>
+                      <select class="select2 form-control" style="width: 100%" id="slctBranch">
+                        <option>All</option>
+                        <?php
+                          echo $Branch;
+                        ?>
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label>Status</label>
+                      <select class="select2 form-control" style="width: 100%" id="slctStatus">
+                        <?php
+                          echo $EmployeeStats;
+                        ?>
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label>Manager</label>
+                      <select class="select2 form-control" style="width: 100%" id="slctManager">
+                        <?php
+                          echo $EmployeeManager;
+                        ?>
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label>Date Hired From</label>
+                      <select class="select2 form-control" style="width: 100%" id="slctDateHiredFrom">
+                        <?php
+                          echo $EmployeeDateHired;
+                        ?>
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label>Date Hired To</label>
+                      <select class="select2 form-control" style="width: 100%" id="slctDateHiredTo">
+                        <?php
+                          echo $EmployeeDateHired;
+                        ?>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  <a onclick="filterPage()" class="btn btn-primary">Submit</a>
+                </div>
+              </form>
+          </div>
+        </div>
+      </div>
+
       <section class="content">
         <div class="box">
           <div class="box-header with-border">
@@ -321,7 +384,7 @@
           </div>
           <div class="box-body">
             <div class="pull-right">
-              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalNewRecord">Add Employee</button> <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalImport">Import Employee</button>
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalNewRecord">Add Employee</button> <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalImport">Import Employee</button> <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalFilter">Filter</button>
             </div>
             <br>
             <br>
@@ -373,6 +436,12 @@
 <script>
   var varStatus = 0;
   var varNewPassword = 0;
+
+  function filterPage(){
+    var url = '<?php echo base_url()."employee_controller/getAllList/"; ?>' + $('#slctBranch').val()+ '/'+ $('#slctStatus').val()+ '/'+ $('#slctManager').val()+ '/'+ $('#slctDateHiredFrom').val()+ '/'+ $('#slctDateHiredTo').val();
+    UserTable.ajax.url(url).load();
+    $('#modalFilter').modal('hide');
+  }
   
   function changeBranch(BranchId)
   {
@@ -386,6 +455,7 @@
       success: function(data)
       {
         $('#selectManager').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -403,6 +473,7 @@
       success: function(data)
       {
         $('#selectProvince').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -419,6 +490,7 @@
       success: function(data)
       {
         $('#selectCity').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -435,6 +507,7 @@
       success: function(data)
       {
         $('#selectBarangay').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -451,6 +524,7 @@
       success: function(data)
       {
         $('#selectProvince2').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -467,6 +541,7 @@
       success: function(data)
       {
         $('#selectCity2').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -483,6 +558,7 @@
       success: function(data)
       {
         $('#selectBarangay2').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -546,6 +622,7 @@
               buttonsStyling: false,
               confirmButtonClass: 'btn btn-primary'
             });
+            $('.loading').hide();
           },
           error: function (response) 
           {
@@ -766,6 +843,7 @@
       {
         $('#selectRegion').html(data);
         $('#selectRegion2').html(data);
+        $('.loading').hide();
       }
     })
 

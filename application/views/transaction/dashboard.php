@@ -41,6 +41,7 @@
                   <div class="form-group">
                     <label>Status</label>
                     <select class="form-control" id="loanStatus" required="">
+                      <option>All</option>
                       <?php 
                         echo $Status;
                       ?>
@@ -50,7 +51,8 @@
                 <div class="col-md-12">
                   <div class="form-group">
                     <label>Borrower Name</label>
-                    <select class="form-control" id="borrowerId" required="">
+                    <select class="form-control select2" style="width: 100%" id="borrowerId" required="">
+                      <option>All</option>
                       <?php 
                         echo $borrowerList;
                       ?>
@@ -60,9 +62,21 @@
                 <div class="col-md-12">
                   <div class="form-group">
                     <label>Loan Type</label>
-                    <select class="form-control" id="LoanId" required="">
+                    <select class="form-control select2" style="width: 100%" id="LoanId" required="">
+                      <option>All</option>
                       <?php 
                         echo $LoanType;
+                      ?>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label>Branch</label>
+                    <select class="form-control select2" style="width: 100%" id="BranchId" required="">
+                      <option>All</option>
+                      <?php 
+                        echo $Branch;
                       ?>
                     </select>
                   </div>
@@ -165,9 +179,10 @@
 <!-- <div class="loading" style="display: none">Loading&#8230;</div> -->
 <?php $this->load->view('includes/footer'); ?>
 <script type="text/javascript">
+  $('.select2').select2();
 
   function filterPage(){
-    var url = '<?php echo base_url()."datatables_controller/filterLoans/"; ?>' + $('#loanStatus').val() + '/' + $('#borrowerId').val() + '/' + $('#LoanId').val();
+    var url = '<?php echo base_url()."datatables_controller/filterLoans/"; ?>' + $('#loanStatus').val() + '/' + $('#borrowerId').val() + '/' + $('#LoanId').val() +  '/' + $('#BranchId').val();
     table.ajax.url(url).load();
     $('#modalFilter').modal('hide');
   }

@@ -1580,11 +1580,111 @@ class employee_controller extends CI_Controller {
           $table = 'R_Employee';
           $this->maintenance_model->updateFunction1($set, $condition, $table);
       }
+    // position
+      if($employeeDetail['PositionId'] != htmlentities($_POST['PositionId'], ENT_QUOTES))
+      {
+        $data1 = array(
+          'column'                      => 'Name'
+          , 'table'                     => 'r_position'
+          , 'query'                     => 'WHERE PositionId = '. htmlentities($employeeDetail['PositionId'], ENT_QUOTES)
+        );
+
+        $data2 = array(
+          'column'                      => 'Name'
+          , 'table'                     => 'r_position'
+          , 'query'                     => 'WHERE PositionId = '. htmlentities($_POST['PositionId'], ENT_QUOTES)
+        );
+        $oldDetail = $this->employee_model->getNameOfCategory($data1);
+        $newDetail = $this->employee_model->getNameOfCategory($data2);
+        // admin audits finalss
+          $auditLogsManager = 'Updated position from '.$oldDetail['Name'].' to '.htmlentities($newDetail['Name'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
+          $auditAffectedEmployee = 'Updated position from '.$oldDetail['Name'].' to '.htmlentities($newDetail['Name'], ENT_QUOTES);
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber['EmployeeNumber']);
+
+        // update detail
+          $set = array( 
+            'PositionId' => htmlentities($_POST['PositionId'], ENT_QUOTES)
+          );
+
+          $condition = array( 
+            'EmployeeId' => $this->uri->segment(4)
+          );
+          $table = 'R_Employee';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+    // branch
+      if($employeeDetail['BranchId'] != htmlentities($_POST['BranchId'], ENT_QUOTES))
+      {
+        $data1 = array(
+          'column'                      => 'Name'
+          , 'table'                     => 'r_branches'
+          , 'query'                     => 'WHERE BranchId = '. htmlentities($employeeDetail['BranchId'], ENT_QUOTES)
+        );
+
+        $data2 = array(
+          'column'                      => 'Name'
+          , 'table'                     => 'r_branches'
+          , 'query'                     => 'WHERE BranchId = '. htmlentities($_POST['BranchId'], ENT_QUOTES)
+        );
+        $oldDetail = $this->employee_model->getNameOfCategory($data1);
+        $newDetail = $this->employee_model->getNameOfCategory($data2);
+        // admin audits finalss
+          $auditLogsManager = 'Updated branch from '.$oldDetail['Name'].' to '.htmlentities($newDetail['Name'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
+          $auditAffectedEmployee = 'Updated branch from '.$oldDetail['Name'].' to '.htmlentities($newDetail['Name'], ENT_QUOTES);
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber['EmployeeNumber']);
+
+        // update detail
+          $set = array( 
+            'BranchId' => htmlentities($_POST['BranchId'], ENT_QUOTES)
+          );
+
+          $condition = array( 
+            'EmployeeNumber' => $EmployeeNumber['EmployeeNumber']
+          );
+          $table = 'branch_has_employee';
+          $this->maintenance_model->updateFunction1($set, $condition, $table);
+      }
+    // employee type
+      if(htmlentities($_POST['EmployeeType'], ENT_QUOTES) == 'Employee')
+      {
+        if(htmlentities($_POST['ManagerId'], ENT_QUOTES) != $employeeDetail['ManagerBranchId'])
+        {
+            $oldDetail = $this->employee_model->getManagerDetails(htmlentities($employeeDetail['ManagerBranchId'], ENT_QUOTES));
+            $newDetail = $this->employee_model->getManagerDetails(htmlentities($_POST['ManagerId'], ENT_QUOTES));
+          // admin audits finalss
+            $auditLogsManager = 'Updated manager assigned from '.$oldDetail['ManagerName'].' to '.htmlentities($newDetail['ManagerName'], ENT_QUOTES).' of employee #'. $EmployeeNumber['EmployeeNumber'];
+            $auditAffectedEmployee = 'Updated manager assigned from '.$oldDetail['ManagerName'].' to '.htmlentities($newDetail['ManagerName'], ENT_QUOTES);
+            $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber['EmployeeNumber']);
+          // set manager of employee
+            $setMan = array( 
+              'ManagerId' => htmlentities($_POST['ManagerId'], ENT_QUOTES)
+            );
+            $conditionMan = array( 
+              'EmployeeNumber' => $EmployeeNumber['EmployeeNumber']
+            );
+            $tableMan = 'R_Employee';
+            $this->maintenance_model->updateFunction1($setMan, $conditionMan, $tableMan);
+            $setMan2 = array( 
+              'ManagerBranchId' => htmlentities($_POST['ManagerId'], ENT_QUOTES)
+            );
+            $conditionMan2 = array( 
+              'EmployeeNumber' => $EmployeeNumber['EmployeeNumber']
+            );
+            $tableMan2 = 'Branch_has_Employee';
+            $this->maintenance_model->updateFunction1($setMan2, $conditionMan2, $tableMan2);
+        }
+      }
+
   }
 
   function getAllList()
   {
-    $result = $this->employee_model->getAllList();
+    $Branch = $this->uri->segment(3);
+    $Status = $this->uri->segment(4);
+    $Manager = $this->uri->segment(5);
+    $DateHiredFrom = $this->uri->segment(6);
+    $DateHiredTo = $this->uri->segment(7);
+    $result = $this->employee_model->getAllList($Branch, $Status, $Manager, $DateHiredFrom, $DateHiredTo);
     foreach($result as $key=>$row)
     {
       $result[$key]['CreatedBy'] = $this->maintenance_model->getUserCreated($row['CreatedBy']);
@@ -1633,12 +1733,14 @@ class employee_controller extends CI_Controller {
 
   function AuditFunction($auditLogsManager, $auditAffectedEmployee, $ManagerId, $AffectedEmployee)
   {
+    $AssignedBranchId = $this->session->userdata('BranchId');
     $CreatedBy = $this->session->userdata('EmployeeNumber');
     $DateNow = date("Y-m-d H:i:s");
     // manager and main logs 
       $insertMainLog = array(
         'Description'       => $auditLogsManager
         , 'CreatedBy'       => $CreatedBy
+        , 'BranchId'        => $AssignedBranchId
       );
       $auditTable1 = 'R_Logs';
       $this->maintenance_model->insertFunction($insertMainLog, $auditTable1);
@@ -1646,6 +1748,7 @@ class employee_controller extends CI_Controller {
         'Description'         => $auditLogsManager
         , 'ManagerBranchId'   => $ManagerId
         , 'CreatedBy'         => $CreatedBy
+        , 'BranchId'          => $AssignedBranchId
       );
       $auditTable3 = 'manager_has_notifications';
       $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable3);
@@ -1654,6 +1757,7 @@ class employee_controller extends CI_Controller {
         'Description'       => $auditLogsManager
         , 'EmployeeNumber'  => $CreatedBy
         , 'CreatedBy'       => $CreatedBy
+        , 'BranchId'        => $AssignedBranchId
       );
       $auditTable2 = 'employee_has_notifications';
       $this->maintenance_model->insertFunction($insertEmpLog, $auditTable2);
@@ -1662,6 +1766,7 @@ class employee_controller extends CI_Controller {
         'Description'       => $auditAffectedEmployee
         , 'EmployeeNumber'  => $AffectedEmployee
         , 'CreatedBy'       => $CreatedBy
+        , 'BranchId'        => $AssignedBranchId
       );
       $auditTable2 = 'employee_has_notifications';
       $this->maintenance_model->insertFunction($insertEmpLog, $auditTable2);
@@ -1674,6 +1779,7 @@ class employee_controller extends CI_Controller {
     $insertMainLog = array(
       'Description'       => $auditLogsManager
       , 'CreatedBy'       => $CreatedBy
+      , 'BranchId'        => $AssignedBranchId
     );
     $auditTable1 = 'R_Logs';
     $this->maintenance_model->insertFunction($insertMainLog, $auditTable1);
@@ -1681,6 +1787,7 @@ class employee_controller extends CI_Controller {
       'Description'         => $auditLogsManager
       , 'ManagerBranchId'   => $ManagerId
       , 'CreatedBy'         => $CreatedBy
+      , 'BranchId'          => $AssignedBranchId
     );
     $auditTable3 = 'manager_has_notifications';
     $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable3);
@@ -1688,6 +1795,7 @@ class employee_controller extends CI_Controller {
       'Description'       => $auditAffectedEmployee
       , 'EmployeeNumber'  => $AffectedEmployeeNumber
       , 'CreatedBy'       => $CreatedBy
+      , 'BranchId'        => $AssignedBranchId
     );
     $auditTable2 = 'employee_has_notifications';
     $this->maintenance_model->insertFunction($insertEmpLog, $auditTable2);
@@ -1698,6 +1806,7 @@ class employee_controller extends CI_Controller {
         'Description'       => $auditLoanDets
         , ''.$independentColumn.''   => $ApplicationId
         , 'CreatedBy'       => $CreatedBy
+        , 'BranchId'        => $AssignedBranchId
       );
       $auditLoanApplicationTable = $independentTable;
       $this->maintenance_model->insertFunction($insertApplicationLog, $auditLoanApplicationTable);

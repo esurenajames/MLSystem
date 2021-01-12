@@ -233,13 +233,20 @@ class employee_model extends CI_Model
                                                 , DATE_FORMAT(EMP.DateHired, '%Y-%b-%d') as RawDH
                                                 , B.Name
                                                 , B.Code
-                                                , B.Description as BranchDesc
+                                                , B.Name as BranchDesc
                                                 , MNG.FirstName as MngFirstName
                                                 , acronym(MNG.MiddleName) as MngMiddleInitial
                                                 , MNG.LastName as MngLastName
                                                 , MNG.EmployeeNumber as MngEmployeeNumber
                                                 , BM.ManagerBranchId
                                                 , PP.FileName
+                                                , BE.BranchId
+                                                , (SELECT DISTINCT COUNT(*) FROM branch_has_manager WHERE EmployeeNumber = EMP.EmployeeNumber AND StatusId = 1) as EmployeeType
+                                                , CASE
+                                                    WHEN (SELECT DISTINCT COUNT(*) FROM branch_has_manager WHERE EmployeeNumber = EMP.EmployeeNumber AND StatusId = 1) > 0
+                                                    THEN 'Manager'
+                                                    ELSE 'Employee'
+                                                  END as EmployeeTypeDesc
                                                 FROM r_Employee EMP
                                                   INNER JOIN R_Salutation S
                                                     ON S.SalutationId = EMP.Salutation
@@ -265,6 +272,19 @@ class employee_model extends CI_Model
                                                     ON PP.EmployeeNumber = EMP.EmployeeNumber
                                                     AND PP.StatusId = 1
                                                     WHERE EMP.EmployeeId = $Id
+
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getManagerDetails($Id)
+    {
+      $query_string = $this->db->query("SELECT DISTINCT CONCAT(EMP.LastName, ', ', EMP.FirstName) as ManagerName
+                                                FROM branch_has_manager BM
+                                                  INNER JOIN r_employee EMP
+                                                      ON EMP.EmployeeNumber = BM.EmployeeNumber
+                                                        WHERE BM.ManagerBranchId = $Id
 
       ");
       $data = $query_string->row_array();
@@ -432,11 +452,49 @@ class employee_model extends CI_Model
       return $data;
     }
 
-    function getAllList()
+    function getAllList($Branch, $Status, $Manager, $DateHiredFrom, $DateHiredTo)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
       $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-      $Roles = $this->maintenance_model->getLoggedInRoles(); // to check if may access syang maview
+
+      $search = '';
+      // branch
+        if($Branch == 'All')
+        {
+          $search .= '';
+        }
+        else if($Branch != '')
+        {
+          $search .= ' AND BE.BranchId = '. $Branch;
+        }
+        else
+        {
+          $search .= ' AND BE.BranchId = '. $AssignedBranchId;
+        }
+      // status
+        if($Status == 'All')
+        {
+          $search .= '';
+        }
+        else if($Status != '')
+        {
+          $search .= ' AND EMP.StatusId = '. $Status;
+        }
+      // manager
+        if($Manager == 'All')
+        {
+          $search .= '';
+        }
+        else if($Manager != '')
+        {
+          $search .= ' AND EMP.ManagerId = '. $Manager;
+        }
+      // date hired
+        if($DateHiredFrom != '' && $DateHiredTo != '')
+        {
+          $search .= " AND DATE_FORMAT(EMP.DateHired, '%Y-%b-%d') BETWEEN '" .$DateHiredFrom . "' AND '" . $DateHiredTo . "'"  ;
+        }
+
       $query_string = $this->db->query("SELECT DISTINCT EMP.EmployeeId
                                                 , EMP.EmployeeNumber
                                                 , S.name as Salutation
@@ -473,8 +531,8 @@ class employee_model extends CI_Model
                                                   INNER JOIN Employee_has_status SS
                                                     ON SS.EmployeeStatusId = EMP.StatusId
                                                     WHERE EMP.EmployeeNumber != '000000'
-                                                    AND BE.BranchId = $AssignedBranchId
                                                     AND EMP.EmployeeNumber != '$EmployeeNumber'
+                                                    ".$search."
                                                     ORDER BY EMP.LastName ASC
       ");
       $data = $query_string->result_array();
@@ -1142,12 +1200,14 @@ class employee_model extends CI_Model
 
     function AuditFunction($auditLogsManager, $auditAffectedEmployee, $ManagerId, $AffectedEmployee)
     {
+      $AssignedBranchId = $this->session->userdata('BranchId');
       $CreatedBy = $this->session->userdata('EmployeeNumber');
       $DateNow = date("Y-m-d H:i:s");
       // manager and main logs 
         $insertMainLog = array(
           'Description'       => $auditLogsManager
           , 'CreatedBy'       => $CreatedBy
+          , 'BranchId'        => $AssignedBranchId
         );
         $auditTable1 = 'R_Logs';
         $this->maintenance_model->insertFunction($insertMainLog, $auditTable1);
@@ -1155,6 +1215,7 @@ class employee_model extends CI_Model
           'Description'         => $auditLogsManager
           , 'ManagerBranchId'   => $ManagerId
           , 'CreatedBy'         => $CreatedBy
+          , 'BranchId'          => $AssignedBranchId
         );
         $auditTable3 = 'manager_has_notifications';
         $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable3);
@@ -1163,6 +1224,7 @@ class employee_model extends CI_Model
           'Description'       => $auditLogsManager
           , 'EmployeeNumber'  => $CreatedBy
           , 'CreatedBy'       => $CreatedBy
+          , 'BranchId'        => $AssignedBranchId
         );
         $auditTable2 = 'employee_has_notifications';
         $this->maintenance_model->insertFunction($insertEmpLog, $auditTable2);
@@ -1171,6 +1233,7 @@ class employee_model extends CI_Model
           'Description'       => $auditAffectedEmployee
           , 'EmployeeNumber'  => $AffectedEmployee
           , 'CreatedBy'       => $CreatedBy
+          , 'BranchId'        => $AssignedBranchId
         );
         $auditTable2 = 'employee_has_notifications';
         $this->maintenance_model->insertFunction($insertEmpLog, $auditTable2);

@@ -23,6 +23,16 @@
               <div class="row">
                 <div class="col-md-12">
                   <div class="form-group">
+                    <label>Branch</label>
+                      <select class="form-control select2" name="BranchId" style="width: 100%;">
+                        <?php
+                          echo $Branch;
+                        ?>
+                      </select>
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-group">
                     <label>Report Name</label>
                     <input type="text" class="form-control" value="Income Statement Report" name="reportName">
                   </div>

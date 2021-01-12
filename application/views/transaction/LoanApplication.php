@@ -282,7 +282,7 @@
                         <table class="table table-bordereds">
                           <tbody>
                             <tr>
-                              <td colspan="4">PERSONAL INFORMATION</td>
+                              <td colspan="4">PERSONAL INFORMATION | <span class="lblBorrowerBranch"></span></td>
                             </tr>
                             <tr>
                               <td><label> Borrower Number</label></td>
@@ -512,7 +512,7 @@
                   <table class="table table-bordereds">
                     <tbody>
                       <tr>
-                        <td colspan="4">PERSONAL INFORMATION</td>
+                        <td colspan="4">PERSONAL INFORMATION | <span class="lblBorrowerBranch"></span></td>
                       </tr>
                       <tr>
                         <td><label> Borrower Number</label></td>
@@ -868,6 +868,7 @@
         success: function(data)
         {
           varBorrowerAge = data['Age'];
+          $('.lblBorrowerBranch').html(data['BranchAssigned'] + ' Branch');
           $('.lblBorrowerNumber').html(data['BorrowerNumber']);
           $('.lblDateAdded').html(data['DateAdded']);
           $('.lblAddedBy').html(data['AddedBy']);

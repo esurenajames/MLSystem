@@ -135,7 +135,7 @@
             refreshPage();
             swal({
               title: 'Success!',
-              text: 'User role successfully updated!',
+              text: 'Resetting of password successful!',
               type: 'success',
               buttonsStyling: false,
               confirmButtonClass: 'btn btn-primary'

@@ -37,6 +37,7 @@
           $('#lblSpouseTelephone').html(data['TelephoneNo']);
           $('#lblSpouseMobile').html(data['MobileNo']);
           $('#lblSpouseBusinessAddress').html(data['DateOfBirth']);
+          $('.loading').hide();
         },
         error: function()
         {
@@ -95,6 +96,7 @@
           {
             $('#lblSpouseHomeTelNo').html('N/A');
           }
+          $('.loading').hide();
 
         },
         error: function()
@@ -126,6 +128,7 @@
         success: function(data)
         {
           $('#lblSpouseProvAddress').html(data['HouseNo'] + ', ' + data['brgyDesc'] + ', ' + data['cityMunDesc'] + ', ' + data['provDesc'] + ', ' + data['regDesc']);
+          $('.loading').hide();
         },
         error: function()
         {
@@ -169,6 +172,7 @@
           $('#lblSpouseTelNo').html(data['TelephoneNumber']);
           $('#lblSpouseCelNo').html(data['ContactNumber']);
           $('#lblBusinessAddress').html(data['BusinessAddress']);
+          $('.loading').hide();
         },
         error: function()
         {
@@ -231,6 +235,7 @@
         $('#lblComakerMobile').html(data['MobileNo']);
         $('#lblComakerMonthly').html(parseInt(Math.ceil(data['MonthlyIncome'])).toLocaleString('en-US', {minimumFractionDigits: 2}));
         $('#btnSubmitCoMaker').hide();
+          $('.loading').hide();
       },
 
       error: function()
@@ -306,6 +311,7 @@
               },
           }, function(start, end, label){
           });
+          $('.loading').hide();
         },
         error: function()
         {
@@ -356,6 +362,7 @@
           {
             $('#lblEmploymentTenure').html(data['TenureMonth'] + ' months');
           }
+          $('.loading').hide();
         },
         error: function()
         {
@@ -463,6 +470,7 @@
             {
               $('#lblAddressTelNo').html('N/A');
             }
+            $('.loading').hide();
 
           },
           error: function()
@@ -569,6 +577,7 @@
                 confirmButtonClass: 'btn btn-primary'
               });
             }
+            $('.loading').hide();
           },
           error: function (response) 
           {
@@ -596,6 +605,7 @@
       success: function(data)
       {
         $('#selectProvince').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -612,6 +622,7 @@
       success: function(data)
       {
         $('#selectCity').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -628,6 +639,7 @@
       success: function(data)
       {
         $('#selectBarangay').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -644,6 +656,7 @@
       success: function(data)
       {
         $('#selectProvince2').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -660,6 +673,7 @@
       success: function(data)
       {
         $('#selectCity2').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -676,6 +690,7 @@
       success: function(data)
       {
         $('#selectBarangay2').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -692,6 +707,7 @@
       success: function(data)
       {
         $('#selectProvince3').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -708,6 +724,7 @@
       success: function(data)
       {
         $('#selectCity3').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -724,6 +741,7 @@
       success: function(data)
       {
         $('#selectBarangay3').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -740,6 +758,7 @@
       success: function(data)
       {
         $('#selectReqTypeId').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -933,6 +952,7 @@
         $('#selectRegion').html(data);
         $('#selectRegion2').html(data);
         $('#selectRegion3').html(data);
+        $('.loading').hide();
       }
     })
 

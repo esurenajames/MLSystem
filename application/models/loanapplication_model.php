@@ -675,7 +675,6 @@ class loanapplication_model extends CI_Model
                                           INNER JOIN T_Application A
                                             ON A.BorrowerId = B.BorrowerId
                                           WHERE B.StatusId = 1
-                                          AND B.BranchId = $AssignedBranchId
     ");
 
     $output = '';
@@ -1081,23 +1080,47 @@ class loanapplication_model extends CI_Model
     return $data;
   }
 
-  function filterLoans($loanStatus, $borrowerId, $LoanId)
+  function filterLoans($loanStatus, $borrowerId, $LoanId, $BranchId)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $AssignedBranchId = $this->session->userdata('BranchId');
 
     $search = '';
-    if($loanStatus != null || $loanStatus != '')
+    if($loanStatus == 'All')
+    {      
+      $search .= '';
+    }
+    else if($loanStatus != null || $loanStatus != '')
     {
       $search .= ' AND A.StatusId = ' . $loanStatus;
     }
-    if($borrowerId != null || $borrowerId != '')
+
+    if($borrowerId == 'All')
+    {      
+      $search .= '';
+    }
+    else if($borrowerId != null || $borrowerId != '')
     {
       $search .= ' AND A.BorrowerId = ' . $borrowerId;
     }
-    if($LoanId != null || $LoanId != '')
+
+    if($LoanId == 'All')
+    {      
+      $search .= '';
+    }
+    else if($LoanId != null || $LoanId != '')
     {
       $search .= ' AND A.LoanId = ' . $LoanId;
+    }
+
+
+    if($BranchId == 'All')
+    {      
+      $search .= '';
+    }
+    else if($BranchId != null || $BranchId != '')
+    {
+      $search .= ' AND BE.BranchId = ' . $BranchId;
     }
 
     $query_string = $this->db->query("SELECT  A.TransactionNumber
@@ -1164,8 +1187,8 @@ class loanapplication_model extends CI_Model
                                                   ON EMP.EmployeeNumber = A.CreatedBy
                                                 LEFT JOIN Branch_has_Employee BE
                                                   ON BE.EmployeeNumber = EMP.EmployeeNumber
-                                                    WHERE BE.BranchId = $AssignedBranchId
-                                                    ".$search."
+                                                  WHERE B.StatusId = 1 
+                                                  ".$search."
     ");
     $data = $query_string->result_array();
     return $data;
@@ -1299,7 +1322,7 @@ class loanapplication_model extends CI_Model
     return $data;
   }
 
-  function getCollections($dateFrom, $dateTo, $columns, $query)
+  function getCollections($dateFrom, $dateTo, $columns, $query, $branchId)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $query_string = $this->db->query("SELECT  $columns
@@ -1317,6 +1340,9 @@ class loanapplication_model extends CI_Model
                                               , PM.AmountPaid as rawAmountPaid
                                               , PM.InterestAmount as rawInterestCollection
                                               , PM.PrincipalAmount as rawPrincipalCollection
+                                              , PM.IsInterest
+                                              , PM.IsPrincipalCollection
+                                              , PM.IsOthers
 
                                               FROM t_paymentsmade PM
                                                 INNER JOIN t_application A
@@ -1330,6 +1356,7 @@ class loanapplication_model extends CI_Model
                                                     WHERE A.StatusId = 1
                                                     AND PM.StatusId = 1
                                                     AND DATE_FORMAT(PM.DateCollected, '%Y-%m-%d') BETWEEN  DATE_FORMAT('$dateFrom', '%Y-%m-%d') AND DATE_FORMAT('$dateTo', '%Y-%m-%d')
+                                                    AND B.BranchId = $branchId
                                                     $query
                                                     ORDER BY PM.DateCollected DESC
     ");
@@ -1337,7 +1364,43 @@ class loanapplication_model extends CI_Model
     return $data;
   }
 
-  function getCollectionsManagement($ApplicationId, $LoanId, $CollectedBy, $dateFrom, $dateTo)
+  function getCollections2($dateFrom, $dateTo, $branchId)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $d1 = new DateTime($dateFrom);
+    $d2 = new DateTime($dateTo);
+    // $timestamp = $d->getTimestamp(); // Unix timestamp
+    $formatted_date1 = $d1->format('Y-m-d'); // 2003-10-16
+    $formatted_date2 = $d2->format('Y-m-d'); // 2003-10-16
+
+    $query_string = $this->db->query("SELECT  PM.ChangeAmount as rawChangeAmount
+                                              , PM.AmountPaid as rawAmountPaid
+                                              , PM.InterestAmount as rawInterestCollection
+                                              , PM.PrincipalAmount as rawPrincipalCollection
+                                              , PM.IsInterest
+                                              , PM.IsPrincipalCollection
+                                              , PM.IsOthers
+                                              , PM.AmountPaid as AmountPaid
+                                              FROM t_paymentsmade PM
+                                                INNER JOIN t_application A
+                                                    ON A.ApplicationId = PM.ApplicationId
+                                                  INNER JOIN R_Borrowers B
+                                                    ON B.BorrowerId = A.BorrowerId
+                                                  INNER JOIN r_employee EMP
+                                                    ON EMP.EmployeeNumber = PM.CreatedBy
+                                                  INNER JOIN R_Bank BNK
+                                                    ON BNK.BankId = PM.ChangeId
+                                                    WHERE A.StatusId = 1
+                                                    AND PM.StatusId = 1
+                                                    AND DATE_FORMAT(PM.DateCollected, '%Y-%m-%d') BETWEEN '$formatted_date1' AND '$formatted_date2'
+                                                    AND B.BranchId = $branchId
+                                                    ORDER BY PM.DateCollected DESC
+    ");
+    $data = $query_string->result_array();
+    return $data;
+  }
+
+  function getCollectionsManagement($ApplicationId, $LoanId, $CollectedBy, $dateFrom, $dateTo, $BranchId)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $search = '';
@@ -1345,17 +1408,43 @@ class loanapplication_model extends CI_Model
     {
       $search .= " AND DATE_FORMAT(PM.DateCollected, '%b-%d-%Y') BETWEEN '".$dateFrom."' AND '".$dateTo."'";
     }
-    if($ApplicationId != '')
+    
+    if($ApplicationId == 'All')
+    {
+      $search .= " ";
+    }
+    else if($ApplicationId != '')
     {
       $search .= " AND A.ApplicationId = " . $ApplicationId;
     }
-    if($LoanId != '')
+    
+    
+    if($LoanId == 'All')
+    {
+      $search .= " ";
+    }
+    else if($LoanId != '')
     {
       $search .= " AND A.LoanId = " . $LoanId;
     }
-    if($CollectedBy != '')
+    
+    
+    if($CollectedBy == 'All')
+    {
+      $search .= " ";
+    }
+    else if($CollectedBy != '')
     {
       $search .= " AND PM.CreatedBy = '" . $CollectedBy."'";
+    }
+    
+    if($BranchId == 'All')
+    {
+      $search .= " ";
+    }
+    else if($BranchId != '')
+    {
+      $search .= " AND B.BranchId =  '" . $BranchId."'";
     }
     $query_string = $this->db->query("SELECT  CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName) as CollectedBy
                                               , TransactionNumber
@@ -1367,6 +1456,7 @@ class loanapplication_model extends CI_Model
                                               , A.ApplicationId
                                               , PM.Description
                                               , BNK.BankName
+                                              , PM.Description as Remarks
                                               , DATE_FORMAT(PM.DateCollected, '%b %d, %Y') as dateCollected
                                               , DATE_FORMAT(PM.dateCreated, '%b %d, %Y %h:%i %p') as DateCreated
 
@@ -1374,6 +1464,7 @@ class loanapplication_model extends CI_Model
                                               , PM.AmountPaid as rawAmountPaid
                                               , PM.InterestAmount as rawInterestCollection
                                               , PM.PrincipalAmount as rawPrincipalCollection
+                                              , BRNCH.Name as Branch
 
                                               FROM t_paymentsmade PM
                                                 INNER JOIN t_application A
@@ -1384,6 +1475,8 @@ class loanapplication_model extends CI_Model
                                                     ON EMP.EmployeeNumber = PM.CreatedBy
                                                   INNER JOIN R_Bank BNK
                                                     ON BNK.BankId = PM.ChangeId
+                                                  INNER JOIN R_Branches BRNCH
+                                                    ON BRNCH.BranchId = B.BranchId
                                                     WHERE PM.StatusId = 1
                                                     ".$search."
                                                     GROUP BY A.ApplicationId, PM.DateCollected, PM.PaymentMadeId
@@ -1393,7 +1486,7 @@ class loanapplication_model extends CI_Model
     return $data;
   }
 
-  function getExpensesReport($dateFrom, $dateTo, $query)
+  function getExpensesReport($dateFrom, $dateTo, $query, $branchId)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $query_string = $this->db->query("SELECT  CONCAT('EX-', LPAD(EX.ExpenseId, 6, 0)) as ReferenceNo
@@ -1402,12 +1495,14 @@ class loanapplication_model extends CI_Model
                                               , DATE_FORMAT(EX.DateExpense, '%b %d, %Y') as DateExpense
                                               , DATE_FORMAT(EX.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                               , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName) as CreatedBy
+                                              , EX.Description
                                               FROM R_Expense EX
                                                     INNER JOIN r_expensetype EXT
                                                         ON EXT.ExpenseTypeId = EX.ExpenseTypeId
                                                       INNER JOIN r_employee EMP
                                                         ON EMP.EmployeeNumber = EX.CreatedBy
                                                           WHERE EX.StatusId = 1
+                                                          AND EX.BranchId = $branchId
                                                           AND DATE_FORMAT(EX.DateExpense, '%Y-%m-%d') BETWEEN  DATE_FORMAT('$dateFrom', '%Y-%m-%d') AND DATE_FORMAT('$dateTo', '%Y-%m-%d')
                                                           $query
     ");
@@ -3253,12 +3348,12 @@ class loanapplication_model extends CI_Model
       return $data;
     }
 
-    function getYearFilter2($table, $YearFrom, $YearTo)
+    function getYearFilter2($table, $YearFrom, $YearTo, $BranchId)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT  DISTINCT DATE_FORMAT(DateCreated, '%Y') as Year
                                                 FROM R_Borrowers
-                                                  WHERE BranchId = $AssignedBranchId
+                                                  WHERE BranchId = $BranchId
                                                   AND DATE_FORMAT(DateCreated, '%Y') BETWEEN  '$YearFrom' AND '$YearTo'
                                                   GROUP BY DATE_FORMAT(DateCreated, '%Y')
       ");
@@ -3282,7 +3377,7 @@ class loanapplication_model extends CI_Model
       return $data;
     }
 
-    function getLoansYear2($YearFrom, $YearTo)
+    function getLoansYear2($YearFrom, $YearTo, $branchId)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT  DISTINCT DATE_FORMAT(A.DateCreated, '%Y') as Year
@@ -3291,7 +3386,7 @@ class loanapplication_model extends CI_Model
                                                     ON EMP.EmployeeNumber = A.CreatedBy
                                                   INNER JOIN Branch_has_Employee BE
                                                     ON BE.EmployeeNumber = EMP.EmployeeNumber
-                                                  WHERE BE.BranchId = $AssignedBranchId
+                                                  WHERE BE.BranchId = $branchId
                                                   AND DATE_FORMAT(A.DateCreated, '%Y') BETWEEN  '$YearFrom' AND '$YearTo'
                                                   GROUP BY DATE_FORMAT(A.DateCreated, '%Y')
       ");
@@ -3299,14 +3394,14 @@ class loanapplication_model extends CI_Model
       return $data;
     }
 
-    function getAge($Year, $query)
+    function getAge($Year, $query, $branchId)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT  DISTINCT COUNT(BorrowerId) as TotalBorrowers
                                                     FROM r_borrowers
                                                       WHERE DATE_FORMAT(DateCreated, '%Y') = DATE_FORMAT(STR_TO_DATE('$Year','%Y'), '%Y')
                                                       AND $query
-                                                      AND BranchId = $AssignedBranchId
+                                                      AND BranchId = $branchId
       ");
       $data = $query_string->row_array();
       return $data;
@@ -3324,7 +3419,7 @@ class loanapplication_model extends CI_Model
       return $data;
     }
 
-    function getEducationYearly($Year, $ID)
+    function getEducationYearly($Year, $ID, $branchId)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT  DISTINCT COUNT(B.BorrowerId) as TotalBorrowers
@@ -3337,7 +3432,7 @@ class loanapplication_model extends CI_Model
                                                       AND BHE.StatusId = 1
                                                       AND DATE_FORMAT(B.DateCreated, '%Y') = '$Year'
                                                       AND ED.EducationId = $ID
-                                                      AND B.BranchId = $AssignedBranchId
+                                                      AND B.BranchId = $branchId
       ");
       $data = $query_string->row_array();
       return $data;
@@ -3354,7 +3449,7 @@ class loanapplication_model extends CI_Model
       return $data;
     }
 
-    function getSexYearly($Year, $ID)
+    function getSexYearly($Year, $ID, $branchId)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT  COUNT(BorrowerId) as TotalBorrowers
@@ -3362,7 +3457,7 @@ class loanapplication_model extends CI_Model
                                                   WHERE DATE_FORMAT(B.DateCreated, '%Y') = '$Year'
                                                   AND Sex = $ID
                                                   AND B.StatusId = 1
-                                                  AND B.BranchId = $AssignedBranchId
+                                                  AND B.BranchId = $branchId
       ");
       $data = $query_string->row_array();
       return $data;
@@ -3380,7 +3475,7 @@ class loanapplication_model extends CI_Model
       return $data;
     }
 
-    function getOccupationYearly($Year, $ID)
+    function getOccupationYearly($Year, $ID, $branchId)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT  COUNT(B.BorrowerId) as TotalBorrowers
@@ -3390,7 +3485,7 @@ class loanapplication_model extends CI_Model
                                                   WHERE DATE_FORMAT(B.DateCreated, '%Y') = '$Year'
                                                   AND BE.PositionId = $ID
                                                   AND B.StatusId = 1
-                                                  AND B.BranchId = $AssignedBranchId
+                                                  AND B.BranchId = $branchId
       ");
       $data = $query_string->row_array();
       return $data;
@@ -3426,7 +3521,7 @@ class loanapplication_model extends CI_Model
       return $data;
     }
 
-    function getIncomeReport($Year, $query)
+    function getIncomeReport($Year, $query, $branchId)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT  DISTINCT COUNT(B.BorrowerId) as TotalBorrowers
@@ -3434,7 +3529,7 @@ class loanapplication_model extends CI_Model
                                                   INNER JOIN R_Borrowers B
                                                     ON A.BorrowerId = B.BorrowerId
                                                   WHERE B.StatusId = 1
-                                                  AND B.BranchId = $AssignedBranchId
+                                                  AND B.BranchId = $branchId
                                                   GROUP BY B.BorrowerId
       ");
       $data = $query_string->row_array();
@@ -3453,7 +3548,7 @@ class loanapplication_model extends CI_Model
       return $data;
     }
 
-    function getMaitalStatusYearly($Year, $ID)
+    function getMaitalStatusYearly($Year, $ID, $branchId)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT  COUNT(BorrowerId) as TotalBorrowers
@@ -3461,13 +3556,13 @@ class loanapplication_model extends CI_Model
                                                   WHERE DATE_FORMAT(B.DateCreated, '%Y') = '$Year'
                                                   AND CivilStatus = $ID
                                                   AND B.StatusId = 1
-                                                  AND B.BranchId = $AssignedBranchId
+                                                  AND B.BranchId = $branchId
       ");
       $data = $query_string->row_array();
       return $data;
     }
 
-    function getRiskStatus($Year, $Type)
+    function getRiskStatus($Year, $Type, $branchId)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT  COUNT(B.BorrowerId) as TotalBorrowers
@@ -3477,13 +3572,13 @@ class loanapplication_model extends CI_Model
                                                   WHERE DATE_FORMAT(B.DateCreated, '%Y') = '$Year'
                                                   AND RiskLevel = '$Type'
                                                   AND B.StatusId = 1
-                                                  AND B.BranchId = $AssignedBranchId
+                                                  AND B.BranchId = $branchId
       ");
       $data = $query_string->row_array();
       return $data;
     }
 
-    function getTotalBorrowers($Year)
+    function getTotalBorrowers($Year, $branchId)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT  DISTINCT COUNT(DISTINCT B.BorrowerId) as TotalBorrowers
@@ -3491,7 +3586,7 @@ class loanapplication_model extends CI_Model
                                                   INNER JOIN T_Application A
                                                     ON A.BorrowerId = B.BorrowerId
                                                     WHERE DATE_FORMAT(A.DateCreated, '%Y') = '$Year'
-                                                    AND B.BranchId = $AssignedBranchId
+                                                    AND B.BranchId = $branchId
                                                     AND 
                                                     (
                                                       A.StatusId = 1
@@ -3503,7 +3598,7 @@ class loanapplication_model extends CI_Model
       return $data;
     }
 
-    function getTotalBorrowerGeo($Year, $Island)
+    function getTotalBorrowerGeo($Year, $Island, $branchId)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT  DISTINCT COUNT(DISTINCT B.BorrowerId) as TotalBorrowers
@@ -3520,7 +3615,7 @@ class loanapplication_model extends CI_Model
                                                     ON AR.RegCode = AB.RegCode
                                                     WHERE DATE_FORMAT(A.DateCreated, '%Y') = '$Year'
                                                     AND AR.Island = '$Island'
-                                                    AND B.BranchId = $AssignedBranchId
+                                                    AND B.BranchId = $branchId
                                                     AND 
                                                     (
                                                       A.StatusId = 1
@@ -3532,7 +3627,7 @@ class loanapplication_model extends CI_Model
       return $data;
     }
 
-    function getTotalLoans($Year)
+    function getTotalLoans($Year, $branchId)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT  DISTINCT COUNT(DISTINCT ApplicationId) as Total
@@ -3546,13 +3641,13 @@ class loanapplication_model extends CI_Model
                                                         OR 
                                                         A.StatusId = 4
                                                       )
-                                                      AND B.BranchId = $AssignedBranchId
+                                                      AND B.BranchId = $branchId
       ");
       $data = $query_string->row_array();
       return $data;
     }
 
-    function getTotalTypeofLoans($Year)
+    function getTotalTypeofLoans($Year, $branchId)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT  DISTINCT COUNT(DISTINCT L.LoanId) as Total
@@ -3562,7 +3657,7 @@ class loanapplication_model extends CI_Model
                                                   INNER JOIN R_Loans L
                                                     ON L.LoanId = A.LoanId
                                                     WHERE DATE_FORMAT(A.DateCreated, '%Y') = '$Year'
-                                                      AND B.BranchId = $AssignedBranchId
+                                                      AND B.BranchId = $branchId
                                                       AND 
                                                       (
                                                         A.StatusId = 1
@@ -3574,7 +3669,7 @@ class loanapplication_model extends CI_Model
       return $data;
     }
 
-    function getTotalLoanAmount($Year)
+    function getTotalLoanAmount($Year, $branchId)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT  DISTINCT SUM(DISTINCT PrincipalAmount) as Total
@@ -3588,13 +3683,13 @@ class loanapplication_model extends CI_Model
                                                         OR 
                                                         A.StatusId = 4
                                                       )
-                                                      AND B.BranchId = $AssignedBranchId
+                                                      AND B.BranchId = $branchId
       ");
       $data = $query_string->row_array();
       return $data;
     }
 
-    function getTotalInterest($Year)
+    function getTotalInterest($Year, $branchId)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT  DISTINCT DATE_FORMAT(PM.DateCreated, '%Y') as Year
@@ -3613,13 +3708,13 @@ class loanapplication_model extends CI_Model
                                                           OR 
                                                           A.StatusId = 4
                                                         )
-                                                        AND B.BranchId = $AssignedBranchId
+                                                        AND B.BranchId = $branchId
       ");
       $data = $query_string->row_array();
       return $data;
     }
 
-    function getTotalCharges($Year)
+    function getTotalCharges($Year, $branchId)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT SUM(Amount) as Total
@@ -3636,25 +3731,25 @@ class loanapplication_model extends CI_Model
                                                     OR 
                                                     A.StatusId = 4
                                                   ) 
-                                                  AND B.BranchId = $AssignedBranchId
+                                                  AND B.BranchId = $branchId
       ");
       $data = $query_string->row_array();
       return $data;
     }
 
-    function getCurrentFund($Year)
+    function getCurrentFund($Year, $branchId)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT  COALESCE(SUM(Amount), 0) as Total
                                                 FROM r_capital
-                                                  WHERE BranchId = $AssignedBranchId
+                                                  WHERE BranchId = $branchId
                                                   AND DATE_FORMAT(DateCreated, '%Y') = '$Year'
       ");
       $data = $query_string->row_array();
       return $data;
     }
 
-    function getTotalGross($Year)
+    function getTotalGross($Year, $branchId)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT  DISTINCT DATE_FORMAT(PM.DateCreated, '%Y') as Year
@@ -3672,26 +3767,26 @@ class loanapplication_model extends CI_Model
                                                           OR 
                                                           A.StatusId = 4
                                                         )
-                                                        AND B.BranchId = $AssignedBranchId
+                                                        AND B.BranchId = $branchId
       ");
       $data = $query_string->row_array();
       return $data;
     }
 
-    function getTotalExpenses($Year)
+    function getTotalExpenses($Year, $branchId)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT  COALESCE(SUM(Amount), 0) as Total
                                                 FROM r_expense
                                                     WHERE DATE_FORMAT(DateExpense, '%Y')  = '$Year'
                                                     AND StatusId = 1
-                                                    AND BranchId = $AssignedBranchId
+                                                    AND BranchId = $branchId
       ");
       $data = $query_string->row_array();
       return $data;
     }
 
-    function getTotalCollections($DateFrom, $DateTo)
+    function getTotalCollections($DateFrom, $DateTo, $BranchId)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
       $d1 = new DateTime($DateFrom);
@@ -3708,13 +3803,13 @@ class loanapplication_model extends CI_Model
                                                     ON B.BorrowerId = A.BorrowerId
                                                     WHERE DATE_FORMAT(PM.DateCollected, '%Y-%m-%d') BETWEEN '$formatted_date1' AND '$formatted_date2'
                                                     AND PM.StatusId = 1
-                                                    AND B.BranchId = $AssignedBranchId
+                                                    AND B.BranchId = $BranchId
       ");
       $data = $query_string->row_array();
       return $data;
     }
 
-    function getTotalChargesStatement($DateFrom, $DateTo)
+    function getTotalChargesStatement($DateFrom, $DateTo, $BranchId)
     {
       $d1 = new DateTime($DateFrom);
       $d2 = new DateTime($DateTo);
@@ -3736,13 +3831,13 @@ class loanapplication_model extends CI_Model
                                                     OR 
                                                     A.StatusId = 4
                                                   ) 
-                                                  AND B.BranchId = $AssignedBranchId
+                                                  AND B.BranchId = $BranchId
       ");
       $data = $query_string->row_array();
       return $data;
     }
 
-    function getExpensesStatement($dateFrom, $dateTo)
+    function getExpensesStatement($dateFrom, $dateTo, $BranchId)
     {
       $d1 = new DateTime($dateFrom);
       $d2 = new DateTime($dateTo);
@@ -3762,6 +3857,7 @@ class loanapplication_model extends CI_Model
                                                         INNER JOIN r_employee EMP
                                                           ON EMP.EmployeeNumber = EX.CreatedBy
                                                             WHERE EX.StatusId = 1
+                                                            AND EX.BranchId = $BranchId
                                                             AND DATE_FORMAT(EX.DateExpense, '%Y-%m-%d') BETWEEN '$formatted_date1' AND '$formatted_date2'
                                                             GROUP BY Name
       ");

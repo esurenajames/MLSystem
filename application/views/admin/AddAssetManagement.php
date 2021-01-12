@@ -189,7 +189,7 @@
                 <div class="col-md-12">
                   <div class="form-group">
                     <label>Asset Category</label>
-                    <select class="form-control select2" id="selectAssetCategory" required="">
+                    <select class="form-control select2" style="width: 100%" id="selectAssetCategory" required="">
                       <?php 
                         echo $Category;
                       ?>
@@ -206,6 +206,17 @@
                   <div class="form-group">
                     <label>Purchase Range To</label>
                     <input type="number" class="form-control" min="0" id="txtPurchaseRangeTo">
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label>Branch</label>
+                    <select class="form-control select2" style="width: 100%" id="BranchId" required="">
+                      <option selected="">All</option>
+                      <?php 
+                        echo $Branch;
+                      ?>
+                    </select>
                   </div>
                 </div>
               </div>
@@ -396,7 +407,7 @@
   }
 
   function filterPage(){
-    var url = '<?php echo base_url()."datatables_controller/Assets/"; ?>' + $('#selectStatus').val() + '/' + $('#selectAssetCategory').val() + '/' + $('#txtPurchaseRangeFrom').val() + '/' + $('#txtPurchaseRangeTo').val();
+    var url = '<?php echo base_url()."datatables_controller/Assets/"; ?>' + $('#selectStatus').val() + '/' + $('#selectAssetCategory').val() + '/' + $('#txtPurchaseRangeFrom').val() + '/' + $('#txtPurchaseRangeTo').val() + '/' + $('#BranchId').val();
     UserTable.ajax.url(url).load();
     $('#modalFilter').modal('hide');
   }

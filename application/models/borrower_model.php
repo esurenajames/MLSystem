@@ -195,6 +195,7 @@ class borrower_model extends CI_Model
                                                                 AND IsPrimary = 1
                                                                 LIMIT 1) as ContactNumber
                                                 , TIMESTAMPDIFF(YEAR, B.DateOfBirth, CURDATE()) as Age
+                                                , BRNCH.Name as BranchAssigned
                                                 FROM R_Borrowers B
                                                   INNER JOIN R_Salutation S
                                                     ON S.SalutationId = B.Salutation
@@ -211,6 +212,8 @@ class borrower_model extends CI_Model
                                                   LEFT JOIN borrower_has_picture BP
                                                     ON BP.BorrowerId = B.BorrowerId
                                                     AND BP.StatusId = 1
+                                                  LEFT JOIN R_Branches BRNCH
+                                                    ON BRNCH.BranchId = B.BranchId
                                                   WHERE B.BorrowerId = $Id
 
       ");
@@ -1549,7 +1552,6 @@ class borrower_model extends CI_Model
     function getAllList()
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
-      $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT DISTINCT B.FirstName
                                                 , acronym (B.MiddleName) as MI
                                                 , B.LastName
@@ -1563,6 +1565,7 @@ class borrower_model extends CI_Model
                                                 , DATE_FORMAT(B.DateUpdated, '%d %b %Y %h:%i %p') as DateUpdated
                                                 , B.BorrowerId
                                                 , CONCAT(B.LastName, ', ', B.FirstName) as Name 
+                                                , BRNCH.Name as Branch
                                                 FROM r_Borrowers B
                                                   INNER JOIN r_BorrowerStatus BS
                                                       ON BS.BorrowerStatusId = B.StatusId
@@ -1572,6 +1575,8 @@ class borrower_model extends CI_Model
                                                       ON R.EmployeeNumber = EMP.EmployeeNumber
                                                     LEFT JOIN Branch_Has_Employee BHE
                                                       ON BHE.EmployeeNumber = EMP.EmployeeNumber
+                                                    LEFT JOIN R_Branches BRNCH
+                                                      ON BRNCH.BranchId = BHE.BranchId
                                                       WHERE EMP.StatusId = 2
                                                       AND BHE.BranchId = $AssignedBranchId
       ");
@@ -1579,8 +1584,33 @@ class borrower_model extends CI_Model
       return $data;
     }
 
-    function filterBorrower($StatusID, $CreatedBy, $From, $To)
+    function filterBorrower($StatusID, $CreatedBy, $From, $To, $BranchId)
     {
+      $query = '';
+      if($CreatedBy == 'All')
+      {
+        $query .= '';
+      }
+      else
+      {
+        $query .= " AND B.CreatedBy = '$CreatedBy'";
+      }
+      if($StatusID == 'All')
+      {
+        $query .= '';
+      }
+      else
+      {
+        $query .= " AND B.StatusId = $StatusID";
+      }
+      if($BranchId == 'All')
+      {
+        $query .= '';
+      }
+      else
+      {
+        $query .= " AND BHE.BranchId = $BranchId";
+      }
       $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT DISTINCT B.FirstName
                                                 , acronym (B.MiddleName) as MI
@@ -1595,6 +1625,7 @@ class borrower_model extends CI_Model
                                                 , DATE_FORMAT(B.DateUpdated, '%d %b %Y %h:%i %p') as DateUpdated
                                                 , B.BorrowerId
                                                 , CONCAT(B.LastName, ', ', B.FirstName) as Name 
+                                                , BRNCH.Name as Branch
                                                 FROM r_Borrowers B
                                                   INNER JOIN r_BorrowerStatus BS
                                                       ON BS.BorrowerStatusId = B.StatusId
@@ -1604,11 +1635,11 @@ class borrower_model extends CI_Model
                                                       ON R.EmployeeNumber = EMP.EmployeeNumber
                                                     LEFT JOIN Branch_Has_Employee BHE
                                                       ON BHE.EmployeeNumber = EMP.EmployeeNumber
+                                                    LEFT JOIN R_Branches BRNCH
+                                                      ON BRNCH.BranchId = BHE.BranchId
                                                       WHERE EMP.StatusId = 2
-                                                      AND BHE.BranchId = $AssignedBranchId
-                                                      AND B.StatusId = $StatusID
-                                                      AND B.CreatedBy = '$CreatedBy'
                                                       AND B.Dependents BETWEEN $From AND $To
+                                                      ".$query."
       ");
       $data = $query_string->result_array();
       return $data;

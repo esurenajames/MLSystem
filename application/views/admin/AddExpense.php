@@ -81,6 +81,7 @@
                 <div class="form-group">
                   <label>Status</label>
                   <select class="form-control" id="Status" required="">
+                    <option>All</option>
                     <option value="1">Active</option>
                     <option value="0">Deactivated</option>
                   </select>
@@ -90,6 +91,7 @@
                 <div class="form-group">
                   <label>Expense Type</label>
                   <select class="form-control select2" style="width: 100%" id="selectExpenseType" required="">
+                    <option>All</option>
                     <?php 
                       echo $ExpenseType;
                     ?>
@@ -100,6 +102,7 @@
                 <div class="form-group">
                   <label>Created By</label>
                   <select class="form-control select2" style="width: 100%" id="selectCreatedBy" required="">
+                    <option>All</option>
                     <?php 
                       echo $CreatedBy;
                     ?>
@@ -139,6 +142,17 @@
                   </select>
                 </div>
               </div>
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>Branches</label>
+                  <select class="form-control select2" style="width: 100%" id="selectBranch" required="">
+                    <option>All</option>
+                    <?php 
+                      echo $Branch;
+                    ?>
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
           <div class="modal-footer">
@@ -170,6 +184,7 @@
               <th>Date of Expense</th>
               <th>Date Creation</th>
               <th>Created By</th>
+              <th>Branch</th>
               <th>Status</th>
               <th>Action</th>
             </tr>
@@ -314,7 +329,7 @@
   }
 
   function filterPage(){
-    var url = '<?php echo base_url()."datatables_controller/Expenses/"; ?>' + $('#Status').val() + '/' + $('#selectExpenseType').val() + '/' + $('#selectCreatedBy').val() + '/' + $('#txtExpenseFrom').val() + '/' + $('#txtExpenseTo').val() + '/' + $('#dateExpenseFrom').val() + '/' + $('#dateExpenseTo').val();
+    var url = '<?php echo base_url()."datatables_controller/Expenses/"; ?>' + $('#Status').val() + '/' + $('#selectExpenseType').val() + '/' + $('#selectCreatedBy').val() + '/' + $('#txtExpenseFrom').val() + '/' + $('#txtExpenseTo').val() + '/' + $('#dateExpenseFrom').val() + '/' + $('#dateExpenseTo').val() + '/' + $('#selectBranch').val();
     UserTable.ajax.url(url).load();
     $('#modalFilter').modal('hide');
   }
@@ -330,6 +345,7 @@
                     , { data: "DateExpense" } 
                     , { data: "DateCreated" } 
                     , { data: "CreatedBy" }
+                    , { data: "Branch" }
                     , {
                       data: "StatusId", "render": function (data, type, row) {
                         if(row.StatusId == 1){

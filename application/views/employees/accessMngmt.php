@@ -3,7 +3,7 @@
 </style>
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
-  <?php if(in_array('60', $subModule) && $Detail['BranchId'] == $this->session->userdata('BranchId')) { ?>
+  <?php if(in_array('60', $subModule)) { ?>
 
     <section class="content-header">
       <h1>
@@ -190,7 +190,6 @@
     } else {
       $('#txtIsSelected2'+SubModuleId+'').val(0);
     }
-    alert($('#txtIsSelected2'+SubModuleId+'').val())
   }
 
   function chkModule(rowNo, ModuleId, value)
@@ -201,13 +200,11 @@
       $("."+ModuleId+"").each(function( index ) {
         $('#txtIsSelected'+this.value+'').val(1);
         document.getElementById("selectCheck"+this.value+"").checked = true;
-        alert(this.value)
       });
     } else {
       $("."+ModuleId+"").each(function( index ) {
         $('#txtIsSelected'+this.value+'').val(0);
         document.getElementById("selectCheck"+this.value+"").checked = false;
-        alert(this.value)
       });
     }
   }

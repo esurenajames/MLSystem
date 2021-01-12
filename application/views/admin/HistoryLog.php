@@ -14,6 +14,7 @@
             <tr>
               <th>Name</th>
               <th>Created By</th>
+              <th>Branch</th>
               <th>Date Creation</th>
               <th>Date Creation</th>
             </tr>
@@ -150,11 +151,12 @@
       "ajax": { url: '<?php echo base_url()."/datatables_controller/HistoryLogs/"; ?>', type: 'POST', "dataSrc": "" },
       "columns": [  { data: "Description" },
                     { data: "CreatedBy" }, 
+                    { data: "Branch" },
                     { data: "DateCreated" },
                     { data: "rawDateCreated" },
       ],
-      "aoColumnDefs": [{ "bVisible": false, "aTargets": [3] }],
-      "order": [[3, "desc"]]
+      "aoColumnDefs": [{ "bVisible": false, "aTargets": [4] }],
+      "order": [[4, "desc"]]
     });
 
     $("#frmInsert").on('submit', function (e) {
