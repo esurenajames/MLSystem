@@ -731,7 +731,7 @@ class employee_model extends CI_Model
                                                       WHERE EI.EmployeeIdentificationId = ".$input['Id']."
         ")->row_array();
         $TransactionNumbers = $this->db->query("SELECT LPAD(".$input['Id'].", 6, 0) as Id")->row_array();
-        if($input['updateType'] == 1 || $input['updateType'] == 0) // deactivate and re-activate email of employee
+        if($input['updateType'] == 1 || $input['updateType'] == 0) // deactivate and re-activate id of employee
         {
           // update status
             $set = array(
@@ -748,6 +748,14 @@ class employee_model extends CI_Model
             $TransactionNumber = 'ID-' .$TransactionNumbers['Id'];
             $auditLogsManager = 'Deactivated identification #'.$TransactionNumber.' for employee #'.$EmployeeDetail['EmployeeNumber'].' in identification tab.';
             $auditAffectedEmployee = 'Deactivated identification #'.$TransactionNumber.' in identification tab.';
+            $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeDetail['EmployeeNumber']);
+        }
+        else
+        {
+            {
+              $auditLogsManager = 'Re-activated identification #'.$TransactionNumber.' for employee #'.$EmployeeDetail['EmployeeNumber'].' in identification tab.';
+              $auditAffectedEmployee = 'Re-activated identification #'.$TransactionNumber.' in identification tab.';
+            }
             $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeDetail['EmployeeNumber']);
         }
       }

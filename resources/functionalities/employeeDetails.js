@@ -253,7 +253,7 @@
     });
   }
 
-  function confirmID(Text, EmployeeAddressId, updateType, EmployeeNumber)
+  function confirmID(Text, EmployeeIdentificationId, updateType, EmployeeNumber)
   {
     swal({
       title: 'Confirm',
@@ -269,7 +269,7 @@
           url: baseUrl + "/employee_controller/updateEmail",
           method: "POST",
           data:   {
-                    Id : EmployeeAddressId
+                    Id : EmployeeIdentificationId
                     , updateType : updateType
                     , tableType : 'EmployeeId'
                   },
