@@ -614,10 +614,19 @@ class employee_model extends CI_Model
             );
             $table = 'employee_has_address';
             $this->maintenance_model->updateFunction1($set, $condition, $table);
-          // admin audits finals
+
             $TransactionNumber = 'ADD-' .$AddressTransactionNumber['Id'];
-            $auditLogsManager = 'Deactivated address record #'.$TransactionNumber.' for employee #'.$EmployeeDetail['EmployeeNumber'].' in address tab.';
-            $auditAffectedEmployee = 'Deactivated address record #'.$TransactionNumber.' in address tab.';
+            if($input['updateType'] == 1)
+            {
+              $auditLogsManager = 'Re-activated address record #'.$TransactionNumber.' for employee #'.$EmployeeDetail['EmployeeNumber'].' in address tab.';
+              $auditAffectedEmployee = 'Re-activated address record #'.$TransactionNumber.' in address tab.';
+            }
+            else
+            {
+              $auditLogsManager = 'Deactivated address record #'.$TransactionNumber.' for employee #'.$EmployeeDetail['EmployeeNumber'].' in address tab.';
+              $auditAffectedEmployee = 'Deactivated address record #'.$TransactionNumber.' in address tab.';
+            }
+          // admin audits finals
             $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeDetail['EmployeeNumber']);
         }
         else // set as primary address
@@ -1200,7 +1209,6 @@ class employee_model extends CI_Model
                                                   INNER JOIN Branch_has_Employee BHE
                                                     ON BHE.EmployeeNumber = EMP.EmployeeNumber
                                                   WHERE EMP.StatusId = 2
-                                                  AND BHE.BranchId = $AssignedBranchId
       ");
       $data = $query_string->result_array();
       return $data;

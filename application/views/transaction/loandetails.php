@@ -3,7 +3,7 @@
   <?php if(in_array('8', $subModule)) { ?>
     <section class="content-header">
       <h1>
-        Loan Application Details for </label> <?php print_r($detail['TransactionNumber']) ?>
+        Loan Application Details for </label> <?php print_r($detail['TransactionNumber']) ?> <?php if($detail['OldTransaction'] != ''){ print_r(' | Old Transaction No. ' . $detail['OldTransaction']); } ?>
       </h1>
       <ol class="breadcrumb">
         <li><a href="#" class="active"><i class="fa fa-dashboard"></i>Loans</a></li>
@@ -1284,7 +1284,7 @@
                     print_r($detail['StatusDescription'] . '/' . $detail['ApprovalType']);
                   }
 
-                  if($detail['ForRestructuring'] != 1 && $detail['StatusId'] != 4) // pending for restructure
+                  if($detail['ForRestructuring'] != 1 && $detail['StatusId'] != 4 && $detail['rawCreatedBy'] == $this->session->userdata('EmployeeNumber')) // pending for restructure
                   {
                     echo ' <a data-toggle="modal" href="#" data-target="#modalStatus">Edit Status</a>';
                   }
@@ -1914,14 +1914,15 @@
                             echo "<tr>";
                             echo "<td>".$value['ReferenceNo']."</td>";
                             echo "<td>".$value['Name']."</td>";
-                            echo "<td>".$value['Amount']."</td>";
                             if($value['ChargeType'] == 1) // pecentage
                             {
+                              echo "<td>".$value['Amount']."%</td>";
                               echo "<td>Percentage</td>";
-                              echo "<td> ".number_format($value['Amount']/100 * $value['LoanAmount'], 2)."%</td>";
+                              echo "<td> ".number_format($value['Amount']/100 * $value['LoanAmount'], 2)."</td>";
                             }
                             else
                             { 
+                              echo "<td>Php ".$value['Amount']."</td>";
                               echo "<td>Flat Rate</td>";
                               echo "<td> Php ".number_format($value['Amount'])."</td>";
                             }
@@ -2540,7 +2541,7 @@
                       </thead>
                       <tbody>
                         <?php
-                          if($Address > 0)
+                          if($EmailAddress > 0)
                           {
                             foreach ($EmailAddress as $value) 
                             {
@@ -2667,7 +2668,7 @@
                     <tbody>
                       <?php 
                         $rowNumber = 0;
-                        if($Address > 0)
+                        if($comments > 0)
                         {
                           foreach ($comments as $value) 
                           {

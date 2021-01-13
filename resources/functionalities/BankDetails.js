@@ -38,7 +38,7 @@
           },
           error: function (response) 
           {
-            location.reload();
+            $('.loading').hide();
             swal({
               title: 'Warning!',
               text: 'Something went wrong, please contact the administrator or refresh page!',
@@ -87,7 +87,7 @@
           },
           error: function (response) 
           {
-            location.reload();
+            $('.loading').hide();
             swal({
               title: 'Warning!',
               text: 'Something went wrong, please contact the administrator or refresh page!',
@@ -112,6 +112,7 @@
       success: function(data)
       {
         $('#selectProvince').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -128,6 +129,7 @@
       success: function(data)
       {
         $('#selectCity').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -144,6 +146,7 @@
       success: function(data)
       {
         $('#selectBarangay').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -192,6 +195,7 @@
               buttonsStyling: false,
               confirmButtonClass: 'btn btn-primary'
             });
+            $('.loading').hide();
           }
       });
     });
@@ -241,6 +245,7 @@
               buttonsStyling: false,
               confirmButtonClass: 'btn btn-primary'
             });
+            $('.loading').hide();
           }
       });
     });
@@ -265,9 +270,9 @@
         $('#txtDescription').val(data['Description']);
         $('#txtAccountNumber').val(data['AccountNumber']);
         $('#txtBankId').val(BankId);
+        $('.loading').hide();
         
       },
-
       error: function()
       {
         setTimeout(function() {
@@ -278,7 +283,7 @@
             buttonsStyling: false,
             confirmButtonClass: 'btn btn-primary'
           });
-          // location.reload();
+            $('.loading').hide();
         }, 2000);
       }
     });
@@ -429,6 +434,7 @@ $(function () {
     success: function(data)
     {
       $('#selectRegion').html(data);
+      $('.loading').hide();
     }
   })
 

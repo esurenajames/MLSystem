@@ -27,6 +27,7 @@ class loanapplication_controller extends CI_Controller {
     $this->load->model('admin_model');
 		$this->load->model('borrower_model');
     $this->load->model('maintenance_model');
+    $this->load->library('excel');
     $this->load->library('Pdf');
     date_default_timezone_set('Asia/Manila');
 
@@ -4001,24 +4002,24 @@ class loanapplication_controller extends CI_Controller {
               $html .='<td>Php '.number_format($result['Total'] + $result2['Total'], 2).'</td>';
             }
           $html .='</tr>';
+          // $html .='<tr>';
+          // $html .='<td>b. Ratio of Non-Performing Loans to Total Loan Portfolio</td>';
+          //   foreach ($years as $yearlyValue)
+          //   {
+          //     $result = $this->loanapplication_model->getTotalLoanAmount($yearlyValue['Year'], $_POST['BranchId']);
+          //     $html .='<td>Php '.number_format($result['Total'], 2).'</td>';
+          //   }
+          // $html .='</tr>';
+          // $html .='<tr>';
+          // $html .='<td>c. Past Due Ratio and Write-Off Ratio to Total Loan Portfolio</td>';
+          //   foreach ($years as $yearlyValue)
+          //   {
+          //     $result = $this->loanapplication_model->getTotalLoanAmount($yearlyValue['Year'], $_POST['BranchId']);
+          //     $html .='<td>Php '.number_format($result['Total'], 2).'</td>';
+          //   }
+          // $html .='</tr>';
           $html .='<tr>';
-          $html .='<td>b. Ratio of Non-Performing Loans to Total Loan Portfolio</td>';
-            foreach ($years as $yearlyValue)
-            {
-              $result = $this->loanapplication_model->getTotalLoanAmount($yearlyValue['Year'], $_POST['BranchId']);
-              $html .='<td>Php '.number_format($result['Total'], 2).'</td>';
-            }
-          $html .='</tr>';
-          $html .='<tr>';
-          $html .='<td>c. Past Due Ratio and Write-Off Ratio to Total Loan Portfolio</td>';
-            foreach ($years as $yearlyValue)
-            {
-              $result = $this->loanapplication_model->getTotalLoanAmount($yearlyValue['Year'], $_POST['BranchId']);
-              $html .='<td>Php '.number_format($result['Total'], 2).'</td>';
-            }
-          $html .='</tr>';
-          $html .='<tr>';
-          $html .='<td>d. Total Assets</td>';
+          $html .='<td>b. Total Assets</td>';
             foreach ($years as $yearlyValue)
             {
               $result = $this->loanapplication_model->getCurrentFund($yearlyValue['Year'], $_POST['BranchId']);
@@ -4026,7 +4027,7 @@ class loanapplication_controller extends CI_Controller {
             }
           $html .='</tr>';
           $html .='<tr>';
-          $html .='<td>e. Gross Revenue</td>';
+          $html .='<td>c. Gross Revenue</td>';
             foreach ($years as $yearlyValue)
             {
               $result = $this->loanapplication_model->getTotalGross($yearlyValue['Year'], $_POST['BranchId']);
@@ -4034,7 +4035,7 @@ class loanapplication_controller extends CI_Controller {
             }
           $html .='</tr>';
           $html .='<tr>';
-          $html .='<td>f. Net Income</td>';
+          $html .='<td>d. Net Income</td>';
             foreach ($years as $yearlyValue)
             {
               $result = $this->loanapplication_model->getTotalGross($yearlyValue['Year'], $_POST['BranchId']);
@@ -4713,4 +4714,369 @@ class loanapplication_controller extends CI_Controller {
         redirect('home/loandetail/' . $this->uri->segment(3));
     }
   }
+
+
+
+  public function uploadForm3Excel()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $DateNow = date("Y-m-d H:i:s");
+    if(isset($_FILES["form3UploadExcel"]["name"]))
+    {
+      $path = $_FILES["form3UploadExcel"]["tmp_name"];
+      $obj = PHPExcel_IOFactory::load($path);
+
+      $EmployeeData = array();
+      $consolidatedDamagedItem = array();
+
+      $dateCreated = date('Y-m-d H:i:s');
+      $createdBy = $this->session->userdata('EmployeeNumber');
+
+      $execution_time_limit = 300;
+      set_time_limit($execution_time_limit);
+
+      $highestRow = 0;
+
+      $rowCount = 0;
+      $chargesCount = 0;
+      $paymentsCount = 0;
+      foreach($obj->getWorksheetIterator() as $worksheet)
+      {
+        $sheetName = $worksheet->getTitle();
+        $highestRow = $worksheet->getHighestDataRow();
+        $highestCol = $worksheet->getHighestDataColumn();
+
+        $title = $worksheet->getCellByColumnAndRow(0, 1)->getValue(); // CELL A1
+        if($sheetName == 'LOAN DETAILS')
+        {
+          for($row = 2; $row <= $highestRow; $row++)
+          {
+            $ApplicationNo = str_replace(' ', '', strtolower($worksheet->getCellByColumnandRow(0, $row)->getValue()));
+            $borrowerName = str_replace(' ', '', strtolower($worksheet->getCellByColumnandRow(1, $row)->getValue()));
+            $LoanType = str_replace(' ', '', strtolower($worksheet->getCellByColumnandRow(2, $row)->getValue()));
+            $Source = str_replace(' ', '', strtolower($worksheet->getCellByColumnandRow(3, $row)->getValue()));
+            $SourceName = $worksheet->getCellByColumnandRow(4, $row)->getValue();
+            $Purpose = str_replace(' ', '', strtolower($worksheet->getCellByColumnandRow(5, $row)->getValue()));
+            $DisbursedBy = str_replace(' ', '', strtolower($worksheet->getCellByColumnandRow(6, $row)->getValue()));
+            $LoanAmount = str_replace(' ', '', strtolower($worksheet->getCellByColumnandRow(7, $row)->getValue()));
+            $TermType = str_replace(' ', '', strtolower($worksheet->getCellByColumnandRow(8, $row)->getValue()));
+            $TermNo = str_replace(' ', '', strtolower($worksheet->getCellByColumnandRow(9, $row)->getValue()));
+            $RepaymentCycle = str_replace(' ', '', strtolower($worksheet->getCellByColumnandRow(10, $row)->getValue()));
+            $NoRepayments = str_replace(' ', '', strtolower($worksheet->getCellByColumnandRow(11, $row)->getValue()));
+            $InterestType = str_replace(' ', '', strtolower($worksheet->getCellByColumnandRow(12, $row)->getValue()));
+            $InterestAmount = str_replace(' ', '', strtolower($worksheet->getCellByColumnandRow(13, $row)->getValue()));
+            $InterestFrequency = str_replace(' ', '', strtolower($worksheet->getCellByColumnandRow(14, $row)->getValue()));
+            $BorrowerMonthlySalary = str_replace(' ', '', strtolower($worksheet->getCellByColumnandRow(15, $row)->getValue()));
+            $BorrowerSpouseSalary = str_replace(' ', '', strtolower($worksheet->getCellByColumnandRow(16, $row)->getValue()));
+            $CurrentStatus = str_replace(' ', '', strtolower($worksheet->getCellByColumnandRow(17, $row)->getValue()));
+            $BranchName = str_replace(' ', '', strtolower($worksheet->getCellByColumnandRow(18, $row)->getValue()));
+
+            $dbBorrowerName = $this->loanapplication_model->getBorrowerByName($borrowerName);
+            $dbLoanType = $this->loanapplication_model->getLoanTypeByName($LoanType);
+            $dbLoanPurpose = $this->loanapplication_model->getLoanPurposeByName($Purpose);
+            $dbDisbursedBy = $this->loanapplication_model->getDisbursedByName($DisbursedBy);
+            $dbRepaymentCycle = $this->loanapplication_model->getRepaymentDates($RepaymentCycle);
+            $dbStatus = $this->loanapplication_model->getStatusByName($CurrentStatus);
+            $dbBranch = $this->loanapplication_model->getBranchByName($BranchName);
+
+
+            if($dbBorrowerName['BorrowerId'] != null && $dbLoanType['LoanId'] != null && (($Source == 'walkin' || $Source == 'walk-in' || $Source == 'walkin') || ($Source == 'throughagent' || $Source == 'agent')) && $dbLoanPurpose['PurposeId'] != null && $dbDisbursedBy['Id'] != null && $LoanAmount > 0 && ($TermType == 'days' || $TermType == 'weeks' || $TermType == 'months' || $TermType == 'years') && $TermNo > 0 && ($dbRepaymentCycle['IsOkay'] != null || $dbRepaymentCycle['IsOkay'] == 'Yes') && $NoRepayments > 0 && ($InterestType == 'percentage' || $InterestType == 'flat-rate' || $InterestType == 'flatrate') && $InterestAmount > 0 && ($InterestFrequency == 'perday' || $InterestFrequency == 'perweek' || $InterestFrequency == 'permonth' || $InterestFrequency == 'peryear' || $InterestFrequency == 'perloan') && $dbStatus['Name'] != null && $dbBranch['Name'] != null && $BorrowerMonthlySalary >= 0 && $BorrowerSpouseSalary >= 0)
+            {
+              $dbApplicationNo = $this->loanapplication_model->getLoanApplicationDetailsByNo($ApplicationNo);
+              if($ApplicationNo != $dbApplicationNo['OldTransaction'])
+              {
+                $rowCount = $rowCount + 1;
+                $UndertakingId = $this->maintenance_model->selectSpecific('r_loanundertaking', 'StatusId', 1);
+
+                $newSource = '';
+                if($Source == 'throughagent' || $Source == 'agent')
+                {
+                  $newSource = 'Through Agent';
+                }
+                else if($Source == 'walkin' || $Source == 'walk-in')
+                {
+                  $newSource = 'Walk-in';
+                }
+
+                $insertData = array(
+                  'LoanId'                    => $dbLoanType['LoanId'],
+                  'BorrowerId'                => $dbBorrowerName['BorrowerId'],
+
+                  'Source'                    => $newSource,
+                  'SourceName'                => htmlentities($SourceName, ENT_QUOTES),
+                  'OldTransaction'            => htmlentities($ApplicationNo, ENT_QUOTES),
+
+                  'RiskLevel'                 => '',
+                  'RiskAssessment'            => 0,
+
+                  'TermType'                  => $TermType,
+                  'TermNo'                    => $TermNo,
+                  'RepaymentId'               => $dbRepaymentCycle['RepaymentId'],
+                  'RepaymentNo'               => $NoRepayments,
+
+                  'BorrowerMonthlyIncome'     => $BorrowerMonthlySalary,
+                  'SpouseMonthlyIncome'       => $BorrowerSpouseSalary,
+
+                  'PurposeId'                 => $dbLoanPurpose['PurposeId'],
+                  'DisbursementId'            => $dbDisbursedBy['Id'],
+                  'PrincipalAmount'           => $LoanAmount,
+                  'UndertakingId'             => $UndertakingId['UndertakingId'],
+                  'CreatedBy'                 => $EmployeeNumber,
+                  'StatusId'                  => $dbStatus['Id'],
+                  'BranchId'                  => $dbBranch['Id'],
+                );
+                $auditTable = 't_application';
+                $this->maintenance_model->insertFunction($insertData, $auditTable);
+                // get generated application id
+                  $getData = array(
+                    'table'                 => 't_application'
+                    , 'column'              => 'ApplicationId'
+                    , 'CreatedBy'           => $EmployeeNumber
+                  );
+                  $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+                // set application transaction number and check loan status if approved
+                  $borrowerDetail = $this->maintenance_model->selectSpecific('R_Borrowers', 'BorrowerId', $dbBorrowerName['BorrowerId']);
+                  $branchCode = $this->maintenance_model->selectSpecific('R_Branches', 'BranchId', $borrowerDetail['BranchId']);
+                  $TransactionNumber = $branchCode['Code'] .'-'.date("Ymd"). $dbBorrowerName['BorrowerId'] . sprintf('%05d', $generatedId['ApplicationId']);
+                // if loan is approved
+                  if($dbStatus['Id'] == 1) // approved
+                  {
+                    $set = array( 
+                      'DateApproved' => $DateNow
+                    );
+                    $condition = array( 
+                      'ApplicationId' => $generatedId['ApplicationId']
+                    );
+                    $table = 't_application';
+                    $this->maintenance_model->updateFunction1($set, $condition, $table);
+                  }
+                // set transaction number
+                  $set = array( 
+                    'TransactionNumber' => $TransactionNumber
+                  );
+                  $condition = array( 
+                    'ApplicationId' => $generatedId['ApplicationId']
+                  );
+                  $table = 't_application';
+                  $this->maintenance_model->updateFunction1($set, $condition, $table);
+                // interest details
+                    if($InterestFrequency == 'perday')
+                    {
+                      $NewInterestFrequency = 'Per Day';
+                    }
+                    else if($InterestFrequency == 'perweek')
+                    {
+                      $NewInterestFrequency = 'Per Week';
+                    }
+                    else if($InterestFrequency == 'permonth')
+                    {
+                      $NewInterestFrequency = 'Per Month';
+                    }
+                    else if($InterestFrequency == 'peryear')
+                    {
+                      $NewInterestFrequency = 'Per Year';
+                    }
+                    else if($InterestFrequency == 'perloan')
+                    {
+                      $NewInterestFrequency = 'Per Loan';
+                    }
+
+                    if($InterestType == 'percentage')
+                    {
+                      $NewInterestType = 'Percentage';
+                    }
+                    else
+                    {
+                      $NewInterestType = 'Flat Rate';
+                    }
+                  $insertData = array(
+                    'ApplicationId'             => $generatedId['ApplicationId'],
+                    'InterestType'              => $InterestType,
+                    'Amount'                    => $InterestAmount,
+                    'Frequency'                 => $NewInterestFrequency,
+                    'StatusId'                  => 2,
+                    'CreatedBy'                 => $EmployeeNumber
+                  );
+                  $auditTable = 'application_has_interests';
+                  $this->maintenance_model->insertFunction($insertData, $auditTable);
+                // admin audits finals
+                  $transNo = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $generatedId['ApplicationId']);
+                  $auditLogsManager = 'Uploaded application #'.$ApplicationNo.' to #'.$transNo['TransactionNumber'].'.';
+                  $auditAffectedEmployee = 'Uploaded application #'.$ApplicationNo.' to #'.$transNo['TransactionNumber'].'.';
+                  $auditAffectedTable = 'Uploaded application #'.$ApplicationNo.'.';
+                  $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $generatedId['ApplicationId'], 'application_has_notifications', 'ApplicationId', null);
+              }
+            }
+          }
+        }
+        if($sheetName == 'ADDITIONAL CHARGES')
+        {
+          for($row = 2; $row <= $highestRow; $row++)
+          {
+            $chargeApplicationNo = strtolower($worksheet->getCellByColumnandRow(0, $row)->getValue());
+            $chargeChargeName = strtolower($worksheet->getCellByColumnandRow(1, $row)->getValue());
+            $chargeAmount = strtolower($worksheet->getCellByColumnandRow(2, $row)->getValue());
+
+            $dbChargeName = $this->loanapplication_model->getChargesByName($chargeChargeName);
+            $TransactionNumber = $this->maintenance_model->selectSpecific('T_Application', 'OldTransaction', $chargeApplicationNo);
+
+            if($TransactionNumber['OldTransaction'] == $chargeApplicationNo)
+            {
+              $chargesCount = $chargesCount + 1;
+              if($dbChargeName['ChargeName'] != null && $chargeAmount >= 0)
+              {
+                $charge = $this->maintenance_model->selectSpecific('R_Charges', 'ChargeId', $dbChargeName['ChargeId']);
+
+                if($charge['ChargeType'] == 1) // percentage
+                {
+                  $totalCharge = $charge['Amount'] / 100 * $TransactionNumber['PrincipalAmount'];
+                }
+                else
+                {
+                  $totalCharge = $charge['Amount'];
+                }
+
+                $insertData = array(
+                  'ApplicationId'         => $TransactionNumber['ApplicationId'],
+                  'ChargeId'              => $dbChargeName['ChargeId'],
+                  'Amount'                => $totalCharge,
+                  'LoanAmount'            => $TransactionNumber['PrincipalAmount'],
+                  'StatusId'              => 2,
+                  'CreatedBy'             => $EmployeeNumber
+                );
+                $auditTable = 'application_has_charges';
+                $this->maintenance_model->insertFunction($insertData, $auditTable);
+
+                $charge = $this->maintenance_model->selectSpecific('R_Charges', 'ChargeId', $dbChargeName['ChargeId']);
+                // insert into payments
+                  $insertData1 = array( 
+                    'BankId'            => 1,
+                    'ApplicationId'     => $TransactionNumber['ApplicationId'],
+                    'Amount'            => $totalCharge,
+                    'Description'       => 'Payment for ' . $charge['Name'],
+                    'AmountPaid'        => $totalCharge,
+                    'PaymentMethod'     => 1,
+                    'IsInterest'        => 0,
+                    'IsOthers'          => 1,
+                    'IsPrincipalCollection' => 0,
+                    'InterestAmount'    => 0,
+                    'PrincipalAmount'   => 0,
+                    'ChangeId'          => 1,
+                    'ChangeAmount'      => 0,
+                    'DateCollected'     => date("Y-m-d"),
+                    'PaymentDate'       => date("Y-m-d"),
+                    'CreatedBy'         => $EmployeeNumber
+                  );
+                  $table = 't_paymentsmade';
+                  $this->maintenance_model->insertFunction($insertData1, $table);
+              }
+            }
+          }
+        }
+        if($sheetName == 'PAYMENTS')
+        {
+          for($row = 2; $row <= $highestRow; $row++)
+          {
+            $chargeApplicationNo = strtolower($worksheet->getCellByColumnandRow(0, $row)->getValue());
+            $PaymentDate = strtolower($worksheet->getCellByColumnandRow(1, $row)->getFormattedValue());
+            $CollectionDate = strtolower($worksheet->getCellByColumnandRow(2, $row)->getFormattedValue());
+            $TypeOfCollection = str_replace(' ', '', strtolower($worksheet->getCellByColumnandRow(3, $row)->getValue()));
+            $AmountToBeCollected = str_replace(' ', '', strtolower($worksheet->getCellByColumnandRow(4, $row)->getValue()));
+            $AmountPaid = str_replace(' ', '', strtolower($worksheet->getCellByColumnandRow(5, $row)->getValue()));
+            $ChangeSentTo = str_replace(' ', '', strtolower($worksheet->getCellByColumnandRow(6, $row)->getValue()));
+            $PaymentMethod = str_replace(' ', '', strtolower($worksheet->getCellByColumnandRow(7, $row)->getValue()));
+            $Bank = str_replace(' ', '', strtolower($worksheet->getCellByColumnandRow(8, $row)->getValue()));
+            $Remarks = $worksheet->getCellByColumnandRow(9, $row)->getValue();
+
+
+            $dbDisbursement = $this->loanapplication_model->getBankByName($ChangeSentTo);
+            $dbPaymentMethod = $this->loanapplication_model->getChangeByName($PaymentMethod);
+            $dbBank = $this->loanapplication_model->getBankByName($PaymentMethod);
+            $TransactionNumber = $this->maintenance_model->selectSpecific('T_Application', 'OldTransaction', $chargeApplicationNo);
+
+            if($TransactionNumber['OldTransaction'] == $chargeApplicationNo)
+            {
+              $paymentsCount = $paymentsCount + 1; 
+              if($dbDisbursement['Id'] != null && $dbPaymentMethod['Id'] != null && $dbBank['Id'] != null && ($TypeOfCollection == 'principalcollection' || $TypeOfCollection == 'interest' || $TypeOfCollection == 'others') && $PaymentDate != null && $CollectionDate != null && $AmountToBeCollected >= 0 && $AmountPaid >= 0 && $AmountToBeCollected >= $AmountPaid)
+              {
+                $totalChange = $AmountToBeCollected - $AmountPaid;
+                if($TypeOfCollection == 'principalcollection')
+                {
+                  $insertData = array( 
+                    'BankId'                => $dbBank['Id'],
+                    'ApplicationId'         => $TransactionNumber['ApplicationId'],
+                    'Amount'                => $AmountToBeCollected,
+                    'Description'           => htmlentities($Remarks, ENT_QUOTES),
+                    'AmountPaid'            => $AmountPaid,
+                    'IsInterest'            => 0,
+                    'IsPrincipalCollection' => 1,
+                    'InterestAmount'        => 0,
+                    'PrincipalAmount'       => $AmountToBeCollected,
+                    'ChangeId'              => $dbDisbursement['Id'],
+                    'ChangeAmount'          => $totalChange,
+                    'PaymentMethod'         => $dbPaymentMethod['Id'],
+                    'DateCollected'         => $CollectionDate,
+                    'PaymentDate'           => $PaymentDate,
+                    'CreatedBy'             => $EmployeeNumber
+                  );
+                }
+                else if($TypeOfCollection == 'interest')
+                {
+                  $insertData = array( 
+                    'BankId'                => $dbBank['Id'],
+                    'ApplicationId'         => $TransactionNumber['ApplicationId'],
+                    'Amount'                => $AmountToBeCollected,
+                    'Description'           => htmlentities($Remarks, ENT_QUOTES),
+                    'AmountPaid'            => $AmountPaid,
+                    'IsInterest'            => 1,
+                    'IsPrincipalCollection' => 0,
+                    'InterestAmount'        => $AmountToBeCollected,
+                    'PrincipalAmount'       => 0,
+                    'ChangeId'              => $dbDisbursement['Id'],
+                    'ChangeAmount'          => $totalChange,
+                    'PaymentMethod'         => $dbPaymentMethod['Id'],
+                    'DateCollected'         => $CollectionDate,
+                    'PaymentDate'           => $PaymentDate,
+                    'CreatedBy'             => $EmployeeNumber
+                  );
+                }
+                else if($TypeOfCollection == 'others')
+                {
+                  $insertData = array( 
+                    'BankId'                => $dbBank['Id'],
+                    'ApplicationId'         => $TransactionNumber['ApplicationId'],
+                    'Amount'                => $AmountToBeCollected,
+                    'Description'           => htmlentities($Remarks, ENT_QUOTES),
+                    'AmountPaid'            => $AmountToBeCollected,
+                    'IsInterest'            => 0,
+                    'IsPrincipalCollection' => 0,
+                    'IsOthers'              => 1,
+                    'InterestAmount'        => 0,
+                    'PrincipalAmount'       => 0,
+                    'ChangeId'              => $dbDisbursement['Id'],
+                    'ChangeAmount'          => $totalChange,
+                    'PaymentMethod'         => $dbPaymentMethod['Id'],
+                    'DateCollected'         => $CollectionDate,
+                    'PaymentDate'           => $PaymentDate,
+                    'CreatedBy'             => $EmployeeNumber
+                  );
+                }
+
+                $table = 't_paymentsmade';
+                $this->maintenance_model->insertFunction($insertData, $table);
+              }
+            }
+          }
+          echo "Application transactions successfully uploaded! " . $rowCount . " application inserted, ".$chargesCount." charges, and ".$paymentsCount." payments inserted.";
+        }
+      }
+    }
+    else
+    {
+      echo "File not set";
+    }
+  }
+
+
+
 }

@@ -174,7 +174,7 @@
                     , tableType : 'Branch'
                   },
           beforeSend: function(){
-              $('.loading').show();
+            $('.loading').show();
           },
           success: function(data)
           {
@@ -188,6 +188,7 @@
                 buttonsStyling: false,
                 confirmButtonClass: 'btn btn-primary'
               });
+              $('.loading').hide();
             }
             else
             {
@@ -198,11 +199,12 @@
                 buttonsStyling: false,
                 confirmButtonClass: 'btn btn-primary'
               });
+              $('.loading').hide();
             }
           },
           error: function (response) 
           {
-            refreshPage();
+            $('.loading').hide();
             swal({
               title: 'Warning!',
               text: 'Something went wrong, please contact the administrator or refresh page!',

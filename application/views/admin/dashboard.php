@@ -146,13 +146,13 @@
           <div class="col-lg-3 col-xs-6">
             <div class="small-box bg-green">
               <div class="inner">
-                <h3 id="lblCurrentFund"><?php print_r(number_format(($totalFund['Total'] + $totalIncome['Total']) - ($totalExpense['Total'] + $TotalDisbursement['Total']), 2)) ?></h3>
+                <h3 id="lblCurrentFund"><?php print_r(number_format(($totalFund['Total'] + $totalDeposit['Total'] + $totalIncome['Total']) - ($totalExpense['Total'] + $TotalDisbursement['Total']), 2)) ?></h3>
                 <p>Current Fund </p>
               </div>
               <div class="icon">
                 <i class="fa fa-tachometer"></i>
               </div>
-              <a class="small-box-footer"><small>Capital + Income - (Expenses + Disbursements)</small></a>
+              <a class="small-box-footer"><small>(Capital + Deposits + Income) - (Expenses + Disbursements)</small></a>
             </div>
           </div>
         <?php } ?>
@@ -209,7 +209,8 @@
               <div class="icon">
                 <i class="fa fa-credit-card"></i>
               </div>
-              <a href="<?php echo base_url(); ?>/home/AddInitialCapital" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+              <a href="#" class="small-box-footer">Disbursements released in loan applications</a>
+              <!-- <a href="<?php echo base_url(); ?>/home/AddInitialCapital" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a> -->
             </div>
           </div>
         <?php } ?>
@@ -767,7 +768,7 @@
         $('#lblTotalBorrowers').html(data[0]);
         $('#lblTotalEmployees').html(data[1]);
         $('#lblTotalUsers').html(data[1]);
-        $('#lblCurrentFund').html(parseInt((parseInt(data[12]) + parseInt(data[11])) - (parseInt(data[2]) + parseInt(data[10]))).toLocaleString('en-US', {minimumFractionDigits: 2}));
+        $('#lblCurrentFund').html(parseInt((parseInt(data[12]) + parseInt(data[15]) + parseInt(data[11])) - (parseInt(data[3]) + parseInt(data[10]))).toLocaleString('en-US', {minimumFractionDigits: 2}));
 
         $('.classSelectReportType').val('Bar Graph').change();
 
@@ -785,7 +786,14 @@
         $('.loading').hide();
       },
       error: function(data) {
-        console.log(data);
+        swal({
+          title: 'Warning!',
+          text: 'Something went wrong, please contact the administrator or refresh page!',
+          type: 'warning',
+          buttonsStyling: false,
+          confirmButtonClass: 'btn btn-primary'
+        });
+        $('.loading').hide();
       }
     });
   }
@@ -2385,6 +2393,7 @@
               buttonsStyling: false,
               confirmButtonClass: 'btn btn-primary'
             });
+            $('.loading').hide();
           },
           error: function (response) 
           {
@@ -2396,6 +2405,7 @@
               buttonsStyling: false,
               confirmButtonClass: 'btn btn-primary'
             });
+            $('.loading').hide();
           }
       });
     });

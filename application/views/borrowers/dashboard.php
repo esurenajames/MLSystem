@@ -110,10 +110,10 @@
                     </div>
                   </div>
                   <div class="col-md-4">
-                      <div class="form-group">
-                        <label for="txtMother">Mother's Maiden Name <span class="text-red">*</span></label>
-                        <input type="text" class="form-control" id="txtMother" required="" name="MotherName" placeholder="Maiden Name">
-                      </div>
+                    <div class="form-group">
+                      <label for="txtMother">Mother's Maiden Name <span class="text-red">*</span></label>
+                      <input type="text" class="form-control" id="txtMother" required="" name="MotherName" placeholder="Maiden Name">
+                    </div>
                   </div>
                   <div class="col-md-4">
                     <div class="form-group">
@@ -133,6 +133,12 @@
                     <div class="form-group">
                       <label for="txtDependents">No. of Dependents <span class="text-red">*</span></label>
                       <input type="number" class="form-control" value="0" id="txtDependents" name="NoDependents" required="" placeholder="No. of dependents">
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label>Birthplace <span class="text-red">*</span></label>
+                      <input type="text" class="form-control" id="txtBirthPlace" name="BirthPlace" required="" placeholder="Birthplace">
                     </div>
                   </div>
                   <div class="col-md-12">

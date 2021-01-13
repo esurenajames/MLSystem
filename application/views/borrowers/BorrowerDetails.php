@@ -744,7 +744,7 @@
                       </div>
                       <div class="col-md-12">
                         <div class="form-group">
-                          <label>Birthplace</label>
+                          <label>Birthplace <span class="text-red">*</span></label>
                           <input type="text" class="form-control" id="txtBirthPlace" name="BirthPlace" required="" placeholder="Birthplace">
                         </div>
                       </div>

@@ -78,6 +78,7 @@ class home extends CI_Controller {
 		$data['totalBorrower'] = $this->maintenance_model->getTotalBorrower($AssignedBranchId);
 		$data['totalEmployees'] = $this->maintenance_model->getTotalEmployees($AssignedBranchId);
 		$data['totalUsers'] = $this->maintenance_model->getTotalUsers($AssignedBranchId);
+		$data['totalDeposit'] = $this->maintenance_model->getTotalDeposit($AssignedBranchId);
 		$data['Branch'] = $this->maintenance_model->getBranches();
 
 		// FOR BAR CHARTS
@@ -675,7 +676,7 @@ class home extends CI_Controller {
 		$data['requirementType'] = $this->maintenance_model->getRequirementType();
 		$data['loanStatus'] = $this->maintenance_model->getLoanStatus();
 		$data['borrowerList'] = $this->maintenance_model->getBorrowerList();
-		$data['RequirementList'] = $this->loanapplication_model->getRequirementForApplication();
+		$data['RequirementList'] = $this->loanapplication_model->getRequirementForApplication2();
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);

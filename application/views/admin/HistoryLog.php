@@ -88,6 +88,7 @@
               buttonsStyling: false,
               confirmButtonClass: 'btn btn-primary'
             });
+            $('.loading').hide();
           },
           error: function (response) 
           {
@@ -99,6 +100,7 @@
               buttonsStyling: false,
               confirmButtonClass: 'btn btn-primary'
             });
+            $('.loading').hide();
           }
       });
     });
@@ -122,6 +124,7 @@
         $('#txtRepayment').val(data['Type']);
         $('#txtRepaymentId').val(RepaymentId);
         $('#txtFormType').val(2);
+        $('.loading').hide();
       },
 
       error: function()

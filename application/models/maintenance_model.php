@@ -667,10 +667,13 @@ class maintenance_model extends CI_Model
 
     function getAllAssets($Status, $AssetCategory, $PurchaseRangeFrom, $PurchaseRangeTo, $BranchId)
     {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $defaultSearch = 'WHERE AM.BranchId = ' . $AssignedBranchId;
       $search = '';
       if($PurchaseRangeFrom != '' && $PurchaseRangeTo != '')
       {
-        $search .= " AND PurchaseValue BETWEEN '".$PurchaseRangeFrom."' AND '".$PurchaseRangeTo."'";
+        $search .= "WHERE PurchaseValue BETWEEN '".$PurchaseRangeFrom."' AND '".$PurchaseRangeTo."'";
+        $defaultSearch = '';
       }
       if($Status != '')
       {
@@ -683,24 +686,29 @@ class maintenance_model extends CI_Model
                             THEN 'Critical'
                             ELSE 'Deactivated'
                             END = 'Critical'";
+          $defaultSearch = '';
         }
         else
         {
           $search .= " AND AM.StatusId = " . $Status;
+          $defaultSearch = '';
         }
       }
       if($AssetCategory != '')
       {
         $search .= " AND AM.CategoryId = " . $AssetCategory;
+        $defaultSearch = '';
       }
 
       if($BranchId == 'All')
       {
         $search .= " ";
+        $defaultSearch = '';
       }
       else if($BranchId != '')
       {
         $search .= " AND AM.BranchId = " . $BranchId;
+        $defaultSearch = '';
       }
       $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT FORMAT(PurchaseValue, 2) PurchaseValue 
@@ -743,8 +751,8 @@ class maintenance_model extends CI_Model
                                                       ON BRNCH.BranchId = AM.BranchId
                                                     INNER JOIN R_Employee EMP
                                                       ON EMP.EmployeeNumber = AM.CreatedBy
-                                                      WHERE EMP.StatusId = 2
                                                       ".$search."
+                                                      ".$defaultSearch."
       ");
       $data = $query_string->result_array();
       return $data;
@@ -1783,7 +1791,6 @@ class maintenance_model extends CI_Model
                                             INNER JOIN branch_has_employee BE
                                               ON BE.EmployeeNumber = EMP.EmployeeNumber
                                                 WHERE EMP.StatusId = 2
-                                                  AND BE.BranchId = $AssignedBranchId
                                                   AND EMP.EmployeeNumber != 000000
       ");
       $output = '<option disabled>Select Approver</option>';
@@ -2368,6 +2375,32 @@ class maintenance_model extends CI_Model
       $data = $query_string->row_array();
       return $data;
     }
+    /*Total Deposit*/
+    function getTotalDeposit($selectedBranch)
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $search = '';
+      $defaultSearch = ' AND BranchId = '. $AssignedBranchId;
+      if($selectedBranch == 'All')
+      {
+        $search = '';
+        $defaultSearch = '';
+      }
+      else if($selectedBranch != '')
+      {
+        $search = ' AND BranchId = ' . $selectedBranch;
+        $defaultSearch = '';
+      }
+      $query_string = $this->db->query("SELECT  COALESCE(SUM(Amount), 0) as Total
+                                                FROM R_Withdrawal
+                                                  WHERE StatusId = 1
+                                                  ".$search."
+                                                  ".$defaultSearch."
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
     /*Total Charges*/
     function getChargesTotal($Year)
     {
@@ -2580,8 +2613,9 @@ class maintenance_model extends CI_Model
       $totalFund = $this->maintenance_model->getCurrentFund($Branch);
       $totalActiveLoans = $this->maintenance_model->getActiveLoans($Branch);
       $totalUsers = $this->maintenance_model->getTotalUsers($Branch);
+      $totalDeposit = $this->maintenance_model->getTotalDeposit($Branch);
 
-      array_push($dataArray, $TotalBorrowers['Total'], $TotalEmployees['Total'], $TotalInterest['Total'], $totalExpense['Total'], $dailyIncome['Total'], $TotalTransaction['Total'], $dailyPenalties['Total'], $dailyApprovedLoans['Total'], $dailyDisbursement['Total'], $dailyExpenses['Total'], $TotalDisbursement['Total'], $totalIncome['Total'], $totalFund['Total'], $totalActiveLoans['Total'], $totalUsers['Total']);
+      array_push($dataArray, $TotalBorrowers['Total'], $TotalEmployees['Total'], $TotalInterest['Total'], $totalExpense['Total'], $dailyIncome['Total'], $TotalTransaction['Total'], $dailyPenalties['Total'], $dailyApprovedLoans['Total'], $dailyDisbursement['Total'], $dailyExpenses['Total'], $TotalDisbursement['Total'], $totalIncome['Total'], $totalFund['Total'], $totalActiveLoans['Total'], $totalUsers['Total'], $totalDeposit['Total']);
 
       return $dataArray;
     }

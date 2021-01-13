@@ -15,6 +15,7 @@ class loanapplication_model extends CI_Model
     $AssignedBranchId = $this->session->userdata('BranchId');
     $query = $this->db->query("SELECT CONCAT(BS.Name, ' ', B.FirstName, ' ', B.MiddleName, ' ', B.LastName, ', ', B.ExtName) as Name
                                       , B.BorrowerNumber
+                                      , A.OldTransaction
                                       , DATE_FORMAT(B.DateOfBirth, '%b %d, %Y') as DOB
                                       , TIMESTAMPDIFF(YEAR, B.DateOfBirth, CURDATE()) as Age
                                       , CN.Number as ContactNumber
@@ -45,6 +46,7 @@ class loanapplication_model extends CI_Model
                                       , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as CreatedBy
                                       , EMP.EmployeeNumber as EmployeeCreator
                                       , A.TransactionNumber
+                                      , A.CreatedBy as rawCreatedBy
                                       , CASE
                                           WHEN A.DateApproved IS NULL
                                           THEN 'N/A'
@@ -168,6 +170,19 @@ class loanapplication_model extends CI_Model
                                         -- AND BHE.StatusId = 1
                                         -- AND BHC.IsPrimary = 1
                                         -- AND BHC.StatusId = 1
+    ");
+
+    $data = $query->row_array();
+    return $data;
+  }
+
+  function getLoanApplicationDetailsByNo($Id)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $AssignedBranchId = $this->session->userdata('BranchId');
+    $query = $this->db->query("SELECT OldTransaction
+                                      FROM T_Application A
+                                        WHERE A.OldTransaction = '$Id'
     ");
 
     $data = $query->row_array();
@@ -1040,6 +1055,7 @@ class loanapplication_model extends CI_Model
                                               , A.ApplicationId
                                               , LS.IsApprovable
                                               , LS.StatusColor
+                                              , BRNCH.Name as Branch
                                               , (SELECT COUNT(*) 
                                                     FROM application_has_approver
                                                       WHERE ApplicationId = A.ApplicationId
@@ -1074,6 +1090,8 @@ class loanapplication_model extends CI_Model
                                                   ON EMP.EmployeeNumber = A.CreatedBy
                                                 LEFT JOIN Branch_has_Employee BE
                                                   ON BE.EmployeeNumber = EMP.EmployeeNumber
+                                                LEFT JOIN R_Branches BRNCH
+                                                  ON BRNCH.BranchId = BE.BranchId
                                                     WHERE BE.BranchId = $AssignedBranchId
     ");
     $data = $query_string->result_array();
@@ -1288,9 +1306,10 @@ class loanapplication_model extends CI_Model
                                               , A.StatusId
                                               , A.ApplicationId
                                               , LS.IsApprovable
-                                              , (SELECT COUNT(*) 
+                                              , (SELECT DISTINCT COUNT( DISTINCT ApproverNumber) 
                                                     FROM application_has_approver
                                                       WHERE ApplicationId = A.ApplicationId
+                                                    AND StatusId != 6
                                               ) as TotalApprovers
                                               , (SELECT COUNT(*) 
                                                     FROM application_has_approver
@@ -1316,6 +1335,7 @@ class loanapplication_model extends CI_Model
                                                     FROM application_has_approver
                                                       WHERE ApplicationId = A.ApplicationId
                                                       AND ApproverNumber = '$EmployeeNumber'
+                                                      AND StatusId != 6
                                                     ) > 0
     ");
     $data = $query_string->result_array();
@@ -1402,48 +1422,60 @@ class loanapplication_model extends CI_Model
 
   function getCollectionsManagement($ApplicationId, $LoanId, $CollectedBy, $dateFrom, $dateTo, $BranchId)
   {
+    $AssignedBranchId = $this->session->userdata('BranchId');
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $search = '';
+
+    $defaultSearch = ' AND B.BranchId = '. $AssignedBranchId;
     if($dateFrom != '' && $dateTo != '')
     {
+      $defaultSearch = "";
       $search .= " AND DATE_FORMAT(PM.DateCollected, '%b-%d-%Y') BETWEEN '".$dateFrom."' AND '".$dateTo."'";
     }
     
     if($ApplicationId == 'All')
     {
+      $defaultSearch = "";
       $search .= " ";
     }
     else if($ApplicationId != '')
     {
+      $defaultSearch = "";
       $search .= " AND A.ApplicationId = " . $ApplicationId;
     }
     
     
     if($LoanId == 'All')
     {
+      $defaultSearch = "";
       $search .= " ";
     }
     else if($LoanId != '')
     {
+      $defaultSearch = "";
       $search .= " AND A.LoanId = " . $LoanId;
     }
     
     
     if($CollectedBy == 'All')
     {
+      $defaultSearch = "";
       $search .= " ";
     }
     else if($CollectedBy != '')
     {
+      $defaultSearch = "";
       $search .= " AND PM.CreatedBy = '" . $CollectedBy."'";
     }
     
     if($BranchId == 'All')
     {
+      $defaultSearch = "";
       $search .= " ";
     }
     else if($BranchId != '')
     {
+      $defaultSearch = "";
       $search .= " AND B.BranchId =  '" . $BranchId."'";
     }
     $query_string = $this->db->query("SELECT  CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName) as CollectedBy
@@ -1479,6 +1511,7 @@ class loanapplication_model extends CI_Model
                                                     ON BRNCH.BranchId = B.BranchId
                                                     WHERE PM.StatusId = 1
                                                     ".$search."
+                                                    ".$defaultSearch."
                                                     GROUP BY A.ApplicationId, PM.DateCollected, PM.PaymentMadeId
                                                     ORDER BY PM.DateCollected DESC
     ");
@@ -2146,6 +2179,7 @@ class loanapplication_model extends CI_Model
                                                       WHERE A.ApplicationId = $ID
                                                       AND AHA.StatusId != 6 
                                                       AND AHA.StatusId != 8 
+                                                      ORDER BY AHA.ApplicationApprovalId ASC
     ");
     $data = $query_string->result_array();
     return $data;
@@ -2932,9 +2966,9 @@ class loanapplication_model extends CI_Model
     return $output;
   } 
   
-  function selectBorrowerDet($Type, $Id)
+  function selectBorrowerDet($Type, $AppId)
   {
-    $Id = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $Id);
+    $Id = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $AppId);
     if($Type == 'Comaker')
     {
       $query = $this->db->query("SELECT CONCAT('CM-', LPAD(BR.BorrowerCoMakerId, 6, 0)) as ReferenceNo
@@ -2943,7 +2977,7 @@ class loanapplication_model extends CI_Model
                                         FROM borrower_has_comaker BR
                                         WHERE StatusId = 1
                                         AND BorrowerId = ".$Id['BorrowerId']."
-                                        AND BR.BorrowerCoMakerId NOT IN (SELECT BorrowerCoMakerId FROM application_has_comaker)
+                                        AND BR.BorrowerCoMakerId NOT IN (SELECT BorrowerCoMakerId FROM application_has_comaker WHERE ApplicationId = $AppId)
       ");
       $output = '<option selected disabled value="">Select Co-Maker</option>';
       foreach ($query->result() as $row)
@@ -2962,7 +2996,7 @@ class loanapplication_model extends CI_Model
                                             ON S.SpouseId = BR.SpouseId
                                             WHERE BR.StatusId = 1
                                             AND BR.BorrowerId = ".$Id['BorrowerId']."
-                                            AND BR.BorrowerSpouseId NOT IN (SELECT BorrowerSpouseId FROM Application_has_spouse)
+                                            AND BR.BorrowerSpouseId NOT IN (SELECT BorrowerSpouseId FROM Application_has_spouse WHERE ApplicationId = $AppId)
       ");
       $output = '<option selected disabled value="">Select Spouse</option>';
       foreach ($query->result() as $row)
@@ -2984,7 +3018,7 @@ class loanapplication_model extends CI_Model
                                         FROM borrower_has_employer BHS
                                         WHERE BHS.StatusId = 1
                                         AND BHS.BorrowerId = ".$Id['BorrowerId']."
-                                        AND BHS.EmployerId NOT IN (SELECT EmployerId FROM application_has_employer)
+                                        AND BHS.EmployerId NOT IN (SELECT EmployerId FROM application_has_employer WHERE ApplicationId = $AppId)
       ");
       $output = '<option selected disabled value="">Select Employer</option>';
       foreach ($query->result() as $row)
@@ -3004,7 +3038,7 @@ class loanapplication_model extends CI_Model
                                             ON EC.ContactNumberId = CN.ContactNumberId
                                             WHERE EC.StatusId = 1
                                             AND EC.BorrowerId = ".$Id['BorrowerId']."
-                                            AND EC.BorrowerContactId NOT IN (SELECT BorrowerContactId FROM application_has_contact)
+                                            AND EC.BorrowerContactId NOT IN (SELECT BorrowerContactId FROM application_has_contact WHERE ApplicationId = $AppId)
       ");
       $output = '<option selected disabled value="">Select contact number</option>';
       foreach ($query->result() as $row)
@@ -3027,7 +3061,7 @@ class loanapplication_model extends CI_Model
                                           INNER JOIN borrower_has_emails EE
                                             ON EE.EmailId = E.EmailId
                                               WHERE EE.BorrowerId = ".$Id['BorrowerId']."
-                                              AND EE.BorrowerEmailId NOT IN (SELECT BorrowerEmailId FROM application_has_email)
+                                              AND EE.BorrowerEmailId NOT IN (SELECT BorrowerEmailId FROM application_has_email WHERE ApplicationId = $AppId)
                                               AND EE.StatusId = 1
       ");
       $output = '<option selected disabled value="">Select Email</option>';
@@ -3054,7 +3088,7 @@ class loanapplication_model extends CI_Model
                                             INNER JOIN R_Education ED
                                               ON ED.EducationId = BEDU.EducationId
                                                 WHERE B.BorrowerId = ".$Id['BorrowerId']."
-                                                AND BEDU.BorrowerEducationId NOT IN (SELECT BorrowerEducationId FROM application_has_education)
+                                                AND BEDU.BorrowerEducationId NOT IN (SELECT BorrowerEducationId FROM application_has_education WHERE ApplicationId = $AppId)
                                                 AND BEDU.StatusId = 1
       ");
       $output = '<option selected disabled value="">Select Education Record</option>';
@@ -3088,7 +3122,7 @@ class loanapplication_model extends CI_Model
                                           INNER JOIN add_region R 
                                             ON R.regCode = B.regCode
                                             WHERE EA.BorrowerId = ".$Id['BorrowerId']."
-                                            AND EA.BorrowerAddressHistoryId NOT IN (SELECT BorrowerAddressHistoryId FROM application_has_address)
+                                            AND EA.BorrowerAddressHistoryId NOT IN (SELECT BorrowerAddressHistoryId FROM application_has_address WHERE ApplicationId = $AppId)
                                             AND EA.StatusId = 1
       ");
       $output = '<option selected disabled value="">Select Address Record</option>';
@@ -4234,5 +4268,217 @@ class loanapplication_model extends CI_Model
       {
         return 0;
       }
+    }
+
+    function getBorrowerByName($Name)
+    {
+      $query_string = $this->db->query("SELECT DISTINCT B.BorrowerId
+                                                , S.name as Salutation
+                                                , B.FirstName
+                                                , REPLACE(LOWER(CONCAT(B.LastName, ', ', B.FirstName, ' ', B.MiddleName, ' ', B.ExtName)), ' ', '') as Name
+                                                , acronym (B.MiddleName) as MiddleInitial
+                                                , B.LastName
+                                                , B.ExtName
+                                                , B.BranchId
+                                                , B.Dependents
+                                                , SX.Name as Sex
+                                                , N.Description as Nationality
+                                                , C.name as CivilStatus
+                                                , DATE_FORMAT(B.DateOfBirth, '%d %b %Y') as DateOfBirth
+                                                , DATE_FORMAT(B.DateCreated, '%d %b %Y %h:%i %p') as DateAdded
+                                                , DATE_FORMAT(B.DateOfBirth, '%Y-%b-%d') as RawDateOfBirth
+                                                , SS.Name as StatusDescription
+                                                , B.StatusId
+                                                , BP.FileName
+                                                , B.BorrowerNumber
+                                                , B.MotherName
+
+                                                , B.MiddleName
+                                                , S.SalutationId
+                                                , SX.SexId
+                                                , N.NationalityId
+                                                , N.Description as NationalityName
+                                                , C.CivilStatusId
+                                                , B.Birthplace
+
+                                                , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', EMP.MiddleName, ', ', EMP.ExtName) as AddedBy
+                                                , (SELECT E.EmailAddress 
+                                                          FROM Borrower_has_emails BHE
+                                                            INNER JOIN R_Emails E
+                                                              ON E.EmailId = BHE.EmailId
+                                                                WHERE BorrowerId = B.BorrowerId
+                                                                AND IsPrimary = 1 
+                                                                LIMIT 1) as EmailAddress
+                                                , (SELECT Number 
+                                                          FROM Borrower_has_Contactnumbers BHC
+                                                            INNER JOIN R_ContactNumbers CN
+                                                              ON BHC.ContactNumberId = CN.ContactNumberId
+                                                                WHERE BorrowerId = B.BorrowerId
+                                                                AND IsPrimary = 1
+                                                                LIMIT 1) as ContactNumber
+                                                , TIMESTAMPDIFF(YEAR, B.DateOfBirth, CURDATE()) as Age
+                                                , BRNCH.Name as BranchAssigned
+                                                FROM R_Borrowers B
+                                                  INNER JOIN R_Salutation S
+                                                    ON S.SalutationId = B.Salutation
+                                                  INNER JOIN R_Sex SX
+                                                    ON SX.SexId = B.Sex
+                                                  INNER JOIN r_nationality N
+                                                    ON N.NationalityId = B.Nationality
+                                                  INNER JOIN r_civilstatus C
+                                                    ON C.CivilStatusId = B.CivilStatus
+                                                  INNER JOIN R_BorrowerStatus SS
+                                                    ON SS.BorrowerStatusId = B.StatusId
+                                                  INNER JOIN r_employee EMP
+                                                    ON EMP.EmployeeNumber = B.CreatedBy
+                                                  LEFT JOIN borrower_has_picture BP
+                                                    ON BP.BorrowerId = B.BorrowerId
+                                                    AND BP.StatusId = 1
+                                                  LEFT JOIN R_Branches BRNCH
+                                                    ON BRNCH.BranchId = B.BranchId
+                                                  WHERE REPLACE(LOWER(CONCAT(B.LastName, ', ', B.FirstName, ' ', B.MiddleName, ' ', B.ExtName)), ' ', '') = '$Name'
+
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getLoanTypeByName($Name)
+    {
+      $query_string = $this->db->query("SELECT  DISTINCT REPLACE(Name, ' ', '') as Name
+                                                , LoanId
+                                                FROM R_Loans
+                                                  WHERE StatusId = 1
+                                                  AND REPLACE(Name, ' ', '') = '$Name'
+
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getLoanPurposeByName($Name)
+    {
+      $query_string = $this->db->query("SELECT  DISTINCT REPLACE(Name, ' ', '') as Name
+                                                , PurposeId
+                                                FROM R_Purpose
+                                                  WHERE StatusId = 1
+                                                  AND REPLACE(Name, ' ', '') = '$Name'
+
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getDisbursedByName($Name)
+    {
+      $query_string = $this->db->query("SELECT  DISTINCT REPLACE(Name, ' ', '') as Name
+                                                , DisbursementId as Id
+                                                FROM r_disbursement
+                                                  WHERE StatusId = 1
+                                                  AND REPLACE(Name, ' ', '') = '$Name'
+
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getStatusByName($Name)
+    {
+      $query_string = $this->db->query("SELECT  DISTINCT REPLACE(Name, ' ', '') as Name
+                                                , LoanStatusId as Id
+                                                FROM application_has_status
+                                                  WHERE StatusId = 1
+                                                  AND REPLACE(Name, ' ', '') = '$Name'
+
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getBranchByName($Name)
+    {
+      $query_string = $this->db->query("SELECT  DISTINCT REPLACE(Name, ' ', '') as Name
+                                                , BranchId as Id
+                                                FROM R_Branches
+                                                  WHERE StatusId = 1
+                                                  AND REPLACE(Name, ' ', '') = '$Name'
+
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getChargesByName($Name)
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $NewName = str_replace(' ', '', $Name);
+      $query = $this->db->query("SELECT DISTINCT C.Amount
+                                                  , C.Name as ChargeName
+                                                  , C.ChargeId
+                                                  , C.ChargeType
+                                                  FROM R_Charges C
+                                                    WHERE C.StatusId = 1
+                                                    AND REPLACE(C.Name, ' ', '') = '$NewName'
+      ");
+
+      $data = $query->row_array();
+      return $data;
+    }
+
+    function getRepaymentDates($Name)
+    {
+      $NewName = str_replace(' ', '', $Name);
+      $query_string = $this->db->query("SELECT   CASE
+                                                  WHEN RHC.RepaymentId IS NULL
+                                                    THEN RC.Type
+                                                    ELSE GROUP_CONCAT(RHC.Date ORDER BY RHC.Date ASC)
+                                                  END as Name
+                                                , CASE
+                                                  WHEN '$NewName' = GROUP_CONCAT(RHC.Date ORDER BY RHC.Date ASC)
+                                                    THEN 'Yes'
+                                                    ELSE 'No'
+                                                  END as IsOkay
+                                                , RC.RepaymentId
+                                                FROM r_repaymentcycle RC
+                                                  LEFT JOIN  repaymentcycle_has_content RHC
+                                                    ON RC.RepaymentId = RHC.RepaymentId
+                                                    WHERE RC.StatusId = 1
+                                                    AND RHC.StatusId = 1
+                                                    GROUP BY RC.RepaymentId
+                                                    ORDER BY CASE
+                                                  WHEN '$NewName' = GROUP_CONCAT(RHC.Date ORDER BY RHC.Date ASC)
+                                                    THEN 'Yes'
+                                                    ELSE 'No'
+                                                  END DESC
+
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getChangeByName($Name)
+    {
+      $query_string = $this->db->query("SELECT  DISTINCT REPLACE(Name, ' ', '') as Name
+                                                , DisbursementId as Id
+                                                FROM r_disbursement
+                                                  WHERE StatusId = 1
+                                                  AND REPLACE(Name, ' ', '') = '$Name'
+
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getBankByName($Name)
+    {
+      $query_string = $this->db->query("SELECT  DISTINCT REPLACE(BankName, ' ', '') as Name
+                                                , BankId as Id
+                                                FROM r_bank
+                                                  WHERE StatusId = 1
+                                                  AND REPLACE(BankName, ' ', '') = '$Name'
+
+      ");
+      $data = $query_string->row_array();
+      return $data;
     }
 }

@@ -149,9 +149,11 @@
               buttonsStyling: false,
               confirmButtonClass: 'btn btn-primary'
             });
+            $('.loading').hide();
           },
           error: function (response) 
           {
+            $('.loading').hide();
             refreshPage();
             swal({
               title: 'Warning!',
@@ -184,8 +186,8 @@
         $('#txtDescription').val(data['Description']);
         $('#txtWithdrawalTypeId').val(WithdrawalTypeId);
         $('#txtFormType').val(2);
+        $('.loading').hide();
       },
-
       error: function()
       {
         setTimeout(function() {
@@ -196,7 +198,7 @@
             buttonsStyling: false,
             confirmButtonClass: 'btn btn-primary'
           });
-          // location.reload();
+            $('.loading').hide();
         }, 2000);
       }
     });

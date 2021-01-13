@@ -62,7 +62,7 @@
                             echo $LoanType;
                           ?>
                         </select>
-                        <a href="<?php echo base_url();?>home/AddLoanType"> Add/Edit Loan Types</a>
+                        <a target="_blank" href="<?php echo base_url();?>/home/AddLoanType"> Add/Edit Loan Type</a>
                       </div>
                     </div>
                     <!-- <div class="col-md-12">
@@ -282,7 +282,7 @@
                         <table class="table table-bordereds">
                           <tbody>
                             <tr>
-                              <td colspan="4">PERSONAL INFORMATION</td>
+                              <td colspan="4">PERSONAL INFORMATION | <span class="lblBorrowerBranch"></span></td>
                             </tr>
                             <tr>
                               <td><label> Borrower Number</label></td>
@@ -512,7 +512,7 @@
                   <table class="table table-bordereds">
                     <tbody>
                       <tr>
-                        <td colspan="4">PERSONAL INFORMATION</td>
+                        <td colspan="4">PERSONAL INFORMATION | <span class="lblBorrowerBranch"></span></td>
                       </tr>
                       <tr>
                         <td><label> Borrower Number</label></td>
@@ -602,7 +602,7 @@
                       <input type="hidden" name="RiskAssessment" id="txtRiskAssessment">
                     </div>
                   </div>
-                  <h4>Requirements <small><a href=""> Add/Edit Requirements</a></small> </h4>
+                  <h4>Requirements <small><a target="_blank" href="<?php echo base_url();?>/home/AddRequirement"> Add/Edit Requirements</a></small> </h4>
                   <hr>
                   <label>Select Requirements to be Submitted:<span class="text-red">*</span></label><br>
                   <table id="dtblRequirement" class="table table-bordered table-hover" style="width: 100%">
@@ -777,8 +777,6 @@
           tenureRisk = 0
         }
       // compute risk
-      console.log('NETMONTHLYINCOME: '+NetMonthlyIncome)
-      console.log('TENURE: '+varTenure)
         riskAssessment = (incomeRisk + ageRisk + tenureRisk) / 3
         if(Math.ceil(riskAssessment) <= 25)
         {
@@ -869,6 +867,7 @@
         success: function(data)
         {
           varBorrowerAge = data['Age'];
+          $('.lblBorrowerBranch').html(data['BranchAssigned'] + ' Branch');
           $('.lblBorrowerNumber').html(data['BorrowerNumber']);
           $('.lblDateAdded').html(data['DateAdded']);
           $('.lblAddedBy').html(data['AddedBy']);
@@ -881,7 +880,7 @@
           $('.lblEName').html(data['ExtName']);
           $('.lblEmailAddress').html(data['EmailAddress']);
           $('.lblContactNumber').html(data['ContactNumber']);
-          $('.lblDOB').html(data['DateOfBirth']);
+          $('.lblDOB').html(data['DateOfBirth'] + ' | ' + data['Age'] + ' years old');
           $('.lblBorrowerStatus').html(data['StatusDescription']);
           $('.divBorrowerBtn').html('<a target="_blank" href="<?php echo base_url();?>home/BorrowerDetails/'+data['BorrowerId']+'">View Borrower Details</a>');
 
@@ -1344,7 +1343,7 @@
               $.each(data, function (a, b) {
                 row = row + 1; 
 
-                if(b.ChargeType == 'Percentage')
+                if(b.ChargeType == 1)
                 {
                   total = parseInt(b.Amount)/100 * parseInt(PrincipalAmount);
                   amount = parseInt(b.Amount).toLocaleString('en-US', {minimumFractionDigits: 2}) + '%';
@@ -1426,7 +1425,7 @@
       if($('#selectCheck'+rowId+'').is(":checked") == true)
       {
         $('#isSelected'+rowId+'').val(1)
-        if(ChargeType == 'Percentage')
+        if(ChargeType == 1)
         {
           displayTotal = parseInt(displayTotal) +  parseInt(ChargeAmount)/100 * parseInt(PrincipalAmount);
         }
@@ -1438,7 +1437,7 @@
       else
       {
         $('#isSelected'+rowId+'').val(0)
-        if(ChargeType == 'Percentage')
+        if(ChargeType == 1)
         {
           displayTotal = parseInt(displayTotal) - parseInt(ChargeAmount)/100 * parseInt(PrincipalAmount);
         }
@@ -1877,8 +1876,6 @@
             varIncomeAmount = varIncomeAmount + 1;
           }
         });
-
-        console.log(varIncomeAmount)
 
         if(varTotalSource >= 1)
         {
