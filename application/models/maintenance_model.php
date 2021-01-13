@@ -2613,8 +2613,9 @@ class maintenance_model extends CI_Model
       $totalFund = $this->maintenance_model->getCurrentFund($Branch);
       $totalActiveLoans = $this->maintenance_model->getActiveLoans($Branch);
       $totalUsers = $this->maintenance_model->getTotalUsers($Branch);
+      $totalDeposit = $this->maintenance_model->getTotalDeposit($Branch);
 
-      array_push($dataArray, $TotalBorrowers['Total'], $TotalEmployees['Total'], $TotalInterest['Total'], $totalExpense['Total'], $dailyIncome['Total'], $TotalTransaction['Total'], $dailyPenalties['Total'], $dailyApprovedLoans['Total'], $dailyDisbursement['Total'], $dailyExpenses['Total'], $TotalDisbursement['Total'], $totalIncome['Total'], $totalFund['Total'], $totalActiveLoans['Total'], $totalUsers['Total']);
+      array_push($dataArray, $TotalBorrowers['Total'], $TotalEmployees['Total'], $TotalInterest['Total'], $totalExpense['Total'], $dailyIncome['Total'], $TotalTransaction['Total'], $dailyPenalties['Total'], $dailyApprovedLoans['Total'], $dailyDisbursement['Total'], $dailyExpenses['Total'], $TotalDisbursement['Total'], $totalIncome['Total'], $totalFund['Total'], $totalActiveLoans['Total'], $totalUsers['Total'], $totalDeposit['Total']);
 
       return $dataArray;
     }

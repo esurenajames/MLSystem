@@ -768,7 +768,7 @@
         $('#lblTotalBorrowers').html(data[0]);
         $('#lblTotalEmployees').html(data[1]);
         $('#lblTotalUsers').html(data[1]);
-        $('#lblCurrentFund').html(parseInt((parseInt(data[12]) + parseInt(data[11])) - (parseInt(data[3]) + parseInt(data[10]))).toLocaleString('en-US', {minimumFractionDigits: 2}));
+        $('#lblCurrentFund').html(parseInt((parseInt(data[12]) + parseInt(data[15]) + parseInt(data[11])) - (parseInt(data[3]) + parseInt(data[10]))).toLocaleString('en-US', {minimumFractionDigits: 2}));
 
         $('.classSelectReportType').val('Bar Graph').change();
 
