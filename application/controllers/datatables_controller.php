@@ -114,6 +114,16 @@ class datatables_controller extends CI_Controller {
 		echo json_encode($result);
 	}
 
+	function Disclosures()
+	{
+		$result = $this->maintenance_model->getAllDisclosures();
+		foreach($result as $key=>$row)
+		{
+			$result[$key]['Name'] = $this->maintenance_model->getUserCreated($row['CreatedBy']);
+		}
+		echo json_encode($result);
+	}
+
 	function Repayments()
 	{
 		$result = $this->maintenance_model->getAllRepayments();
@@ -328,6 +338,16 @@ class datatables_controller extends CI_Controller {
 		$dateDepositTo = $this->uri->segment(9);
 		$branchId = $this->uri->segment(10);
 		$result = $this->maintenance_model->getAllWithdrawals($Status, $DepositType, $CreatedBy, $DepositFrom, $DepositTo, $dateDepositFrom, $dateDepositTo, $branchId);
+		foreach($result as $key=>$row)
+		{
+			$result[$key]['Name'] = $this->maintenance_model->getUserCreated($row['CreatedBy']);
+		}
+		echo json_encode($result);
+	}
+
+	function SecurityQuestions()
+	{
+		$result = $this->maintenance_model->getAllQuestion();
 		foreach($result as $key=>$row)
 		{
 			$result[$key]['Name'] = $this->maintenance_model->getUserCreated($row['CreatedBy']);

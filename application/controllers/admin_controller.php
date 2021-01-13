@@ -2929,6 +2929,188 @@ class admin_controller extends CI_Controller {
     }
   }
 
+  function AddDisclosure()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $DisclosureDetail = $this->admin_model->getDisclosureDetails($_POST['DisclosureId']);
+    $DateNow = date("Y-m-d H:i:s");
+    if ($_POST['FormType'] == 1) // add Disclosure
+    {
+      $data = array(
+        'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
+      );
+      $query = $this->admin_model->countDisclosure($data);
+      print_r($query);
+      if($query == 0) // not existing
+      {
+        // insert Disclosure Agreement details
+          $insertDisclosure = array(
+           'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
+            , 'CreatedBy'              => $EmployeeNumber
+            , 'UpdatedBy'              => $EmployeeNumber
+          );
+          $insertDisclosureTable = 'R_DisclosureAgreement';
+          $this->maintenance_model->insertFunction($insertDisclosure, $insertDisclosureTable);
+        // get generated application id
+          $getData = array(
+            'table'                 => 'R_DisclosureAgreement'
+            , 'column'              => 'DisclosureId'
+            , 'CreatedBy'           => $EmployeeNumber
+          );
+          $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+        // admin audits finalss
+          $TransactionNumber = 'DA-'.sprintf('%06d', $generatedId['DisclosureId']);
+          $auditLogsManager = 'Added disclosure agreement #'.$TransactionNumber.' in disclosure agreement setup.';
+          $auditAffectedEmployee = 'Added disclosure agreement #'.$TransactionNumber.' in disclosure agreement setup.';
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
+        // notification
+          $this->session->set_flashdata('alertTitle','Success!'); 
+          $this->session->set_flashdata('alertText','Disclosure agreement successfully recorded!'); 
+          $this->session->set_flashdata('alertType','success'); 
+          redirect('home/AddDisclosure');
+      }
+      else
+      {
+        // notification
+          $this->session->set_flashdata('alertTitle','Warning!'); 
+          $this->session->set_flashdata('alertText','Disclosure agreement already existing!'); 
+          $this->session->set_flashdata('alertType','warning'); 
+          redirect('home/AddDisclosure');
+      }
+    }
+    else if($_POST['FormType'] == 2) // edit Disclosure 
+    {
+      $data = array(
+       'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
+      );
+      $query = $this->admin_model->countDisclosure($data);
+      if($query == 0)
+      {
+        if($DisclosureDetail['Description'] != htmlentities($_POST['Description'], ENT_QUOTES))
+        {
+          // update function
+            $set = array(
+              'Description' => htmlentities($_POST['Description'], ENT_QUOTES)
+            );
+            $condition = array(
+              'DisclosureId' => $_POST['DisclosureId']
+            );
+            $table = 'R_DisclosureAgreement';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+        }
+        // admin audits finalss
+          $TransactionNumber = 'DA-'.sprintf('%06d', $_POST['DisclosureId']);
+          $auditLogsManager = 'Updated disclosure agreement details #'.$TransactionNumber.' in disclosure agreement setup.';
+          $auditAffectedEmployee = 'Updated disclosure agreement details #'.$TransactionNumber.' in disclosure agreement setup.';
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
+        // notif
+          $this->session->set_flashdata('alertTitle','Success!'); 
+          $this->session->set_flashdata('alertText','Disclosure agreement details successfully updated!'); 
+          $this->session->set_flashdata('alertType','success'); 
+          redirect('home/AddDisclosure/');
+      }
+    }
+    else // if existing
+    {
+      // notif
+      $this->session->set_flashdata('alertTitle','Warning!'); 
+      $this->session->set_flashdata('alertText','Disclosure agreement details already existing!'); 
+      $this->session->set_flashdata('alertType','warning'); 
+      redirect('home/AddDisclosure/');
+    }
+  }
+
+  function AddSecurityQuestion()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $QuestionDetail = $this->admin_model->getQuestionDetails($_POST['SecurityQuestionId']);
+    $DateNow = date("Y-m-d H:i:s");
+    if ($_POST['FormType'] == 1) // add Security Question
+    {
+      $data = array(
+        'Name'            => htmlentities($_POST['Description'], ENT_QUOTES)
+      );
+      $query = $this->admin_model->countQuestion($data);
+      print_r($query);
+      if($query == 0) // not existing
+      {
+        // insert Security Question details
+          $insertQuestion = array(
+           'Name'            => htmlentities($_POST['Description'], ENT_QUOTES)
+            , 'CreatedBy'              => $EmployeeNumber
+            , 'UpdatedBy'              => $EmployeeNumber
+          );
+          $insertQuestionTable = 'R_SecurityQuestions';
+          $this->maintenance_model->insertFunction($insertQuestion, $insertQuestionTable);
+        // get generated application id
+          $getData = array(
+            'table'                 => 'R_SecurityQuestions'
+            , 'column'              => 'SecurityQuestionId'
+            , 'CreatedBy'           => $EmployeeNumber
+          );
+          $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+        // admin audits finalss
+          $TransactionNumber = 'SQ-'.sprintf('%06d', $generatedId['SecurityQuestionId']);
+          $auditLogsManager = 'Added security question #'.$TransactionNumber.' in security question setup.';
+          $auditAffectedEmployee = 'Added security question #'.$TransactionNumber.' in security question setup.';
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
+        // notification
+          $this->session->set_flashdata('alertTitle','Success!'); 
+          $this->session->set_flashdata('alertText','Security question successfully recorded!'); 
+          $this->session->set_flashdata('alertType','success'); 
+          redirect('home/AddSecurityQuestions');
+      }
+      else
+      {
+        // notification
+          $this->session->set_flashdata('alertTitle','Warning!'); 
+          $this->session->set_flashdata('alertText','Security question already existing!'); 
+          $this->session->set_flashdata('alertType','warning'); 
+          redirect('home/AddSecurityQuestions');
+      }
+    }
+    else if($_POST['FormType'] == 2) // edit Question 
+    {
+      $data = array(
+       'Description'            => htmlentities($_POST['Description'], ENT_QUOTES)
+      );
+      $query = $this->admin_model->countDisclosure($data);
+      if($query == 0)
+      {
+        if($DisclosureDetail['Description'] != htmlentities($_POST['Description'], ENT_QUOTES))
+        {
+          // update function
+            $set = array(
+              'Description' => htmlentities($_POST['Description'], ENT_QUOTES)
+            );
+            $condition = array(
+              'SecurityQuestionId' => $_POST['SecurityQuestionId']
+            );
+            $table = 'R_SecurityQuestions';
+            $this->maintenance_model->updateFunction1($set, $condition, $table);
+        }
+        // admin audits finalss
+          $TransactionNumber = 'DA-'.sprintf('%06d', $_POST['DisclosureId']);
+          $auditLogsManager = 'Updated security question details #'.$TransactionNumber.' in security question setup.';
+          $auditAffectedEmployee = 'Updated security question details #'.$TransactionNumber.' in security question setup.';
+          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
+        // notif
+          $this->session->set_flashdata('alertTitle','Success!'); 
+          $this->session->set_flashdata('alertText','Security question details successfully updated!'); 
+          $this->session->set_flashdata('alertType','success'); 
+          redirect('home/AddSecurityQuestion/');
+      }
+    }
+    else // if existing
+    {
+      // notif
+      $this->session->set_flashdata('alertTitle','Warning!'); 
+      $this->session->set_flashdata('alertText','Security question details already existing!'); 
+      $this->session->set_flashdata('alertType','warning'); 
+      redirect('home/AddSecurityQuestion/');
+    }
+  }
+
   function getBankDetails()
   {
     $output = $this->admin_model->getBankDetails($this->input->post('Id'));
@@ -2974,6 +3156,13 @@ class admin_controller extends CI_Controller {
   function getOptionalDetails()
   {
     $output = $this->admin_model->getOptionalDetails($this->input->post('Id'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getQuestionDetails()
+  {
+    $output = $this->admin_model->getQuestionDetails($this->input->post('Id'));
     $this->output->set_output(print(json_encode($output)));
     exit();
   }
@@ -3030,6 +3219,13 @@ class admin_controller extends CI_Controller {
   function getDisbursementDetails()
   {
     $output = $this->admin_model->getDisbursementDetails($this->input->post('Id'));
+    $this->output->set_output(print(json_encode($output)));
+    exit();
+  }
+
+  function getDisclosureDetails()
+  {
+    $output = $this->admin_model->getDisclosureDetails($this->input->post('Id'));
     $this->output->set_output(print(json_encode($output)));
     exit();
   }
@@ -3196,6 +3392,7 @@ class admin_controller extends CI_Controller {
       $this->db->truncate('t_changemade');
       $this->db->truncate('t_paymentdue');
       $this->db->truncate('t_paymentsmade');
+      $this->db->truncate('R_DisclosureAgreement');
       $this->db->truncate('r_userrole_has_r_securityquestions');
       $this->db->truncate('R_UserAccess');
       $this->db->truncate('employee_has_status');
