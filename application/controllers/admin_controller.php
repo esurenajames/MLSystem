@@ -3210,6 +3210,14 @@ class admin_controller extends CI_Controller {
       $this->db->truncate('R_UserAccess');
       $this->db->truncate('employee_has_status');
                           // SET foreign_key_checks = 1 ;
+      // add bank
+        $insertDataBank = array(
+          'BankName' => 'Cash',
+          'CreatedBy' => '000000',
+          'StatusId' => 1,
+        );
+        $auditTableBank = 'application_has_status';
+        $this->maintenance_model->insertFunction($insertDataBank, $auditTableBank);
       // application has status
         $insertData1 = array(
           'Name' => 'Approved',

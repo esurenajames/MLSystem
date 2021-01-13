@@ -209,7 +209,8 @@
               <div class="icon">
                 <i class="fa fa-credit-card"></i>
               </div>
-              <a href="<?php echo base_url(); ?>/home/AddInitialCapital" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+              <a href="#" class="small-box-footer">Disbursements released in loan applications</a>
+              <!-- <a href="<?php echo base_url(); ?>/home/AddInitialCapital" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a> -->
             </div>
           </div>
         <?php } ?>
@@ -767,7 +768,7 @@
         $('#lblTotalBorrowers').html(data[0]);
         $('#lblTotalEmployees').html(data[1]);
         $('#lblTotalUsers').html(data[1]);
-        $('#lblCurrentFund').html(parseInt((parseInt(data[12]) + parseInt(data[11])) - (parseInt(data[2]) + parseInt(data[10]))).toLocaleString('en-US', {minimumFractionDigits: 2}));
+        $('#lblCurrentFund').html(parseInt((parseInt(data[12]) + parseInt(data[11])) - (parseInt(data[3]) + parseInt(data[10]))).toLocaleString('en-US', {minimumFractionDigits: 2}));
 
         $('.classSelectReportType').val('Bar Graph').change();
 

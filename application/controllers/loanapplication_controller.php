@@ -4002,24 +4002,24 @@ class loanapplication_controller extends CI_Controller {
               $html .='<td>Php '.number_format($result['Total'] + $result2['Total'], 2).'</td>';
             }
           $html .='</tr>';
+          // $html .='<tr>';
+          // $html .='<td>b. Ratio of Non-Performing Loans to Total Loan Portfolio</td>';
+          //   foreach ($years as $yearlyValue)
+          //   {
+          //     $result = $this->loanapplication_model->getTotalLoanAmount($yearlyValue['Year'], $_POST['BranchId']);
+          //     $html .='<td>Php '.number_format($result['Total'], 2).'</td>';
+          //   }
+          // $html .='</tr>';
+          // $html .='<tr>';
+          // $html .='<td>c. Past Due Ratio and Write-Off Ratio to Total Loan Portfolio</td>';
+          //   foreach ($years as $yearlyValue)
+          //   {
+          //     $result = $this->loanapplication_model->getTotalLoanAmount($yearlyValue['Year'], $_POST['BranchId']);
+          //     $html .='<td>Php '.number_format($result['Total'], 2).'</td>';
+          //   }
+          // $html .='</tr>';
           $html .='<tr>';
-          $html .='<td>b. Ratio of Non-Performing Loans to Total Loan Portfolio</td>';
-            foreach ($years as $yearlyValue)
-            {
-              $result = $this->loanapplication_model->getTotalLoanAmount($yearlyValue['Year'], $_POST['BranchId']);
-              $html .='<td>Php '.number_format($result['Total'], 2).'</td>';
-            }
-          $html .='</tr>';
-          $html .='<tr>';
-          $html .='<td>c. Past Due Ratio and Write-Off Ratio to Total Loan Portfolio</td>';
-            foreach ($years as $yearlyValue)
-            {
-              $result = $this->loanapplication_model->getTotalLoanAmount($yearlyValue['Year'], $_POST['BranchId']);
-              $html .='<td>Php '.number_format($result['Total'], 2).'</td>';
-            }
-          $html .='</tr>';
-          $html .='<tr>';
-          $html .='<td>d. Total Assets</td>';
+          $html .='<td>b. Total Assets</td>';
             foreach ($years as $yearlyValue)
             {
               $result = $this->loanapplication_model->getCurrentFund($yearlyValue['Year'], $_POST['BranchId']);
@@ -4027,7 +4027,7 @@ class loanapplication_controller extends CI_Controller {
             }
           $html .='</tr>';
           $html .='<tr>';
-          $html .='<td>e. Gross Revenue</td>';
+          $html .='<td>c. Gross Revenue</td>';
             foreach ($years as $yearlyValue)
             {
               $result = $this->loanapplication_model->getTotalGross($yearlyValue['Year'], $_POST['BranchId']);
@@ -4035,7 +4035,7 @@ class loanapplication_controller extends CI_Controller {
             }
           $html .='</tr>';
           $html .='<tr>';
-          $html .='<td>f. Net Income</td>';
+          $html .='<td>d. Net Income</td>';
             foreach ($years as $yearlyValue)
             {
               $result = $this->loanapplication_model->getTotalGross($yearlyValue['Year'], $_POST['BranchId']);
