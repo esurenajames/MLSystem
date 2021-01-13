@@ -89,7 +89,7 @@
                   </div>
                   <br>
                   <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                       <div class="form-group">
                         <label>Source<span class="text-red">*</span></label><br>
                         <select class="form-control" onchange="functionSourceChange(this.value); loanSummary()" id="selectSource" style="width: 100%" required="" name="SourceType">
@@ -104,7 +104,7 @@
                         </div>
                       </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                       <div class="form-group">
                         <label>Purpose<span class="text-red">*</span></label><br>
                         <select class="form-control" style="width: 100%" onchange="loanSummary()" id="selectPurpose" name="PurposeId">
@@ -115,7 +115,7 @@
                         <a target="_blank" href="<?php echo base_url();?>/home/AddPurpose"> Add/Edit Purpose</a>
                       </div>
                     </div>
-                    <div class="col-md-4">
+                    <!-- <div class="col-md-4">
                       <div class="form-group">
                         <div class="form-group">
                             <div class="form-group">
@@ -129,7 +129,7 @@
                             </div>
                         </div>
                       </div>
-                    </div>
+                    </div> -->
                   </div>
                   <div class="row">
                     <div class="col-md-6">
@@ -435,22 +435,22 @@
                   <h4>Loan Product</h4>
                   <hr>
                   <div class="row">
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                       <label>Loan Type</label>
                       <h6 id="lblLoanType"></h6>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                       <label>Source</label>
                       <h6 id="lblSource"></h6>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                       <label>Purpose</label>
                       <h6 id="lblPurpose"></h6>
                     </div>
-                    <div class="col-md-3">
+                    <!-- <div class="col-md-3">
                       <label>Loan Release Date</label>
                       <h6 id="lblReleaseDate"></h6>
-                    </div>
+                    </div> -->
                   </div>
                   <div class="row">
                     <div class="col-md-3">
@@ -885,7 +885,7 @@
           $('.lblEName').html(data['ExtName']);
           $('.lblEmailAddress').html(data['EmailAddress']);
           $('.lblContactNumber').html(data['ContactNumber']);
-          $('.lblDOB').html(data['DateOfBirth']);
+          $('.lblDOB').html(data['DateOfBirth'] + ' | ' + data['Age'] + ' years old');
           $('.lblBorrowerStatus').html(data['StatusDescription']);
           $('.divBorrowerBtn').html('<a target="_blank" href="<?php echo base_url();?>home/BorrowerDetails/'+data['BorrowerId']+'">View Borrower Details</a>');
 
@@ -1348,7 +1348,7 @@
               $.each(data, function (a, b) {
                 row = row + 1; 
 
-                if(b.ChargeType == 'Percentage')
+                if(b.ChargeType == 1)
                 {
                   total = parseInt(b.Amount)/100 * parseInt(PrincipalAmount);
                   amount = parseInt(b.Amount).toLocaleString('en-US', {minimumFractionDigits: 2}) + '%';
@@ -1430,7 +1430,7 @@
       if($('#selectCheck'+rowId+'').is(":checked") == true)
       {
         $('#isSelected'+rowId+'').val(1)
-        if(ChargeType == 'Percentage')
+        if(ChargeType == 1)
         {
           displayTotal = parseInt(displayTotal) +  parseInt(ChargeAmount)/100 * parseInt(PrincipalAmount);
         }
@@ -1442,7 +1442,7 @@
       else
       {
         $('#isSelected'+rowId+'').val(0)
-        if(ChargeType == 'Percentage')
+        if(ChargeType == 1)
         {
           displayTotal = parseInt(displayTotal) - parseInt(ChargeAmount)/100 * parseInt(PrincipalAmount);
         }

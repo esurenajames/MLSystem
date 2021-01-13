@@ -667,10 +667,13 @@ class maintenance_model extends CI_Model
 
     function getAllAssets($Status, $AssetCategory, $PurchaseRangeFrom, $PurchaseRangeTo, $BranchId)
     {
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $defaultSearch = 'WHERE AM.BranchId = ' . $AssignedBranchId;
       $search = '';
       if($PurchaseRangeFrom != '' && $PurchaseRangeTo != '')
       {
-        $search .= " AND PurchaseValue BETWEEN '".$PurchaseRangeFrom."' AND '".$PurchaseRangeTo."'";
+        $search .= "WHERE PurchaseValue BETWEEN '".$PurchaseRangeFrom."' AND '".$PurchaseRangeTo."'";
+        $defaultSearch = '';
       }
       if($Status != '')
       {
@@ -683,24 +686,29 @@ class maintenance_model extends CI_Model
                             THEN 'Critical'
                             ELSE 'Deactivated'
                             END = 'Critical'";
+          $defaultSearch = '';
         }
         else
         {
           $search .= " AND AM.StatusId = " . $Status;
+          $defaultSearch = '';
         }
       }
       if($AssetCategory != '')
       {
         $search .= " AND AM.CategoryId = " . $AssetCategory;
+        $defaultSearch = '';
       }
 
       if($BranchId == 'All')
       {
         $search .= " ";
+        $defaultSearch = '';
       }
       else if($BranchId != '')
       {
         $search .= " AND AM.BranchId = " . $BranchId;
+        $defaultSearch = '';
       }
       $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT FORMAT(PurchaseValue, 2) PurchaseValue 
@@ -743,8 +751,8 @@ class maintenance_model extends CI_Model
                                                       ON BRNCH.BranchId = AM.BranchId
                                                     INNER JOIN R_Employee EMP
                                                       ON EMP.EmployeeNumber = AM.CreatedBy
-                                                      WHERE EMP.StatusId = 2
                                                       ".$search."
+                                                      ".$defaultSearch."
       ");
       $data = $query_string->result_array();
       return $data;
@@ -1783,7 +1791,6 @@ class maintenance_model extends CI_Model
                                             INNER JOIN branch_has_employee BE
                                               ON BE.EmployeeNumber = EMP.EmployeeNumber
                                                 WHERE EMP.StatusId = 2
-                                                  AND BE.BranchId = $AssignedBranchId
                                                   AND EMP.EmployeeNumber != 000000
       ");
       $output = '<option disabled>Select Approver</option>';

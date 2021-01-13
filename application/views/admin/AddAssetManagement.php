@@ -338,10 +338,11 @@
               buttonsStyling: false,
               confirmButtonClass: 'btn btn-primary'
             });
+            $('.loading').hide();
           },
           error: function (response) 
           {
-            refreshPage();
+            $('.loading').hide();
             swal({
               title: 'Warning!',
               text: 'Something went wrong, please contact the administrator or refresh page!',
@@ -383,6 +384,7 @@
         $('#txtAssetManagementId').val(AssetManagementId);
         $('#txtFormType').val(2);
         selectEmployees(data['BranchId'], data['AssignedTo'], 2);
+        $('.loading').hide();
       },
 
       error: function()
@@ -395,7 +397,7 @@
             buttonsStyling: false,
             confirmButtonClass: 'btn btn-primary'
           });
-          // location.reload();
+          $('.loading').hide();
         }, 2000);
       }
     });
@@ -447,6 +449,7 @@
           {
             $('#selectAssignedTo').html(data);
             $('#selectAssignedTo').prop('disabled', false);
+            $('.loading').hide();
           }
         })
       }
@@ -465,6 +468,7 @@
           $('#selectAssignedTo').html(data);
           $('#selectAssignedTo').val(selectedEmployee).change();
           $('#selectAssignedTo').prop('disabled', false);
+          $('.loading').hide();
         }
       })
     }

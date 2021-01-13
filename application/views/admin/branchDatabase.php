@@ -126,9 +126,11 @@
               buttonsStyling: false,
               confirmButtonClass: 'btn btn-primary'
             });
+            $('.loading').hide();
           },
           error: function (response) 
           {
+            $('.loading').hide();
             refreshPage();
             swal({
               title: 'Warning!',

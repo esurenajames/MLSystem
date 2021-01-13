@@ -111,7 +111,7 @@
                     <div class="col-md-6">
                       <div class="form-group">
                         <label>Download Format <span class="text-red">*</span></label><br>
-                        <a class="btn btn-sm btn-success" href="<?php echo base_url();?>/employeeUpload/BorrowerUpload.xlsx" title="Download">Download</a>
+                        <a class="btn btn-sm btn-success" href="<?php echo base_url();?>/employeeUpload/LoanUpload.xlsx" title="Download">Download</a>
                       </div>
                     </div>
                   </div>
@@ -139,6 +139,7 @@
             <table id="dtblApproval" class="table table-bordered table-hover" style="width: 100%">
               <thead>
               <tr>
+                <th>Branch</th>
                 <th>Reference No.</th>
                 <th>Loan Type</th>
                 <th>Borrower</th>
@@ -187,11 +188,57 @@
     $('#modalFilter').modal('hide');
   }
 
+  $('#upload_form3').on('submit', function(event){
+    event.preventDefault();
+    $.ajax({
+      url: "<?php echo base_url(); ?>loanapplication_controller/uploadForm3Excel",
+      method: "POST",
+      data: new FormData(this),
+      contentType: false,
+      cache: false,
+      processData: false,
+      success: function(data){
+        if(data != "Error inserting to Consolidated Damaged Item" || data != "File not set")
+        {
+          swal({
+            title: 'Success!',
+            text: data,
+            type: 'success',
+            buttonsStyling: false,
+            confirmButtonClass: 'btn btn-primary'
+          });
+          // location.reload();
+            // this.reset();
+        }
+        else
+        {
+          swal({
+            title: 'Error!',
+            text: 'Unable to import data.',
+            type: 'error',
+            buttonsStyling: false,
+            confirmButtonClass: 'btn btn-primary'
+          });
+        }
+      },
+      error: function(data){
+        swal({
+          title: 'Error!',
+          text: 'Unable to import data. Please make sure all required fields are filled out or uploading file is valid.',
+          type: 'error',
+          buttonsStyling: false,
+          confirmButtonClass: 'btn btn-primary'
+        });
+      }
+    }); // AJAX END
+  });
+
   var TotalInterest = 0;
   table = $('#dtblApproval').DataTable({
     "pageLength": 10,
     "ajax": { url: '<?php echo base_url()."/datatables_controller/displayAllLoans/"; ?>', type: 'POST', "dataSrc": "" },
-    "columns": [  { data: "TransactionNumber" }
+    "columns": [  { data: "Branch" }
+      , { data: "TransactionNumber" }
       , { data: "LoanName" }
       , { data: "BorrowerName" }
       , { data: "PrincipalAmount" }

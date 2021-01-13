@@ -59,7 +59,7 @@
           <br>
           <br>
           <form name="ApproverDocForm" method="post" id="ApproverDocForm">
-            <table id="example1" class="table table-bordered table-hover">
+            <table id="example1" style="width: 100%" class="table table-bordered table-hover">
               <thead>
               <tr>
                 <th>Reference No</th>
@@ -151,10 +151,11 @@
               buttonsStyling: false,
               confirmButtonClass: 'btn btn-primary'
             });
+            $('.loading').hide();
           },
           error: function (response) 
           {
-            refreshPage();
+            $('.loading').hide();
             swal({
               title: 'Warning!',
               text: 'Something went wrong, please contact the administrator or refresh page!',
@@ -186,6 +187,7 @@
         $('#txtDescription').val(data['Description']);
         $('#txtPurposeId').val(PurposeId);
         $('#txtFormType').val(2);
+        $('.loading').hide();
       },
 
       error: function()
@@ -198,7 +200,7 @@
             buttonsStyling: false,
             confirmButtonClass: 'btn btn-primary'
           });
-          // location.reload();
+        $('.loading').hide();
         }, 2000);
       }
     });

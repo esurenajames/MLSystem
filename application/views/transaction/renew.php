@@ -400,17 +400,20 @@
                       <?php
                         $totalOtherSources = 0;
                         $rowNumber = 0;
-                        foreach ($income as $value) 
+                        if($income > 0)
                         {
-                          $totalOtherSources = $totalOtherSources + $value['Amount'];
-                          $rowNumber = $rowNumber + 1;
-                          echo '<tr id="rowIncomeId'.$rowNumber.'" value="'.$rowNumber.'">';
-                          echo '<td id="rowNumber'.$rowNumber.'">'.$rowNumber.'</td>';
-                          echo '<td><input type="text" value="'.$value['Source'].'" class="form-control" name="MISourceIncome[]"><input type="hidden" required="" class="form-control" name="countMonthlyIncome[]" value="'.$rowNumber.'"></td>';
-                          echo '<td><input type="text" class="form-control" value="'.$value['Details'].'" name="MIDetails[]"></td>';
-                          echo '<td><input required="" type="text" class="form-control incomeAmount"  value="'.number_format($value['Amount'], 2).'" min="0"  placeholder="0.00" oninput="changeAmount(this.value, 1, '.$rowNumber.')" name="MIAmount[]"></td>';
-                          echo '<td><a id="' .$rowNumber. '" class="btn btnRemoveIncome btn-sm btn-danger" title="Remove"><span class="fa fa-minus"></span></a> </td>';
-                          echo "</tr>";
+                          foreach ($income as $value) 
+                          {
+                            $totalOtherSources = $totalOtherSources + $value['Amount'];
+                            $rowNumber = $rowNumber + 1;
+                            echo '<tr id="rowIncomeId'.$rowNumber.'" value="'.$rowNumber.'">';
+                            echo '<td id="rowNumber'.$rowNumber.'">'.$rowNumber.'</td>';
+                            echo '<td><input type="text" value="'.$value['Source'].'" class="form-control" name="MISourceIncome[]"><input type="hidden" required="" class="form-control" name="countMonthlyIncome[]" value="'.$rowNumber.'"></td>';
+                            echo '<td><input type="text" class="form-control" value="'.$value['Details'].'" name="MIDetails[]"></td>';
+                            echo '<td><input required="" type="text" class="form-control incomeAmount"  value="'.number_format($value['Amount'], 2).'" min="0"  placeholder="0.00" oninput="changeAmount(this.value, 1, '.$rowNumber.')" name="MIAmount[]"></td>';
+                            echo '<td><a id="' .$rowNumber. '" class="btn btnRemoveIncome btn-sm btn-danger" title="Remove"><span class="fa fa-minus"></span></a> </td>';
+                            echo "</tr>";
+                          }
                         }
                       ?>
                     </tbody>
@@ -445,17 +448,20 @@
                       <?php 
                         $TotalExpense = 0;
                         $rowNumber = 0;
-                        foreach ($expense as $value) 
+                        if($expense > 0)
                         {
-                          $TotalExpense = $TotalExpense + $value['Amount'];
-                          $rowNumber = $rowNumber + 1;
-                          echo '<tr id="rowExpenseId' .$rowNumber. '" value="' .$rowNumber. '">';
-                          echo '<td id="rowNumber' .$rowNumber. '">' .$rowNumber. '</td>';
-                          echo '<td><input type="text" value="'.$value['Source'].'" class="form-control" name="SourceExpenses[]"><input type="hidden" required="" class="form-control" name="countRow[]" value="' .$rowNumber. '"></td>';
-                          echo '<td><input type="text" value="'.$value['Details'].'" class="form-control" name="Details[]"></td>';
-                          echo '<td><input required="" type="number"  value="'.$value['Amount'].'" class="form-control expenseAmount" name="Amount[]" placeholder="0.00" oninput="changeAmount(this.value, 2, ' .$rowNumber. ')"></td>';
-                          echo '<td><a id="' .$rowNumber. '" class="btn btnRemoveExpense btn-sm btn-danger" title="Remove"><span class="fa fa-minus"></span></a> </td>';
-                          echo "</tr>";
+                          foreach ($expense as $value) 
+                          {
+                            $TotalExpense = $TotalExpense + $value['Amount'];
+                            $rowNumber = $rowNumber + 1;
+                            echo '<tr id="rowExpenseId' .$rowNumber. '" value="' .$rowNumber. '">';
+                            echo '<td id="rowNumber' .$rowNumber. '">' .$rowNumber. '</td>';
+                            echo '<td><input type="text" value="'.$value['Source'].'" class="form-control" name="SourceExpenses[]"><input type="hidden" required="" class="form-control" name="countRow[]" value="' .$rowNumber. '"></td>';
+                            echo '<td><input type="text" value="'.$value['Details'].'" class="form-control" name="Details[]"></td>';
+                            echo '<td><input required="" type="number"  value="'.$value['Amount'].'" class="form-control expenseAmount" name="Amount[]" placeholder="0.00" oninput="changeAmount(this.value, 2, ' .$rowNumber. ')"></td>';
+                            echo '<td><a id="' .$rowNumber. '" class="btn btnRemoveExpense btn-sm btn-danger" title="Remove"><span class="fa fa-minus"></span></a> </td>';
+                            echo "</tr>";
+                          }
                         }
                       ?>
                     </tbody>
@@ -491,17 +497,20 @@
                         $totalObligation = 0;
 
                         $rowNumber = 0;
-                        foreach ($obligations as $value) 
+                        if($obligations > 0)
                         {
-                          $totalObligation = $totalObligation + $value['Amount'];
-                          $rowNumber = $rowNumber + 1;
-                          echo '<tr id="rowObligationId' .$rowNumber. '" value="' .$rowNumber. '">';
-                          echo '<td id="rowNumber' .$rowNumber. '">' .$rowNumber. '</td>';
-                          echo '<td><input type="text" class="form-control" value="'.$value['Source'].'"  name="SourceObligations[]"><input type="hidden" required="" class="form-control" name="countObligationRow[]" value="' .$rowNumber. '"></td>';
-                          echo '<td><input type="text" class="form-control" value="'.$value['Details'].'"  name="ObligationDetails[]"></td>';
-                          echo '<td><input required="" type="text" value="'.$value['Amount'].'"  class="form-control obligationAmount" name="ObligationAmount[]" placeholder="0.00" oninput="changeAmount(this.value, 3, ' .$rowNumber. ')"></td>';
-                          echo '<td><a id="' .$rowNumber. '" class="btn btnRemoveObligation btn-sm btn-danger" title="Remove"><span class="fa fa-minus"></span></a> </td>';
-                          echo "</tr>";
+                          foreach ($obligations as $value) 
+                          {
+                            $totalObligation = $totalObligation + $value['Amount'];
+                            $rowNumber = $rowNumber + 1;
+                            echo '<tr id="rowObligationId' .$rowNumber. '" value="' .$rowNumber. '">';
+                            echo '<td id="rowNumber' .$rowNumber. '">' .$rowNumber. '</td>';
+                            echo '<td><input type="text" class="form-control" value="'.$value['Source'].'"  name="SourceObligations[]"><input type="hidden" required="" class="form-control" name="countObligationRow[]" value="' .$rowNumber. '"></td>';
+                            echo '<td><input type="text" class="form-control" value="'.$value['Details'].'"  name="ObligationDetails[]"></td>';
+                            echo '<td><input required="" type="text" value="'.$value['Amount'].'"  class="form-control obligationAmount" name="ObligationAmount[]" placeholder="0.00" oninput="changeAmount(this.value, 3, ' .$rowNumber. ')"></td>';
+                            echo '<td><a id="' .$rowNumber. '" class="btn btnRemoveObligation btn-sm btn-danger" title="Remove"><span class="fa fa-minus"></span></a> </td>';
+                            echo "</tr>";
+                          }
                         }
                       ?>
                     </tbody>
@@ -988,7 +997,7 @@
           $('.lblEName').html(data['ExtName']);
           $('.lblEmailAddress').html(data['EmailAddress']);
           $('.lblContactNumber').html(data['ContactNumber']);
-          $('.lblDOB').html(data['DateOfBirth']);
+          $('.lblDOB').html(data['DateOfBirth'] + ' | ' + data['Age'] + ' years old');
           $('.lblBorrowerStatus').html(data['StatusDescription']);
           $('.divBorrowerBtn').html('<a target="_blank" href="<?php echo base_url();?>home/BorrowerDetails/'+data['BorrowerId']+'">View Borrower Details</a>');
         },

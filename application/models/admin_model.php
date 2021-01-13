@@ -11,7 +11,7 @@ class admin_model extends CI_Model
 
     function getAuditLogs()
     {
-      $query_string = $this->db->query("SELECT  Description
+      $query_string = $this->db->query("SELECT  L.Description
                                                 , CONCAT(FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as Name
                                                 , CASE
                                                   WHEN Remarks IS NULL
@@ -20,9 +20,13 @@ class admin_model extends CI_Model
                                                 END as Remarks
                                                 , DATE_FORMAT(L.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                                 , LogId
+                                                , BRNCH.Name as Branch
                                                 FROM R_Logs L
                                                   INNER JOIN R_Employee EMP
                                                     ON EMP.EmployeeNumber = L.CreatedBy
+                                                  INNER JOIN R_Branches BRNCH
+                                                    ON BRNCH.BranchId = L.BranchId
+                                                    ORDER BY DateCreated DESC
       ");
       $data = $query_string->result_array();
       return $data;
@@ -603,6 +607,7 @@ class admin_model extends CI_Model
       $query_string = $this->db->query("SELECT  * 
                                                 FROM R_ExpenseType ET
                                                   WHERE ET.Name = '".$data['Name']."'
+                                                  AND ET.Description = '".$data['Description']."'
       ");
       $data = $query_string->num_rows();
       return $data;
@@ -655,6 +660,7 @@ class admin_model extends CI_Model
       $query_string = $this->db->query("SELECT  * 
                                                 FROM R_WithdrawalType WT
                                                   WHERE WT.Name = '".$data['Name']."'
+                                                  AND WT.Description = '".$data['Description']."'
                                                   AND StatusId = 1
       ");
       $data = $query_string->num_rows();
@@ -1339,7 +1345,7 @@ class admin_model extends CI_Model
       else if($input['tableType'] == 'Disbursement')
       {
         $Detail = $this->db->query("SELECT  Name
-                                            , CONCAT('DIS-', LPAD(RC.DisbursementId, 6, 0)) as ReferenceNo
+                                            , CONCAT('DB-', LPAD(RC.DisbursementId, 6, 0)) as ReferenceNo
                                             FROM R_Disbursement RC
                                               WHERE DisbursementId = ".$input['Id']."
         ")->row_array();
@@ -1541,11 +1547,13 @@ class admin_model extends CI_Model
 
     function finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $ManagerId, $AffectedEmployeeNumber, $auditLoanDets, $ApplicationId, $independentTable, $independentColumn)
     {
+      $AssignedBranchId = $this->session->userdata('EmployeeNumber');
       $CreatedBy = $this->session->userdata('EmployeeNumber');
       $DateNow = date("Y-m-d H:i:s");
       $insertMainLog = array(
         'Description'       => $auditLogsManager
         , 'CreatedBy'       => $CreatedBy
+        , 'BranchId'        => $AssignedBranchId
       );
       $auditTable1 = 'R_Logs';
       $this->maintenance_model->insertFunction($insertMainLog, $auditTable1);
@@ -1553,6 +1561,7 @@ class admin_model extends CI_Model
         'Description'         => $auditLogsManager
         , 'ManagerBranchId'   => $ManagerId
         , 'CreatedBy'         => $CreatedBy
+        , 'BranchId'        => $AssignedBranchId
       );
       $auditTable3 = 'manager_has_notifications';
       $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable3);
@@ -1560,6 +1569,7 @@ class admin_model extends CI_Model
         'Description'       => $auditAffectedEmployee
         , 'EmployeeNumber'  => $AffectedEmployeeNumber
         , 'CreatedBy'       => $CreatedBy
+        , 'BranchId'        => $AssignedBranchId
       );
       $auditTable2 = 'employee_has_notifications';
       $this->maintenance_model->insertFunction($insertEmpLog, $auditTable2);
@@ -1570,6 +1580,7 @@ class admin_model extends CI_Model
           'Description'       => $auditLoanDets
           , ''.$independentColumn.''   => $ApplicationId
           , 'CreatedBy'       => $CreatedBy
+          , 'BranchId'        => $AssignedBranchId
         );
         $auditLoanApplicationTable = $independentTable;
         $this->maintenance_model->insertFunction($insertApplicationLog, $auditLoanApplicationTable);

@@ -277,10 +277,11 @@
               buttonsStyling: false,
               confirmButtonClass: 'btn btn-primary'
             });
+            $('.loading').hide();
           },
           error: function (response) 
           {
-            refreshPage();
+            $('.loading').hide();
             swal({
               title: 'Warning!',
               text: 'Something went wrong, please contact the administrator or refresh page!',
@@ -313,6 +314,7 @@
         $('#DateWithdrawal').val(data['DateWithdrawal']);
         $('#txtWithdrawalId').val(WithdrawalId);
         $('#txtFormType').val(2);
+        $('.loading').hide();
       },
 
       error: function()

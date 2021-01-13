@@ -171,10 +171,11 @@
               buttonsStyling: false,
               confirmButtonClass: 'btn btn-primary'
             });
+            $('.loading').hide();
           },
           error: function (response) 
           {
-            refreshPage();
+            $('.loading').hide();
             swal({
               title: 'Warning!',
               text: 'Something went wrong, please contact the administrator or refresh page!',
@@ -208,6 +209,7 @@
         $('#txtAmount').val(data['Amount']);
         $('#txtChargeId').val(ChargeId);
         $('#txtFormType').val(2);
+        $('.loading').hide();
       },
 
       error: function()
@@ -220,7 +222,7 @@
             buttonsStyling: false,
             confirmButtonClass: 'btn btn-primary'
           });
-          // location.reload();
+          $('.loading').hide();
         }, 2000);
       }
     });

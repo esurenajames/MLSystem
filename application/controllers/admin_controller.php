@@ -285,11 +285,13 @@ class admin_controller extends CI_Controller {
         $table = 'r_userrole';
         $this->maintenance_model->updateFunction1($set, $condition, $table);
       // notification
-        $this->session->set_flashdata('alertTitle','Success!'); 
-        $this->session->set_flashdata('alertText','Temporary password successfully changed!'); 
-        $this->session->set_flashdata('alertType','success'); 
+        $this->session->set_flashdata('logout','Temporary password successfully changed.'); 
       
-      redirect('home/userprofile/' . $EmployeeNumber);
+        $loginSession = array(
+          'logged_in' => 0,
+        );
+        $this->session->set_userdata($loginSession);
+        redirect(site_url());
     }
     else // add user
     {
@@ -2620,7 +2622,8 @@ class admin_controller extends CI_Controller {
     if ($_POST['FormType'] == 1) // add ExpenseType
     {
       $data = array(
-        'Name'                     => htmlentities($_POST['ExpenseType'], ENT_QUOTES)
+        'Name'                     => htmlentities($_POST['ExpenseType'], ENT_QUOTES),
+        'Description'                     => htmlentities($_POST['Description'], ENT_QUOTES)
       );
       $query = $this->admin_model->countExpenseType($data);
       if($query == 0) // not existing
@@ -2648,7 +2651,7 @@ class admin_controller extends CI_Controller {
           $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
         // notification
           $this->session->set_flashdata('alertTitle','Success!'); 
-          $this->session->set_flashdata('alertText','Expense type successfully recorded!'); 
+          $this->session->set_flashdata('alertText','Type of expense successfully recorded!'); 
           $this->session->set_flashdata('alertType','success'); 
           redirect('home/AddExpenseType/'. $EmployeeId['EmployeeId']);
       }
@@ -2656,7 +2659,7 @@ class admin_controller extends CI_Controller {
       {
         // notification
           $this->session->set_flashdata('alertTitle','Warning!'); 
-          $this->session->set_flashdata('alertText','Expense type already existing!'); 
+          $this->session->set_flashdata('alertText','Type of expense already existing!'); 
           $this->session->set_flashdata('alertType','warning'); 
           redirect('home/AddExpenseType');
       }
@@ -2664,7 +2667,8 @@ class admin_controller extends CI_Controller {
     else if($_POST['FormType'] == 2) // Edit Expense Type 
     {
       $data = array(
-        'Name'                     => htmlentities($_POST['ExpenseType'], ENT_QUOTES)
+        'Name'                     => htmlentities($_POST['ExpenseType'], ENT_QUOTES),
+        'Description'                     => htmlentities($_POST['Description'], ENT_QUOTES)
       );
       $query = $this->admin_model->countExpenseType($data);
       if($query == 0)
@@ -2701,7 +2705,7 @@ class admin_controller extends CI_Controller {
           $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
       // notif
         $this->session->set_flashdata('alertTitle','Success!'); 
-        $this->session->set_flashdata('alertText','Type of Expense details successfully updated!'); 
+        $this->session->set_flashdata('alertText','Type of expense details successfully updated!'); 
         $this->session->set_flashdata('alertType','success'); 
         redirect('home/AddExpenseType/');
       }
@@ -2709,7 +2713,7 @@ class admin_controller extends CI_Controller {
       {
         // notif
         $this->session->set_flashdata('alertTitle','Warning!'); 
-        $this->session->set_flashdata('alertText','Type of Expense details already existing!'); 
+        $this->session->set_flashdata('alertText','Type of expense details already existing!'); 
         $this->session->set_flashdata('alertType','warning'); 
         redirect('home/AddExpenseType/');
       }
@@ -2769,6 +2773,7 @@ class admin_controller extends CI_Controller {
       $WithdrawalTypeDetail = $this->admin_model->getWithdrawalTypeDetails($_POST['WithdrawalTypeId']);
       $data = array(
         'Name'                     => htmlentities($_POST['WithdrawalType'], ENT_QUOTES)
+        , 'Description'              => htmlentities($_POST['Description'], ENT_QUOTES)
       );
       $query = $this->admin_model->countWithdrawalType($data);
       print_r($query);
@@ -3115,6 +3120,7 @@ class admin_controller extends CI_Controller {
       $this->db->truncate('application_has_notifications');
       $this->db->truncate('application_has_penalty');
       $this->db->truncate('application_has_status');
+      $this->db->truncate('application_has_comments');
       $this->db->truncate('application_has_education');
       $this->db->truncate('application_has_contact');
       $this->db->truncate('application_has_email');
@@ -3137,8 +3143,6 @@ class admin_controller extends CI_Controller {
       $this->db->truncate('borrower_has_supportdocuments');
       $this->db->truncate('branch_has_address');
       $this->db->truncate('branch_has_contactnumbers');
-      $this->db->truncate('branch_has_employee');
-      $this->db->truncate('branch_has_manager');
       $this->db->truncate('comments_has_attachments');
       $this->db->truncate('company_has_logo');
       $this->db->truncate('employee_has_address');
@@ -3164,6 +3168,12 @@ class admin_controller extends CI_Controller {
       $this->db->truncate('r_companydetail');
       $this->db->truncate('r_contactnumbers');
       $this->db->truncate('r_emails');
+      // admin audits finalss
+        $auditLogsManager = 'Database reset.';
+        $auditAffectedEmployee = 'Database reset.';
+        $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
+      $this->db->truncate('branch_has_employee');
+      $this->db->truncate('branch_has_manager');
       $this->db->truncate('r_employee');
       $this->db->truncate('r_expense');
       $this->db->truncate('r_expensetype');
@@ -3721,6 +3731,7 @@ class admin_controller extends CI_Controller {
         <td><strong>Remarks</strong></td>
         <td><strong>Date Created</strong> </td>
         <td><strong>Created By</strong></td>
+        <td><strong>Branch</strong></td>
         </tr>
         <tbody>';
           $rowNumber = 0;
@@ -3733,6 +3744,7 @@ class admin_controller extends CI_Controller {
             $html .='<td>'.$value['Remarks'].'</td>';
             $html .='<td>'.$value['DateCreated'].'</td>';
             $html .='<td>'.$value['Name'].'</td>';
+            $html .='<td>'.$value['Branch'].'</td>';
             $html .='</tr>';
           }
         $html .= '

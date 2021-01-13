@@ -82,7 +82,7 @@
           <br>
           <br>
           <form name="ApproverDocForm" method="post" id="ApproverDocForm">
-            <table id="example1" class="table table-bordered table-hover">
+            <table id="example1" class="table table-bordered table-hover" style="width: 100%">
               <thead>
               <tr>
                 <th>Reference No</th>
@@ -175,6 +175,7 @@
                 buttonsStyling: false,
                 confirmButtonClass: 'btn btn-primary'
               });
+              $('.loading').hide();
             }
             else
             {
@@ -185,6 +186,7 @@
                 buttonsStyling: false,
                 confirmButtonClass: 'btn btn-primary'
               });
+              $('.loading').hide();
             }
           },
           error: function (response) 
@@ -220,6 +222,7 @@
         $('#txtRepayment').val(data['Type']);
         $('#txtRepaymentId').val(RepaymentId);
         $('#txtFormType').val(2);
+        $('.loading').hide();
       },
 
       error: function()
@@ -232,7 +235,7 @@
             buttonsStyling: false,
             confirmButtonClass: 'btn btn-primary'
           });
-          // location.reload();
+        $('.loading').hide();
         }, 2000);
       }
     });

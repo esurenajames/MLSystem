@@ -34,8 +34,8 @@
         $('#lblSpouseTelephone').html(data['TelephoneNo']);
         $('#lblSpouseMobile').html(data['MobileNo']);
         $('#lblSpouseBusinessAddress').html(data['DateOfBirth']);
+        $('.loading').hide();
       },
-
       error: function()
       {
         setTimeout(function() {
@@ -46,7 +46,7 @@
             buttonsStyling: false,
             confirmButtonClass: 'btn btn-primary'
           });
-          // location.reload();
+        $('.loading').hide();
         }, 2000);
       }
     });
@@ -82,8 +82,8 @@
         $('#lblComakerBusiness').html(data['Nationality']);
         $('#lblComakerMobile').html(data['MobileNo']);
         $('#lblComakerMonthly').html(data['MonthlyIncome']);
+        $('.loading').hide();
       },
-
       error: function()
       {
         setTimeout(function() {
@@ -94,7 +94,7 @@
             buttonsStyling: false,
             confirmButtonClass: 'btn btn-primary'
           });
-          // location.reload();
+        $('.loading').hide();
         }, 2000);
       }
     });
@@ -155,6 +155,7 @@
               },
           }, function(start, end, label){
           });
+          $('.loading').hide();
         },
         error: function()
         {
@@ -166,7 +167,7 @@
               buttonsStyling: false,
               confirmButtonClass: 'btn btn-primary'
             });
-            // location.reload();
+            $('.loading').hide();
           }, 2000);
         }
       });
@@ -226,6 +227,7 @@
               buttonsStyling: false,
               confirmButtonClass: 'btn btn-primary'
             });
+            $('.loading').hide();
           }
       });
     });
@@ -243,6 +245,7 @@
       success: function(data)
       {
         $('#selectProvince').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -259,6 +262,7 @@
       success: function(data)
       {
         $('#selectCity').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -275,6 +279,7 @@
       success: function(data)
       {
         $('#selectBarangay').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -291,6 +296,7 @@
       success: function(data)
       {
         $('#selectProvince2').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -307,6 +313,7 @@
       success: function(data)
       {
         $('#selectCity2').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -323,6 +330,7 @@
       success: function(data)
       {
         $('#selectBarangay2').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -338,6 +346,7 @@
       success: function(data)
       {
         $('#selectReqTypeId').html(data);
+        $('.loading').hide();
       }
     })
   }
@@ -480,6 +489,7 @@
       {
         $('#selectRegion').html(data);
         $('#selectRegion2').html(data);
+        $('.loading').hide();
       }
     })
 

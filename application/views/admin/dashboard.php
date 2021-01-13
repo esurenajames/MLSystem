@@ -785,7 +785,14 @@
         $('.loading').hide();
       },
       error: function(data) {
-        console.log(data);
+        swal({
+          title: 'Warning!',
+          text: 'Something went wrong, please contact the administrator or refresh page!',
+          type: 'warning',
+          buttonsStyling: false,
+          confirmButtonClass: 'btn btn-primary'
+        });
+        $('.loading').hide();
       }
     });
   }
@@ -2385,6 +2392,7 @@
               buttonsStyling: false,
               confirmButtonClass: 'btn btn-primary'
             });
+            $('.loading').hide();
           },
           error: function (response) 
           {
@@ -2396,6 +2404,7 @@
               buttonsStyling: false,
               confirmButtonClass: 'btn btn-primary'
             });
+            $('.loading').hide();
           }
       });
     });
