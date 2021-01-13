@@ -78,6 +78,7 @@ class home extends CI_Controller {
 		$data['totalBorrower'] = $this->maintenance_model->getTotalBorrower($AssignedBranchId);
 		$data['totalEmployees'] = $this->maintenance_model->getTotalEmployees($AssignedBranchId);
 		$data['totalUsers'] = $this->maintenance_model->getTotalUsers($AssignedBranchId);
+		$data['totalDeposit'] = $this->maintenance_model->getTotalDeposit($AssignedBranchId);
 		$data['Branch'] = $this->maintenance_model->getBranches();
 
 		// FOR BAR CHARTS

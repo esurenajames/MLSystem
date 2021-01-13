@@ -2375,6 +2375,32 @@ class maintenance_model extends CI_Model
       $data = $query_string->row_array();
       return $data;
     }
+    /*Total Deposit*/
+    function getTotalDeposit($selectedBranch)
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $AssignedBranchId = $this->session->userdata('BranchId');
+      $search = '';
+      $defaultSearch = ' AND BranchId = '. $AssignedBranchId;
+      if($selectedBranch == 'All')
+      {
+        $search = '';
+        $defaultSearch = '';
+      }
+      else if($selectedBranch != '')
+      {
+        $search = ' AND BranchId = ' . $selectedBranch;
+        $defaultSearch = '';
+      }
+      $query_string = $this->db->query("SELECT  COALESCE(SUM(Amount), 0) as Total
+                                                FROM R_Withdrawal
+                                                  WHERE StatusId = 1
+                                                  ".$search."
+                                                  ".$defaultSearch."
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
     /*Total Charges*/
     function getChargesTotal($Year)
     {

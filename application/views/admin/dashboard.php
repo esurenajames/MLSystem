@@ -146,13 +146,13 @@
           <div class="col-lg-3 col-xs-6">
             <div class="small-box bg-green">
               <div class="inner">
-                <h3 id="lblCurrentFund"><?php print_r(number_format(($totalFund['Total'] + $totalIncome['Total']) - ($totalExpense['Total'] + $TotalDisbursement['Total']), 2)) ?></h3>
+                <h3 id="lblCurrentFund"><?php print_r(number_format(($totalFund['Total'] + $totalDeposit['Total'] + $totalIncome['Total']) - ($totalExpense['Total'] + $TotalDisbursement['Total']), 2)) ?></h3>
                 <p>Current Fund </p>
               </div>
               <div class="icon">
                 <i class="fa fa-tachometer"></i>
               </div>
-              <a class="small-box-footer"><small>Capital + Income - (Expenses + Disbursements)</small></a>
+              <a class="small-box-footer"><small>(Capital + Deposits + Income) - (Expenses + Disbursements)</small></a>
             </div>
           </div>
         <?php } ?>
