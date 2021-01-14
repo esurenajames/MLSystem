@@ -218,9 +218,6 @@
               <?php if(in_array('31', $subModule)) { ?>
                 <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'InitialCapital'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddInitialCapital"><i class="fa fa-circle-o"></i>Set Initial Capital</a></li>
               <?php } ?>
-              <?php if(in_array('56', $subModule)) { ?>
-                <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'SecurityQuestion'){echo 'class="active"';}?> ><a href="<?php echo base_url();?>home/AddSecurityQuestions"><i class="fa fa-circle-o"></i><span>Security Questions</span></a></li>
-              <?php } ?>
               <!-- <?php if(in_array('32', $subModule)) { ?>
                 <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'ExpenseType'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/AddExpenseType"><i class="fa fa-circle-o"></i>Types of Expense</a></li>
               <?php } ?> -->

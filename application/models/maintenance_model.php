@@ -1981,7 +1981,7 @@ class maintenance_model extends CI_Model
     function getBorrowerList()
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
-      $query = $this->db->query("SELECT   CONCAT(FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as Name
+      $query = $this->db->query("SELECT   CONCAT(FirstName, ' ', LastName) as Name
                                           , BorrowerId
                                           FROM R_Borrowers
                                             WHERE StatusId = 1

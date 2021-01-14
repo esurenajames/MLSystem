@@ -143,22 +143,6 @@ class home extends CI_Controller {
 		$this->load->view('admin/AddBank', $data);
 	}
 
-	function AddSecurityQuestions()
-	{
-		$sidebar['sidebar'] = 'SystemSetup';
-		$sidebar['sidebarMenu'] = 'SecurityQuestions';
-		$header['header'] = 'SecurityQuestions';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$data['access'] = $this->sidebar_model->getAccess();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['securityQuestions'] = $this->employee_model->getSecurityQuestions();
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/AddSecurityQuestions', $data);
-	}
-
 	function AddBranch()
 	{
 		$sidebar['sidebar'] = 'SystemSetup';

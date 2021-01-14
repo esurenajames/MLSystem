@@ -761,12 +761,10 @@ class employee_model extends CI_Model
         }
         else
         {
-            {
               $auditLogsManager = 'Re-activated identification #'.$TransactionNumber.' for employee #'.$EmployeeDetail['EmployeeNumber'].' in identification tab.';
               $auditAffectedEmployee = 'Re-activated identification #'.$TransactionNumber.' in identification tab.';
-            }
-            $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeDetail['EmployeeNumber']);
         }
+            $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeDetail['EmployeeNumber']);
       }
       else if($input['tableType'] == 'EmployeeContact')
       {
