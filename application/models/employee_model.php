@@ -831,7 +831,6 @@ class employee_model extends CI_Model
             );
             $table = 'employee_has_identifications';
             $this->maintenance_model->updateFunction1($set, $condition, $table);
-          // admin audits finals
             $TransactionNumber = 'ID-' .$TransactionNumbers['Id'];
             if($input['updateType'] == 0)
             {
