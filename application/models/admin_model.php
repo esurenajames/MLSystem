@@ -559,8 +559,8 @@ class admin_model extends CI_Model
     function getDisclosureDetails($Id)
     {
       $query_string = $this->db->query("SELECT  Description
-                                                FROM R_DisclosureAgreement DA 
-                                                  WHERE DisclosureId = '$Id'
+                                                FROM R_Loanundertaking LU 
+                                                  WHERE UndertakingId = '$Id'
       ");
       $DisclosureDetail = $query_string->row_array();
       return $DisclosureDetail;
@@ -569,8 +569,8 @@ class admin_model extends CI_Model
     function countDisclosure($data)
     {
       $query_string = $this->db->query("SELECT  * 
-                                                FROM R_DisclosureAgreement DA
-                                                  WHERE DA.Description = '".$data['Description']."'
+                                                FROM R_Loanundertaking LU
+                                                  WHERE LU.Description = '".$data['Description']."'
       ");
       $data = $query_string->num_rows();
       return $data;
@@ -1586,14 +1586,14 @@ class admin_model extends CI_Model
       else if($input['tableType'] == 'Disclosure')
       {
         $Detail = $this->db->query("SELECT  Description
-                                            , CONCAT('DA-', LPAD(DA.DisclosureId, 6, 0)) as ReferenceNo
-                                            FROM R_DisclosureAgreement DA
-                                              WHERE DisclosureId = ".$input['Id']."
+                                            , CONCAT('DA-', LPAD(DA.UndertakingId, 6, 0)) as ReferenceNo
+                                            FROM R_Loanundertaking DA
+                                              WHERE UndertakingId = ".$input['Id']."
         ")->row_array();
 
         $count = $this->db->query("SELECT  COUNT(*) as ifUsed
-                                                    FROM R_DisclosureAgreement
-                                                      WHERE DisclosureId = ".$input['Id']."
+                                                    FROM R_Loanundertaking
+                                                      WHERE UndertakingId = ".$input['Id']."
                                                       AND StatusId = 1
         ")->row_array();
 
@@ -1604,9 +1604,9 @@ class admin_model extends CI_Model
               'StatusId' => $input['updateType'],
             );
             $condition = array(
-              'DisclosureId' => $input['Id']
+              'UndertakingId' => $input['Id']
             );
-            $table = 'R_DisclosureAgreement';
+            $table = 'R_Loanundertaking';
             $this->maintenance_model->updateFunction1($set, $condition, $table);
 
           // admin audits finalss
@@ -1619,46 +1619,6 @@ class admin_model extends CI_Model
             {
               $auditLogsManager = 'Deactivated disclosure agreement #' .$Detail['ReferenceNo']. ' at the disclosure agreement setup'; // main log
               $auditAffectedEmployee = 'Deactivated disclosure agreement #' .$Detail['ReferenceNo']. ' at the disclosure agreement setup'; // main log
-            }
-            $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
-        }
-      }
-      else if($input['tableType'] == 'SecurityQuestion')
-      {
-        $Detail = $this->db->query("SELECT  SQ.Name
-                                            , CONCAT('SQ-', LPAD(SQ.SecurityQuestionId, 6, 0)) as ReferenceNo
-                                            FROM R_Securityquestions SQ
-                                              WHERE SecurityQuestionId = ".$input['Id']."
-        ")->row_array();
-
-        $count = $this->db->query("SELECT  COUNT(*) as ifUsed
-                                                    FROM R_Securityquestions
-                                                      WHERE SecurityQuestionId = ".$input['Id']."
-                                                      AND StatusId = 1
-        ")->row_array();
-
-        if($count['ifUsed'] == 0)
-        {
-          // update status
-            $set = array(
-              'StatusId' => $input['updateType'],
-            );
-            $condition = array(
-              'SecurityQuestionId' => $input['Id']
-            );
-            $table = 'R_SecurityQuestions';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-
-          // admin audits finalss
-            if($input['updateType'] == 1)
-            {
-              $auditLogsManager = 'Re-activated security question #' .$Detail['ReferenceNo']. ' at the security questions setup'; // main log
-              $auditAffectedEmployee = 'Re-activated security question #' .$Detail['ReferenceNo']. ' at the security questions setup'; // main log
-            }
-            else if($input['updateType'] == 0)
-            {
-              $auditLogsManager = 'Deactivated security question #' .$Detail['ReferenceNo']. ' at the security question setup'; // main log
-              $auditAffectedEmployee = 'Deactivated security question #' .$Detail['ReferenceNo']. ' at the security question setup'; // main log
             }
             $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
         }

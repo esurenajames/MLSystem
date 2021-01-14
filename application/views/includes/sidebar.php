@@ -249,7 +249,7 @@
                 <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'BorrowerStatus'){echo 'class="active"';}?> ><a href="<?php echo base_url();?>home/AddBorrowerStatus"><i class="fa fa-circle-o"></i> <span>Borrower's Status</span></a></li>
               <?php } ?> -->
               <?php if(in_array('55', $subModule)) { ?>
-                <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Disclosure'){echo 'class="active"';}?> ><a href="<?php echo base_url();?>home/AddDisclosure"><i class="fa fa-circle-o"></i><span>Disclosure Agreement</span></a></li>
+                <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'Disclosure'){echo 'class="active"';}?> ><a href="<?php echo base_url();?>home/AddDisclosure"><i class="fa fa-circle-o"></i><span>Loan Undertaking</span></a></li>
               <?php } ?>
               <?php if(in_array('54', $subModule)) { ?>
                 <li <?php if($sidebar == 'SystemSetup' && $sidebarMenu == 'DB'){echo 'class="active"';}?> ><a href="<?php echo base_url();?>home/branchDatabase"><i class="fa fa-circle-o"></i>Database Management</a></li>
