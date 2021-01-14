@@ -20,7 +20,7 @@
                 <span aria-hidden="true">&times;</span></button>
               <h4 class="modal-title">User Details</h4>
             </div>
-              <form action="<?php echo base_url(); ?>admin_controller/addUser/2" id="frmInsert" method="post">
+              <form action="<?php echo base_url(); ?>admin_controller/addUser/2" id="frminsert2" method="post">
                 <div class="modal-body">
                   <div class="row">
                     <div class="col-md-12">
@@ -192,6 +192,22 @@
           e.currentTarget.submit();
         });
       }
+    });
+
+    $("#frminsert2").on('submit', function (e) {
+      e.preventDefault(); 
+      swal({
+        title: 'Confirm',
+        text: 'Are you sure you want to confirm?',
+        type: 'info',
+        showCancelButton: true,
+        buttonsStyling: false,
+        confirmButtonClass: 'btn btn-success',
+        confirmButtonText: 'Confirm',
+        cancelButtonClass: 'btn btn-secondary'
+      }).then(function(){
+        e.currentTarget.submit();
+      });
     });
     
     $('#selectRoles').select2({

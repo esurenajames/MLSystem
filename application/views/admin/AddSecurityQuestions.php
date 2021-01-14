@@ -250,7 +250,7 @@
       e.preventDefault(); 
       swal({
         title: 'Confirm',
-        text: 'Are you sure you want to submit this form?',
+        text: 'Are you sure you want to confirm?',
         type: 'info',
         showCancelButton: true,
         buttonsStyling: false,

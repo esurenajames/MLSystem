@@ -258,6 +258,22 @@
       }
     });
 
+    $("#frmInsert2").on('submit', function (e) {
+      e.preventDefault(); 
+      swal({
+        title: 'Confirm',
+        text: 'Are you sure you want to confirm?',
+        type: 'info',
+        showCancelButton: true,
+        buttonsStyling: false,
+        confirmButtonClass: 'btn btn-success',
+        confirmButtonText: 'Confirm',
+        cancelButtonClass: 'btn btn-secondary'
+      }).then(function(){
+        e.currentTarget.submit();
+      });
+    });
+
 
     $('#DateFrom').daterangepicker({
         "startDate": moment().format('DD MMM YY hh:mm A'),

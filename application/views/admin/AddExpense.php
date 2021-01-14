@@ -19,7 +19,7 @@
               <span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title">Add Expenses</h4>
           </div>
-          <form action="<?php echo base_url(); ?>admin_controller/AddExpense/" class="frminsert" method="post">
+          <form action="<?php echo base_url(); ?>admin_controller/AddExpense/" id="frminsert2" method="post">
             <div class="modal-body">
                 <div class="row">
                   <div class="col-md-12">
@@ -377,6 +377,22 @@
       ],
       // "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
       "order": [[0, "asc"]]
+    });
+
+    $("#frminsert2").on('submit', function (e) {
+      e.preventDefault(); 
+      swal({
+        title: 'Confirm',
+        text: 'Are you sure you want to confirm?',
+        type: 'info',
+        showCancelButton: true,
+        buttonsStyling: false,
+        confirmButtonClass: 'btn btn-success',
+        confirmButtonText: 'Confirm',
+        cancelButtonClass: 'btn btn-secondary'
+      }).then(function(){
+        e.currentTarget.submit();
+      });
     });
 
     $('#DateExpense').daterangepicker({
