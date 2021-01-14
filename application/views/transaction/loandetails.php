@@ -2125,7 +2125,6 @@
                             echo "<td>".$value['Source']."</td>";
                             echo "<td>".$value['Details']."</td>";
                             echo "<td>".number_format($value['Amount'], 2)."</td>";
-                            echo "<td>".$value['Description']."</td>";
                             echo "<td>".$value['CreatedBy']."</td>";
                             echo "<td>".$value['DateCreated']."</td>";
                             if($value['StatusId'] == 2)
@@ -2138,6 +2137,7 @@
                               $status = "<span class='badge bg-red'>Deactivated</span>";
                               $action = '<a onclick="confirm(\'Are you sure you want to re-activate this Obligation record?\', \''.$value['MonthlyObligationId'].'\', 2, \'Obligations\')" class="btn btn-warning" title="Re-Activate"><span class="fa fa-refresh"></span></a>';
                             }
+                            echo "<td>".$status."</td>";
                             if($detail['BranchId'] == $this->session->userdata('BranchId'))
                             {
                               echo '<td>'.$action.'</td>';
@@ -2680,11 +2680,11 @@
                             echo "<td>".$value['DateCreated']."</td>";
                             if($value['StatusId'] == 1)
                             {
-                              echo "<td>Active</td>";
+                              echo "<td><span class='badge bg-green'>Active</span></td>";
                             }
                             else
                             {
-                              echo "<td>Deactivated</td>";
+                              echo "<td><span class='badge bg-red'>Deactivated</span></td>";
                             }
                             if($detail['BranchId'] == $this->session->userdata('BranchId'))
                             {

@@ -26,6 +26,7 @@ class borrower_controller extends CI_Controller {
 		$this->load->model('employee_model');
 		$this->load->model('admin_model');
     $this->load->model('borrower_model');
+    $this->load->model('loanapplication_model');
     $this->load->library('Pdf');
     $this->load->library('session');
     $this->load->library('excel');
@@ -1957,64 +1958,74 @@ class borrower_controller extends CI_Controller {
             $CivilStatus = $worksheet->getCellByColumnandRow(8, $row)->getValue();
             $DOB = $worksheet->getCellByColumnandRow(9, $row)->getValue();
             $Dependents = $worksheet->getCellByColumnandRow(10, $row)->getValue();
-            $Branch = $worksheet->getCellByColumnandRow(11, $row)->getValue();
+            $Branch = str_replace(' ', '', strtolower($worksheet->getCellByColumnandRow(11, $row)->getValue()));
 
-            $SalutationId = $this->maintenance_model->getReferenceId('SalutationId', 'R_Salutation', $Salutation, 'Name');
-            $GenderId = $this->maintenance_model->getReferenceId('SexId', 'r_sex', $Gender, 'Name');
-            $CivilStatusId = $this->maintenance_model->getReferenceId('CivilStatusId', 'r_civilstatus', $CivilStatus, 'Name');
-            $NationalityId = $this->maintenance_model->getReferenceId('NationalityId', 'r_nationality', $Nationality, 'Description');
-            $BranchId = $this->maintenance_model->getReferenceId('BranchId', 'r_branches', $Branch, 'Name');
-            $branchCode = $this->maintenance_model->selectSpecific('r_branches', 'BranchId', $BranchId['Id']);
+            if($LastName != '' && $FirstName != '' && $Salutation != '' && $Gender != '' && $Nationality != '' && $CivilStatus != '' && $DOB != '' && $Branch != '')
+            {
+              $borrowerName = str_replace(' ', '', strtolower($LastName. ', '. $FirstName. ' ' . $MiddleName. ' ' . $ExtName));
 
-            $time = strtotime($DOB);
-            $DateOfB = date('Y-m-d', $time);
-              // employee
-                $data = array(
-                  'Salutation'    => $SalutationId['Id'],
-                  'LastName'      => $LastName,
-                  'FirstName'     => $FirstName,
-                  'ExtName'       => $ExtName,
-                  'MiddleName'    => $MiddleName,
-                  'Sex'           => $GenderId['Id'],
-                  'Nationality'   => $NationalityId['Id'],
-                  'CivilStatus'   => $CivilStatusId['Id'],
-                  'DateOfBirth'   => $DateOfB,
-                  'StatusId'      => 1,
-                  'DateCreated'   => $dateCreated,
-                  'CreatedBy'     => $createdBy,
-                  'BranchId'      => $BranchId['Id'],
-                  'Dependents'    => $Dependents,
-                  'MotherName'    => $MotherName
-                );
-                $table = 'R_Borrowers';
-                $this->maintenance_model->insertFunction($data, $table);
-              // get employee generated id
-                $auditData1 = array(
-                  'table'                 => 'R_Borrowers'
-                  , 'column'              => 'BorrowerId'
-                );
-                $BorrowerId = $this->maintenance_model->getGeneratedId($auditData1);
-                $BorrowerNumber = $branchCode['Code'] . '-' . sprintf('%06d', $BorrowerId['BorrowerId']);
-              // update employee numbers
-                $set = array( 
-                  'BorrowerNumber' => $BorrowerNumber
-                );
+              $dbBorrowerName = $this->loanapplication_model->getBorrowerByName($borrowerName);
+              $dbBranch = $this->loanapplication_model->getBranchByName($Branch);
+              $SalutationId = $this->maintenance_model->getReferenceId('SalutationId', 'R_Salutation', $Salutation, 'Name');
+              $GenderId = $this->maintenance_model->getReferenceId('SexId', 'r_sex', $Gender, 'Name');
+              $CivilStatusId = $this->maintenance_model->getReferenceId('CivilStatusId', 'r_civilstatus', $CivilStatus, 'Name');
+              $NationalityId = $this->maintenance_model->getReferenceId('NationalityId', 'r_nationality', $Nationality, 'Description');
+              $BranchId = $this->maintenance_model->getReferenceId('BranchId', 'r_branches', $Branch, 'Name');
+              $branchCode = $this->maintenance_model->selectSpecific('r_branches', 'BranchId', $BranchId['Id']);
 
-                $condition = array( 
-                  'BorrowerId' => $BorrowerId['BorrowerId']
-                );
-                $table = 'R_Borrowers';
-                $this->maintenance_model->updateFunction1($set, $condition, $table);
+              $time = strtotime($DOB);
+              $DateOfB = date('Y-m-d', $time);
 
-              // admin audits finalss
-                $auditLogsManager = 'Added borrower #'.$BorrowerNumber . ' to borrower list.';
-                $auditAffectedEmployee = 'Added borrower #'.$BorrowerNumber . ' to borrower list.';
-                $auditAffectedTable = 'Added to borrower list.';
-                $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $createdBy, $auditAffectedTable, $BorrowerId['BorrowerId'], 'borrower_has_notifications', 'BorrowerId');
-              $rowCount = $rowCount + 1;
+              if($dbBranch['Name'] != null && $SalutationId['Id'] != null && $GenderId['Id'] != null && $NationalityId['Id'] != null && $CivilStatusId['Id'] != null && $dbBorrowerName['Name'] == null)
+              {
+                // employee
+                  $data = array(
+                    'Salutation'    => $SalutationId['Id'],
+                    'LastName'      => $LastName,
+                    'FirstName'     => $FirstName,
+                    'ExtName'       => $ExtName,
+                    'MiddleName'    => $MiddleName,
+                    'Sex'           => $GenderId['Id'],
+                    'Nationality'   => $NationalityId['Id'],
+                    'CivilStatus'   => $CivilStatusId['Id'],
+                    'DateOfBirth'   => $DateOfB,
+                    'StatusId'      => 1,
+                    'DateCreated'   => $dateCreated,
+                    'CreatedBy'     => $createdBy,
+                    'BranchId'      => $BranchId['Id'],
+                    'Dependents'    => $Dependents,
+                    'MotherName'    => $MotherName
+                  );
+                  $table = 'R_Borrowers';
+                  $this->maintenance_model->insertFunction($data, $table);
+                // get employee generated id
+                  $auditData1 = array(
+                    'table'                 => 'R_Borrowers'
+                    , 'column'              => 'BorrowerId'
+                  );
+                  $BorrowerId = $this->maintenance_model->getGeneratedId($auditData1);
+                  $BorrowerNumber = $branchCode['Code'] . '-' . sprintf('%06d', $BorrowerId['BorrowerId']);
+                // update employee numbers
+                  $set = array( 
+                    'BorrowerNumber' => $BorrowerNumber
+                  );
+
+                  $condition = array( 
+                    'BorrowerId' => $BorrowerId['BorrowerId']
+                  );
+                  $table = 'R_Borrowers';
+                  $this->maintenance_model->updateFunction1($set, $condition, $table);
+                // admin audits finalss
+                  $auditLogsManager = 'Added borrower #'.$BorrowerNumber . ' to borrower list.';
+                  $auditAffectedEmployee = 'Added borrower #'.$BorrowerNumber . ' to borrower list.';
+                  $auditAffectedTable = 'Added to borrower list.';
+                  $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $createdBy, $auditAffectedTable, $BorrowerId['BorrowerId'], 'borrower_has_notifications', 'BorrowerId');
+                $rowCount = $rowCount + 1;
+              }
+            }
           } // END FOR LOOP
 
-          echo "Employee Records successfully saved! " . $rowCount . " records inserted.";
+          echo "Employee records successfully saved! " . $rowCount . " records inserted.";
         }
 
       } // END FOREACH

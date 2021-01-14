@@ -396,6 +396,7 @@
                       <label>Type of Employee</label><br>
                         <div class="form-group">
                           <select class="form-control select2"  required="" onchange="chkEmployeeType(this.value)" id="selectEmpType" name="EmployeeType" style="width: 100%">
+                            <option disabled="" selected="">Select Employee Type</option>
                             <option>Manager</option>
                             <option>Employee</option>
                           </select>

@@ -4275,7 +4275,7 @@ class loanapplication_model extends CI_Model
       $query_string = $this->db->query("SELECT DISTINCT B.BorrowerId
                                                 , S.name as Salutation
                                                 , B.FirstName
-                                                , REPLACE(LOWER(CONCAT(B.LastName, ', ', B.FirstName, ' ', B.MiddleName, ' ', B.ExtName)), ' ', '') as Name
+                                                , REPLACE(LOWER(CONCAT(B.LastName, ', ', B.FirstName, ' ', COALESCE(B.MiddleName,''), ' ', COALESCE(B.ExtName, ''))), ' ', '') as Name
                                                 , acronym (B.MiddleName) as MiddleInitial
                                                 , B.LastName
                                                 , B.ExtName
@@ -4336,7 +4336,7 @@ class loanapplication_model extends CI_Model
                                                     AND BP.StatusId = 1
                                                   LEFT JOIN R_Branches BRNCH
                                                     ON BRNCH.BranchId = B.BranchId
-                                                  WHERE REPLACE(LOWER(CONCAT(B.LastName, ', ', B.FirstName, ' ', B.MiddleName, ' ', B.ExtName)), ' ', '') = '$Name'
+                                                  WHERE REPLACE(LOWER(CONCAT(B.LastName, ', ', B.FirstName, ' ', COALESCE(B.MiddleName,''), ' ', COALESCE(B.ExtName, ''))), ' ', '') = '$Name'
 
       ");
       $data = $query_string->row_array();

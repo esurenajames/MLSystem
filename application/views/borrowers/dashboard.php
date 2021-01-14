@@ -703,10 +703,9 @@
             buttonsStyling: false,
             confirmButtonClass: 'btn btn-primary'
           });
-          $('#upload_form3').each(function(){
-            this.reset();
-          });
-          location.reload();
+          setTimeout(function() {            
+            // location.reload();
+          }, 2000);
         }
         else
         {

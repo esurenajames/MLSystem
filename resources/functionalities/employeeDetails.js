@@ -139,7 +139,6 @@
           },
           error: function (response) 
           {
-            location.reload();
             swal({
               title: 'Warning!',
               text: 'Something went wrong, please contact the administrator or refresh page!',
