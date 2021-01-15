@@ -1960,7 +1960,7 @@ class borrower_controller extends CI_Controller {
             $Dependents = $worksheet->getCellByColumnandRow(10, $row)->getValue();
             $Branch = str_replace(' ', '', strtolower($worksheet->getCellByColumnandRow(11, $row)->getValue()));
 
-            if($LastName != '' && $FirstName != '' && $Salutation != '' && $Gender != '' && $Nationality != '' && $CivilStatus != '' && $DOB != '' && $Branch != '')
+            if($LastName != '' && $FirstName != '' && $Salutation != '' && $Gender != '' && $Nationality != '' && $CivilStatus != '' && $DOB != '' && $Branch != '' && $MotherName != '' && $Dependents != '')
             {
               $borrowerName = str_replace(' ', '', strtolower($LastName. ', '. $FirstName. ' ' . $MiddleName. ' ' . $ExtName));
 

@@ -160,7 +160,7 @@ class employee_model extends CI_Model
 
     function getEmployeeDetail($EmployeeId)
     {
-      $query_string = $this->db->query("SELECT  CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', EMP.ExtName) as Name
+      $query_string = $this->db->query("SELECT  CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as Name
                                                 , EMP.EmployeeNumber
                                                 , EMP.EmployeeId
                                                 , BHE.BranchId 
@@ -290,7 +290,7 @@ class employee_model extends CI_Model
                                                 , SX.Name as Sex
                                                 , N.Description as Nationality
                                                 , C.name as CivilStatus
-                                                , REPLACE(LOWER(CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,''), ' ', COALESCE(EMP.ExtName, ''))), ' ', '') as Name
+                                                , REPLACE(LOWER(CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, ''))), ' ', '') as Name
                                                 , DATE_FORMAT(EMP.DateOfBirth, '%d %b %Y') as DateOfBirth
                                                 , DATE_FORMAT(EMP.DateHired, '%d %b %Y') as DateHired
                                                 , EMP.StatusId
@@ -349,7 +349,7 @@ class employee_model extends CI_Model
                                                   LEFT JOIN r_profilepicture PP
                                                     ON PP.EmployeeNumber = EMP.EmployeeNumber
                                                     AND PP.StatusId = 1
-                                                    WHERE REPLACE(LOWER(CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,''), ' ', COALESCE(EMP.ExtName, ''))), ' ', '') = '$Name'
+                                                    WHERE REPLACE(LOWER(CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, ''))), ' ', '') = '$Name'
 
       ");
       $data = $query_string->row_array();
@@ -459,7 +459,7 @@ class employee_model extends CI_Model
       $query_string = $this->db->query("SELECT DISTINCT EMP.EmployeeId
                                                 , EMP.EmployeeNumber
                                                 , S.name as Salutation
-                                                , CONCAT(EMP.LastName, ', ', EMP.FirstName) as Name
+                                                , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as Name
                                                 , EMP.FirstName
                                                 , acronym(EMP.MiddleName) as MiddleInitial
                                                 , EMP.LastName

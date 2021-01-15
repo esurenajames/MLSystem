@@ -13,7 +13,7 @@ class loanapplication_model extends CI_Model
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $AssignedBranchId = $this->session->userdata('BranchId');
-    $query = $this->db->query("SELECT CONCAT(BS.Name, ' ', B.FirstName, ' ', B.MiddleName, ' ', B.LastName, ', ', B.ExtName) as Name
+    $query = $this->db->query("SELECT CONCAT(B.LastName, ', ', B.FirstName, ' ', COALESCE(B.MiddleName,''), ' ', COALESCE(B.ExtName, '')) as Name
                                       , B.BorrowerNumber
                                       , A.OldTransaction
                                       , DATE_FORMAT(B.DateOfBirth, '%b %d, %Y') as DOB
@@ -466,7 +466,7 @@ class loanapplication_model extends CI_Model
     $query_string = $this->db->query("SELECT DISTINCT B.SpouseId
                                               , S.name as Salutation
                                               , B.FirstName
-                                              , CONCAT(LastName, ', ', FirstName, ' ', MiddleName, ', ', ExtName) as Name
+                                              , CONCAT(LastName, ', ', FirstName, ' ', COALESCE(MiddleName,''), ' ', COALESCE(ExtName, '')) as Name
                                               , acronym (B.MiddleName) as MiddleInitial
                                               , B.LastName
                                               , B.ExtName
@@ -670,7 +670,7 @@ class loanapplication_model extends CI_Model
   function getBorrowerList()
   {
     $AssignedBranchId = $this->session->userdata('BranchId');
-    $query = $this->db->query("SELECT   CONCAT(FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as Name
+    $query = $this->db->query("SELECT DISTINCT  CONCAT(LastName, ', ', FirstName, ' ', COALESCE(MiddleName,''), ' ', COALESCE(ExtName, '')) as Name
                                         , BorrowerId
                                         FROM R_Borrowers
                                           WHERE StatusId = 1
@@ -684,7 +684,7 @@ class loanapplication_model extends CI_Model
   function getBorrowerLoanList()
   {
     $AssignedBranchId = $this->session->userdata('BranchId');
-    $query = $this->db->query("SELECT DISTINCT  CONCAT(FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as Name
+    $query = $this->db->query("SELECT DISTINCT  CONCAT(LastName, ', ', FirstName, ' ', COALESCE(MiddleName,''), ' ', COALESCE(ExtName, '')) as Name
                                         , B.BorrowerId
                                         FROM R_Borrowers B
                                           INNER JOIN T_Application A
@@ -729,7 +729,7 @@ class loanapplication_model extends CI_Model
     $AssignedBranchId = $this->session->userdata('BranchId');
     $query = $this->db->query("SELECT DISTINCT A.ApplicationId
                                       , A.TransactionNumber
-                                      , CONCAT(B.FirstName, ' ', B.MiddleName, ' ', B.LastName) as Name
+                                      , CONCAT(B.LastName, ', ', B.FirstName, ' ', COALESCE(B.MiddleName,''), ' ', COALESCE(B.ExtName, '')) as Name
                                       FROM T_Application A
                                         INNER JOIN t_paymentsmade PM
                                           ON A.ApplicationId = PM.ApplicationId
@@ -751,7 +751,7 @@ class loanapplication_model extends CI_Model
   {
     $AssignedBranchId = $this->session->userdata('BranchId');
     $query = $this->db->query("SELECT DISTINCT EMP.EmployeeNumber
-                                      , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName) as Name
+                                      , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,''), ' ', COALESCE(EMP.ExtName, '')) as Name
                                       FROM t_paymentsmade PM
                                         INNER JOIN R_Employee EMP
                                           ON EMP.EmployeeNumber = PM.CreatedBy
@@ -861,7 +861,7 @@ class loanapplication_model extends CI_Model
   function getApproversReport($Id)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-    $query = $this->db->query("SELECT CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName) as Name
+    $query = $this->db->query("SELECT CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,''), ' ', COALESCE(EMP.ExtName, '')) as Name
                                       , S.Description
                                       , DATE_FORMAT(AHA.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
                                       , CONCAT(EMP2.FirstName, ' ', EMP2.MiddleName, ' ', EMP2.LastName) as ProcessedBy
@@ -1608,7 +1608,7 @@ class loanapplication_model extends CI_Model
                                               , AC.CommentId
                                               , AC.StatusId
                                               , DATE_FORMAT(AC.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
-                                              , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as Name
+                                              , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,''), ' ', COALESCE(EMP.ExtName, '')) as Name
                                               , FileName
                                               FROM Application_has_Comments AC
                                                 INNER JOIN r_employee EMP
@@ -1718,7 +1718,7 @@ class loanapplication_model extends CI_Model
                                               , AHD.ApplicationId
                                               , AHD.DisbursementId
                                               , AHD.StatusId
-                                              , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as Name
+                                              , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,''), ' ', COALESCE(EMP.ExtName, '')) as Name
                                               , D.Name as DisbursedThrough
                                               FROM Application_has_Disbursement AHD
                                                 LEFT JOIN R_Employee EMP
@@ -1753,7 +1753,7 @@ class loanapplication_model extends CI_Model
                                               , AI.StatusId
                                               , S.Description
                                               , DATE_FORMAT(AI.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
-                                              , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as Name
+                                              , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,''), ' ', COALESCE(EMP.ExtName, '')) as Name
                                               FROM Application_has_MonthlyIncome AI
                                                 INNER JOIN r_status S
                                                   ON S.StatusId = AI.StatusId
@@ -2989,7 +2989,7 @@ class loanapplication_model extends CI_Model
     else if($Type == 'Spouse')
     {
       $query = $this->db->query("SELECT CONCAT('SR-', LPAD(BR.BorrowerSpouseId, 6, 0)) as ReferenceNo
-                                        , CONCAT(S.FirstName, ' ', S.MiddleName, ' ', S.LastName, ', ', S.ExtName) as Name
+                                        , CONCAT(S.LastName, ', ', S.FirstName, ' ', COALESCE(S.MiddleName,''), ' ', COALESCE(S.ExtName, '')) as Name
                                         , BR.BorrowerSpouseId
                                         FROM borrower_has_spouse BR
                                           INNER JOIN R_Spouse S
@@ -4000,7 +4000,7 @@ class loanapplication_model extends CI_Model
                                                 , AR.Address 
                                                 , AR.ContactNumber 
                                                 , AP.StatusId
-                                                , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as Name
+                                                , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,''), ' ', COALESCE(EMP.ExtName, '')) as Name
                                                 , DATE_FORMAT(AP.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                                 FROM application_has_personalreference AP
                                                   INNER JOIN T_Application A
@@ -4032,7 +4032,7 @@ class loanapplication_model extends CI_Model
                                                 , AR.BusinessAddress 
                                                 , AR.MobileNo 
                                                 , AP.StatusId
-                                                , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as Name
+                                                , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,''), ' ', COALESCE(EMP.ExtName, '')) as Name
                                                 , DATE_FORMAT(AP.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                                 FROM application_has_comaker AP
                                                   INNER JOIN T_Application A
@@ -4058,7 +4058,7 @@ class loanapplication_model extends CI_Model
     {
       $query_string = $this->db->query("SELECT  CONCAT('SR-', LPAD(AHS.BorrowerSpouseId, 6, 0)) as rowNumber
                                                 , AHS.ApplicationSpouseId
-                                                , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as Name
+                                                , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,''), ' ', COALESCE(EMP.ExtName, '')) as Name
                                                 , DATE_FORMAT(AHS.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                                 , CONCAT(S.FirstName, ' ', S.MiddleName, ' ', S.LastName, ', ', S.ExtName) as SpouseName
                                                 , DATE_FORMAT(S.DateOfBirth, '%d %b %Y') as DateOfBirth

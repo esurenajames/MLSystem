@@ -3503,7 +3503,7 @@ class admin_controller extends CI_Controller {
         $insertDataE2 = array(
           'FirstName' => 'Myrna',
           'LastName' => 'Biliber',
-          'EmployeeNumber' => '000002',
+          'EmployeeNumber' => '000001',
           'Nationality' => 1,
           'Sex' => 1,
           'CivilStatus' => 1,
@@ -3521,7 +3521,7 @@ class admin_controller extends CI_Controller {
         );
         $auditTableBHE = 'branch_has_employee';
         $insertDataBHE2 = array(
-          'EmployeeNumber' => '000002',
+          'EmployeeNumber' => '000001',
           'BranchId' => 1,
           'ManagerBranchId' => 1,
         );
@@ -3529,7 +3529,7 @@ class admin_controller extends CI_Controller {
         $this->maintenance_model->insertFunction($insertDataBHE2, $auditTableBHE);
       // branch has manager
         $insertDataBHE3 = array(
-          'EmployeeNumber' => '000002',
+          'EmployeeNumber' => '000001',
           'BranchId' => 1,
         );
         $auditTableBHE3 = 'branch_has_manager';
@@ -3584,17 +3584,17 @@ class admin_controller extends CI_Controller {
         }
         // for owner
         $insertDataUR2 = array(
-          'EmployeeNumber' => '000002',
+          'EmployeeNumber' => '000001',
           'IsNew' => 1,
           'StatusId' => 1,
         );
         $auditTableUR2 = 'r_userrole';
         $this->maintenance_model->insertFunction($insertDataUR2, $auditTableUR2);
         $set2 = array( 
-          'Password' => '000002',
+          'Password' => '000001',
         );
         $condition2 = array( 
-          'EmployeeNumber' => '000002'
+          'EmployeeNumber' => '000001'
         );
         $table2 = 'r_userrole';
         $this->maintenance_model->updateFunction1($set2, $condition2, $table2);
@@ -3603,7 +3603,7 @@ class admin_controller extends CI_Controller {
         foreach ($employeeRoles as $roles) 
         {
           $insertData = array(
-            'EmployeeNumber'              => '000002'
+            'EmployeeNumber'              => '000001'
             , 'StatusId'                  => 1
             , 'SubModuleId'               => $roles['SubModuleId']
             , 'Code'                      => $roles['Code']

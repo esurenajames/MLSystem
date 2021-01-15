@@ -1050,7 +1050,7 @@ class maintenance_model extends CI_Model
 
     function getAllBorrowers()
     {
-      $query_string = $this->db->query("SELECT CONCAT(FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as Name
+      $query_string = $this->db->query("SELECT CONCAT(LastName, ', ', FirstName, ' ', COALESCE(MiddleName,''), ' ', COALESCE(ExtName, '')) as Name
                                                 , B.StatusId
                                                 , B.Sex
                                                 , B.Dependents
@@ -1082,7 +1082,7 @@ class maintenance_model extends CI_Model
 
     function getUserCreated($EmployeeNumber)
     {
-      $query = $this->db->query("SELECT CONCAT(LastName, ', ', FirstName) as Name 
+      $query = $this->db->query("SELECT CONCAT(LastName, ', ', FirstName, ' ', COALESCE(MiddleName,''), ' ', COALESCE(ExtName, '')) as Name 
                                         FROM R_Employee 
                                         WHERE EmployeeNumber = '$EmployeeNumber' 
                                         LIMIT 1
@@ -1128,7 +1128,7 @@ class maintenance_model extends CI_Model
 
     function getCreatedUserDetails($input)
     {
-      $auditquery = $this->db->query("SELECT  CONCAT(FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as Name
+      $auditquery = $this->db->query("SELECT  CONCAT(LastName, ', ', FirstName, ' ', COALESCE(MiddleName,''), ' ', COALESCE(ExtName, '')) as Name
                                               , LOWER(R.Description) as Description
                                               FROM r_userrole UR
                                                 INNER JOIN r_employee EMP
@@ -1331,7 +1331,7 @@ class maintenance_model extends CI_Model
     function getExpenseCreatedBy()
     {
       $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-      $query = $this->db->query("SELECT DISTINCT CONCAT(EMP.LastName, ', ', EMP.FirstName) as Name
+      $query = $this->db->query("SELECT DISTINCT CONCAT(LastName, ', ', FirstName, ' ', COALESCE(MiddleName,''), ' ', COALESCE(ExtName, '')) as Name
                                         , EMP.EmployeeNumber
                                         FROM R_Employee EMP
                                           INNER JOIN R_Expense E
@@ -1348,7 +1348,7 @@ class maintenance_model extends CI_Model
     function getDepositCreatedBy()
     {
       $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-      $query = $this->db->query("SELECT DISTINCT CONCAT(EMP.LastName, ', ', EMP.FirstName) as Name
+      $query = $this->db->query("SELECT DISTINCT CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as Name
                                         , EMP.EmployeeNumber
                                         FROM R_Employee EMP
                                           INNER JOIN R_Withdrawal E
@@ -1538,7 +1538,7 @@ class maintenance_model extends CI_Model
     function getBorrowerCreator()
     {
       $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-      $query = $this->db->query("SELECT   CONCAT(EMP.LastName, ', ', EMP.FirstName) as Name
+      $query = $this->db->query("SELECT   CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as Name
                                           , B.CreatedBy
                                           FROM r_borrowers B
                                             INNER JOIN R_Employee EMP
@@ -1591,7 +1591,7 @@ class maintenance_model extends CI_Model
     function getFilterEmployeeManager()
     {
       $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-      $query = $this->db->query("SELECT   DISTINCT CONCAT(EMP.LastName, ', ', EMP.FirstName) as Name
+      $query = $this->db->query("SELECT   DISTINCT CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as Name
                                           , EMP.EmployeeNumber
                                           , BHM.ManagerBranchId
                                           FROM branch_has_manager BHM
@@ -1656,7 +1656,7 @@ class maintenance_model extends CI_Model
     function getManagers($BranchId)
     {
       $query = $this->db->query("SELECT ManagerBranchId
-                                        , CONCAT(EMP.LastName, ', ', EMP.FirstName) as Name 
+                                        , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as Name 
                                         FROM branch_has_manager BR
                                         INNER JOIN r_employee EMP
                                           ON EMP.EmployeeNumber = BR.EmployeeNumber
@@ -1674,7 +1674,7 @@ class maintenance_model extends CI_Model
     function getDropDownEmployees($BranchId)
     {
       $query = $this->db->query("SELECT ManagerBranchId
-                                        , CONCAT(EMP.LastName, ', ', EMP.FirstName) as Name
+                                        , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as Name
                                         , EMP.EmployeeNumber
                                         FROM branch_has_employee BR
                                         INNER JOIN r_employee EMP
@@ -1981,7 +1981,7 @@ class maintenance_model extends CI_Model
     function getBorrowerList()
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
-      $query = $this->db->query("SELECT   CONCAT(FirstName, ' ', LastName) as Name
+      $query = $this->db->query("SELECT   CONCAT(LastName, ', ', FirstName, ' ', COALESCE(MiddleName,'N/A'), ' ', COALESCE(ExtName, '')) as Name
                                           , BorrowerId
                                           FROM R_Borrowers
                                             WHERE StatusId = 1

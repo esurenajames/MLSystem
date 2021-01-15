@@ -153,7 +153,7 @@ class borrower_model extends CI_Model
       $query_string = $this->db->query("SELECT DISTINCT B.BorrowerId
                                                 , S.name as Salutation
                                                 , B.FirstName
-                                                , CONCAT(B.LastName, ', ', B.FirstName, ' ', B.MiddleName, ', ', B.ExtName) as Name
+                                                , CONCAT(B.LastName, ', ', B.FirstName, ' ', COALESCE(B.MiddleName,'N/A'), ' ', COALESCE(B.ExtName, '')) as Name
                                                 , acronym (B.MiddleName) as MiddleInitial
                                                 , B.LastName
                                                 , B.ExtName
@@ -1195,7 +1195,7 @@ class borrower_model extends CI_Model
       $query_string = $this->db->query("SELECT DISTINCT B.SpouseId
                                                 , S.name as Salutation
                                                 , B.FirstName
-                                                , CONCAT(LastName, ', ', FirstName, ' ', MiddleName, ', ', ExtName) as Name
+                                                , CONCAT(LastName, ', ', FirstName, ' ', COALESCE(MiddleName,'N/A'), ' ', COALESCE(ExtName, '')) as Name
                                                 , acronym (B.MiddleName) as MiddleInitial
                                                 , B.LastName
                                                 , B.ExtName
@@ -1237,7 +1237,7 @@ class borrower_model extends CI_Model
     function getSpouseDetails2($Id)
     {
       $query_string = $this->db->query("SELECT DISTINCT CONCAT('SR-', LPAD(BHS.BorrowerSpouseId, 6, 0)) as RefNo
-                                                , CONCAT(LastName, ', ', FirstName, ' ', MiddleName, ', ', ExtName) as Name
+                                                , CONCAT(LastName, ', ', FirstName, ' ', COALESCE(MiddleName,'N/A'), ' ', COALESCE(ExtName, '')) as Name
                                                 FROM R_Spouse S
                                                   INNER JOIN Borrower_has_spouse BHS
                                                     ON BHS.SpouseId = S.SpouseId
@@ -1352,7 +1352,7 @@ class borrower_model extends CI_Model
     {
       $query_string = $this->db->query("SELECT DISTINCT SP.SpouseId
                                                 , POS.Position
-                                                , CONCAT(LastName, ', ', FirstName, ' ', MiddleName, ', ', ExtName) as Name
+                                                , CONCAT(LastName, ', ', FirstName, ' ', COALESCE(MiddleName,'N/A'), ' ', COALESCE(ExtName, '')) as Name
                                                 , acronym (B.MiddleName) as MiddleInitial
                                                 , B.LastName
                                                 , B.ExtName
@@ -1436,7 +1436,7 @@ class borrower_model extends CI_Model
 
     function getSpouseList($Id)
     {
-      $query_string = $this->db->query("SELECT  CONCAT(S.LastName, ', ', S.FirstName, ' ', S.MiddleName, ', ', S.ExtName) as Name
+      $query_string = $this->db->query("SELECT  CONCAT(S.LastName, ', ', S.FirstName, ' ', COALESCE(S.MiddleName,'N/A'), ' ', COALESCE(S.ExtName, '')) as Name
                                                 , CONCAT('SR-', LPAD(S.SpouseId, 6, 0)) as rowNumber
                                                 , DATE_FORMAT(B.DateOfBirth, '%d %b %Y') as DateOfBirth
                                                 , DATE_FORMAT(B.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
@@ -1564,7 +1564,7 @@ class borrower_model extends CI_Model
                                                 , DATE_FORMAT(B.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
                                                 , DATE_FORMAT(B.DateUpdated, '%d %b %Y %h:%i %p') as DateUpdated
                                                 , B.BorrowerId
-                                                , CONCAT(B.LastName, ', ', B.FirstName) as Name 
+                                                , CONCAT(B.LastName, ', ', B.FirstName, ' ', COALESCE(B.MiddleName,'N/A'), ' ', COALESCE(B.ExtName, '')) as Name 
                                                 , BRNCH.Name as Branch
                                                 FROM r_Borrowers B
                                                   INNER JOIN r_BorrowerStatus BS
@@ -1624,7 +1624,7 @@ class borrower_model extends CI_Model
                                                 , DATE_FORMAT(B.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
                                                 , DATE_FORMAT(B.DateUpdated, '%d %b %Y %h:%i %p') as DateUpdated
                                                 , B.BorrowerId
-                                                , CONCAT(B.LastName, ', ', B.FirstName) as Name 
+                                                , CONCAT(B.LastName, ', ', B.FirstName, ' ', COALESCE(B.MiddleName,'N/A'), ' ', COALESCE(B.ExtName, '')) as Name 
                                                 , BRNCH.Name as Branch
                                                 FROM r_Borrowers B
                                                   INNER JOIN r_BorrowerStatus BS

@@ -1897,7 +1897,7 @@ class employee_controller extends CI_Controller {
             $Manager = $worksheet->getCellByColumnandRow(12, $row)->getValue();
             $Branch = $worksheet->getCellByColumnandRow(13, $row)->getValue();
 
-            if($LastName != '' && $FirstName != '' && $Salutation != '' && $Gender != '' && $Nationality != '' && $CivilStatus != '' && $DOB != '' && $DH != '' != '' && $EmpType != '' && $Branch != '' && $Position != '')
+            if($LastName != '' && $FirstName != '' && $Salutation != '' && $Gender != '' && $Nationality != '' && $CivilStatus != '' && $DOB != '' && $DH != '' && $EmpType != '' && $Branch != '' && $Position != '')
             {
               $employeeName = str_replace(' ', '', strtolower($LastName. ', '. $FirstName. ' ' . $MiddleName. ' ' . $ExtName));
 
