@@ -1914,7 +1914,7 @@ class employee_controller extends CI_Controller {
               $time2 = strtotime($DH);
               $DateH = date('Y-m-d', $time2);
 
-              if($dbEmployeeName['Name'] != null)
+              if($dbEmployeeName['Name'] == null)
               {
                 if($EmpType == 'employee') // get manager id
                 {
@@ -2057,7 +2057,7 @@ class employee_controller extends CI_Controller {
             }
           } // END FOR LOOP
 
-          echo "Employee Records successfully saved! " . $rowCount . " records inserted.";
+          echo "Employee record(s) successfully saved! " . $rowCount . " records inserted.";
         }
 
       } // END FOREACH

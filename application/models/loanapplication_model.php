@@ -13,7 +13,7 @@ class loanapplication_model extends CI_Model
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $AssignedBranchId = $this->session->userdata('BranchId');
-    $query = $this->db->query("SELECT CONCAT(B.LastName, ', ', B.FirstName, ' ', COALESCE(B.MiddleName,''), ' ', COALESCE(B.ExtName, '')) as Name
+    $query = $this->db->query("SELECT CONCAT(B.LastName, ', ', B.FirstName, ' ', COALESCE(B.MiddleName,'N/A'), ' ', COALESCE(B.ExtName, '')) as Name
                                       , B.BorrowerNumber
                                       , A.OldTransaction
                                       , DATE_FORMAT(B.DateOfBirth, '%b %d, %Y') as DOB
@@ -43,7 +43,7 @@ class loanapplication_model extends CI_Model
                                           ELSE PrincipalAmount + AHI.Amount
                                         END / (A.TermNo * A.RepaymentNo) as totalInterestPerCollection
                                       , DATE_FORMAT(A.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
-                                      , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as CreatedBy
+                                      , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CreatedBy
                                       , EMP.EmployeeNumber as EmployeeCreator
                                       , A.TransactionNumber
                                       , A.CreatedBy as rawCreatedBy
@@ -553,7 +553,7 @@ class loanapplication_model extends CI_Model
                                       , DATE_FORMAT(P.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                       , DATE_FORMAT(P.DateCollected, '%b %d, %Y') as DateCollected
                                       , DATE_FORMAT(P.PaymentDate, '%b %d, %Y') as PaymentDate
-                                      , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName) as CreatedBy
+                                      , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CreatedBy
                                       , P.StatusId
                                       , B.BankName
                                       , P.IsInterest
@@ -729,7 +729,7 @@ class loanapplication_model extends CI_Model
     $AssignedBranchId = $this->session->userdata('BranchId');
     $query = $this->db->query("SELECT DISTINCT A.ApplicationId
                                       , A.TransactionNumber
-                                      , CONCAT(B.LastName, ', ', B.FirstName, ' ', COALESCE(B.MiddleName,''), ' ', COALESCE(B.ExtName, '')) as Name
+                                      , CONCAT(B.LastName, ', ', B.FirstName, ' ', COALESCE(B.MiddleName,'N/A'), ' ', COALESCE(B.ExtName, '')) as Name
                                       FROM T_Application A
                                         INNER JOIN t_paymentsmade PM
                                           ON A.ApplicationId = PM.ApplicationId
@@ -1027,7 +1027,7 @@ class loanapplication_model extends CI_Model
     $AssignedBranchId = $this->session->userdata('BranchId');
     $query_string = $this->db->query("SELECT  A.TransactionNumber
                                               , L.Name as LoanName
-                                              , CONCAT(B.FirstName, ' ', B.MiddleName, ' ', B.LastName, ', ', B.ExtName) as BorrowerName
+                                              , CONCAT(B.LastName, ', ', B.FirstName, ' ', COALESCE(B.MiddleName,'N/A'), ' ', COALESCE(B.ExtName, '')) as BorrowerName
                                               , FORMAT(A.PrincipalAmount, 2) PrincipalAmount
                                               , CASE
                                                   WHEN AHI.InterestType = 'Percentage'
@@ -1279,7 +1279,7 @@ class loanapplication_model extends CI_Model
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $query_string = $this->db->query("SELECT  A.TransactionNumber
                                               , L.Name as LoanName
-                                              , CONCAT(B.FirstName, ' ', B.MiddleName, ' ', B.LastName, ', ', B.ExtName) as BorrowerName
+                                              , CONCAT(B.LastName, ', ', B.FirstName, ' ', COALESCE(B.MiddleName,'N/A'), ' ', COALESCE(B.ExtName, '')) as BorrowerName
                                               , FORMAT(A.PrincipalAmount, 2) PrincipalAmount
                                               , CASE
                                                   WHEN AHI.InterestType = 'Percentage'
@@ -1346,7 +1346,7 @@ class loanapplication_model extends CI_Model
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $query_string = $this->db->query("SELECT  $columns
-                                              , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as CollectedBy
+                                              , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CollectedBy
                                               , DATE_FORMAT(PM.DateCollected, '%b %d, %Y') as PaymentDate
                                               , PM.DateCollected
                                               , A.ApplicationId
@@ -1478,9 +1478,9 @@ class loanapplication_model extends CI_Model
       $defaultSearch = "";
       $search .= " AND B.BranchId =  '" . $BranchId."'";
     }
-    $query_string = $this->db->query("SELECT  CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName) as CollectedBy
+    $query_string = $this->db->query("SELECT  CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CollectedBy
                                               , TransactionNumber
-                                              , CONCAT(B.FirstName, ' ', B.MiddleName, ' ', B.LastName) as BorrowerName
+                                              , CONCAT(B.LastName, ', ', B.FirstName, ' ', COALESCE(B.MiddleName,'N/A'), ' ', COALESCE(B.ExtName, '')) as BorrowerName
                                               , FORMAT(A.PrincipalAmount, 2) as LoanAmount
                                               , FORMAT(PM.AmountPaid, 2) as AmountPaid
                                               , DATE_FORMAT(PM.DateCollected, '%b %d, %Y') as PaymentDate
@@ -1527,7 +1527,7 @@ class loanapplication_model extends CI_Model
                                               , EX.Amount
                                               , DATE_FORMAT(EX.DateExpense, '%b %d, %Y') as DateExpense
                                               , DATE_FORMAT(EX.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
-                                              , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName) as CreatedBy
+                                              , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CreatedBy
                                               , EX.Description
                                               FROM R_Expense EX
                                                     INNER JOIN r_expensetype EXT
@@ -1548,7 +1548,7 @@ class loanapplication_model extends CI_Model
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $query_string = $this->db->query("SELECT  A.ApplicationId
                                               , AHN.Description
-                                              , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as CreatedBy
+                                              , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CreatedBy
                                               , Remarks
                                               , FileName
                                               , FileTitle
@@ -1582,7 +1582,7 @@ class loanapplication_model extends CI_Model
                                     , Amount
                                     , GracePeriod
                                     , ApplicationPenaltyId
-                                    , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as CreatedBy
+                                    , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CreatedBy
                                     , AHP.StatusId
                                     , DATE_FORMAT(AHP.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                       FROM Application_has_Penalty AHP
@@ -1822,7 +1822,7 @@ class loanapplication_model extends CI_Model
                                                   ELSE CONCAT(C.Amount / 100 * AHC.LoanAmount)
                                                 END as TotalCharge
                                               , AHC.StatusId
-                                              , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as CreatedBy
+                                              , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CreatedBy
                                               , DATE_FORMAT(AHC.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                               FROM Application_has_charges AHC
                                                 INNER JOIN R_Charges C
@@ -1873,7 +1873,7 @@ class loanapplication_model extends CI_Model
                                               , AE.StatusId
                                               , S.Description
                                               , DATE_FORMAT(AE.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
-                                              , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as CreatedBy
+                                              , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CreatedBy
                                               FROM Application_has_Expense AE
                                                 INNER JOIN r_status S
                                                   ON S.StatusId = AE.StatusId
@@ -1901,7 +1901,7 @@ class loanapplication_model extends CI_Model
                                                   ELSE 'Deactivated'
                                                 END as Description
                                               , DATE_FORMAT(AO.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
-                                              , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName, ', ', EMP.ExtName) as CreatedBy
+                                              , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CreatedBy
                                               FROM Application_has_MonthlyObligation AO
                                                 LEFT JOIN R_Employee EMP
                                                   ON EMP.EmployeeNumber = AO.CreatedBy
@@ -3884,7 +3884,7 @@ class loanapplication_model extends CI_Model
                                                 , SUM(EX.Amount) as Amount
                                                 , DATE_FORMAT(EX.DateExpense, '%b %d, %Y') as DateExpense
                                                 , DATE_FORMAT(EX.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
-                                                , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName) as CreatedBy
+                                                , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CreatedBy
                                                 FROM R_Expense EX
                                                       INNER JOIN r_expensetype EXT
                                                           ON EXT.ExpenseTypeId = EX.ExpenseTypeId
@@ -4275,7 +4275,7 @@ class loanapplication_model extends CI_Model
       $query_string = $this->db->query("SELECT DISTINCT B.BorrowerId
                                                 , S.name as Salutation
                                                 , B.FirstName
-                                                , REPLACE(LOWER(CONCAT(B.LastName, ', ', B.FirstName, ' ', COALESCE(B.MiddleName,''), ' ', COALESCE(B.ExtName, ''))), ' ', '') as Name
+                                                , REPLACE(LOWER(CONCAT(B.LastName, ', ', B.FirstName, ' ', COALESCE(B.MiddleName,'N/A'), ' ', COALESCE(B.ExtName, ''))), ' ', '') as Name
                                                 , acronym (B.MiddleName) as MiddleInitial
                                                 , B.LastName
                                                 , B.ExtName

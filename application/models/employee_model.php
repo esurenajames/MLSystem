@@ -349,7 +349,7 @@ class employee_model extends CI_Model
                                                   LEFT JOIN r_profilepicture PP
                                                     ON PP.EmployeeNumber = EMP.EmployeeNumber
                                                     AND PP.StatusId = 1
-                                                    WHERE REPLACE(LOWER(CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, ''))), ' ', '') = '$Name'
+                                                    WHERE REPLACE(LOWER(CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,''), ' ', COALESCE(EMP.ExtName, ''))), ' ', '') = '$Name'
 
       ");
       $data = $query_string->row_array();

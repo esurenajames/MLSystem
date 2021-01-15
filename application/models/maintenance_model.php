@@ -856,7 +856,7 @@ class maintenance_model extends CI_Model
       $query_string = $this->db->query("SELECT ET.Name as ExpenseType
                                                 , CONCAT('EXT-', LPAD(ET.ExpenseTypeId, 6, 0)) as ReferenceNo
                                                 , ExpenseTypeId
-                                                , CONCAT(FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as CreatedBy
+                                                , CONCAT(LastName, ', ', FirstName, ' ', COALESCE(MiddleName,'N/A'), ' ', COALESCE(ExtName, '')) as CreatedBy
                                                 , ET.Description
                                                 , ET.StatusId
                                                 , DATE_FORMAT(ET.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
@@ -936,7 +936,7 @@ class maintenance_model extends CI_Model
                                                 , EX.ExpenseTypeId
                                                 , EX.ExpenseId
                                                 , FORMAT(EX.Amount, 2) as Amount
-                                                , CONCAT(FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as CreatedBy
+                                                , CONCAT(LastName, ', ', FirstName, ' ', COALESCE(MiddleName,'N/A'), ' ', COALESCE(ExtName, '')) as CreatedBy
                                                 , EX.StatusId
                                                 , EX.DateExpense
                                                 , DATE_FORMAT(EX.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
@@ -966,7 +966,7 @@ class maintenance_model extends CI_Model
                                                 , WT.StatusId
                                                 , DATE_FORMAT(WT.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                                 , DATE_FORMAT(WT.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
-                                                , CONCAT(FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as CreatedBy
+                                                , CONCAT(LastName, ', ', FirstName, ' ', COALESCE(MiddleName,'N/A'), ' ', COALESCE(ExtName, '')) as CreatedBy
                                                 FROM R_WithdrawalType WT
                                                   INNER JOIN R_Employee EMP
                                                     ON EMP.EmployeeNumber = WT.CreatedBy
@@ -1047,7 +1047,7 @@ class maintenance_model extends CI_Model
                                                 , DATE_FORMAT(W.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                                 , DATE_FORMAT(W.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
                                                 , DATE_FORMAT(W.DateWithdrawal, '%b %d, %Y') as DateWithdrawal
-                                                , CONCAT(FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as CreatedBy
+                                                , CONCAT(LastName, ', ', FirstName, ' ', COALESCE(MiddleName,'N/A'), ' ', COALESCE(ExtName, '')) as CreatedBy
                                                 , BRNCH.Name as Branch
                                                 FROM R_Withdrawal W
                                                   INNER JOIN R_WithdrawalType WT
@@ -1065,7 +1065,7 @@ class maintenance_model extends CI_Model
 
     function getAllBorrowers()
     {
-      $query_string = $this->db->query("SELECT CONCAT(LastName, ', ', FirstName, ' ', COALESCE(MiddleName,''), ' ', COALESCE(ExtName, '')) as Name
+      $query_string = $this->db->query("SELECT CONCAT(LastName, ', ', FirstName, ' ', COALESCE(MiddleName,'N/A'), ' ', COALESCE(ExtName, '')) as Name
                                                 , B.StatusId
                                                 , B.Sex
                                                 , B.Dependents
@@ -1081,7 +1081,7 @@ class maintenance_model extends CI_Model
     {
       $query_string = $this->db->query("SELECT  LogId
                                                 , LG.Description
-                                                , CONCAT(FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as CreatedBy
+                                                , CONCAT(LastName, ', ', FirstName, ' ', COALESCE(MiddleName,'N/A'), ' ', COALESCE(ExtName, '')) as CreatedBy
                                                 , DATE_FORMAT(LG.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                                 , LG.DateCreated as rawDateCreated
                                                 , BRNCH.Name as Branch
@@ -1097,7 +1097,7 @@ class maintenance_model extends CI_Model
 
     function getUserCreated($EmployeeNumber)
     {
-      $query = $this->db->query("SELECT CONCAT(LastName, ', ', FirstName, ' ', COALESCE(MiddleName,''), ' ', COALESCE(ExtName, '')) as Name 
+      $query = $this->db->query("SELECT CONCAT(LastName, ', ', FirstName, ' ', COALESCE(MiddleName,'N/A'), ' ', COALESCE(ExtName, '')) as Name 
                                         FROM R_Employee 
                                         WHERE EmployeeNumber = '$EmployeeNumber' 
                                         LIMIT 1
@@ -1143,7 +1143,7 @@ class maintenance_model extends CI_Model
 
     function getCreatedUserDetails($input)
     {
-      $auditquery = $this->db->query("SELECT  CONCAT(LastName, ', ', FirstName, ' ', COALESCE(MiddleName,''), ' ', COALESCE(ExtName, '')) as Name
+      $auditquery = $this->db->query("SELECT  CONCAT(LastName, ', ', FirstName, ' ', COALESCE(MiddleName,'N/A'), ' ', COALESCE(ExtName, '')) as Name
                                               , LOWER(R.Description) as Description
                                               FROM r_userrole UR
                                                 INNER JOIN r_employee EMP
@@ -1346,7 +1346,7 @@ class maintenance_model extends CI_Model
     function getExpenseCreatedBy()
     {
       $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-      $query = $this->db->query("SELECT DISTINCT CONCAT(LastName, ', ', FirstName, ' ', COALESCE(MiddleName,''), ' ', COALESCE(ExtName, '')) as Name
+      $query = $this->db->query("SELECT DISTINCT CONCAT(LastName, ', ', FirstName, ' ', COALESCE(MiddleName,'N/A'), ' ', COALESCE(ExtName, '')) as Name
                                         , EMP.EmployeeNumber
                                         FROM R_Employee EMP
                                           INNER JOIN R_Expense E
@@ -2479,7 +2479,7 @@ class maintenance_model extends CI_Model
                                                 , MN.Remarks
                                                 , MN.CreatedBy
                                                 , MN.ManagerBranchId
-                                                , CONCAT(FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as CreatedBy
+                                                , CONCAT(LastName, ', ', FirstName, ' ', COALESCE(MiddleName,'N/A'), ' ', COALESCE(ExtName, '')) as CreatedBy
                                                 , DATE_FORMAT(MN.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                                 , MN.DateCreated as rawDateCreated
                                                 FROM manager_has_notifications MN

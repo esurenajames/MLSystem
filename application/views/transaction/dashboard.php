@@ -207,8 +207,9 @@
             buttonsStyling: false,
             confirmButtonClass: 'btn btn-primary'
           });
-          // location.reload();
-            // this.reset();
+          setTimeout(function() {            
+            location.reload();
+          }, 2000);
         }
         else
         {

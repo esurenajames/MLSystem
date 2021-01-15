@@ -93,6 +93,7 @@
 
 <div class="loading" style="display: none">Loading&#8230;</div>
 <?php $this->load->view('includes/footer'); ?>
+<script src="<?php echo base_url(); ?>resources/functionalities/AddNotif.js"></script>
 
 <script>
   var varStatus = 0;

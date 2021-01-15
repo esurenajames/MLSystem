@@ -96,6 +96,7 @@
                     <div class="form-group">
                       <label for="Branch">Company Branch</label><br>
                       <select class="form-control" style="width: 100%" name="BranchId" required="" id="SelectBranch" onchange="selectEmployees(this.value)">
+                        <option selected="" disabled="">Select Branch</option>
                       <?php
                         echo $Branch;
                       ?>

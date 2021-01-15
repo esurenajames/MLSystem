@@ -3,7 +3,7 @@
   var baseUrl = base_url + '/ELendingTool'; // initial url for javascripts
 
 
-  $(".frminsert").on('submit', function (e) {
+  $(".frminsert2").on('submit', function (e) {
     e.preventDefault(); 
     swal({
       title: 'Confirm',

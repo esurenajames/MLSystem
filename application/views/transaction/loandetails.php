@@ -21,7 +21,7 @@
               <span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title" id="modalApprovalUpdateTitle"></h4>
           </div>
-          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/loanapproval/<?php print_r($detail['ApplicationId']) ?>" enctype="multipart/form-data" method="post">
+          <form autocomplete="off" class="frminsert2" action="<?php echo base_url(); ?>loanapplication_controller/loanapproval/<?php print_r($detail['ApplicationId']) ?>" enctype="multipart/form-data" method="post">
             <div class="modal-body">
               <div class="row">
                 <div class="col-md-12">
@@ -74,7 +74,7 @@
               <span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title" id="modalApprovalUpdateTitles"></h4>
           </div>
-          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/loanapproval/<?php print_r($detail['ApplicationId']) ?>" method="post">
+          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/loanapproval/<?php print_r($detail['ApplicationId']) ?>" method="post" class="frminsert2">
             <div class="modal-body">
               <div class="row">
                 <div class="col-md-12">
@@ -103,7 +103,7 @@
               <span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title" id="modalPaymentTitle"></h4>
           </div>
-          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/loanapproval/<?php print_r($detail['ApplicationId']) ?>" method="post">
+          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/loanapproval/<?php print_r($detail['ApplicationId']) ?>" method="post" class="frminsert2">
             <div class="modal-body">
               <div class="row">
                 <div class="col-md-3">
@@ -410,7 +410,7 @@
               <span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title">Upload Requirement</h4>
           </div>
-          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/uploadRequirements/<?php print_r($detail['ApplicationId']) ?>" method="post" enctype="multipart/form-data">
+          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/uploadRequirements/<?php print_r($detail['ApplicationId']) ?>" class="frminsert2" method="post" enctype="multipart/form-data">
             <div class="modal-body">
               <div class="row">
                 <div class="col-md-12">
@@ -621,7 +621,7 @@
               <span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title" id="modalComment">Add Comment</h4>
           </div>
-          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddComment/<?php print_r($detail['ApplicationId']) ?>" method="post" enctype="multipart/form-data">
+          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddComment/<?php print_r($detail['ApplicationId']) ?>" method="post" class="frminsert2" enctype="multipart/form-data">
             <div class="modal-body">
               <div class="row">
                 <div class="col-md-12">
@@ -653,7 +653,7 @@
               <span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title">Add Personal Reference</h4>
           </div>
-          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddPersonalRef/<?php print_r($detail['ApplicationId']) ?>" method="post" enctype="multipart/form-data">
+          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddPersonalRef/<?php print_r($detail['ApplicationId']) ?>" method="post" class="frminsert2" enctype="multipart/form-data">
             <div class="modal-body">
               <div class="row">
                 <div class="col-md-12">
@@ -687,7 +687,7 @@
               <span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title" id="modalDropdownTitle"></h4>
           </div>
-          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/addBorrowerDets/<?php print_r($detail['ApplicationId']) ?>" method="post" enctype="multipart/form-data">
+          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/addBorrowerDets/<?php print_r($detail['ApplicationId']) ?>" method="post" class="frminsert2" enctype="multipart/form-data">
             <div class="modal-body">
               <div class="row">
                 <div class="col-md-12">
@@ -721,7 +721,7 @@
               <span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title" id="CollateralTitle"></h4>
           </div>
-          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/addCollateral/<?php print_r($detail['ApplicationId']) ?>" id="frmCollateral" method="post" enctype="multipart/form-data">
+          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/addCollateral/<?php print_r($detail['ApplicationId']) ?>" id="frmCollateral" class="frminsert2" method="post" enctype="multipart/form-data">
             <div class="modal-body">
               <div id="divCollateralForm">
                 <div class="row">
@@ -872,7 +872,7 @@
               <span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title" id="modalObligationTitle">Add Monthly Obligation</h4>
           </div>
-          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddObligation/<?php print_r($detail['ApplicationId']) ?>" method="post">
+          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddObligation/<?php print_r($detail['ApplicationId']) ?>" method="post" class="frminsert2">
             <div class="modal-body">
               <div class="row">
                 <div class="col-md-12">
@@ -914,7 +914,7 @@
               <span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title" id="modalExpenseTitle">Add Monthly Expense</h4>
           </div>
-          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddExpense/<?php print_r($detail['ApplicationId']) ?>" method="post">
+          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddExpense/<?php print_r($detail['ApplicationId']) ?>" method="post" class="frminsert2">
             <div class="modal-body">
               <div class="row">
                 <div class="col-md-12">
@@ -956,7 +956,7 @@
               <span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title" id="modalRequirement">Add Requirement</h4>
           </div>
-          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddRequirement/<?php print_r($detail['ApplicationId']) ?>" method="post">
+          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddRequirement/<?php print_r($detail['ApplicationId']) ?>" method="post" class="frminsert2">
             <div class="modal-body">
               <div class="row">
                 <div class="col-md-12">
@@ -990,7 +990,7 @@
               <span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title">Add Charges</h4>
           </div>
-          <form autocomplete="off" action="<?php echo base_url(); ?>/loanapplication_controller/addCharges/<?php print_r($detail['ApplicationId']) ?>" method="post">
+          <form autocomplete="off" action="<?php echo base_url(); ?>/loanapplication_controller/addCharges/<?php print_r($detail['ApplicationId']) ?>" method="post" class="frminsert2">
             <div class="modal-body">
               <div class="row">
                 <div class="col-md-12">
@@ -1043,7 +1043,7 @@
               <span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title" id="modalIncomeTitle">Add Other Source of Income</h4>
           </div>
-          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddIncome/<?php print_r($detail['ApplicationId']) ?>" method="post">
+          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddIncome/<?php print_r($detail['ApplicationId']) ?>" method="post" class="frminsert2">
             <div class="modal-body">
               <div class="row">
                 <div class="col-md-12">
@@ -1085,7 +1085,7 @@
               <span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title" id="modalIncome">Edit Loan Status</h4>
           </div>
-          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/editStatus/<?php print_r($detail['ApplicationId']) ?>" method="post">
+          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/editStatus/<?php print_r($detail['ApplicationId']) ?>" method="post" class="frminsert2">
             <div class="modal-body">
               <div class="row">
                 <div class="col-md-12">
@@ -1133,7 +1133,7 @@
               <span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title" id="modalIncome">Add Disbursement</h4>
           </div>
-          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddDisbursement/<?php print_r($detail['ApplicationId']) ?>" method="post">
+          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddDisbursement/<?php print_r($detail['ApplicationId']) ?>" method="post" class="frminsert2">
             <div class="modal-body">
               <div class="row">
                 <div class="col-md-12">
@@ -1693,7 +1693,7 @@
                   </table>
                 </div>
                 <div class="tab-pane" id="tabPenalty">
-                  <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/penaltySettings/<?php print_r($detail['ApplicationId']) ?>" method="post">
+                  <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/penaltySettings/<?php print_r($detail['ApplicationId']) ?>" method="post" class="frminsert2">
                     <h4>Penalties</h4>
                     <?php 
                       if($detail['StatusId'] == 1 || $detail['StatusId'] == 4)
@@ -2741,6 +2741,7 @@
 
 <!-- <div class="loading" style="display: none">Loading&#8230;</div> -->
 <?php $this->load->view('includes/footer'); ?>
+<script src="<?php echo base_url(); ?>resources/functionalities/AddNotif.js"></script>
 <script type="text/javascript">
   if("<?php print_r($this->session->flashdata('alertTitle')) ?>" != '')
   {

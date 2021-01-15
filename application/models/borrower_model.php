@@ -457,13 +457,13 @@ class borrower_model extends CI_Model
         $AddressTransactionNumber = $this->db->query("SELECT LPAD(".$input['Id'].", 6, 0) as Id")->row_array();
         if($input['updateType'] == 1 || $input['updateType'] == 0) // deactivate and re-activate address of Borrower
         {
-          $count = $this->db->query("SELECT  COUNT(*) as ifUsed
-                                                      FROM application_has_address
-                                                            WHERE BorrowerAddressHistoryId = ".$input['Id']."
-                                                            AND StatusId = 1
-          ")->row_array();
-          if($count['ifUsed'] == 0)
-          {
+          // $count = $this->db->query("SELECT  COUNT(*) as ifUsed
+          //                                             FROM application_has_address
+          //                                                   WHERE BorrowerAddressHistoryId = ".$input['Id']."
+          //                                                   AND StatusId = 1
+          // ")->row_array();
+          // if($count['ifUsed'] == 0)
+          // {
             // update status
               $set = array( 
                 'StatusId' => $input['updateType'],
@@ -488,11 +488,11 @@ class borrower_model extends CI_Model
               }
               $this->auditBorrowerDetails($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditBorrowerDetails, $BorrowerDetail['BorrowerId']);
             return 1;
-          }
-          else
-          {
-            return 0;
-          }
+          // }
+          // else
+          // {
+          //   return 0;
+          // }
         }
         else // set as primary address
         {
@@ -539,13 +539,13 @@ class borrower_model extends CI_Model
         $EmailTransaction = $this->db->query("SELECT LPAD(".$input['Id'].", 6, 0) as Id")->row_array();
         if($input['updateType'] == 1 || $input['updateType'] == 0) // deactivate and re-activate email of borrower
         {
-          $count = $this->db->query("SELECT  COUNT(*) as ifUsed
-                                                      FROM application_has_email
-                                                            WHERE BorrowerEmailId = ".$input['Id']."
-                                                            AND StatusId = 1
-          ")->row_array();
-          if($count['ifUsed'] == 0)
-          {
+          // $count = $this->db->query("SELECT  COUNT(*) as ifUsed
+          //                                             FROM application_has_email
+          //                                                   WHERE BorrowerEmailId = ".$input['Id']."
+          //                                                   AND StatusId = 1
+          // ")->row_array();
+          // if($count['ifUsed'] == 0)
+          // {
           // update status
             $set = array( 
               'StatusId' => $input['updateType'],
@@ -570,11 +570,11 @@ class borrower_model extends CI_Model
             }
             $this->auditBorrowerDetails($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditBorrowerDetails, $BorrowerDetail['BorrowerId']);
             return 1;
-          }
-          else
-          {
-            return 0;
-          }
+          // }
+          // else
+          // {
+          //   return 0;
+          // }
         }
         else // set as primary email
         {
@@ -624,13 +624,13 @@ class borrower_model extends CI_Model
         $TransactionNumber = $this->db->query("SELECT LPAD(".$input['Id'].", 6, 0) as Id")->row_array();
         if($input['updateType'] == 1 || $input['updateType'] == 0) // activate and deactivate Contact Number of Borrower
         {
-          $count = $this->db->query("SELECT  COUNT(*) as ifUsed
-                                                      FROM application_has_contact
-                                                            WHERE BorrowerContactId = ".$input['Id']."
-                                                            AND StatusId = 1
-          ")->row_array();
-          if($count['ifUsed'] == 0)
-          {
+          // $count = $this->db->query("SELECT  COUNT(*) as ifUsed
+          //                                             FROM application_has_contact
+          //                                                   WHERE BorrowerContactId = ".$input['Id']."
+          //                                                   AND StatusId = 1
+          // ")->row_array();
+          // if($count['ifUsed'] == 0)
+          // {
             // update status
               $set = array(
                 'StatusId' => $input['updateType'],
@@ -655,11 +655,11 @@ class borrower_model extends CI_Model
               }
               $this->auditBorrowerDetails($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditBorrowerDetails, $BorrowerDetail['BorrowerId']);
             return 1;
-          }
-          else
-          {
-            return 0;
-          }
+          // }
+          // else
+          // {
+          //   return 0;
+          // }
         }
         else // set as PRIMARY
         {
@@ -763,13 +763,13 @@ class borrower_model extends CI_Model
         $SpouseNumber = $this->db->query("SELECT LPAD(".$input['Id'].", 6, 0) as Id")->row_array();
         if($input['updateType'] == 1 || $input['updateType'] == 0) // activate and deactivate Contact Number of Borrower
         {
-          $count = $this->db->query("SELECT  COUNT(*) as ifUsed
-                                                      FROM application_has_spouse
-                                                            WHERE BorrowerSpouseId = ".$input['Id']."
-                                                            AND StatusId = 1
-          ")->row_array();
-          if($count['ifUsed'] == 0)
-          {
+          // $count = $this->db->query("SELECT  COUNT(*) as ifUsed
+          //                                             FROM application_has_spouse
+          //                                                   WHERE BorrowerSpouseId = ".$input['Id']."
+          //                                                   AND StatusId = 1
+          // ")->row_array();
+          // if($count['ifUsed'] == 0)
+          // {
             // admin audits finalss
               if($input['updateType'] == 1)
               {
@@ -817,11 +817,11 @@ class borrower_model extends CI_Model
               }
               $this->auditBorrowerDetails($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditBorrowerDetails, $BorrowerDetail['BorrowerId']);
             return 1;
-          }
-          else
-          {
-            return 0;
-          }
+          // }
+          // else
+          // {
+          //   return 0;
+          // }
         }
       }
       else if($input['tableType'] == 'BorrowerEmployer')
@@ -837,13 +837,13 @@ class borrower_model extends CI_Model
         $EmployerNumber = $this->db->query("SELECT LPAD(".$input['Id'].", 6, 0) as Id")->row_array();
         if($input['updateType'] == 1 || $input['updateType'] == 0) // activate and deactivate Employer of Borrower
         {
-          $count = $this->db->query("SELECT  COUNT(*) as ifUsed
-                                                      FROM application_has_employer
-                                                            WHERE EmployerId = ".$input['Id']."
-                                                            AND StatusId = 1
-          ")->row_array();
-          if($count['ifUsed'] == 0)
-          {
+          // $count = $this->db->query("SELECT  COUNT(*) as ifUsed
+          //                                             FROM application_has_employer
+          //                                                   WHERE EmployerId = ".$input['Id']."
+          //                                                   AND StatusId = 1
+          // ")->row_array();
+          // if($count['ifUsed'] == 0)
+          // {
             // update status
               $set = array(
                 'StatusId' => $input['updateType'],
@@ -869,11 +869,11 @@ class borrower_model extends CI_Model
               $this->auditBorrowerDetails($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditBorrowerDetails, $BorrowerDetail['BorrowerId']);
 
             return 1;
-          }
-          else
-          {
-            return 0;
-          }
+          // }
+          // else
+          // {
+          //   return 0;
+          // }
         }
       }
       else if($input['tableType'] == 'BorrowerCoMaker')
@@ -889,13 +889,13 @@ class borrower_model extends CI_Model
         $ComakerNumber = $this->db->query("SELECT LPAD(".$input['Id'].", 6, 0) as Id")->row_array();
         if($input['updateType'] == 1 || $input['updateType'] == 0) // activate and deactivate Contact Number of Borrower
         {
-          $count = $this->db->query("SELECT  COUNT(*) as ifUsed
-                                                      FROM application_has_comaker
-                                                            WHERE BorrowerCoMakerId = ".$input['Id']."
-                                                            AND StatusId = 1
-          ")->row_array();
-          if($count['ifUsed'] == 0)
-          {
+          // $count = $this->db->query("SELECT  COUNT(*) as ifUsed
+          //                                             FROM application_has_comaker
+          //                                                   WHERE BorrowerCoMakerId = ".$input['Id']."
+          //                                                   AND StatusId = 1
+          // ")->row_array();
+          // if($count['ifUsed'] == 0)
+          // {
             // update status
               $set = array(
                 'StatusId' => $input['updateType'],
@@ -920,22 +920,22 @@ class borrower_model extends CI_Model
               }
               $this->auditBorrowerDetails($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditBorrowerDetails, $BorrowerDetail['BorrowerId']);
             return 1;
-          }
-          else
-          {
-            return 0;
-          }
+          // }
+          // else
+          // {
+          //   return 0;
+          // }
         }
       }
       else if($input['tableType'] == 'BorrowerPersonal')
       {
-        $count = $this->db->query("SELECT  COUNT(*) as ifUsed
-                                                    FROM application_has_personalReference
-                                                          WHERE ReferenceId = ".$input['Id']."
-                                                          AND StatusId = 1
-        ")->row_array();
-        if($count['ifUsed'] == 0)
-        {
+        // $count = $this->db->query("SELECT  COUNT(*) as ifUsed
+        //                                             FROM application_has_personalReference
+        //                                                   WHERE ReferenceId = ".$input['Id']."
+        //                                                   AND StatusId = 1
+        // ")->row_array();
+        // if($count['ifUsed'] == 0)
+        // {
           $BorrowerDetail = $this->db->query("SELECT  BRF.ReferenceId
                                                     , B.BorrowerId
                                                     , B.BorrowerNumber
@@ -975,11 +975,11 @@ class borrower_model extends CI_Model
           }
 
           return 1;
-        }
-        else
-        {
-          return 0;
-        }
+        // }
+        // else
+        // {
+        //   return 0;
+        // }
       }
       else if($input['tableType'] == 'BorrowerEducation')
       {
@@ -994,13 +994,13 @@ class borrower_model extends CI_Model
         $EducationNumber = $this->db->query("SELECT LPAD(".$input['Id'].", 6, 0) as Id")->row_array();
         if($input['updateType'] == 1 || $input['updateType'] == 0) // activate and deactivate Contact Number of Borrower
         {
-          $count = $this->db->query("SELECT  COUNT(*) as ifUsed
-                                                      FROM application_has_education
-                                                            WHERE BorrowerEducationId = ".$input['Id']."
-                                                            AND StatusId = 1
-          ")->row_array();
-          if($count['ifUsed'] == 0)
-          {
+          // $count = $this->db->query("SELECT  COUNT(*) as ifUsed
+          //                                             FROM application_has_education
+          //                                                   WHERE BorrowerEducationId = ".$input['Id']."
+          //                                                   AND StatusId = 1
+          // ")->row_array();
+          // if($count['ifUsed'] == 0)
+          // {
             // update status
               $set = array(
                 'StatusId' => $input['updateType'],
@@ -1025,11 +1025,11 @@ class borrower_model extends CI_Model
               }
               $this->auditBorrowerDetails($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditBorrowerDetails, $BorrowerDetail['BorrowerId']);
             return 1;
-          }
-          else
-          {
-            return 0;
-          }
+          // }
+          // else
+          // {
+          //   return 0;
+          // }
         }
       }
       else if($input['tableType'] == 'BorrowerUpdate')

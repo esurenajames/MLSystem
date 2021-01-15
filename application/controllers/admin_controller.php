@@ -29,21 +29,28 @@ class admin_controller extends CI_Controller {
     date_default_timezone_set('Asia/Manila');
     $this->load->library('Pdf');
 
-   	if(empty($this->session->userdata("EmployeeNumber")) || $this->session->userdata("logged_in") == 0)
-   	{
-      $DateNow = date("Y-m-d H:i:s");
-     	$this->session->set_flashdata('logout','Account successfully logged out.'); 
-      $data = array(
-      	'Description' => 'Session timed out.'
-      	, 'DateCreated' => $DateNow
-      	, 'CreatedBy' => $this->session->userdata('EmployeeNumber')
-      );
-      $this->access->audit($data);
-      $loginSession = array(
-        'logged_in' => 0,
-      );
-   		redirect(site_url());
-   	}
+    if(strpos(strtolower($_SERVER['HTTP_USER_AGENT']),'chrome') != TRUE || strpos(strtolower($_SERVER['HTTP_USER_AGENT']),'edge') != FALSE){
+        //Make a redirect to a page forcing the user to use Chrome (Message page)
+        echo "Please use chrome";
+    }
+    else
+    {
+      if(empty($this->session->userdata("EmployeeNumber")) || $this->session->userdata("logged_in") == 0)
+      {
+        $DateNow = date("Y-m-d H:i:s");
+        $this->session->set_flashdata('logout','Account successfully logged out.'); 
+        $data = array(
+          'Description' => 'Session timed out.'
+          , 'DateCreated' => $DateNow
+          , 'CreatedBy' => $this->session->userdata('EmployeeNumber')
+        );
+        $this->access->audit($data);
+        $loginSession = array(
+          'logged_in' => 0,
+        );
+        redirect(site_url());
+      }
+    }
 	}
 
 	function getAuditLogs()
@@ -292,6 +299,7 @@ class admin_controller extends CI_Controller {
         );
         $this->session->set_userdata($loginSession);
         redirect(site_url());
+        session_destroy();
     }
     else // add user
     {
@@ -2100,6 +2108,7 @@ class admin_controller extends CI_Controller {
           $insertBorrowerStatus = array(
             'Name'                     => htmlentities($_POST['BorrowerStatus'], ENT_QUOTES)
             , 'CreatedBy'              => $EmployeeNumber
+            , 'statusColor'            => $EmployeeNumber
           );
           $insertBorrowerStatusTable = 'r_borrowerstatus';
           $this->maintenance_model->insertFunction($insertBorrowerStatus, $insertBorrowerStatusTable);
@@ -3322,7 +3331,6 @@ class admin_controller extends CI_Controller {
       $this->db->truncate('t_changemade');
       $this->db->truncate('t_paymentdue');
       $this->db->truncate('t_paymentsmade');
-      $this->db->truncate('R_DisclosureAgreement');
       $this->db->truncate('r_userrole_has_r_securityquestions');
       $this->db->truncate('R_UserAccess');
       $this->db->truncate('employee_has_status');
@@ -3333,7 +3341,7 @@ class admin_controller extends CI_Controller {
           'CreatedBy' => '000000',
           'StatusId' => 1,
         );
-        $auditTableBank = 'application_has_status';
+        $auditTableBank = 'r_bank';
         $this->maintenance_model->insertFunction($insertDataBank, $auditTableBank);
       // application has status
         $insertData1 = array(
@@ -3576,6 +3584,7 @@ class admin_controller extends CI_Controller {
       $this->session->set_flashdata('alertType','success'); 
     
     redirect('home/userprofile/' . $EmployeeNumber);
+    session_destroy();
   }
 
   public function download($id)

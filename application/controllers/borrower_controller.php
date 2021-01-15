@@ -1956,7 +1956,7 @@ class borrower_controller extends CI_Controller {
             $Gender = $worksheet->getCellByColumnandRow(6, $row)->getValue();
             $Nationality = $worksheet->getCellByColumnandRow(7, $row)->getValue();
             $CivilStatus = $worksheet->getCellByColumnandRow(8, $row)->getValue();
-            $DOB = $worksheet->getCellByColumnandRow(9, $row)->getValue();
+            $DOB = $worksheet->getCellByColumnandRow(9, $row)->getFormattedValue();
             $Dependents = $worksheet->getCellByColumnandRow(10, $row)->getValue();
             $Branch = str_replace(' ', '', strtolower($worksheet->getCellByColumnandRow(11, $row)->getValue()));
 
@@ -2016,16 +2016,16 @@ class borrower_controller extends CI_Controller {
                   $table = 'R_Borrowers';
                   $this->maintenance_model->updateFunction1($set, $condition, $table);
                 // admin audits finalss
-                  $auditLogsManager = 'Added borrower #'.$BorrowerNumber . ' to borrower list.';
-                  $auditAffectedEmployee = 'Added borrower #'.$BorrowerNumber . ' to borrower list.';
-                  $auditAffectedTable = 'Added to borrower list.';
+                  $auditLogsManager = 'Uploaded borrower #'.$BorrowerNumber . ' to borrower list.';
+                  $auditAffectedEmployee = 'Uploaded borrower #'.$BorrowerNumber . ' to borrower list.';
+                  $auditAffectedTable = 'Uploaded to borrower list.';
                   $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $createdBy, $auditAffectedTable, $BorrowerId['BorrowerId'], 'borrower_has_notifications', 'BorrowerId');
                 $rowCount = $rowCount + 1;
               }
             }
           } // END FOR LOOP
 
-          echo "Employee records successfully saved! " . $rowCount . " records inserted.";
+          echo "Borrower records successfully saved! " . $rowCount . " records inserted.";
         }
 
       } // END FOREACH

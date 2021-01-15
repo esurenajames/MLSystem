@@ -322,57 +322,55 @@
                 <span aria-hidden="true">&times;</span></button>
               <h4 class="modal-title">Filter</h4>
             </div>
-              <form role="form" id="upload_form3" method="post" enctype="multipart/form-data">
-                <div class="modal-body">
-                  <div class="row">
-                    <div class="col-md-12">
-                      <label>Branch</label>
-                      <select class="select2 form-control" style="width: 100%" id="slctBranch">
-                        <option>All</option>
-                        <?php
-                          echo $Branch;
-                        ?>
-                      </select>
-                    </div>
-                    <div class="col-md-6">
-                      <label>Status</label>
-                      <select class="select2 form-control" style="width: 100%" id="slctStatus">
-                        <?php
-                          echo $EmployeeStats;
-                        ?>
-                      </select>
-                    </div>
-                    <div class="col-md-6">
-                      <label>Manager</label>
-                      <select class="select2 form-control" style="width: 100%" id="slctManager">
-                        <?php
-                          echo $EmployeeManager;
-                        ?>
-                      </select>
-                    </div>
-                    <div class="col-md-6">
-                      <label>Date Hired From</label>
-                      <select class="select2 form-control" style="width: 100%" id="slctDateHiredFrom">
-                        <?php
-                          echo $EmployeeDateHired;
-                        ?>
-                      </select>
-                    </div>
-                    <div class="col-md-6">
-                      <label>Date Hired To</label>
-                      <select class="select2 form-control" style="width: 100%" id="slctDateHiredTo">
-                        <?php
-                          echo $EmployeeDateHired;
-                        ?>
-                      </select>
-                    </div>
-                  </div>
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-md-12">
+                  <label>Branch</label>
+                  <select class="select2 form-control" style="width: 100%" id="slctBranch">
+                    <option>All</option>
+                    <?php
+                      echo $Branch;
+                    ?>
+                  </select>
                 </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                  <a onclick="filterPage()" class="btn btn-primary">Submit</a>
+                <div class="col-md-6">
+                  <label>Status</label>
+                  <select class="select2 form-control" style="width: 100%" id="slctStatus">
+                    <?php
+                      echo $EmployeeStats;
+                    ?>
+                  </select>
                 </div>
-              </form>
+                <div class="col-md-6">
+                  <label>Manager</label>
+                  <select class="select2 form-control" style="width: 100%" id="slctManager">
+                    <?php
+                      echo $EmployeeManager;
+                    ?>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label>Date Hired From</label>
+                  <select class="select2 form-control" style="width: 100%" id="slctDateHiredFrom">
+                    <?php
+                      echo $EmployeeDateHired;
+                    ?>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label>Date Hired To</label>
+                  <select class="select2 form-control" style="width: 100%" id="slctDateHiredTo">
+                    <?php
+                      echo $EmployeeDateHired;
+                    ?>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <a onclick="filterPage()" class="btn btn-primary">Submit</a>
+            </div>
           </div>
         </div>
       </div>
@@ -648,6 +646,19 @@
 
   $('#upload_form3').on('submit', function(event){
     event.preventDefault();
+    swal({
+      title: 'Confirm',
+      text: 'Are you sure you want to confirm?',
+      type: 'info',
+      showCancelButton: true,
+      buttonsStyling: false,
+      confirmButtonClass: 'btn btn-success',
+      confirmButtonText: 'Confirm',
+      cancelButtonClass: 'btn btn-secondary'
+    }).then(function(){
+      e.currentTarget.submit();
+    });
+
     $.ajax({
       url: "<?php echo base_url(); ?>employee_controller/uploadForm3Excel",
       method: "POST",
@@ -665,10 +676,9 @@
             buttonsStyling: false,
             confirmButtonClass: 'btn btn-primary'
           });
-          $('#upload_form3').each(function(){
-            this.reset();
-          });
-          location.reload();
+          setTimeout(function() {            
+            location.reload();
+          }, 2000);
         }
         else
         {
