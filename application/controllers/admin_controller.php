@@ -2953,7 +2953,7 @@ class admin_controller extends CI_Controller {
           'statusId' => 0,
         );
         $condition = array( 
-          'statudId' => 1
+          'statusId' => 1
         );
         $table = 'r_loanundertaking';
         $this->maintenance_model->updateFunction1($set, $condition, $table);
