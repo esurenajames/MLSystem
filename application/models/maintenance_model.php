@@ -571,6 +571,21 @@ class maintenance_model extends CI_Model
       return $data;
     }
 
+    function getAllDisclosures()
+    {
+      $query_string = $this->db->query("SELECT LU.Description as Description
+                                                , CONCAT('DB-', LPAD(LU.undertakingId, 6, 0)) as ReferenceNo 
+                                                , LU.undertakingId
+                                                , LU.CreatedBy
+                                                , LU.StatusId
+                                                , DATE_FORMAT(LU.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                , DATE_FORMAT(LU.DateUpdated, '%b %d, %Y %h:%i %p') as DateDateUpdated
+                                                FROM R_LoanUndertaking LU
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
     function getAllOptional()
     {
       $query_string = $this->db->query("SELECT OC.Name as OptionalName

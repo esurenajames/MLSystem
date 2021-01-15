@@ -2,12 +2,12 @@
   <!-- Content Header (Page header) -->
   <section class="content-header">
     <h1>
-      Agreement Disclosure
+      Loan Undertaking
     </h1>
     <ol class="breadcrumb">
       <li><a href="http://localhost/ELendingTool/home/Dashboard" class="active"><i class="fa fa-dashboard"></i>Dashboard</a></li>
       <li><a href="#">System Setup</a></li>
-      <li><a href="#">Disclosure Agreement</a></li>
+      <li><a href="#">Loan Undertaking</a></li>
     </ol>
   </section>
   <div class="modal fade" id="modalNewDisclosure">
@@ -16,7 +16,7 @@
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">Disclosure Agreement Details</h4>
+          <h4 class="modal-title">Loan Undertaking Details</h4>
         </div>
         <form action="<?php echo base_url(); ?>admin_controller/AddDisclosure/" id="frmInsert" method="post">
           <div class="modal-body">
@@ -26,7 +26,7 @@
                     <label for="Description">Description</label>
                     <textarea type="text" class="form-control" id="txtDescription" name="Description" placeholder="Description"></textarea>
                     <input type="hidden" class="form-control" id="txtFormType" name="FormType" value="1">
-                    <input type="hidden" class="form-control" id="txtDisclosureId" name="DisclosureId">
+                    <input type="hidden" class="form-control" id="txtUndertakingId" name="UndertakingId">
                   </div>
                 </div>
               </div>
@@ -45,7 +45,7 @@
     <section class="content">
       <div class="box">
         <div class="box-header with-border">
-          <h3 class="box-title">List of Disclosure Agreements</h3>
+          <h3 class="box-title">List of loan undertakings</h3>
         </div>
         <div class="box-body">
           <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalNewDisclosure">Add Record</button>
@@ -56,10 +56,9 @@
               <thead>
               <tr>
                 <th>Reference No</th>
-                <th>Discription</th>
+                <th>Description</th>
                 <th>Status</th>
                 <th>Date Created</th>
-                <th>Date Updated</th>
                 <th>Action</th>
               </tr>
               </thead>
@@ -100,7 +99,7 @@
     });
   }
   
-  function confirm(Text, DisclosureId, updateType)
+  function confirm(Text, UndertakingId, updateType)
   { 
     swal({
       title: 'Confirm',
@@ -116,7 +115,7 @@
           url: "<?php echo base_url();?>" + "/admin_controller/updateStatus",
           method: "POST",
           data:   {
-                      Id : DisclosureId
+                      Id : UndertakingId
                     , updateType : updateType
                     , tableType : 'Disclosure'
                   },
@@ -162,14 +161,14 @@
     });
   }
 
-  function Edit(DisclosureId)
+  function Edit(undertakingId)
   {
     $.ajax({
       url: '<?php echo base_url()?>' + "/admin_controller/getDisclosureDetails",
       type: "POST",
       async: false,
       data: {
-        Id : DisclosureId
+        Id : undertakingId
       },
       dataType: "JSON",
       beforeSend: function(){
@@ -178,7 +177,7 @@
       success: function(data)
       {
         $('#txtDescription').val(data['Description']);
-        $('#txtDisclosureId').val(DisclosureId);
+        $('#txtundertakingId').val(undertakingId);
         $('#txtFormType').val(2);
       },
 
@@ -223,14 +222,13 @@
                       }
                     },
                     { data: "DateCreated" }, 
-                    { data: "DateUpdated" }, 
                     {
                       data: "StatusId", "render": function (data, type, row) {
                       if(row.StatusId == 1){
-                          return '<a onclick="confirm(\'Are you sure you want to deactivate this disclosure?\', \''+row.DisclosureId+'\', 0)" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a> <a onclick="Edit('+row.DisclosureId+')" data-toggle="modal" data-target="#modalNewDisclosure" class="btn btn-info" title="Edit"><span class="fa fa-edit"></span></a>';
+                          return '<a onclick="confirm(\'Are you sure you want to deactivate this disclosure?\', \''+row.undertakingId+'\', 0)" class="btn btn-danger" title="Deactivate"><span class="fa fa-close"></span></a> <a onclick="Edit('+row.undertakingId+')" data-toggle="modal" data-target="#modalNewDisclosure" class="btn btn-info" title="Edit"><span class="fa fa-edit"></span></a>';
                         }
                         else if(row.StatusId == 0){
-                          return '<a onclick="confirm(\'Are you sure you want to re-activate this disclosure?\', \''+row.DisclosureId+'\', 1)" class="btn btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
+                          return '<a onclick="confirm(\'Are you sure you want to re-activate this disclosure?\', \''+row.undertakingId+'\', 1)" class="btn btn-warning" title="Deactivate"><span class="fa fa-refresh"></span></a>';
                         }
                         else{
                           return "N/A";
