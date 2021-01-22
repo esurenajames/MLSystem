@@ -1373,8 +1373,7 @@ class loanapplication_model extends CI_Model
                                                     ON EMP.EmployeeNumber = PM.CreatedBy
                                                   INNER JOIN R_Bank BNK
                                                     ON BNK.BankId = PM.ChangeId
-                                                    WHERE A.StatusId = 1
-                                                    AND PM.StatusId = 1
+                                                    WHERE PM.StatusId = 1
                                                     AND DATE_FORMAT(PM.DateCollected, '%Y-%m-%d') BETWEEN  DATE_FORMAT('$dateFrom', '%Y-%m-%d') AND DATE_FORMAT('$dateTo', '%Y-%m-%d')
                                                     AND B.BranchId = $branchId
                                                     $query
