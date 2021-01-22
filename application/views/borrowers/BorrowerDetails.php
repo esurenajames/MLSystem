@@ -208,6 +208,38 @@
           <!-- /.modal-dialog -->
         </div>
 
+        <div class="modal fade" id="modalDiary">
+          <div class="modal-dialog modal-md">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modalDiary">Add Daily Diary</h4>
+              </div>
+              <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddComment/<?php print_r($detail['BorrowerId']) ?>" method="post" class="frminsert2" enctype="multipart/form-data">
+                <div class="modal-body">
+                  <div class="row">
+                    <div class="col-md-12">
+                      <label>Comment</label>
+                      <textarea class="form-control" name="Comment"></textarea>
+                      <input type="hidden" id="txtComment">
+                      <input type="hidden" name="FormType" id="txtObligationForm" value="1">
+                      <label>Document Attachment</label>
+                      <input type="file" name="Attachment[]" multiple="" id="Attachment" accept=".jpeg, .jpg, .png">
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+              </form>
+            </div>
+            <!-- /.modal-content -->
+          </div>
+          <!-- /.modal-dialog -->
+        </div>
+
         <div class="modal fade" id="modalSupportingDocument">
           <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -1116,6 +1148,17 @@
                               </div>
                             </div>
                           </div>
+                          <div class="row">
+                            <div id="divLivingWithRelatives" style="display: none">
+                              <input type="hidden" class="form-control" id="txtRentedType2" name="isRented" required="">
+                              <div class="col-md-12">
+                                <div class="form-group">
+                                  <label>Name of Relative</label>
+                                  <input type="text" class="form-control" id="txtRelativeName" name="RelativeName" placeholder="Name of relative">
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1247,6 +1290,7 @@
                   <ul class="nav nav-tabs">
                     <!-- <li class="active"><a href="#tabLoanApplications" data-toggle="tab">Loan Applications</a></li> -->
                     <li class="active"><a href="#tabHistory" data-toggle="tab" title="History"><span class="fa fa-clipboard"></span></a></li>
+                    <li><a href="#tabDailyDiary" data-toggle="tab" title="Daily Diary"><span class="fa fa-book"></span></a></li>
                     <li><a href="#tabLoanApplications" data-toggle="tab" title="Loans"><span class="fa fa-list-alt"></span></a></li>
                     <li><a href="#tabCollectionsMade" data-toggle="tab" title="Collections Made"><span class="fa fa-money"></span></a></li>
                     <li><a href="#tabReference" data-toggle="tab" title="Personal Reference"><span class="fa fa-users"></span></a></li>
@@ -1286,6 +1330,75 @@
                                 echo "<td>".$value['CreatedBy']."</td>";
                                 echo "<td>".$value['DateCreated']."</td>";
                                 echo "<td>".$value['rawDateCreated']."</td>";
+                                echo "</tr>";
+                              }
+                            }
+                          ?>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div class="tab-pane" id="tabDailyDiary">
+                      <h4>Daily Diary</h4>
+                      <br>
+                      <?php 
+                        if($detail['StatusId'] == 1 || $detail['BranchId'] == $this->session->userdata('BranchId'))
+                        {
+                          echo '<a class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#modalDiary">Add Record</a>';
+                        }
+                      ?>
+                      <br>
+                      <br>
+                      <table id="dtblDairy" class="table table-bordered table-hover" style="width: 100%">
+                        <thead>
+                        <tr>
+                          <th>Reference No</th>
+                          <th>Comment</th>
+                          <th>By</th>
+                          <th>Date Creation</th>
+                          <th>Status</th>
+                          <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                          <?php 
+                            $rowNumber = 0;
+                            if($comments > 0)
+                            {
+                              foreach ($comments as $value) 
+                              {
+                                $rowNumber = $rowNumber + 1;
+                                echo "<tr>";
+                                echo "<td>".$value['ReferenceNo']."</td>";
+                                echo "<td>".$value['Comment']."</td>";
+                                echo "<td>".$value['Name']."</td>";
+                                echo "<td>".$value['DateCreated']."</td>";
+                                if($value['StatusId'] == 1)
+                                {
+                                  echo "<td><span class='badge bg-green'>Active</span></td>";
+                                }
+                                else
+                                {
+                                  echo "<td><span class='badge bg-red'>Deactivated</span></td>";
+                                }
+                                if($detail['BranchId'] == $this->session->userdata('BranchId'))
+                                {
+                                  if($value['StatusId'] == 1)
+                                  {
+                                    $action = '<a onclick="confirm(\'Are you sure you want to deactivate this comment?\', \''.$value['CommentId'].'\', 6, \'Comment\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
+                                  }
+                                  else
+                                  {
+                                    $action = '';
+                                  }
+                                  if($value['FileName'] != null)
+                                  {
+                                    echo '<td><a href="'.base_url().'/home/download/3/'.$value['CommentId'].'" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a> '.$action.'</td> ';
+                                  }
+                                  else
+                                  {
+                                    echo '<td>'.$action.'</td> ';
+                                  }
+                                }
                                 echo "</tr>";
                               }
                             }

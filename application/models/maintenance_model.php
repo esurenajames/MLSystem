@@ -2022,6 +2022,12 @@ class maintenance_model extends CI_Model
       return $query->row_array();
     }
 
+    function selectSpecific3($tableName, $Condition, $Id)
+    {
+      $query = $this->db->query("select * from $tableName where $Condition = '$Id' AND StatusId = 2 LIMIT 1");
+      return $query->row_array();
+    }
+
     /*SEC REPORTS*/
       function getYearFilter($table)
       {

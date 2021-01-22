@@ -1344,7 +1344,10 @@
         <div class="box">
           <div class="box-header with-border">
             <h3 class="box-title"><label>Loan Application Details:</label></h3>
-            <a class="btn btn-sm btn-primary pull-right" href="<?php echo base_url(); ?>loanapplication_controller/generateReport/3/<?php print_r($detail['ApplicationId']) ?>">Generate Report</a>
+            <div class="pull-right">
+              <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>loanapplication_controller/generateReport/8/<?php print_r($detail['ApplicationId']) ?>">Generate Dues</a>
+              <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>loanapplication_controller/generateReport/3/<?php print_r($detail['ApplicationId']) ?>">Generate Report</a>
+            </div>
           </div>
           <div class="box-body">
             <div class="row">

@@ -195,10 +195,18 @@
     var radioValue = $("input[name='optionsRadios']:checked").val();
     if(radioValue == 'Rented'){
       $('#divRentedDetails').slideDown();
+      $('#divLivingWithRelatives').slideUp();
       $('#txtRentedType').val(1);
+    }
+    else if(radioValue == 'Living with relatives')
+    {
+      $('#divRentedDetails').slideUp();
+      $('#divLivingWithRelatives').slideDown();
+      $('#txtRentedType2').val(2);
     }
     else
     {
+      $('#divLivingWithRelatives').slideUp();
       $('#divRentedDetails').slideUp();
       $('#txtRentedType').val(0);
     }

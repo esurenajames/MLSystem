@@ -239,6 +239,17 @@
                           </div>
                         </div>
                       </div>
+                      <div class="row">
+                        <div id="divLivingWithRelatives" style="display: none">
+                          <input type="hidden" class="form-control" id="txtRentedType2" name="isRented" required="">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label>Name of Relative</label>
+                              <input type="text" class="form-control" id="txtRelativeName" name="RelativeName" placeholder="Name of relative">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                   <div class="col-md-12">

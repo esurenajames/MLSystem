@@ -250,6 +250,20 @@ class borrower_controller extends CI_Controller {
                 , 'UpdatedBy'                         => $EmployeeNumber
               );
             }
+            else if(htmlentities($_POST['optionsRadios'], ENT_QUOTES) == 'Living with relatives')
+            {
+              $insertDataAddress2 = array(
+                'BorrowerId'                          => $BorrowerId['BorrowerId']
+                , 'AddressId'                         => $AddressId['AddressId']
+                , 'isPrimary'                         => 1
+                , 'YearsStayed'                       => htmlentities($_POST['YearsStayed'], ENT_QUOTES)
+                , 'MonthsStayed'                      => htmlentities($_POST['MonthsStayed'], ENT_QUOTES)
+                , 'AddressType'                       => htmlentities($_POST['optionsRadios'], ENT_QUOTES)
+                , 'NameOfLandlord'                    => htmlentities($_POST['RelativeName'], ENT_QUOTES)
+                , 'CreatedBy'                         => $EmployeeNumber
+                , 'UpdatedBy'                         => $EmployeeNumber
+              );
+            }
             else
             {
               $insertDataAddress2 = array(

@@ -545,6 +545,33 @@ class loanapplication_model extends CI_Model
     return $data;
   }
 
+
+  function getRepaymentDateReport($Id)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $query = $this->db->query("SELECT   CASE
+                                          WHEN RHC.RepaymentId IS NULL
+                                                THEN RC.Type
+                                                ELSE GROUP_CONCAT(RHC.Date)
+                                              END as Name
+                                          FROM r_repaymentcycle RC
+                                          LEFT JOIN  repaymentcycle_has_content RHC
+                                            ON RC.RepaymentId = RHC.RepaymentId
+                                          LEFT JOIN T_Application A
+                                            ON A.RepaymentId = RC.RepaymentId
+                                              WHERE A.ApplicationId = $Id
+                                              AND (
+                                                RC.StatusId = 1
+                                                OR 
+                                                RHC.StatusId = 1
+                                              )
+                                              GROUP BY RC.RepaymentId
+    ");
+
+    $data = $query->row_array();
+    return $data;
+  }
+
   function getPaymentsMade($Id)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
@@ -1374,6 +1401,15 @@ class loanapplication_model extends CI_Model
                                                   INNER JOIN R_Bank BNK
                                                     ON BNK.BankId = PM.ChangeId
                                                     WHERE PM.StatusId = 1
+<<<<<<< HEAD
+=======
+                                                    AND 
+                                                    (
+                                                      A.StatusId = 1
+                                                      OR
+                                                      A.StatusId = 4
+                                                    )
+>>>>>>> 77701b116b9f8dfac04aa0b54b184fd84a355b55
                                                     AND DATE_FORMAT(PM.DateCollected, '%Y-%m-%d') BETWEEN  DATE_FORMAT('$dateFrom', '%Y-%m-%d') AND DATE_FORMAT('$dateTo', '%Y-%m-%d')
                                                     AND B.BranchId = $branchId
                                                     $query

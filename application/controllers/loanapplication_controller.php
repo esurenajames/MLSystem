@@ -434,6 +434,83 @@ class loanapplication_controller extends CI_Controller {
             $this->maintenance_model->insertFunction($insertDataPR, $insertTablePR);
           }
         }
+
+    // if approved
+      if($_POST['LoanStatusId'] == 1) // approved
+      {
+
+        $loanDetails = $this->maintenance_model->selectSpecific('t_application', 'ApplicationId', $generatedId['ApplicationId']);
+        $interestDetail = $this->maintenance_model->selectSpecific3('application_has_interests', 'ApplicationId', $generatedId['ApplicationId']);
+
+        $principalPercollection = $loanDetails['PrincipalAmount'] / ($loanDetails['TermNo'] * $loanDetails['RepaymentNo']);
+
+        if($interestDetail['InterestType'] == 'Percentage')
+        {
+          $interestAmount = $loanDetails['PrincipalAmount'] * ($loanDetails['TermNo'] * $interestDetail['Amount']) / 100;
+        }
+        else
+        {
+          $interestAmount = $loanDetails['PrincipalAmount'] + $interestDetail['Amount'];
+        }
+
+        $interestPerCollection = ($interestAmount / ($loanDetails['TermNo'] * $loanDetails['RepaymentNo']));
+
+        $totalCollections = (float)$interestPerCollection + (float)$principalPercollection;
+        $totalInstallments = $_POST['TermNumber'] * $_POST['RepaymentsNumber'];
+        $repaymentDates = $this->loanapplication_model->getRepaymentDateReport($generatedId['ApplicationId']);
+
+        $start = new DateTime($DateNow);
+        $interval = new DateInterval('P1M');
+        $endate = date('Y-m-d', strtotime($DateNow. ' + '.$_POST['TermNumber'].' months'));
+        $end = new DateTime($endate);
+        $period = new DatePeriod($start, $interval, $end);
+        $RepaymentDateReport = $this->loanapplication_model->getRepaymentDateReport($generatedId['ApplicationId']);
+        foreach ($period as $dt) {
+          // echo $dt->format('F Y') . '<br>';
+          for ($i=0; $i <= $_POST['RepaymentsNumber'] - 1; $i++) 
+          {
+            $pieces = explode(",", $RepaymentDateReport['Name']);
+
+            // print_r($dt->format('m'));
+            if($dt->format('m') == '01' || $dt->format('m') == '03' || $dt->format('m') == '05' || $dt->format('m') == '07' || $dt->format('m') == '08' || $dt->format('m') == '10' || $dt->format('m') == '12' ) // dates with 31 days
+            {
+              if($pieces[$i] == 31)
+              {
+                $newDate = $dt->format('Y-m-30');
+              }
+              else
+              {
+                $newDate = $dt->format('Y-m-'.$pieces[$i]);
+              }
+            }
+            else if($dt->format('m') == '02') // february
+            {
+              if($pieces[$i] == 30 || $pieces[$i] == 31)
+              {
+                $newDate = $dt->format('Y-m-28');
+              }
+              else
+              {
+                $newDate = $dt->format('Y-m-'.$pieces[$i]);
+              }
+            }
+            else
+            {
+              $newDate = $dt->format('Y-m-'.$pieces[$i]);
+            }
+            // payment dues
+              $insertDues = array(
+                'ApplicationId'             => $generatedId['ApplicationId'],
+                'Date'                      => $newDate,
+                'StatusId'                  => 1,
+                'CreatedBy'                 => $EmployeeNumber
+              );
+              $tableDues = 't_paymentdue';
+              $this->maintenance_model->insertFunction($insertDues, $tableDues);
+          }
+        }
+
+      }
     // admin audits finals
       $transNo = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $this->uri->segment(3));
       $auditLogsManager = 'Created loan application #'.$TransactionNumber.'.';
@@ -739,172 +816,6 @@ class loanapplication_controller extends CI_Controller {
           }
         }
       }
-    // loan status code
-      // // loan status
-      //   $loanDetails = $this->maintenance_model->selectSpecific('t_application', 'ApplicationId', $_POST['ApplicationId']);
-      //   if($loanDetails['ApprovalType'] != $_POST['ApprovalType'])
-      //   {
-      //     // update loan status
-      //       $set1 = array( 
-      //         'ApprovalType' => $_POST['ApprovalType']
-      //       );
-      //       $condition1 = array( 
-      //         'ApplicationId' => $_POST['ApplicationId']
-      //       );
-      //       $table1 = 't_application';
-      //       $this->maintenance_model->updateFunction1($set1, $condition1, $table1);
-      //   }
-
-      //   if($_POST['LoanStatusId'] == 1) // approved
-      //   {
-      //     // admin
-      //       $oldStatusDesc = $this->maintenance_model->selectSpecific('application_has_status', 'loanStatusId', $loanDetails['StatusId']);
-      //       $newtatusDesc = $this->maintenance_model->selectSpecific('application_has_status', 'loanStatusId', $_POST['LoanStatusId']);
-      //       $transNo = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $_POST['ApplicationId']);
-      //       $auditApplication = 'Restructured loan.';
-      //       $auditLogsManager = 'Restructured loan application #'.$transNo['TransactionNumber'].'.';
-      //       $this->auditLoanApplication($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditApplication, $_POST['ApplicationId']);
-      //     // update loan status
-      //       $set1 = array( 
-      //         'StatusId' => $_POST['LoanStatusId']
-      //         , 'ForRestructuring' => 3
-      //       );
-      //       $condition1 = array( 
-      //         'ApplicationId' => $_POST['ApplicationId']
-      //       );
-      //       $table1 = 't_application';
-      //       $this->maintenance_model->updateFunction1($set1, $condition1, $table1);
-      //     // update approvers
-      //       $set2 = array( 
-      //         'StatusId' => 6 // deactivated
-      //       );
-      //       $condition2 = array( 
-      //         'ApplicationId' => $_POST['ApplicationId']
-      //       );
-      //       $table2 = 'application_has_approver';
-      //       $this->maintenance_model->updateFunction1($set2, $condition2, $table2);
-      //     // additional charges
-      //       if(isset($_POST['ChargeNo']))
-      //       {
-      //         for($chargeRow = 0; $chargeRow < count($_POST['ChargeNo']); $chargeRow++)
-      //         {
-      //           if($_POST['IsSelected'][$chargeRow] == 1)
-      //           {
-      //             $insertData = array(
-      //               'ApplicationId'         => $_POST['ApplicationId'],
-      //               'ChargeId'              => $_POST['ChargeId'][$chargeRow],
-      //               'Amount'                => $_POST['chargeTotal'][$chargeRow],
-      //               'StatusId'              => 2,
-      //               'CreatedBy'             => $EmployeeNumber
-      //             );
-      //             $auditTable = 'application_has_charges';
-      //             $this->maintenance_model->insertFunction($insertData, $auditTable);
-
-      //             $charge = $this->maintenance_model->selectSpecific('R_Charges', 'ChargeId', $_POST['ChargeId'][$chargeRow]);
-
-      //             // get generated application id
-      //               $getData = array(
-      //                 'table'                 => 'application_has_charges'
-      //                 , 'column'              => 'ApplicationChargeId'
-      //                 , 'CreatedBy'           => $EmployeeNumber
-      //               );
-      //               $generatedId = $this->maintenance_model->getGeneratedId2($getData);
-      //             // insert into payments
-      //               $insertData1 = array( 
-      //                 'BankId'            => 1,
-      //                 'ApplicationId'     => $_POST['ApplicationId'],
-      //                 'Amount'            => $_POST['chargeTotal'][$chargeRow],
-      //                 'Description'       => 'Payment for ' . $charge['Name'],
-      //                 'AmountPaid'        => $_POST['chargeTotal'][$chargeRow],
-      //                 'ApplicationChargeId' => $generatedId['ApplicationChargeId'],
-      //                 'IsInterest'        => 0,
-      //                 'IsPrincipalCollection' => 0,
-      //                 'InterestAmount'    => 0,
-      //                 'PrincipalAmount'   => 0,
-      //                 'ChangeId'          => 1,
-      //                 'ChangeAmount'      => 0,
-      //                 'DateCollected'     => date("Y-m-d"),
-      //                 'PaymentDate'       => date("Y-m-d"),
-      //                 'CreatedBy'         => $EmployeeNumber
-      //               );
-      //               $table = 't_paymentsmade';
-      //               $this->maintenance_model->insertFunction($insertData1, $table);
-      //           }
-      //         }
-      //       }
-      //   }
-      //   if($_POST['LoanStatusId'] == 3) // for approval
-      //   {
-      //     // update loan status
-      //       $set1 = array( 
-      //         'StatusId' => $_POST['LoanStatusId']
-      //         , 'ForRestructuring' => 1
-      //       );
-      //       $condition1 = array( 
-      //         'ApplicationId' => $_POST['ApplicationId']
-      //       );
-      //       $table1 = 't_application';
-      //       $this->maintenance_model->updateFunction1($set1, $condition1, $table1);
-      //     // approvers
-      //       if(isset($_POST['Approvers']))
-      //       {
-      //         $set1 = array(
-      //           'StatusId' => 8 // parked
-      //         );
-      //         $condition1 = array(
-      //           'ApplicationId' => $_POST['ApplicationId'],
-      //           'StatusId' => 1,
-      //         );
-      //         $table1 = 'application_has_approver';
-      //         $this->maintenance_model->updateFunction1($set1, $condition1, $table1);
-      //         foreach ($_POST['Approvers'] as $value) 
-      //         {          
-      //           $insertData = array(
-      //             'ApplicationId'         => $_POST['ApplicationId'],
-      //             'ApproverNumber'        => $value,
-      //             'StatusId'              => 5,
-      //             'CreatedBy'             => $EmployeeNumber
-      //           );
-      //           $auditTable = 'application_has_approver';
-      //           $this->maintenance_model->insertFunction($insertData, $auditTable);
-      //         }
-      //       }
-      //     // additional charges
-      //       if(isset($_POST['ChargeNo']))
-      //       {
-      //         $set1 = array(
-      //           'StatusId' => 3 // deactivated
-      //         );
-      //         $condition1 = array(
-      //           'ApplicationId' => $_POST['ApplicationId'],
-      //           'StatusId' => 1, // pending
-      //         );
-      //         $table1 = 'application_has_charges';
-      //         $this->maintenance_model->updateFunction1($set1, $condition1, $table1);
-      //         for($chargeRow = 0; $chargeRow < count($_POST['ChargeNo']); $chargeRow++)
-      //         {
-      //           if($_POST['IsSelected'][$chargeRow] == 1)
-      //           {
-      //             $insertData = array(
-      //               'ApplicationId'         => $_POST['ApplicationId'],
-      //               'ChargeId'              => $_POST['ChargeId'][$chargeRow],
-      //               'Amount'                => $_POST['chargeTotal'][$chargeRow],
-      //               'StatusId'              => 1,
-      //               'CreatedBy'             => $EmployeeNumber
-      //             );
-      //             $auditTable = 'application_has_charges';
-      //             $this->maintenance_model->insertFunction($insertData, $auditTable);
-      //           }
-      //         }
-      //       }
-      //     // admin
-      //       $oldStatusDesc = $this->maintenance_model->selectSpecific('application_has_status', 'loanStatusId', $loanDetails['StatusId']);
-      //       $newtatusDesc = $this->maintenance_model->selectSpecific('application_has_status', 'loanStatusId', $_POST['LoanStatusId']);
-      //       $transNo = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $_POST['ApplicationId']);
-      //       $auditApplication = 'Applied loan for restructuring.';
-      //       $auditLogsManager = 'Applied loan application #'.$transNo['TransactionNumber'].' for restructuring.';
-      //       $this->auditLoanApplication($auditLogsManager, $auditLogsManager, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditApplication, $_POST['ApplicationId']);
-      //   }
     // notif
       $this->session->set_flashdata('alertTitle','Success!'); 
       $this->session->set_flashdata('alertText','Successfully restructured loan!'); 
@@ -3283,12 +3194,12 @@ class loanapplication_controller extends CI_Controller {
           $objPHPExcel->setActiveSheetIndex($index)->setCellValue('B12', $details['DateCreated']);
           $objPHPExcel->setActiveSheetIndex($index)->setCellValue('D12', $details['Source'] . ' ' . $details['SourceName']);
           
-          $gdImage = imagecreatefromjpeg('borrowerpicture/' . $details['FileName']);
-          $objDrawing = new PHPExcel_Worksheet_MemoryDrawing();
-          $objDrawing->setImageResource($gdImage);
-          $objDrawing->setRenderingFunction(PHPExcel_Worksheet_MemoryDrawing::RENDERING_JPEG);
-          $objDrawing->setMimeType(PHPExcel_Worksheet_MemoryDrawing::MIMETYPE_DEFAULT);
-          $objDrawing->setCoordinates('F11');
+          // $gdImage = imagecreatefromjpeg('borrowerpicture/' . $details['FileName']);
+          // $objDrawing = new PHPExcel_Worksheet_MemoryDrawing();
+          // $objDrawing->setImageResource($gdImage);
+          // $objDrawing->setRenderingFunction(PHPExcel_Worksheet_MemoryDrawing::RENDERING_JPEG);
+          // $objDrawing->setMimeType(PHPExcel_Worksheet_MemoryDrawing::MIMETYPE_DEFAULT);
+          // $objDrawing->setCoordinates('F11');
 
           $objPHPExcel->setActiveSheetIndex($index)->setCellValue('A22', number_format($details['RawPrincipalAmount'], 2));
           $objPHPExcel->setActiveSheetIndex($index)->setCellValue('C22', $details['TermNo'] . ' ' . $details['TermType']);
@@ -4277,6 +4188,131 @@ class loanapplication_controller extends CI_Controller {
       // Close and output PDF document
       // $pdf->Output('Income Statement.pdf', 'I');
       $pdf->Output('Income Statement.pdf', 'D');
+    }
+    if($this->uri->segment(3) == 8) // payment dues
+    {
+      $loanDetails = $this->maintenance_model->selectSpecific('t_application', 'ApplicationId', $this->uri->segment(4));
+      $interestDetail = $this->maintenance_model->selectSpecific3('application_has_interests', 'ApplicationId', $this->uri->segment(4));
+
+      $principalPercollection = $loanDetails['PrincipalAmount'] / ($loanDetails['TermNo'] * $loanDetails['RepaymentNo']);
+
+      if($interestDetail['InterestType'] == 'Percentage')
+      {
+        $interestAmount = $loanDetails['PrincipalAmount'] * ($loanDetails['TermNo'] * $interestDetail['Amount']) / 100;
+      }
+      else
+      {
+        $interestAmount = $loanDetails['PrincipalAmount'] + $interestDetail['Amount'];
+      }
+
+      $interestPerCollection = ($interestAmount / ($loanDetails['TermNo'] * $loanDetails['RepaymentNo']));
+
+      $totalCollections = (float)$interestPerCollection + (float)$principalPercollection;
+
+      print_r(number_format((float)$totalCollections * 6, 2) . '<br>');
+
+      print_r('No of installments: ' . $loanDetails['TermNo'] * $loanDetails['RepaymentNo'] . '<br>');
+      print_r('No. of Repayments: ' . $loanDetails['RepaymentNo'] . '<br>');
+      print_r('Date Approved: ' . date('Y-m-d', strtotime($loanDetails['DateApproved'])) . '<br>');
+      $totalInstallments = $loanDetails['TermNo'] * $loanDetails['RepaymentNo'];
+
+      $loanApprovedMonth = (float)date("m",strtotime($loanDetails['DateApproved']));
+      $loanApprovedYear = date('Y-m-d', strtotime("+".$loanDetails['TermNo']." months", strtotime($loanDetails['DateApproved'])));
+
+      print_r($loanApprovedYear .'<br>');
+
+
+
+      echo "
+        <table>
+          <thead>
+          <tr>
+            <th><strong>Installment</strong></th>
+            <th><strong>Due Date</strong></th>
+            <th><strong>Payment Date</strong></th>
+            <th><strong>Base Due</strong></th>
+            <th><strong>Carry over last due date</strong></th>
+            <th><strong>Actual Due</strong></th>
+            <th><strong>Payments</strong></th>
+            <th><strong>Balance</strong></th>
+            <th><strong>Penalty</strong></th>
+          </tr>
+          </thead>
+          <tbody>";
+
+            $start = new DateTime($loanDetails['DateApproved']);
+            $interval = new DateInterval('P1M');
+            $endate = date('Y-m-d', strtotime($loanDetails['DateApproved']. ' + '.$loanDetails['TermNo'].' months'));
+            $end = new DateTime($endate);
+            $period = new DatePeriod($start, $interval, $end);
+            $newTotal = 0;
+            $rowNumber = 0;
+            $rowNumber2 = -1;
+            $RepaymentDateReport = $this->loanapplication_model->getRepaymentDateReport($this->uri->segment(4));
+            foreach ($period as $dt) {
+              $newTotal = $newTotal + $totalCollections;
+              // echo $dt->format('F Y') . '<br>';
+              for ($i=0; $i <= $loanDetails['RepaymentNo'] - 1; $i++) 
+              {
+                $pieces = explode(",", $RepaymentDateReport['Name']);
+
+                // print_r($dt->format('m'));
+                if($dt->format('m') == '01' || $dt->format('m') == '03' || $dt->format('m') == '05' || $dt->format('m') == '07' || $dt->format('m') == '08' || $dt->format('m') == '10' || $dt->format('m') == '12' ) // dates with 31 days
+                {
+                  if($pieces[$i] == 31)
+                  {
+                    $newDate = $dt->format('Y-m-30');
+                  }
+                  else
+                  {
+                    $newDate = $dt->format('Y-m-'.$pieces[$i]);
+                  }
+                }
+                else if($dt->format('m') == '02') // february
+                {
+                  if($pieces[$i] == 30 || $pieces[$i] == 31)
+                  {
+                    $newDate = $dt->format('Y-m-28');
+                  }
+                  else
+                  {
+                    $newDate = $dt->format('Y-m-'.$pieces[$i]);
+                  }
+                }
+                else
+                {
+                  $newDate = $dt->format('Y-m-'.$pieces[$i]);
+                }
+
+                $rowNumber = $rowNumber + 1;
+                $rowNumber2 = $rowNumber2 + 1;
+                echo "<tr>";
+                echo '<td>'.$rowNumber.'</td>';
+                echo '<td>'.$rowNumber2.'</td>';
+                echo '<td>'.$newDate.'</td>';
+                echo '<td>'.(float)round($totalCollections, 2).'</td>';
+                echo '<td>'.(float)round($totalCollections, 2) * $rowNumber2.'</td>';
+                echo '<td>'.(float)round($totalCollections, 2) * $rowNumber.'</td>';
+                echo "</tr>";
+              }
+            }
+
+
+            // foreach ($RepaymentDateReport as $key => $value) 
+            // {
+            //   $day = $value['Date'];
+            //   $m = date("m",strtotime($loanDetails['DateApproved']));
+            //   $y = date("Y",strtotime($loanDetails['DateApproved']));
+
+            //   $date=date_create($y.'-'.$m.'-'.$day);
+            //   echo date_format($date,"Y-m-d") . '<br>';
+
+
+            // }
+      echo"
+          </tbody>
+        </table>";
+
     }
   }
 
