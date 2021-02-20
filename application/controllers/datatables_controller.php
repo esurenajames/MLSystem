@@ -64,6 +64,16 @@ class datatables_controller extends CI_Controller {
 		echo json_encode($result);
 	}
 
+	function Comments()
+	{
+		$result = $this->maintenance_model->getAllComments();
+		foreach($result as $key=>$row)
+		{
+			$result[$key]['Name'] = $this->maintenance_model->getUserCreated($row['EmployeeNumber']);
+		}
+		echo json_encode($result);
+	}
+
 	function Borrowers()
 	{
 		$result = $this->maintenance_model->getAllBorrowers();
@@ -387,9 +397,19 @@ class datatables_controller extends CI_Controller {
 		echo json_encode($result);
 	}
 
+	function displayDues()
+	{
+		$result = $this->loanApplication_model->displayDues();
+		foreach($result as $key=>$row)
+		{
+			$result[$key]['CreatedBy'] = $this->maintenance_model->getUserCreated($row['CreatedBy']);
+		}
+		echo json_encode($result);
+	}
+
 	function filterLoans()
 	{
-		$result = $this->loanApplication_model->filterLoans($this->uri->segment(3), $this->uri->segment(4), $this->uri->segment(5), $this->uri->segment(6));
+		$result = $this->loanApplication_model->filterLoans($this->uri->segment(3), $this->uri->segment(4), $this->uri->segment(5), $this->uri->segment(6), $this->uri->segment(7), $this->uri->segment(8));
 		foreach($result as $key=>$row)
 		{
 			$result[$key]['CreatedBy'] = $this->maintenance_model->getUserCreated($row['CreatedBy']);

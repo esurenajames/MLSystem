@@ -216,16 +216,14 @@
                   <span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="modalDiary">Add Daily Diary</h4>
               </div>
-              <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/AddComment/<?php print_r($detail['BorrowerId']) ?>" method="post" class="frminsert2" enctype="multipart/form-data">
+              <form autocomplete="off" action="<?php echo base_url(); ?>borrower_controller/AddDiary/<?php print_r($detail['BorrowerId']) ?>" method="post" class="frminsert2" enctype="multipart/form-data">
                 <div class="modal-body">
                   <div class="row">
                     <div class="col-md-12">
-                      <label>Comment</label>
+                      <label>Remarks</label>
                       <textarea class="form-control" name="Comment"></textarea>
                       <input type="hidden" id="txtComment">
                       <input type="hidden" name="FormType" id="txtObligationForm" value="1">
-                      <label>Document Attachment</label>
-                      <input type="file" name="Attachment[]" multiple="" id="Attachment" accept=".jpeg, .jpg, .png">
                     </div>
                   </div>
                 </div>
@@ -1356,21 +1354,20 @@
                           <th>By</th>
                           <th>Date Creation</th>
                           <th>Status</th>
-                          <th>Action</th>
                         </tr>
                         </thead>
                         <tbody>
                           <?php 
                             $rowNumber = 0;
-                            if($comments > 0)
+                            if($diary > 0)
                             {
-                              foreach ($comments as $value) 
+                              foreach ($diary as $value) 
                               {
                                 $rowNumber = $rowNumber + 1;
                                 echo "<tr>";
-                                echo "<td>".$value['ReferenceNo']."</td>";
-                                echo "<td>".$value['Comment']."</td>";
-                                echo "<td>".$value['Name']."</td>";
+                                echo "<td>".$value['rowNumber']."</td>";
+                                echo "<td>".$value['Remarks']."</td>";
+                                echo "<td>".$value['CreatedBy']."</td>";
                                 echo "<td>".$value['DateCreated']."</td>";
                                 if($value['StatusId'] == 1)
                                 {
@@ -1379,25 +1376,6 @@
                                 else
                                 {
                                   echo "<td><span class='badge bg-red'>Deactivated</span></td>";
-                                }
-                                if($detail['BranchId'] == $this->session->userdata('BranchId'))
-                                {
-                                  if($value['StatusId'] == 1)
-                                  {
-                                    $action = '<a onclick="confirm(\'Are you sure you want to deactivate this comment?\', \''.$value['CommentId'].'\', 6, \'Comment\') "class="btn btn-danger btn-sm" title="Deactivate"><span class="fa fa-close"></span></a>';
-                                  }
-                                  else
-                                  {
-                                    $action = '';
-                                  }
-                                  if($value['FileName'] != null)
-                                  {
-                                    echo '<td><a href="'.base_url().'/home/download/3/'.$value['CommentId'].'" class="btn btn-primary btn-sm" title="Download"><span class="fa fa-download"></span></a> '.$action.'</td> ';
-                                  }
-                                  else
-                                  {
-                                    echo '<td>'.$action.'</td> ';
-                                  }
                                 }
                                 echo "</tr>";
                               }
@@ -1616,6 +1594,7 @@
 <?php $this->load->view('includes/footer'); ?>
 
 <script src="<?php echo base_url(); ?>resources/functionalities/borrower/detailfooter.js"></script>
+<script src="<?php echo base_url(); ?>resources/functionalities/AddNotif.js"></script>
 <script type="text/javascript">
   function get_take_snap() {
      // Simple call the take some your selfi and some get your live image data

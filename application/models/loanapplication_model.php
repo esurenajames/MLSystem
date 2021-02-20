@@ -52,6 +52,11 @@ class loanapplication_model extends CI_Model
                                           THEN 'N/A'
                                           ELSE DATE_FORMAT(A.DateApproved, '%b %d, %Y %h:%i %p')
                                         END as DateApproved
+                                      , CASE
+                                          WHEN A.DateApproved IS NULL
+                                          THEN 'N/A'
+                                          ELSE DATE_FORMAT(A.DateApproved, '%M %d, %Y')
+                                        END as DateApproved2
                                       , FORMAT(A.PrincipalAmount, 2) as PrincipalAmount
                                       , AHI.InterestType
                                       , CASE
@@ -572,6 +577,25 @@ class loanapplication_model extends CI_Model
     return $data;
   }
 
+  function getPaymentsDue($Id)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $query = $this->db->query("SELECT   DATE_FORMAT(PM.Date, '%M %d, %Y') as DueDate
+                                        , BaseDue
+                                        , ActualDue
+                                        , CarryDueDate
+                                        , DATE_FORMAT(PM.PaymentDate, '%M %d, %Y') as PaymentDate
+                                        , AmountPaid
+                                        , Penalty
+                                        FROM T_PaymentDue PM
+                                              WHERE ApplicationId = $Id
+                                                AND StatusId = 1
+    ");
+
+    $data = $query->result_array();
+    return $data;
+  }
+
   function getPaymentsMade($Id)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
@@ -694,6 +718,33 @@ class loanapplication_model extends CI_Model
     return $data;
   }
 
+  function getCharges2($Id)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $query = $this->db->query("SELECT DISTINCT SUM(CASE
+                                            WHEN C.ChargeType = 1
+                                                  THEN C.Amount/100 * AHC.LoanAmount
+                                                  ELSE C.Amount
+                                              END
+                                        ) as TotalCharges
+                                        , C.Amount
+                                        , C.Name as ChargeName
+                                        , C.ChargeType
+                                        , C.Description
+                                        FROM Application_Has_Charges AHC
+                                          INNER JOIN R_Charges C
+                                            ON C.ChargeId = AHC.ChargeId
+                                          INNER JOIN t_application A
+                                            ON A.ApplicationId = AHC.ApplicationId
+                                          WHERE A.ApplicationId = $Id
+                                          AND AHC.StatusId = 2
+                                          GROUP BY AHC.ApplicationChargeId
+    ");
+
+    $data = $query->result_array();
+    return $data;
+  }
+
   function getBorrowerList()
   {
     $AssignedBranchId = $this->session->userdata('BranchId');
@@ -707,6 +758,39 @@ class loanapplication_model extends CI_Model
     $data = $query->result_array();
     return $data;
   }
+
+    function getBorrowerAddress($BorrowerID)
+    {
+      $query_string = $this->db->query("SELECT DISTINCT  EA.BorrowerAddressHistoryId
+                                                , IsPrimary
+                                                , A.AddressType
+                                                , UPPER(A.HouseNo) as HouseNo
+                                                , UPPER(B.brgyDesc) as brgyDesc
+                                                , UPPER(P.provDesc) as provDesc
+                                                , UPPER(C.cityMunDesc) as cityMunDesc
+                                                , UPPER(R.regDesc) as regDesc
+                                                , EA.StatusId
+                                                , EA.BorrowerId
+                                                , DATE_FORMAT(EA.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                                , EA.DateCreated as rawDateCreated
+                                                , CONCAT('ADD-', LPAD(EA.BorrowerAddressHistoryId, 6, 0)) as rowNumber
+                                                FROM borrowerAddressHistory EA
+                                                  INNER JOIN r_address A
+                                                    ON A.AddressId = EA.AddressId
+                                                  INNER JOIN add_barangay B
+                                                    ON B.brgyCode = A.BarangayId
+                                                  INNER JOIN add_province P
+                                                    ON P.provCode = B.provCode
+                                                  INNER JOIN add_city C
+                                                    ON C.citymunCode = B.citymunCode
+                                                  INNER JOIN add_region R 
+                                                    ON R.regCode = B.regCode
+                                                      WHERE EA.BorrowerId = ".$BorrowerID."
+                                                      AND IsPrimary = 1
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
 
   function getBorrowerLoanList()
   {
@@ -1068,6 +1152,61 @@ class loanapplication_model extends CI_Model
                                                 END as TotalInterest
                                               , A.CreatedBy
                                               , AHI.Amount
+                                              , COALESCE((SELECT    MAX(PaymentDate) as LastPayment
+                                                                    FROM t_paymentsmade
+                                                                          WHERE ( IsPrincipalCollection = 1
+                                                                            OR IsInterest = 1
+                                                                            )
+                                                                            AND ApplicationId = A.ApplicationId), 0) as LastPaymentFor
+                                              , COALESCE((SELECT   DATE_FORMAT(Date, '%b %d, %Y')
+                                                          FROM t_paymentdue
+                                                                WHERE PaymentDueId = (SELECT   PaymentDueId
+                                                                FROM t_paymentdue
+                                                                      WHERE Date = COALESCE((SELECT    MAX(PaymentDate) as LastPayment
+                                                                                  FROM t_paymentsmade
+                                                                                        WHERE ( IsPrincipalCollection = 1
+                                                                                          OR IsInterest = 1
+                                                                                          )
+                                                                                          AND ApplicationId = A.ApplicationId), 0)
+                                                                      AND StatusId = 1
+                                                                      AND ApplicationId = A.ApplicationId) + 1
+                                                                              AND StatusId = 1
+                                                                              AND ApplicationId = A.ApplicationId), 'N/A') as NextPaymentFor
+                                              , CASE
+                                                WHEN DATEDIFF((SELECT   Date
+                                                        FROM t_paymentdue
+                                                              WHERE PaymentDueId = (SELECT   PaymentDueId
+                                                              FROM t_paymentdue
+                                                                  WHERE Date = COALESCE((SELECT    MAX(PaymentDate) as LastPayment
+                                                                  FROM t_paymentsmade
+                                                                        WHERE ( IsPrincipalCollection = 1
+                                                                            OR IsInterest = 1
+                                                                            )
+                                                                          AND ApplicationId = A.ApplicationId), 0)
+                                                                  AND StatusId = 1
+                                                                  AND ApplicationId = A.ApplicationId) + 1
+                                                                  AND StatusId = 1
+                                                                  AND ApplicationId = A.ApplicationId), DATE_ADD(CURDATE(), INTERVAL 0 DAY)) < 0
+                                                THEN  ABS(DATEDIFF((SELECT   Date
+                                                          FROM t_paymentdue
+                                                                WHERE PaymentDueId = (SELECT   PaymentDueId
+                                                                FROM t_paymentdue
+                                                                      WHERE Date = COALESCE((SELECT    MAX(PaymentDate) as LastPayment
+                                                                                  FROM t_paymentsmade
+                                                                                        WHERE ( IsPrincipalCollection = 1
+                                                                                          OR IsInterest = 1
+                                                                                          )
+                                                                                          AND ApplicationId = A.ApplicationId), 0)
+                                                                      AND StatusId = 1
+                                                                      AND ApplicationId = A.ApplicationId) + 1
+                                                                      AND StatusId = 1
+                                                                      AND ApplicationId = A.ApplicationId), DATE_ADD(CURDATE(), INTERVAL 0 DAY)))
+                                                ELSE 0
+                                              END  as DayElapsed
+                                              , (SELECT   MIN(Date)
+                                                  FROM t_paymentdue
+                                                    WHERE ApplicationId = A.ApplicationId
+                                                      ORDER BY PaymentDueId ASC) as FirstPayment
                                               , A.PrincipalAmount as RawPrincipalAmount
                                               , A.TermNo as TermNo
                                               , A.TermType
@@ -1098,7 +1237,7 @@ class loanapplication_model extends CI_Model
                                                       WHERE ApplicationId = A.ApplicationId
                                                       AND StatusId != 6
                                               ) as TotalApprovers
-                                              , (SELECT MAX(DATE_FORMAT(DateCreated, '%b %d, %Y'))
+                                              , (SELECT MAX(DATE_FORMAT(DateCollected, '%b %d, %Y'))
                                                         FROM t_paymentsmade
                                                           WHERE ApplicationId = A.ApplicationId
                                               ) as LastPayment
@@ -1125,7 +1264,209 @@ class loanapplication_model extends CI_Model
     return $data;
   }
 
-  function filterLoans($loanStatus, $borrowerId, $LoanId, $BranchId)
+  function getLastPayment($Id)
+  {
+    $query = $this->db->query("SELECT   MAX(PaymentDate) as LastPayment
+                                        FROM t_paymentsmade
+                                              WHERE ( IsPrincipalCollection = 1
+                                                OR IsInterest = 1
+                                                )
+                                                AND ApplicationId = $Id
+    ");
+    $data = $query->row_array();
+    if($data['LastPayment']!= null)
+    {
+      return $data['LastPayment'];
+    }
+    else
+    {
+      $querys = $this->db->query("SELECT  MIN(Date) as InitialDate
+                                          FROM t_paymentdue
+                                          WHERE ApplicationId = 2
+                                              ORDER BY PaymentDueId ASC
+      ")->row_array();
+      return $querys['InitialDate'];
+    }
+  }
+
+  function getTotalOverdues()
+  {
+    $totalRecords = 0;
+    $result = $this->displayAllLoans();
+    foreach($result as $keys => $rows)
+    {
+      $result[$keys]['LastPaymentFor'] = $this->getLastPayment($rows['ApplicationId']);
+      $result[$keys]['NextPaymentFor'] = $this->getNextPayment($result[$keys]['LastPaymentFor'], $rows['ApplicationId']);
+      // add 3 days to date
+      $NewDate = Date('Y-m-d', strtotime('+0 days'));
+
+      $NewDate2 = date_create($NewDate);
+      $result[$keys]['Hello'] = $NewDate;
+      if($result[$keys]['LastPaymentFor'] != '--N/A--' && $result[$keys]['NextPaymentFor'] != '--N/A--')
+      {
+        $date1=date_create($NewDate);
+        $date2=date_create($result[$keys]['NextPaymentFor']);
+
+        $diff=date_diff($date1,$date2);
+        $finalDate = $diff->format("%R%a");
+        $result[$keys]['DayElapsed'] = $finalDate;
+
+        if($finalDate < 0)
+        {
+          $totalRecords++;
+        }
+
+      }
+    }
+
+    return $totalRecords;
+  }
+
+  function getNextPayment($LastPaymentDate, $Id)
+  {
+    if($LastPaymentDate != '--N/A--')
+    {
+      $query = $this->db->query("SELECT   PaymentDueId
+                                          FROM t_paymentdue
+                                                WHERE Date = '$LastPaymentDate'
+                                                AND StatusId = 1
+                                                AND ApplicationId = $Id
+      ")->row_array();
+      $query2 = $this->db->query("SELECT  Date
+                                          FROM t_paymentdue
+                                                WHERE PaymentDueId = ".$query['PaymentDueId']." + 1
+                                                AND StatusId = 1
+                                                AND ApplicationId = $Id
+      ");
+      $data = $query2->row_array();
+
+      if($data['Date']!= null)
+      {
+        return $data['Date'];
+      }
+      else
+      {
+        return "--N/A--";
+      }
+    }
+    else{
+       return "--N/A--";
+    }
+  }
+
+  function displayDues()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $AssignedBranchId = $this->session->userdata('BranchId');
+    $query_string = $this->db->query("SELECT  A.TransactionNumber
+                                              , L.Name as LoanName
+                                              , CONCAT(B.LastName, ', ', B.FirstName, ' ', COALESCE(B.MiddleName,'N/A'), ' ', COALESCE(B.ExtName, '')) as BorrowerName
+                                              , FORMAT(A.PrincipalAmount, 2) PrincipalAmount
+                                              , CASE
+                                                  WHEN AHI.InterestType = 'Percentage'
+                                                  THEN CONCAT(AHI.Amount, '% /', AHI.Frequency)
+                                                  ELSE CONCAT('Php ', AHI.Amount, ' ', AHI.Frequency)
+                                                END as InterestRate
+                                              , CASE
+                                                  WHEN AHI.InterestType = 'Percentage'
+                                                  THEN AHI.Amount/100 * PrincipalAmount
+                                                  ELSE PrincipalAmount + AHI.Amount
+                                                END as TotalInterest
+                                              , A.CreatedBy
+                                              , AHI.Amount
+                                              , COALESCE((SELECT  COALESCE(DATEDIFF(CURDATE(), PD.Date), 0) as DaysPassed
+                                                FROM t_paymentdue PD
+                                                      INNER JOIN t_paymentsmade PM
+                                                          ON PD.Date = PM.PaymentDate
+                                                          WHERE PD.ApplicationId = A.ApplicationId
+                                                          AND PM.StatusId = 1
+                                                          AND PD.StatusId = 1
+                                                ), 0) as DaysDue
+                                              , A.PrincipalAmount as RawPrincipalAmount
+                                              , A.TermNo as TermNo
+                                              , A.TermType
+                                              , A.RepaymentNo
+                                              , RC.Type
+                                              , AHI.Amount
+                                              , AHI.InterestType
+                                              , RC.Type
+                                              , DATE_FORMAT(A.DateApproved, '%b %d, %Y  %h:%i %p') as DateApproved
+                                              , LS.Name as StatusDescription
+                                              , A.StatusId
+                                              , A.ApplicationId
+                                              , LS.IsApprovable
+                                              , LS.StatusColor
+                                              , BRNCH.Name as Branch
+                                              , (SELECT COUNT(*) 
+                                                    FROM application_has_approver
+                                                      WHERE ApplicationId = A.ApplicationId
+                                                      AND 
+                                                    (
+                                                          StatusId = 1
+                                                          OR
+                                                          StatusId = 2
+                                                      )
+                                              ) as ProcessedApprovers
+                                              , (SELECT COUNT(*) 
+                                                    FROM application_has_approver
+                                                      WHERE ApplicationId = A.ApplicationId
+                                                      AND StatusId != 6
+                                              ) as TotalApprovers
+                                              , (SELECT MAX(DATE_FORMAT(DateCollected, '%b %d, %Y'))
+                                                        FROM t_paymentsmade
+                                                          WHERE ApplicationId = A.ApplicationId
+                                              ) as LastPayment
+                                              FROM T_Application A
+                                                INNER JOIN R_Loans L 
+                                                  ON L.LoanId = A.LoanId
+                                                INNER JOIN R_Borrowers B
+                                                  ON B.BorrowerId = A.BorrowerId
+                                                INNER JOIN Application_has_interests AHI
+                                                  ON AHI.ApplicationId = A.ApplicationId
+                                                INNER JOIN Application_Has_Status LS
+                                                  ON A.StatusId = LS.LoanStatusId
+                                                LEFT JOIN R_RepaymentCycle RC
+                                                  ON RC.RepaymentId = A.RepaymentId
+                                                LEFT JOIN R_Employee EMP
+                                                  ON EMP.EmployeeNumber = A.CreatedBy
+                                                LEFT JOIN Branch_has_Employee BE
+                                                  ON BE.EmployeeNumber = EMP.EmployeeNumber
+                                                LEFT JOIN R_Branches BRNCH
+                                                  ON BRNCH.BranchId = BE.BranchId
+                                                    WHERE BE.BranchId = $AssignedBranchId
+                                                    AND COALESCE((SELECT  COALESCE(DATEDIFF(CURDATE(), PD.Date), 0) as DaysPassed
+                                                                          FROM t_paymentdue PD
+                                                                          INNER JOIN t_paymentsmade PM
+                                                                              ON PD.Date = PM.PaymentDate
+                                                                              WHERE PD.ApplicationId = A.ApplicationId
+                                                                              AND PM.StatusId = 1
+                                                                              AND PD.StatusId = 1
+                                                                              ), 0) > 0
+    ");
+    $data = $query_string->result_array();
+    return $data;
+  }
+
+  function getDues()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $AssignedBranchId = $this->session->userdata('BranchId');
+    $query_string = $this->db->query("SELECT  COUNT(A.ApplicationId) as Dues
+                                              FROM t_paymentdue PD
+                                                    INNER JOIN t_paymentsmade PM
+                                                        ON PD.Date = PM.PaymentDate
+                                                    INNER JOIN t_application A
+                                                      ON A.ApplicationId = PD.ApplicationId
+                                                        WHERE PD.ApplicationId = A.ApplicationId
+                                                        AND PM.StatusId = 1
+                                                        AND PD.StatusId = 1
+                                                        AND COALESCE(DATEDIFF(CURDATE(), PD.Date), 0) > 0
+    ");
+    $data = $query_string->row_array();
+    return $data;
+  }
+
+  function filterLoans($loanStatus, $borrowerId, $LoanId, $BranchId, $AgeFrom, $AgeTo)
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $AssignedBranchId = $this->session->userdata('BranchId');
@@ -1158,7 +1499,6 @@ class loanapplication_model extends CI_Model
       $search .= ' AND A.LoanId = ' . $LoanId;
     }
 
-
     if($BranchId == 'All')
     {      
       $search .= '';
@@ -1168,10 +1508,71 @@ class loanapplication_model extends CI_Model
       $search .= ' AND BE.BranchId = ' . $BranchId;
     }
 
+    if($AgeFrom == 0 && $AgeTo == 0)
+    {      
+      $search .= '';
+    }
+    else
+    {
+      $newAgeFrom = $AgeFrom * -1;
+      $newAgeTo = $AgeTo * -1;
+      $search .= ' AND  CASE
+                                                WHEN DATEDIFF((SELECT   Date
+                                                        FROM t_paymentdue
+                                                              WHERE PaymentDueId = (SELECT   PaymentDueId
+                                                              FROM t_paymentdue
+                                                                  WHERE Date = COALESCE((SELECT    MAX(PaymentDate) as LastPayment
+                                                                  FROM t_paymentsmade
+                                                                        WHERE ( IsPrincipalCollection = 1
+                                                                            OR IsInterest = 1
+                                                                            )
+                                                                          AND ApplicationId = A.ApplicationId), 0)
+                                                                  AND StatusId = 1
+                                                                  AND ApplicationId = A.ApplicationId) + 1
+                                                                  AND StatusId = 1
+                                                                  AND ApplicationId = A.ApplicationId), DATE_ADD(CURDATE(), INTERVAL 0 DAY)) < 0
+                                                THEN  ABS(DATEDIFF((SELECT   Date
+                                                          FROM t_paymentdue
+                                                                WHERE PaymentDueId = (SELECT   PaymentDueId
+                                                                FROM t_paymentdue
+                                                                      WHERE Date = COALESCE((SELECT    MAX(PaymentDate) as LastPayment
+                                                                                  FROM t_paymentsmade
+                                                                                        WHERE ( IsPrincipalCollection = 1
+                                                                                          OR IsInterest = 1
+                                                                                          )
+                                                                                          AND ApplicationId = A.ApplicationId), 0)
+                                                                      AND StatusId = 1
+                                                                      AND ApplicationId = A.ApplicationId) + 1
+                                                                      AND StatusId = 1
+                                                                      AND ApplicationId = A.ApplicationId), DATE_ADD(CURDATE(), INTERVAL 0 DAY)))
+                                                ELSE 0
+                                              END BETWEEN '.$AgeFrom.' AND '.$AgeTo.'';
+    }
+
     $query_string = $this->db->query("SELECT  A.TransactionNumber
                                               , L.Name as LoanName
-                                              , CONCAT(B.FirstName, ' ', B.MiddleName, ' ', B.LastName, ', ', B.ExtName) as BorrowerName
+                                              , CONCAT(B.LastName, ', ', B.FirstName, ' ', COALESCE(B.MiddleName,''), ' ', COALESCE(B.ExtName, '')) as BorrowerName
                                               , FORMAT(A.PrincipalAmount, 2) PrincipalAmount
+                                              , COALESCE((SELECT    MAX(PaymentDate) as LastPayment
+                                                                    FROM t_paymentsmade
+                                                                          WHERE ( IsPrincipalCollection = 1
+                                                                            OR IsInterest = 1
+                                                                            )
+                                                                            AND ApplicationId = A.ApplicationId), 0) as LastPaymentFor
+                                              , COALESCE((SELECT   DATE_FORMAT(Date, '%b %d, %Y')
+                                                          FROM t_paymentdue
+                                                                WHERE PaymentDueId = (SELECT   PaymentDueId
+                                                                FROM t_paymentdue
+                                                                      WHERE Date = COALESCE((SELECT    MAX(PaymentDate) as LastPayment
+                                                                                  FROM t_paymentsmade
+                                                                                        WHERE ( IsPrincipalCollection = 1
+                                                                                          OR IsInterest = 1
+                                                                                          )
+                                                                                          AND ApplicationId = A.ApplicationId), 0)
+                                                                      AND StatusId = 1
+                                                                      AND ApplicationId = A.ApplicationId) + 1
+                                                                              AND StatusId = 1
+                                                                              AND ApplicationId = A.ApplicationId), 'N/A') as NextPaymentFor
                                               , CASE
                                                   WHEN AHI.InterestType = 'Percentage'
                                                   THEN CONCAT(AHI.Amount, '% /', AHI.Frequency)
@@ -1182,7 +1583,39 @@ class loanapplication_model extends CI_Model
                                                   THEN AHI.Amount/100 * PrincipalAmount
                                                   ELSE PrincipalAmount + AHI.Amount
                                                 END as TotalInterest
+                                              , CASE
+                                                WHEN DATEDIFF((SELECT   Date
+                                                        FROM t_paymentdue
+                                                              WHERE PaymentDueId = (SELECT   PaymentDueId
+                                                              FROM t_paymentdue
+                                                                  WHERE Date = COALESCE((SELECT    MAX(PaymentDate) as LastPayment
+                                                                  FROM t_paymentsmade
+                                                                        WHERE ( IsPrincipalCollection = 1
+                                                                            OR IsInterest = 1
+                                                                            )
+                                                                          AND ApplicationId = A.ApplicationId), 0)
+                                                                  AND StatusId = 1
+                                                                  AND ApplicationId = A.ApplicationId) + 1
+                                                                  AND StatusId = 1
+                                                                  AND ApplicationId = A.ApplicationId), DATE_ADD(CURDATE(), INTERVAL 0 DAY)) < 0
+                                                THEN  ABS(DATEDIFF((SELECT   Date
+                                                          FROM t_paymentdue
+                                                                WHERE PaymentDueId = (SELECT   PaymentDueId
+                                                                FROM t_paymentdue
+                                                                      WHERE Date = COALESCE((SELECT    MAX(PaymentDate) as LastPayment
+                                                                                  FROM t_paymentsmade
+                                                                                        WHERE ( IsPrincipalCollection = 1
+                                                                            OR IsInterest = 1
+                                                                            )
+                                                                                          AND ApplicationId = A.ApplicationId), 0)
+                                                                      AND StatusId = 1
+                                                                      AND ApplicationId = A.ApplicationId) + 1
+                                                                      AND StatusId = 1
+                                                                      AND ApplicationId = A.ApplicationId), DATE_ADD(CURDATE(), INTERVAL 0 DAY)))
+                                                ELSE 0
+                                              END as DayElapsed
                                               , A.CreatedBy
+                                              , BR.Name as Branch
                                               , AHI.Amount
                                               , A.PrincipalAmount as RawPrincipalAmount
                                               , A.TermNo as TermNo
@@ -1213,7 +1646,7 @@ class loanapplication_model extends CI_Model
                                                       WHERE ApplicationId = A.ApplicationId
                                                       AND StatusId != 6
                                               ) as TotalApprovers
-                                              , (SELECT MAX(DATE_FORMAT(DateCreated, '%b %d, %Y'))
+                                              , (SELECT MAX(DATE_FORMAT(DateCollected, '%b %d, %Y'))
                                                         FROM t_paymentsmade
                                                           WHERE ApplicationId = A.ApplicationId
                                               ) as LastPayment
@@ -1232,9 +1665,12 @@ class loanapplication_model extends CI_Model
                                                   ON EMP.EmployeeNumber = A.CreatedBy
                                                 LEFT JOIN Branch_has_Employee BE
                                                   ON BE.EmployeeNumber = EMP.EmployeeNumber
-                                                  WHERE B.StatusId = 1 
+                                                LEFT JOIN r_branches BR
+                                                  ON BR.BranchId = B.BranchId
+                                                  WHERE B.StatusId = 1
                                                   ".$search."
     ");
+
     $data = $query_string->result_array();
     return $data;
   }
@@ -1244,7 +1680,7 @@ class loanapplication_model extends CI_Model
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $query_string = $this->db->query("SELECT  A.TransactionNumber
                                               , L.Name as LoanName
-                                              , CONCAT(B.FirstName, ' ', B.MiddleName, ' ', B.LastName, ', ', B.ExtName) as BorrowerName
+                                              , CONCAT(B.LastName, ', ', B.FirstName, ' ', COALESCE(B.MiddleName,''), ' ', COALESCE(B.ExtName, '')) as BorrowerName
                                               , FORMAT(A.PrincipalAmount, 2) PrincipalAmount
                                               , CASE
                                                   WHEN AHI.InterestType = 'Percentage'
@@ -1281,7 +1717,7 @@ class loanapplication_model extends CI_Model
                                                       WHERE ApplicationId = A.ApplicationId
                                                       AND StatusId = 3
                                               ) as ProcessedApprovers
-                                              , (SELECT MAX(DATE_FORMAT(DateCreated, '%b %d, %Y'))
+                                              , (SELECT MAX(DATE_FORMAT(DateCollected, '%b %d, %Y'))
                                                         FROM t_paymentsmade
                                               ) as LastPayment
                                               FROM T_Application A
@@ -1306,7 +1742,7 @@ class loanapplication_model extends CI_Model
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $query_string = $this->db->query("SELECT  A.TransactionNumber
                                               , L.Name as LoanName
-                                              , CONCAT(B.LastName, ', ', B.FirstName, ' ', COALESCE(B.MiddleName,'N/A'), ' ', COALESCE(B.ExtName, '')) as BorrowerName
+                                              , CONCAT(B.LastName, ', ', B.FirstName, ' ', COALESCE(B.MiddleName,''), ' ', COALESCE(B.ExtName, '')) as BorrowerName
                                               , FORMAT(A.PrincipalAmount, 2) PrincipalAmount
                                               , CASE
                                                   WHEN AHI.InterestType = 'Percentage'
@@ -1343,7 +1779,7 @@ class loanapplication_model extends CI_Model
                                                       WHERE ApplicationId = A.ApplicationId
                                                       AND StatusId = 1
                                               ) as ProcessedApprovers
-                                              , (SELECT MAX(DATE_FORMAT(DateCreated, '%b %d, %Y'))
+                                              , (SELECT MAX(DATE_FORMAT(DateCollected, '%b %d, %Y'))
                                                         FROM t_paymentsmade
                                               ) as LastPayment
                                               FROM T_Application A
@@ -1401,19 +1837,16 @@ class loanapplication_model extends CI_Model
                                                   INNER JOIN R_Bank BNK
                                                     ON BNK.BankId = PM.ChangeId
                                                     WHERE PM.StatusId = 1
-<<<<<<< HEAD
-=======
                                                     AND 
                                                     (
                                                       A.StatusId = 1
                                                       OR
                                                       A.StatusId = 4
                                                     )
->>>>>>> 77701b116b9f8dfac04aa0b54b184fd84a355b55
                                                     AND DATE_FORMAT(PM.DateCollected, '%Y-%m-%d') BETWEEN  DATE_FORMAT('$dateFrom', '%Y-%m-%d') AND DATE_FORMAT('$dateTo', '%Y-%m-%d')
                                                     AND B.BranchId = $branchId
                                                     $query
-                                                    ORDER BY PM.DateCollected DESC
+                                                    ORDER BY PM.DateCollected, A.ApplicationId DESC
     ");
     $data = $query_string->result_array();
     return $data;
@@ -1452,6 +1885,70 @@ class loanapplication_model extends CI_Model
                                                     ORDER BY PM.DateCollected DESC
     ");
     $data = $query_string->result_array();
+    return $data;
+  }
+
+  function getCollectionsSOA($ApplicationId)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $query_string = $this->db->query("SELECT Amount
+                                      , CONCAT('PYM-', LPAD(P.PaymentMadeId, 6, 0)) as ReferenceNo
+                                      , DATE_FORMAT(P.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                      , DATE_FORMAT(P.DateCollected, '%b %d, %Y') as DateCollected
+                                      , DATE_FORMAT(P.PaymentDate, '%b %d, %Y') as PaymentDate
+                                      , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CreatedBy
+                                      , CONCAT('PYM-', LPAD(P.PaymentMadeId, 6, 0)) as ReferenceNo
+                                      , P.StatusId
+                                      , B.BankName
+                                      , P.IsInterest
+                                      , P.IsPrincipalCollection
+                                      , P.IsOthers
+                                      , P.Description 
+                                      , P.InterestAmount
+                                      , P.PrincipalAmount
+                                      , PaymentMadeId
+                                      FROM t_paymentsmade P
+                                        INNER JOIN R_Employee EMP
+                                          ON EMP.EmployeeNumber = P.CreatedBy
+                                        INNER JOIN R_Bank B
+                                          ON B.BankId = P.BankId
+                                            WHERE P.ApplicationId = $ApplicationId
+                                            AND P.StatusId = 1
+                                            ORDER BY P.DateCreated
+    ");
+    $data = $query_string->result_array();
+    return $data;
+  }
+
+  function getPenaltySOA($Id)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $query = $this->db->query("SELECT  TotalPenalty
+                                    , CONCAT('PLT-', LPAD(ApplicationPenaltyId, 6, 0)) as ReferenceNo
+                                    , PenaltyType
+                                    , Amount
+                                    , GracePeriod
+                                    , ApplicationPenaltyId
+                                    , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CreatedBy
+                                    , AHP.StatusId
+                                    , D.Name as PaymentMethod
+                                    , DATE_FORMAT(AHP.DateCreated, '%b %d, %Y') as DateCreated
+                                    , DATE_FORMAT(AHP.DateCollected, '%b %d, %Y') as DateCollected
+                                    , DATE_FORMAT(AHP.DatePaid, '%b %d, %Y') as DatePaid
+                                    , AHP.Remarks
+                                    , AHP.TotalPenalty
+                                      FROM Application_has_Penalty AHP
+                                        INNER JOIN r_status S
+                                          ON S.StatusId = AHP.StatusId
+                                        INNER JOIN R_Employee EMP
+                                          ON EMP.EmployeeNumber = AHP.CreatedBy
+                                        INNER JOIN R_Disbursement D
+                                          ON D.DisbursementId = AHP.PaymentMethod
+                                          WHERE AHP.ApplicationId = $Id
+                                          ORDER BY AHP.DateCreated
+    ");
+
+    $data = $query->result_array();
     return $data;
   }
 
@@ -1515,7 +2012,7 @@ class loanapplication_model extends CI_Model
     }
     $query_string = $this->db->query("SELECT  CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CollectedBy
                                               , TransactionNumber
-                                              , CONCAT(B.LastName, ', ', B.FirstName, ' ', COALESCE(B.MiddleName,'N/A'), ' ', COALESCE(B.ExtName, '')) as BorrowerName
+                                              , CONCAT(B.LastName, ', ', B.FirstName, ' ', COALESCE(B.MiddleName,''), ' ', COALESCE(B.ExtName, '')) as BorrowerName
                                               , FORMAT(A.PrincipalAmount, 2) as LoanAmount
                                               , FORMAT(PM.AmountPaid, 2) as AmountPaid
                                               , DATE_FORMAT(PM.DateCollected, '%b %d, %Y') as PaymentDate
@@ -1686,7 +2183,7 @@ class loanapplication_model extends CI_Model
     }
   }
 
-  function getCollateralType($ID)
+  function getCollateralType()
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $query_string = $this->db->query("SELECT  Name
@@ -3000,6 +3497,25 @@ class loanapplication_model extends CI_Model
     }
     return $output;
   } 
+
+  function borrowerCoMakers($AppId)
+  {
+    $Id = $this->maintenance_model->selectSpecific('T_Application', 'ApplicationId', $AppId);
+    $query = $this->db->query("SELECT CONCAT('CM-', LPAD(BR.BorrowerCoMakerId, 6, 0)) as ReferenceNo
+                                      , BR.Name
+                                      , BR.BorrowerCoMakerId
+                                      FROM borrower_has_comaker BR
+                                      WHERE StatusId = 1
+                                      AND BorrowerId = ".$Id['BorrowerId']."
+                                      AND BR.BorrowerCoMakerId NOT IN (SELECT BorrowerCoMakerId FROM application_has_comaker WHERE ApplicationId = $AppId)
+    ");
+    $output = '<option selected disabled value="">Select Co-Maker</option>';
+    foreach ($query->result() as $row)
+    {
+      $output .= '<option value="'.$row->BorrowerCoMakerId.'">'.$row->ReferenceNo.' | '.$row->Name.'</option>';
+    }
+    return $output;
+  }
   
   function selectBorrowerDet($Type, $AppId)
   {
@@ -3238,6 +3754,7 @@ class loanapplication_model extends CI_Model
                                               LEFT JOIN  repaymentcycle_has_content RHC
                                                   ON RC.RepaymentId = RHC.RepaymentId
                                                     WHERE RC.RepaymentId = $RepaymentId 
+                                                    AND
                                                     (
                                                       RC.StatusId = 1
                                                       OR 
@@ -3741,7 +4258,7 @@ class loanapplication_model extends CI_Model
     function getTotalLoanAmount($Year, $branchId)
     {
       $AssignedBranchId = $this->session->userdata('BranchId');
-      $query_string = $this->db->query("SELECT  DISTINCT SUM(DISTINCT PrincipalAmount) as Total
+      $query_string = $this->db->query("SELECT  SUM(PrincipalAmount) as Total
                                                 FROM t_application A
                                                   INNER JOIN R_Borrowers B
                                                     ON B.BorrowerId = A.BorrowerId
@@ -3929,6 +4446,48 @@ class loanapplication_model extends CI_Model
                                                             AND EX.BranchId = $BranchId
                                                             AND DATE_FORMAT(EX.DateExpense, '%Y-%m-%d') BETWEEN '$formatted_date1' AND '$formatted_date2'
                                                             GROUP BY Name
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getCollaterals($dateFrom, $dateTo, $BranchId, $CollateralIds)
+    {
+      $d1 = new DateTime($dateFrom);
+      $d2 = new DateTime($dateTo);
+      // $timestamp = $d->getTimestamp(); // Unix timestamp
+      $formatted_date1 = $d1->format('Y-m-d'); // 2003-10-16
+      $formatted_date2 = $d2->format('Y-m-d'); // 2003-10-16
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query_string = $this->db->query("SELECT  DISTINCT A.TransactionNumber
+                                                , CT.Name
+                                                , C.ProductName
+                                                , C.Value
+                                                , C.RegistrationNo
+                                                , C.DateRegistered
+                                                , C.DateAcquired
+                                                , C.Mileage
+                                                , C.EngineNo
+                                                , C.BranchId
+                                                , C.DateCreated
+                                                , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,''), ' ', COALESCE(EMP.ExtName, '')) as CreatedBy
+                                                , CS.Name as CollateralStatus
+                                                , C.CollateralTypeId
+                                                , CONCAT('CLR-', LPAD(C.CollateralId, 6, 0)) as ReferenceNo
+                                                FROM application_has_collaterals AHC
+                                                      INNER JOIN R_Collaterals C
+                                                          ON C.CollateralId = AHC.CollateralId
+                                                        INNER JOIN r_collateraltype CT
+                                                          ON CT.CollateralTypeId = C.CollateralTypeId
+                                                        INNER JOIN t_application A
+                                                          ON A.ApplicationId = AHC.ApplicationId
+                                                        INNER JOIN r_employee EMP
+                                                          ON EMP.EmployeeNumber = C.CreatedBy
+                                                        INNER JOIN r_collateralstatus CS
+                                                          ON CS.CollateralStatusId = C.StatusId
+                                                            WHERE C.CollateralTypeId IN ($CollateralIds)
+                                                            AND DATE_FORMAT(C.DateCreated, '%Y-%m-%d') BETWEEN '$formatted_date1' AND '$formatted_date2'
+                                                            AND C.BranchId = $BranchId
       ");
       $data = $query_string->result_array();
       return $data;
@@ -4516,4 +5075,187 @@ class loanapplication_model extends CI_Model
       $data = $query_string->row_array();
       return $data;
     }
+
+  function getDuesReport($borrowerId, $LoanId, $BranchId, $AgeFrom, $AgeTo)
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $AssignedBranchId = $this->session->userdata('BranchId');
+
+    $search = '';
+
+    if($borrowerId == 'All')
+    {      
+      $search .= '';
+    }
+    else if($borrowerId != null || $borrowerId != '')
+    {
+      $search .= ' AND A.BorrowerId = ' . $borrowerId;
+    }
+
+    if($LoanId == 'All')
+    {      
+      $search .= '';
+    }
+    else if($LoanId != null || $LoanId != '')
+    {
+      $search .= ' AND A.LoanId = ' . $LoanId;
+    }
+
+    if($BranchId == 'All')
+    {      
+      $search .= '';
+    }
+    else if($BranchId != null || $BranchId != '')
+    {
+      $search .= ' AND BE.BranchId = ' . $BranchId;
+    }
+
+    if($AgeFrom == 0 && $AgeTo == 0)
+    {      
+      $search .= '';
+    }
+    else
+    {
+      $search .= ' AND  CASE
+                                                WHEN DATEDIFF((SELECT   Date
+                                                        FROM t_paymentdue
+                                                              WHERE PaymentDueId = (SELECT   PaymentDueId
+                                                              FROM t_paymentdue
+                                                                  WHERE Date = COALESCE((SELECT    MAX(PaymentDate) as LastPayment
+                                                                  FROM t_paymentsmade
+                                                                        WHERE ( IsPrincipalCollection = 1
+                                                                            OR IsInterest = 1
+                                                                            )
+                                                                          AND ApplicationId = A.ApplicationId), 0)
+                                                                  AND StatusId = 1
+                                                                  AND ApplicationId = A.ApplicationId) + 1
+                                                                  AND StatusId = 1
+                                                                  AND ApplicationId = A.ApplicationId), DATE_ADD(CURDATE(), INTERVAL 0 DAY)) < 0
+                                                THEN  ABS(DATEDIFF((SELECT   Date
+                                                          FROM t_paymentdue
+                                                                WHERE PaymentDueId = (SELECT   PaymentDueId
+                                                                FROM t_paymentdue
+                                                                      WHERE Date = COALESCE((SELECT    MAX(PaymentDate) as LastPayment
+                                                                                  FROM t_paymentsmade
+                                                                                        WHERE ( IsPrincipalCollection = 1
+                                                                            OR IsInterest = 1
+                                                                            )
+                                                                                          AND ApplicationId = A.ApplicationId), 0)
+                                                                      AND StatusId = 1
+                                                                      AND ApplicationId = A.ApplicationId) + 1
+                                                                      AND StatusId = 1
+                                                                      AND ApplicationId = A.ApplicationId), DATE_ADD(CURDATE(), INTERVAL 0 DAY)))
+                                                ELSE 0
+                                              END BETWEEN '.$AgeFrom.' AND '.$AgeTo.'';
+    }
+
+    $query_string = $this->db->query("SELECT  A.TransactionNumber
+                                              , L.Name as LoanName
+                                              , CONCAT(B.LastName, ', ', B.FirstName, ' ', COALESCE(B.MiddleName,''), ' ', COALESCE(B.ExtName, '')) as BorrowerName
+                                              , FORMAT(A.PrincipalAmount, 2) PrincipalAmount
+                                              , COALESCE((SELECT    MAX(DATE_FORMAT(PaymentDate, '%b %d, %Y')) as LastPayment
+                                                                    FROM t_paymentsmade
+                                                                          WHERE ( IsPrincipalCollection = 1
+                                                                            OR IsInterest = 1
+                                                                            )
+                                                                            AND ApplicationId = A.ApplicationId), 0) as LastPaymentFor
+                                              , COALESCE((SELECT   DATE_FORMAT(Date, '%b %d, %Y')
+                                                          FROM t_paymentdue
+                                                                WHERE PaymentDueId = (SELECT   PaymentDueId
+                                                                FROM t_paymentdue
+                                                                      WHERE Date = COALESCE((SELECT    MAX(PaymentDate) as LastPayment
+                                                                                  FROM t_paymentsmade
+                                                                                        WHERE ( IsPrincipalCollection = 1
+                                                                                          OR IsInterest = 1
+                                                                                          )
+                                                                                          AND ApplicationId = A.ApplicationId), 0)
+                                                                      AND StatusId = 1
+                                                                      AND ApplicationId = A.ApplicationId) + 1
+                                                                              AND StatusId = 1
+                                                                              AND ApplicationId = A.ApplicationId), 'N/A') as NextPaymentFor
+                                              , CASE
+                                                WHEN DATEDIFF((SELECT   Date
+                                                        FROM t_paymentdue
+                                                              WHERE PaymentDueId = (SELECT   PaymentDueId
+                                                              FROM t_paymentdue
+                                                                  WHERE Date = COALESCE((SELECT    MAX(PaymentDate) as LastPayment
+                                                                  FROM t_paymentsmade
+                                                                        WHERE ( IsPrincipalCollection = 1
+                                                                            OR IsInterest = 1
+                                                                            )
+                                                                          AND ApplicationId = A.ApplicationId), 0)
+                                                                  AND StatusId = 1
+                                                                  AND ApplicationId = A.ApplicationId) + 1
+                                                                  AND StatusId = 1
+                                                                  AND ApplicationId = A.ApplicationId), DATE_ADD(CURDATE(), INTERVAL 0 DAY)) < 0
+                                                THEN  ABS(DATEDIFF((SELECT   Date
+                                                          FROM t_paymentdue
+                                                                WHERE PaymentDueId = (SELECT   PaymentDueId
+                                                                FROM t_paymentdue
+                                                                      WHERE Date = COALESCE((SELECT    MAX(PaymentDate) as LastPayment
+                                                                                  FROM t_paymentsmade
+                                                                                        WHERE ( IsPrincipalCollection = 1
+                                                                                          OR IsInterest = 1
+                                                                                          )
+                                                                                          AND ApplicationId = A.ApplicationId), 0)
+                                                                      AND StatusId = 1
+                                                                      AND ApplicationId = A.ApplicationId) + 1
+                                                                      AND StatusId = 1
+                                                                      AND ApplicationId = A.ApplicationId), DATE_ADD(CURDATE(), INTERVAL 0 DAY)))
+                                                ELSE 0
+                                              END as DayElapsed
+                                              , A.CreatedBy
+                                              , LS.Name as StatusDescription
+                                              , A.StatusId
+                                              , A.ApplicationId
+                                              , (SELECT COUNT(*) 
+                                                    FROM application_has_approver
+                                                      WHERE ApplicationId = A.ApplicationId
+                                                      AND StatusId != 6
+                                              ) as TotalApprovers
+                                              , (SELECT MAX(DATE_FORMAT(DateCollected, '%b %d, %Y'))
+                                                        FROM t_paymentsmade
+                                                          WHERE ApplicationId = A.ApplicationId
+                                              ) as LastPayment
+                                              , (SELECT   MIN(DATE_FORMAT(Date, '%b %d, %Y'))
+                                                  FROM t_paymentdue
+                                                    WHERE ApplicationId = A.ApplicationId
+                                                      ORDER BY PaymentDueId ASC) as FirstPayment
+                                              , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,''), ' ', COALESCE(EMP.ExtName, '')) as CreatedBy
+                                              , AHC.Comment
+                                              , DATE_FORMAT(AHC.DateCreated, '%b %d, %Y %h:%i %p') as DiaryDate
+                                              , BHE.BusinessAddress
+                                              , BR.Name as BranchCode
+                                              FROM T_Application A
+                                                INNER JOIN R_Loans L 
+                                                  ON L.LoanId = A.LoanId
+                                                INNER JOIN R_Borrowers B
+                                                  ON B.BorrowerId = A.BorrowerId
+                                                INNER JOIN Application_has_interests AHI
+                                                  ON AHI.ApplicationId = A.ApplicationId
+                                                INNER JOIN Application_Has_Status LS
+                                                  ON A.StatusId = LS.LoanStatusId
+                                                LEFT JOIN Application_has_comments AHC
+                                                  ON AHC.ApplicationId = A.ApplicationId
+                                                  AND AHC.StatusId = 1
+                                                LEFT JOIN application_has_employer AHE
+                                                  ON AHE.ApplicationId = A.ApplicationId
+                                                  AND AHE.StatusId = 1
+                                                LEFT JOIN borrower_has_employer BHE
+                                                  ON BHE.EmployerId = AHE.EmployerId
+                                                LEFT JOIN R_RepaymentCycle RC
+                                                  ON RC.RepaymentId = A.RepaymentId
+                                                LEFT JOIN R_Employee EMP
+                                                  ON EMP.EmployeeNumber = A.CreatedBy
+                                                LEFT JOIN Branch_has_Employee BE
+                                                  ON BE.EmployeeNumber = EMP.EmployeeNumber
+                                                LEFT JOIN r_branches BR
+                                                  ON BR.BranchId = B.BranchId
+                                                  WHERE B.StatusId = 1
+                                                  ".$search."
+    ");
+
+    $data = $query_string->result_array();
+    return $data;
+  }
 }

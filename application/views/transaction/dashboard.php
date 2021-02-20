@@ -14,82 +14,6 @@
     </section>
 
     <section class="content">
-      <div class="modal fade" id="modalFilter">
-        <div class="modal-dialog modal-lg">
-          <div class="modal-content">
-            <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span></button>
-              <h4 class="modal-title">Filter</h4>
-            </div>
-            <div class="modal-body">
-              <div class="row">
-                <!-- <div class="col-md-12">
-                  <div class="form-group">
-                    <div class="form-group">
-                      <label>Date Created <span class="text-red">*</span></label>
-                      <div class="input-group date">
-                        <div class="input-group-addon">
-                          <i class="fa fa-calendar"></i>
-                        </div>
-                        <input type="text" class="form-control" name="DateCreated" required="" id="dateCreated">
-                      </div>
-                    </div>
-                  </div>
-                </div> -->
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label>Status</label>
-                    <select class="form-control" id="loanStatus" required="">
-                      <option>All</option>
-                      <?php 
-                        echo $Status;
-                      ?>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label>Borrower Name</label>
-                    <select class="form-control select2" style="width: 100%" id="borrowerId" required="">
-                      <option>All</option>
-                      <?php 
-                        echo $borrowerList;
-                      ?>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label>Loan Type</label>
-                    <select class="form-control select2" style="width: 100%" id="LoanId" required="">
-                      <option>All</option>
-                      <?php 
-                        echo $LoanType;
-                      ?>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label>Branch</label>
-                    <select class="form-control select2" style="width: 100%" id="BranchId" required="">
-                      <option>All</option>
-                      <?php 
-                        echo $Branch;
-                      ?>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <a onclick="filterPage()" class="btn btn-primary">Submit</a>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <div class="modal fade" id="modalImport2">
         <div class="modal-dialog modal-lg">
@@ -97,7 +21,7 @@
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span></button>
-              <h4 class="modal-title">Import Borrower</h4>
+              <h4 class="modal-title">Import Loan Application</h4>
             </div>
               <form role="form" id="upload_form3" method="post" enctype="multipart/form-data">
                 <div class="modal-body">
@@ -130,8 +54,69 @@
   	        <h3 class="box-title">List of Loans</h3>
   	      </div>
   		    <div class="box-body">
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label>Status</label>
+                    <select class="form-control" id="loanStatus" required="">
+                      <option>All</option>
+                      <?php 
+                        echo $Status;
+                      ?>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label>Borrower Name</label>
+                    <select class="form-control select2" style="width: 100%" id="borrowerId" required="">
+                      <option>All</option>
+                      <?php 
+                        echo $borrowerList;
+                      ?>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label>Loan Type</label>
+                    <select class="form-control select2" style="width: 100%" id="LoanId" required="">
+                      <option>All</option>
+                      <?php 
+                        echo $LoanType;
+                      ?>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label>Branch</label>
+                    <select class="form-control select2" style="width: 100%" id="BranchId" required="">
+                      <option>All</option>
+                      <?php 
+                        echo $Branch;
+                      ?>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Aging From</label>
+                    <input type="number" min="0" placeholder="0" value="0" max="365" name="AgeFrom" id="txtAgeFrom" class="form-control">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Aging To</label>
+                    <input type="number" min="0" placeholder="0" value="0" max="365" name="AgeTo" id="txtAgeTo" class="form-control">
+                  </div>
+                </div>
+              </div>
             <div class="pull-right">            
-              <a data-toggle="modal" data-target="#modalFilter" class="btn btn-primary btn-md" >Filter</a>
+              <!-- <a data-toggle="modal" data-target="#modalFilter" class="btn btn-primary btn-md" >Filter</a> -->
+              <a onclick="filterPage()" class="btn btn-primary">Filter</a>
               <a data-toggle="modal" data-target="#modalImport2" class="btn btn-primary btn-md" >Import</a>
             </div>
             <br>
@@ -145,7 +130,11 @@
                 <th>Borrower</th>
                 <th>Principal</th>
                 <th>Interest</th>
+                <th>First Payment</th>
                 <th>Last Payment</th>
+                <th>Next Payment</th>
+                <th>Days Due</th>
+                <th>Assigned To</th>
                 <th>Status</th>
                 <th>Action</th>
               </tr>
@@ -183,7 +172,7 @@
   $('.select2').select2();
 
   function filterPage(){
-    var url = '<?php echo base_url()."datatables_controller/filterLoans/"; ?>' + $('#loanStatus').val() + '/' + $('#borrowerId').val() + '/' + $('#LoanId').val() +  '/' + $('#BranchId').val();
+    var url = '<?php echo base_url()."datatables_controller/filterLoans/"; ?>' + $('#loanStatus').val() + '/' + $('#borrowerId').val() + '/' + $('#LoanId').val() +  '/' + $('#BranchId').val() +  '/' + $('#txtAgeFrom').val() +  '/' + $('#txtAgeTo').val();
     table.ajax.url(url).load();
     $('#modalFilter').modal('hide');
   }
@@ -208,7 +197,7 @@
             confirmButtonClass: 'btn btn-primary'
           });
           setTimeout(function() {            
-            location.reload();
+            // location.reload();
           }, 2000);
         }
         else
@@ -244,7 +233,41 @@
       , { data: "BorrowerName" }
       , { data: "PrincipalAmount" }
       , { data: "InterestRate" }
-      , { data: "LastPayment" }
+      , { data: "FirstPayment", "render": function (data, type, b) {
+          if(b.FirstPayment != '--N/A--')
+          {
+            return moment(b.FirstPayment).format('MMM DD, YYYY');
+          }
+          else
+          {
+            return '--N/A--';
+          }
+        }
+      }
+      , { data: "LastPaymentFor", "render": function (data, type, b) {
+          if(b.LastPaymentFor != '--N/A--')
+          {
+            return moment(b.LastPaymentFor).format('MMM DD, YYYY');
+          }
+          else
+          {
+            return '--N/A--';
+          }
+        }
+      }
+      , { data: "NextPaymentFor", "render": function (data, type, b) {
+          if(b.NextPaymentFor != '--N/A--')
+          {
+            return moment(b.NextPaymentFor).format('MMM DD, YYYY');
+          }
+          else
+          {
+            return '--N/A--';
+          }
+        }
+      }
+      , { data: "DayElapsed"}
+      , { data: "CreatedBy"}
       , { data: "StatusId", "render": function (data, type, b) {
           if(b.IsApprovable == 1)
           {
@@ -277,6 +300,6 @@
       }
     ],
     // "aoColumnDefs": [{ "bVisible": false, "aTargets": [7] }],
-    "order": [[6, "asc"], [0, "desc"]]
+    "order": [[7, "asc"], [6, "asc"], [0, "desc"]]
   });
 </script>

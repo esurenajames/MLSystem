@@ -993,6 +993,12 @@
       "order": [[0, "desc"]]
     });
 
+    $('#dtblDairy').DataTable({
+      "pageLength": 10,
+      // "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
+      "order": [[0, "desc"]]
+    });
+
     $('#example6').DataTable();
 
     $('#example7').DataTable({

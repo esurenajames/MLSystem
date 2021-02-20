@@ -3228,6 +3228,7 @@ class admin_controller extends CI_Controller {
     {
       $this->db->query("SET foreign_key_checks = 0;");
       $this->db->truncate('applicationfooter');
+      $this->db->truncate('borrower_has_diary');
       $this->db->truncate('application_has_approver');
       $this->db->truncate('application_has_charges');
       $this->db->truncate('application_has_collaterals');
@@ -3293,6 +3294,7 @@ class admin_controller extends CI_Controller {
       $this->db->truncate('r_companydetail');
       $this->db->truncate('r_contactnumbers');
       $this->db->truncate('r_emails');
+      $this->db->truncate('collaterals_has_files');
       // admin audits finalss
         $auditLogsManager = 'Database reset.';
         $auditAffectedEmployee = 'Database reset.';

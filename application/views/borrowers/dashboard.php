@@ -343,169 +343,59 @@
       </div>
     </div>
 
-    <!-- <div class="modal fade" id="modalReport">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title">Generate Reports</h4>
-          </div>
-          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/generateReport/4" method="post" enctype="multipart/form-data">
-            <div class="modal-body">
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label>Report Columns</label>
-                      <select class="form-control select2" required="" name="columnNames[]" style="width: 100%;" multiple="">
-                        <option value="1">Age</option>
-                        <option value="2">Education</option>
-                        <option value="3">Gender/Sex</option>
-                        <option value="4">Occupation</option>
-                        <option value="5">Income Level</option>
-                        <option value="6">Marital Status</option>
-                        <option value="7">Risk Profile</option>
-                        <option value="9">Number of Rollovers/Refinance borrowers and one-time borrowers</option>
-                      </select>
-                  </div>
-                </div>
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label>Report Name</label>
-                    <input type="text" class="form-control" value="Demographics" name="reportName">
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>Date From</label>
-                    <select class="form-control" id="selectYearFrom" name="yearFrom">
-                      <?php 
-                        foreach ($ageYear as $value) 
-                        {
-                          $selected = (date("Y") == $value['Year']) ? 'selected' : '';
-                          echo '<option '.$selected.'>'.$value['Year'].'</option>';
-                        }
-                      ?>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>Date To</label>
-                    <select class="form-control" id="selectYearFrom" name="yearFrom">
-                      <?php 
-                        foreach ($ageYear as $value) 
-                        {
-                          $selected = (date("Y") == $value['Year']) ? 'selected' : '';
-                          echo '<option '.$selected.'>'.$value['Year'].'</option>';
-                        }
-                      ?>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <label>Verified By</label>
-                  <select name="verifiedBy" required="" class="form-control"style="width: 100%"  id="selectEmployee">
-                  </select>
-                </div>
-                <div class="col-md-6">
-                  <label>Approved By</label>
-                  <select name="approvedBy" required="" class="form-control"style="width: 100%"  id="selectEmployee2">
-                  </select>
-                </div>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button class="btn btn-primary" type="submit">Submit</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div> -->
-
-    <div class="modal fade" id="modalFilter">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title">Filter Borrowers</h4>
-          </div>
-          <div class="modal-body">
-            <div class="row">
-              <!-- <div class="col-md-12">
-                <div class="form-group">
-                  <div class="form-group">
-                    <label>Date Created <span class="text-red">*</span></label>
-                    <div class="input-group date">
-                      <div class="input-group-addon">
-                        <i class="fa fa-calendar"></i>
-                      </div>
-                      <input type="text" class="form-control" name="DateCreated" required="" id="dateCreated">
-                    </div>
-                  </div>
-                </div>
-              </div> -->
-              <div class="col-md-12">
-                <div class="form-group">
-                  <label>Status</label>
-                  <select class="form-control" id="borrowerStatus" required="">
-                    <option value="All">All</option>
-                    <?php 
-                      echo $Status;
-                    ?>
-                  </select>
-                </div>
-              </div>
-              <div class="col-md-12">
-                <div class="form-group">
-                  <label>Created By</label>
-                  <select style="width: 100%" required="" class="form-control select2" id="borrowerCreatedBy" required="">
-                    <option value="All">All</option>
-                    <?php 
-                      echo $CreatedBy;
-                    ?>
-                  </select>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label>Dependent Range From <span class="text-red">*</span></label>
-                  <input type="number" required="" value="0" id="borrowerDependentsFrom" class="form-control" name="">
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label>Dependent Range To <span class="text-red">*</span></label>
-                  <input type="number" required="" value="10" id="borrowerDependentsTo" class="form-control" name="">
-                </div>
-              </div>
-              <div class="col-md-12">
-                <div class="form-group">
-                  <label>Branch <span class="text-red">*</span></label>
-                  <select class="form-control select2" required="" style="width: 100%" id="branchId" >
-                    <option value="All">All</option>
-                    <?php echo $Branch; ?>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <a onclick="filterPage()" class="btn btn-primary">Submit</a>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <section class="content">
       <div class="box">
         <div class="box-header with-border">
           <h3 class="box-title">List of Borrowers</h3>
         </div>
         <div class="box-body">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Branch <span class="text-red">*</span></label>
+                <select class="form-control select2" required="" style="width: 100%" id="branchId" >
+                  <option value="All">All</option>
+                  <?php echo $Branch; ?>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Status</label>
+                <select class="form-control" id="borrowerStatus" required="">
+                  <option value="All">All</option>
+                  <?php 
+                    echo $Status;
+                  ?>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Created By</label>
+                <select style="width: 100%" required="" class="form-control select2" id="borrowerCreatedBy" required="">
+                  <option value="All">All</option>
+                  <?php 
+                    echo $CreatedBy;
+                  ?>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Dependent Range From <span class="text-red">*</span></label>
+                <input type="number" required="" value="0" id="borrowerDependentsFrom" class="form-control" name="">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Dependent Range To <span class="text-red">*</span></label>
+                <input type="number" required="" value="0" id="borrowerDependentsTo" class="form-control" name="">
+              </div>
+            </div>
+          </div>
           <div class="pull-right">
             <!-- <a href="<?php echo base_url(); ?>loanapplication_controller/generateReport/4" class="btn btn-primary btn-md" >Generate Report</a> -->
 
@@ -513,9 +403,8 @@
               <button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#modalNewRecord">Add Borrower</button>
               <button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#modalImport2">Import Borrower</button>
             <?php } else { ?>
-
             <?php } ?>
-            <a data-toggle="modal" data-target="#modalFilter" class="btn btn-primary btn-md" >Filter</a>
+            <a onclick="filterPage()" class="btn btn-primary">Filter</a>
           </div>
           <br>
           <br>

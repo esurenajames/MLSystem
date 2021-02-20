@@ -1821,8 +1821,9 @@
                   displayNetLoan = parseInt($('#txtPrincipalAmount').val()) - parseInt(displayTotalLoanCost);
                   $('.lblNetLoanAmount').html('Php ' + parseInt(displayNetLoan).toLocaleString('en-US', {minimumFractionDigits: 2}));
               },
-              error: function()
+              error: function(error)
               {
+                console.log(error)
                 setTimeout(function() {
                   swal({
                     title: 'Warning!',

@@ -379,7 +379,7 @@ class borrower_controller extends CI_Controller {
         $NewId = $this->maintenance_model->getGeneratedId2($generatedIdData);
       // admin audits
         $employeeDetail = $this->employee_model->getEmployeeProfile($EmployeeNumber);
-        $TransactionNumber = 'RF-'.sprintf('%05d', $NewId['ReferenceId']);
+        $TransactionNumber = 'RF-'.sprintf('%06d', $NewId['ReferenceId']);
         $borrowerNumber = $this->maintenance_model->selectSpecific('R_Borrowers', 'BorrowerId', $this->uri->segment(4));
         $auditLogsManager = 'Added personal reference #'.$TransactionNumber.' in personal reference tab to borrower #'.$borrowerNumber['BorrowerNumber'].'.';
         $auditBorrowerDetails = 'Added personal reference #'.$TransactionNumber.' in personal reference tab.';
@@ -543,7 +543,7 @@ class borrower_controller extends CI_Controller {
           $TransactionNumber = 'SD-'.sprintf('%06d', $NewId['BorrowerIdentificationId']);
           $auditLogsManager = 'Added supporting document #' . $TransactionNumber.' for borrower #'.$borrowerDetail['BorrowerNumber'].'.';
           $auditAffectedEmployee = 'Added supporting document #' . $TransactionNumber.' for borrower #'.$borrowerDetail['BorrowerNumber'].'.';
-          $auditAffectedTable = 'Added supporting document ##' . $TransactionNumber.' in supporting documents tab.';
+          $auditAffectedTable = 'Added supporting document #' . $TransactionNumber.' in supporting documents tab.';
           $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(4), 'borrower_has_notifications', 'BorrowerId');
 
         // notification
@@ -1381,6 +1381,41 @@ class borrower_controller extends CI_Controller {
         $this->session->set_flashdata('alertType','success'); 
         redirect('home/BorrowerDetails/'. $this->uri->segment(4));
     }
+  }
+
+  function AddDiary()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $DateNow = date("Y-m-d H:i:s");
+    // insert Comment
+      $insertComment = array(
+         'BorrowerId'                 => $this->uri->segment(3)
+        , 'Remarks'                   => htmlentities($_POST['Comment'], ENT_QUOTES)
+        , 'CreatedBy'                 => $EmployeeNumber
+        , 'UpdatedBy'                 => $EmployeeNumber
+      );
+      $insertCommentTable = 'borrower_has_diary';
+      $this->maintenance_model->insertFunction($insertComment, $insertCommentTable);
+      // get generated application id
+        $getData = array(
+          'table'                 => 'borrower_has_diary'
+          , 'column'              => 'DiaryId'
+          , 'CreatedBy'           => $EmployeeNumber
+        );
+        $generatedId = $this->maintenance_model->getGeneratedId2($getData);
+        $TransactionNumber = 'DD-'.sprintf('%06d', $generatedId['DiaryId']);
+        
+        $borrowerDetail['BorrowerNumber'] = $this->maintenance_model->selectSpecific('R_Borrowers', 'BorrowerId', $this->uri->segment(3));
+
+          $auditLogsManager = 'Added daily diary #'.$TransactionNumber.' for borrower #'.$borrowerDetail['BorrowerNumber'].'.';
+          $auditAffectedEmployee = 'Added daily diary #'.$TransactionNumber.' for borrower #'.$borrowerDetail['BorrowerNumber'].'.';
+          $auditAffectedTable = 'Added daily diary #'.$TransactionNumber.'.';
+          $this->AuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, $auditAffectedTable, $this->uri->segment(3), 'borrower_has_notifications', 'BorrowerId');
+    // notification
+      $this->session->set_flashdata('alertTitle','Success!'); 
+      $this->session->set_flashdata('alertText','Daily diary successfully Added!'); 
+      $this->session->set_flashdata('alertType','success'); 
+      redirect('home/BorrowerDetails/'. $this->uri->segment(3));
   }
 
   function auditBorrowerDetails($auditLogsManager, $auditAffectedEmployee, $ManagerId, $AffectedEmployeeNumber, $auditBorrowerDets ,$borrowerId)

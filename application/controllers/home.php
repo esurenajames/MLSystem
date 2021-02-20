@@ -729,7 +729,7 @@ class home extends CI_Controller {
 		$data['expense'] = $this->loanapplication_model->getExpenses($Id);
 		$data['income'] = $this->loanapplication_model->getIncome($Id);
 		$data['disbursement'] = $this->loanapplication_model->getDisbursementDisplay($Id);
-		$data['collateralType'] = $this->loanapplication_model->getCollateralType($Id);
+		$data['collateralType'] = $this->loanapplication_model->getCollateralType();
 		$data['collateralStatus'] = $this->loanapplication_model->getCollateralStatus($Id);
 		$data['collateral'] = $this->loanapplication_model->getCollateral($Id);
 		$data['chargeList'] = $this->loanapplication_model->displayCharges($Id);
@@ -741,6 +741,7 @@ class home extends CI_Controller {
 		$data['principalpaid'] = $this->loanapplication_model->getPrincipalPaid($Id);
 		$data['otherPaid'] = $this->loanapplication_model->getOtherPaid($Id);
 		$data['disbursedReleased'] = $this->loanapplication_model->getTotalDisbursed($Id);
+		$data['comakers'] = $this->loanapplication_model->borrowerCoMakers($Id);
 
 
 		$data['Payments'] = $this->loanapplication_model->getPaymentsMade($Id);
@@ -1007,6 +1008,7 @@ class home extends CI_Controller {
 
 		$data['EmailAddress'] = $this->borrower_model->getBorrowerEmails($Id);
 		$data['ContactNumber'] = $this->borrower_model->getBorrowerNumber($Id);
+		$data['diary'] = $this->borrower_model->getBorrowerDiary($Id);
 		$data['Address'] = $this->borrower_model->getBorrowerAddress($Id);
 
 		$data['Collections'] = $this->borrower_model->getCollectionsMade($Id);
@@ -1052,6 +1054,26 @@ class home extends CI_Controller {
 		$this->load->view('reports/income/loanCollections', $data);
 	}
 
+	function generateCollaterals()
+	{
+		$Id = $this->uri->segment(3);
+		$sidebar['sidebar'] = 'Reports';
+		$sidebar['sidebarMenu'] = 'Loan Collateral';
+		$header['header'] = 'Generate Collaterals';
+		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
+		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['employee'] = $this->employee_model->getEmployeeList();
+		$data['Branch'] = $this->maintenance_model->getBranches();
+		$data['Collateral'] = $this->loanapplication_model->getCollateralType();
+
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('reports/income/collateral', $data);
+	}
+
 	function generateExpenses()
 	{
 		$Id = $this->uri->segment(3);
@@ -1069,6 +1091,27 @@ class home extends CI_Controller {
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
 		$this->load->view('reports/income/expenses', $data);
+	}
+
+	function generateDues()
+	{
+		$Id = $this->uri->segment(3);
+		$sidebar['sidebar'] = 'Reports';
+		$sidebar['sidebarMenu'] = 'Dues';
+		$header['header'] = 'Generate Due Report';
+		$sidebar['access'] = $this->sidebar_model->checkSideBar();
+		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
+		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$data['access'] = $this->sidebar_model->getAccess();
+		$data['Status'] = $this->maintenance_model->getLoanStatus();
+		$data['borrowerList'] = $this->loanapplication_model->getBorrowerLoanList();
+		$data['LoanType'] = $this->loanapplication_model->getLoanTypesList();
+		$data['Branch'] = $this->maintenance_model->getBranches();
+
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('transaction/dues', $data);
 	}
 
 	function generateIncomeStatement()

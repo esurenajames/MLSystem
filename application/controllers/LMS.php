@@ -128,16 +128,15 @@ class LMS extends CI_Controller {
 	
 	public function index()
 	{
-
-    if(strpos(strtolower($_SERVER['HTTP_USER_AGENT']),'chrome') != TRUE || strpos(strtolower($_SERVER['HTTP_USER_AGENT']),'edge') != FALSE){
-        //Make a redirect to a page forcing the user to use Chrome (Message page)
-        echo "Please use chrome";
-    }
-    else
-    {
+    // if(strpos(strtolower($_SERVER['HTTP_USER_AGENT']),'chrome') != TRUE || strpos(strtolower($_SERVER['HTTP_USER_AGENT']),'edge') != FALSE){
+    //     //Make a redirect to a page forcing the user to use Chrome (Message page)
+    //     echo "Please use chrome";
+    // }
+    // else
+    // {
 			$data['securityQuestions'] = $this->employee_model->getSecurityQuestions();
 			$this->load->view('login', $data);
-    }
+    // }
 	}
 
   function ResetPassword()

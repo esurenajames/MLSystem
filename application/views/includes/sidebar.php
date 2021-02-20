@@ -69,8 +69,10 @@
               </span>
             </a>
             <ul class="treeview-menu">
-              <?php if(in_array('8', $subModule)) { ?>
-                <li <?php if($sidebar == 'Loans' && $sidebarMenu == 'View Loans'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/ViewLoans"><i class="fa fa-circle-o"></i>View Loans</a></li>
+              <?php if(in_array('8', $subModule)) {
+                $duesss = $this->loanapplication_model->getTotalOverdues();
+              ?>
+                <li <?php if($sidebar == 'Loans' && $sidebarMenu == 'View Loans'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/ViewLoans"><i class="fa fa-circle-o"></i>View Loans <?php if($duesss > 0){echo "<span class='badge bg-red'>".$duesss."</span>";}?></a></li>
               <?php } ?>
               <?php if(in_array('9', $subModule)) { ?>
                 <li <?php if($sidebar == 'Loans' && $sidebarMenu == 'Loan Application'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/LoanApplication"><i class="fa fa-circle-o"></i>Create Loan Application</a></li>
@@ -275,6 +277,12 @@
               <?php } ?>
               <?php if(in_array('11', $subModule)) { ?>
                 <li <?php if($sidebar == 'Reports' && $sidebarMenu == 'Loan Collections'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/generateLoanCollection"><i class="fa fa-circle-o"></i>Loan Collections</a></li>
+              <?php } ?>
+              <?php if(in_array('11', $subModule)) { ?>
+                <li <?php if($sidebar == 'Reports' && $sidebarMenu == 'Loan Collateral'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/generateCollaterals"><i class="fa fa-circle-o"></i>Collaterals</a></li>
+              <?php } ?>
+              <?php if(in_array('11', $subModule)) { ?>
+                <li <?php if($sidebar == 'Reports' && $sidebarMenu == 'Dues'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/generateDues"><i class="fa fa-circle-o"></i>Dues</a></li>
               <?php } ?>
               <?php if(in_array('53', $subModule)) { ?>
                 <li <?php if($sidebar == 'Reports' && $sidebarMenu == 'Expenses'){echo 'class="active"';}?> ><a href="<?php echo base_url(); ?>home/generateExpenses"><i class="fa fa-circle-o"></i>Expenses</a></li>

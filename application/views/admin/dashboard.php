@@ -2129,7 +2129,7 @@
         async: false,
         dataType: "JSON",
         data : {
-          yearFilter : $('#selectDisbursementYear').val()
+          yearFilter : $('#interestYear').val()
           , branchId : $('#selectBranch').val()
         },
         success: function(data) {
@@ -2214,7 +2214,7 @@
         async: false,
         dataType: "JSON",
         data : {
-          yearFilter : $('#selectDisbursementYear').val()
+          yearFilter : $('#interestYear').val()
           , branchId : $('#selectBranch').val()
         },
         success: function(data) {
@@ -2293,7 +2293,7 @@
         async: false,
         dataType: "JSON",
         data : {
-          yearFilter : $('#selectDisbursementYear').val()
+          yearFilter : $('#interestYear').val()
           , branchId : $('#selectBranch').val()
         },
         success: function(data) {

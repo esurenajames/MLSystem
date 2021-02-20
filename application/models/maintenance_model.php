@@ -53,6 +53,7 @@ class maintenance_model extends CI_Model
       return $output;
     }
 
+
     function IDCategory2($Id)
     {
       $EmployeeNumber = sprintf('%06d', $Id);
@@ -511,6 +512,21 @@ class maintenance_model extends CI_Model
                                                 , DATE_FORMAT(CH.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                                 , DATE_FORMAT(CH.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
                                                 FROM R_Charges CH
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getAllComments()
+    {
+      $query_string = $this->db->query("SELECT AHC.Comment as Comment
+                                                , CONCAT('CM-', LPAD(AHC.CommentId, 6, 0)) as ReferenceNo 
+                                                , CONCAT(FirstName, ' ', MiddleName, ' ', LastName) as Name
+                                                , AHC.CreatedBy
+                                                , AHC.StatusId
+                                                , DATE_FORMAT(AHC.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                                , DATE_FORMAT(AHC.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
+                                                FROM Application_has_comments AHC
       ");
       $data = $query_string->result_array();
       return $data;

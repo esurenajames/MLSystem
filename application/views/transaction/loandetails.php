@@ -236,7 +236,7 @@
                 </div>
                 <div class="col-md-12">
                   <label>Amount Paid<span class="text-red">*</span></label>
-                  <input type="number" value="0" required="" step="0.25" min="0" oninput="computePayment()" class="form-control" name="Amount" id="txtAmountPaid">
+                  <input type="number" value="0" required="" step=".01" min="0" oninput="computePayment()" class="form-control" name="Amount" id="txtAmountPaid">
                 </div>
                 <div class="col-md-6">
                   <label>Change:</label><br>
@@ -613,6 +613,47 @@
       <!-- /.modal-dialog -->
     </div>
 
+    <div class="modal fade" id="modalSOA">
+      <div class="modal-dialog modal-md">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Generation of Statement of Account</h4>
+          </div>
+          <form autocomplete="off" action="<?php echo base_url(); ?>loanapplication_controller/generateReport/10/<?php print_r($detail['ApplicationId']) ?>" class="frminsert2" method="post" enctype="multipart/form-data">
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label>Who do you want to generate the SOA to? <span class="text-red">*</span></label><br>
+                    <select style="width: 100%" id="selectSOATo" onchange="GenerateSOATo(this.value)" class="form-control select2" name="SOAType">
+                      <option>Borrower</option>
+                      <option>Co-Maker</option>
+                    </select>
+                  </div>
+                </div>
+                <div id="divComaker" class="col-md-12">
+                  <div class="form-group">
+                    <label>Select Co-maker<span class="text-red">*</span></label><br>
+                    <select class="form-control select2" id="selectCoMaker" name="CoMakerId" style="width: 100%">
+                      <?php print_r($comakers); ?>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+          </form>
+        </div>
+        <!-- /.modal-content -->
+      </div>
+      <!-- /.modal-dialog -->
+    </div>
+
     <div class="modal fade" id="modalComment">
       <div class="modal-dialog modal-md">
         <div class="modal-content">
@@ -736,6 +777,22 @@
                       ?>
                     </select>
                   </div>
+                </div>
+                <div class="row" style="display: none" id="divATMCollateral">
+                  <div class="col-md-12">
+                    <label>Account Holder</label>
+                    <input type="text" name="AccountHolder" class="form-control" id="txtAccountHolder">
+                  </div>
+                  <div class="col-md-12">
+                    <label>Bank Name</label>
+                    <input type="text" name="BankName" class="form-control" id="txtBankName">
+                  </div>
+                  <div class="col-md-12">
+                    <label>Account Number</label>
+                    <input type="text" name="AcctNumber" class="form-control" id="txtAcctNumber">
+                  </div>
+                </div>
+                <div class="row" id="divCollateralInput">
                   <div class="col-md-12">
                     <label>Product Name</label>
                     <input type="text" name="ProductName" class="form-control" id="txtProductName">
@@ -757,6 +814,8 @@
                     <label>Value</label>
                     <input type="number" name="CollateralValue" id="txtCollaretalValue" class="form-control">
                   </div>
+                </div>
+                <div class="row">
                   <div class="col-md-6">
                     <label>Current Status</label>
                     <select class="form-control" name="CollateralStatusId" id="SelectCollateralStatus">
@@ -807,22 +866,43 @@
 
               <div id="divCollateralDetails" style="display: none">
                 <div class="row">
-                  <div class="col-md-4">
+                  <div class="col-md-12">
                     <label>Collateral Type</label>
                     <h6 id="lblCollateralType"></h6>
                   </div>
+                </div>
+                <div class="row" style="display: none" id="divATMCollateralDetail">
                   <div class="col-md-4">
-                    <label>Product Name</label>
-                    <h6 id="lblProductName"></h6>
+                    <label>Account Holder</label>
+                    <h6 id="lblAccountHolder"></h6>
                   </div>
                   <div class="col-md-4">
-                    <label>Register Date</label>
-                    <h6 id="lblDateRegistered"></h6>
+                    <label>Bank Name</label>
+                    <h6 id="lblBankName"></h6>
                   </div>
                   <div class="col-md-4">
-                    <label>Value</label>
-                    <h6 id="lblValue"></h6>
+                    <label>Account Number</label>
+                    <h6 id="lblAccountNumber"></h6>
                   </div>
+                </div>
+                <div id="divCollateralInputDetails">
+                  <div class="row">
+                    <div class="col-md-4">
+                      <label>Product Name</label>
+                      <h6 id="lblProductName"></h6>
+                    </div>
+                    <div class="col-md-4">
+                      <label>Register Date</label>
+                      <h6 id="lblDateRegistered"></h6>
+                    </div>
+                    <div class="col-md-4">
+                      <label>Value</label>
+                      <h6 id="lblValue"></h6>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
                   <div class="col-md-4">
                     <label>Current Status</label>
                     <h6 id="lblCurrentStatus"></h6>
@@ -831,9 +911,9 @@
                     <label>Date Acquired</label>
                     <h6 id="lblDateAcquired"></h6>
                   </div>
-                  <div class="col-md-4">
+                  <div class="col-md-12">
                     <h6 id="lblDownloadCollateral"></h6>
-                  </div>
+                  </div>  
                 </div>
               </div>
               <div id="divCollateralAutomobile"  style="display: none">
@@ -1345,6 +1425,7 @@
           <div class="box-header with-border">
             <h3 class="box-title"><label>Loan Application Details:</label></h3>
             <div class="pull-right">
+              <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>loanapplication_controller/generateReport/9/<?php print_r($detail['ApplicationId']) ?>">Generate Disclosure</a>
               <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>loanapplication_controller/generateReport/8/<?php print_r($detail['ApplicationId']) ?>">Generate Dues</a>
               <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>loanapplication_controller/generateReport/3/<?php print_r($detail['ApplicationId']) ?>">Generate Report</a>
             </div>
@@ -1375,12 +1456,15 @@
   		  <div class="box">
   		    <div class="box-header with-border">
   		      <h3 class="box-title"><label>Loan Application No:</label> <?php print_r($detail['TransactionNumber']) ?></h3>
+            <div class="pull-right">
+              <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modalSOA">Generate SOA</button>
             <?php 
               if($detail['StatusId'] == 1)
               {
-                echo '<button class="btn btn-sm btn-primary pull-right" data-toggle="modal" data-target="#modalRestructure">Re-Structure</button>';
+                echo '<button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modalRestructure">Re-Structure</button>';
               }
             ?>
+            </div>
   		    </div>
   		    <div class="box-body">
   			    <div class="row">
@@ -1437,7 +1521,7 @@
                 <label title="Interest * No. of Terms">Interest:</label> 
                 <?php
                   $TotalInterest = 0;
-                  if($detail['InterestType'] == 'Percentage')
+                  if($detail['InterestType'] == 'Percentage' || $detail['InterestType'] == 'percentage')
                   {
                     $TotalInterest = ($detail['RawPrincipalAmount'] * ($detail['Amount']/100)) * $detail['TermNo'];
                   }
@@ -1774,9 +1858,9 @@
                     <thead>
                     <tr>
                       <th>Reference No.</th>
-                      <th>Collateral</th>
+                      <th>Collateral/Account Holder</th>
                       <th>Current Status</th>
-                      <th>Value</th>
+                      <th>Value/Account Number</th>
                       <th>Type</th>
                       <th>Register Date</th>
                       <th>Date Creation</th>
@@ -1795,7 +1879,14 @@
                             echo "<td>".$value['ReferenceNo']."</td>";
                             echo "<td>".$value['ProductName']."</td>";
                             echo "<td>".$value['CurrentStatus']."</td>";
-                            echo "<td>".number_format($value['Value'], 2)."</td>";
+                            if($value['CollateralType'] == 'ATM')
+                            {
+                              echo "<td>".$value['Value']."</td>";
+                            }
+                            else
+                            {
+                              echo "<td>".number_format($value['Value'], 2)."</td>";
+                            }
                             echo "<td>".$value['CollateralType']."</td>";
                             echo "<td>".$value['DateRegistered']."</td>";
                             echo "<td>".$value['DateCreated']."</td>";
@@ -2746,6 +2837,20 @@
 <?php $this->load->view('includes/footer'); ?>
 <script src="<?php echo base_url(); ?>resources/functionalities/AddNotif.js"></script>
 <script type="text/javascript">
+  function GenerateSOATo(value)
+  {
+    if(value == 'Co-Maker')
+    {
+      $('#divComaker').show();
+      document.getElementById("selectCoMaker").required = true;
+    }
+    else
+    {
+      $('#divComaker').hide();
+      document.getElementById("selectCoMaker").required = false;
+    }
+  }
+
   if("<?php print_r($this->session->flashdata('alertTitle')) ?>" != '')
   {
     swal({
@@ -3682,6 +3787,7 @@
           $('#btnSubmitCollateral').hide();
           $('#divCollateralForm').hide();
 
+          console.log(data['withFiles'])
           $('#lblCollateralType').html(data['CollateralType']);
           if(data['withFiles'] > 0)
           {
@@ -3699,13 +3805,26 @@
 
           if(data['CollateralTypeId'] == 1) // automobiles
           {
+            $('#divATMCollateralDetail').hide();
             $('#divCollateralAutomobile').show();
             $('#lblRegNumber').html(data['RegistrationNo']);
             $('#lblMileage').html(data['Mileage']);
             $('#lblEngineNumber').html(data['EngineNo']);
           }
+          else if(data['CollateralTypeId'] == 9) // ATM
+          {
+            $('#divCollateralAutomobile').hide();
+            $('#divCollateralInputDetails').hide();
+            $('#divATMCollateralDetail').show();
+
+            $('#lblAccountHolder').html(data['ProductName']);
+            $('#lblAccountNumber').html(data['Value']);
+            $('#lblBankName').html(data['RegistrationNo']);
+          }
           else
           {
+            $('#divATMCollateralDetail').hide();
+            $('#divCollateralInputDetails').show();
             $('#divCollateralAutomobile').hide();
           }
         }
@@ -3762,9 +3881,21 @@
             $('#txtMileage').val(data['Mileage']);
             $('#txtEngineNo').val(data['EngineNo']);
           }
+          else if(data['CollateralTypeId'] == 9) // atm
+          {
+            $('#divAutomobiles').slideUp();
+            $('#divCollateralInput').slideUp();
+            $('#divATMCollateral').slideDown();
+
+            $('#txtAccountHolder').val(data['ProductName']);
+            $('#txtAcctNumber').val(data['Value']);
+            $('#txtBankName').val(data['RegistrationNo']);
+          }
           else
           {
-            $('#divAutomobiles').hide();
+            $('#divATMCollateral').slideUp();
+            $('#divCollateralInput').slideDown();
+            $('#divAutomobiles').slideUp();
           }
         }
       },
@@ -3788,10 +3919,20 @@
   {
     if(value == 1) // automobiles
     {
+      $('#divCollateralInput').slideDown();
       $('#divAutomobiles').slideDown();
+      $('#divATMCollateral').slideUp();
+    }
+    else if(value == 9) // atm
+    {
+      $('#divAutomobiles').slideUp();
+      $('#divCollateralInput').slideUp();
+      $('#divATMCollateral').slideDown();
     }
     else
     {
+      $('#divATMCollateral').slideUp();
+      $('#divCollateralInput').slideDown();
       $('#divAutomobiles').slideUp();
     }
   }
@@ -3801,6 +3942,10 @@
     if(value == 1) // add collateral
     {
       $('#CollateralTitle').html('Add Collateral');
+      $('#divCollateralForm').slideDown();
+      $('#divCollateralDetails').slideUp();
+      $('#divCollateralAutomobile').slideUp();
+      $('#SelectCollateralTypeId').val(1).change();
     }
     else
     {
@@ -4297,7 +4442,8 @@
       }
       else
       {
-        newFinal = parseFloat($('#txtPaid').val(), 2) + parseFloat($('#txtTotalDue').val(), 2);
+        newFinal = parseFloat($('#txtBalance').val(), 2) - parseFloat($('#txtTotalDue').val(), 2);
+        console.log(newFinal)
         if(newFinal >= $('#txtBalance').val())
         {
           $('#txtForMaturity').val(1);
@@ -4350,7 +4496,7 @@
       }
       else
       {
-        newFinal = parseFloat($('#txtPaid').val(), 2) + parseFloat($('#txtAmountPaid').val(), 2);
+        newFinal = parseFloat($('#txtBalance').val(), 2) - parseFloat($('#txtTotalDue').val(), 2);
         if(newFinal >= $('#txtBalance').val())
         {
           $('#txtForMaturity').val(1);
@@ -4459,6 +4605,8 @@
   $('#dtblSpouse').DataTable();
   $('#dtblEmployer').DataTable();
   $('#dtblContact').DataTable();
+
+  $('#divComaker').hide();
 
   $('#example8').DataTable({
     "pageLength": 10,

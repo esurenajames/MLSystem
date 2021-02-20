@@ -259,6 +259,37 @@ class borrower_model extends CI_Model
       return $data;
     }
 
+    function getBorrowerComments($BorrowerID)
+    {
+      $query_string = $this->db->query("SELECT  AHC.StatusId
+                                                , AHC.CreatedBy
+                                                , AHC.CommentId
+                                                , CONCAT('CM-', LPAD(AHC.CommentId, 6, 0)) as rowNumber
+                                                , DATE_FORMAT(AHC.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                                FROM Application_has_Comments AHC
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
+    function getBorrowerDiary($BorrowerID)
+    {
+      $query_string = $this->db->query("SELECT  CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CreatedBy
+                                                , CONCAT('DD-', LPAD(AHC.DiaryId, 6, 0)) as rowNumber
+                                                , DATE_FORMAT(AHC.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
+                                                , Remarks
+                                                , AHC.StatusId
+                                                , AHC.DiaryId
+                                                FROM borrower_has_diary AHC
+                                                    INNER JOIN r_employee EMP
+                                                      ON EMP.EmployeeNumber = AHC.CreatedBy
+                                                      WHERE AHC.BorrowerId = $BorrowerID
+
+      ");
+      $data = $query_string->result_array();
+      return $data;
+    }
+
     function getNumberDetails($Id)
     {
       $query_string = $this->db->query("SELECT  CN.PhoneType
@@ -1556,7 +1587,7 @@ class borrower_model extends CI_Model
                                                 , acronym (B.MiddleName) as MI
                                                 , B.LastName
                                                 , B.ExtName
-                                                , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', EMP.MiddleName, ', ', EMP.ExtName) as CreatedBy
+                                                , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CreatedBy
                                                 , B.StatusId
                                                 , BS.Name as StatusDescription
                                                 , BS.statusColor
@@ -1611,12 +1642,21 @@ class borrower_model extends CI_Model
       {
         $query .= " AND BHE.BranchId = $BranchId";
       }
+
+      if($From == 0 && $To == 0)
+      {
+        $query .= "";
+      }
+      else
+      {
+        $query .= " B.Dependents BETWEEN $From AND $To";        
+      }
       $AssignedBranchId = $this->session->userdata('BranchId');
       $query_string = $this->db->query("SELECT DISTINCT B.FirstName
                                                 , acronym (B.MiddleName) as MI
                                                 , B.LastName
                                                 , B.ExtName
-                                                , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', EMP.MiddleName, ', ', EMP.ExtName) as CreatedBy
+                                                , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CreatedBy
                                                 , B.StatusId
                                                 , BS.Name as StatusDescription
                                                 , BS.statusColor
@@ -1638,7 +1678,6 @@ class borrower_model extends CI_Model
                                                     LEFT JOIN R_Branches BRNCH
                                                       ON BRNCH.BranchId = BHE.BranchId
                                                       WHERE EMP.StatusId = 2
-                                                      AND B.Dependents BETWEEN $From AND $To
                                                       ".$query."
       ");
       $data = $query_string->result_array();
@@ -1668,7 +1707,7 @@ class borrower_model extends CI_Model
                                                 , Address
                                                 , ContactNumber
                                                 , DATE_FORMAT(BN.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
-                                                , CONCAT(EMP.LastName, ', ', EMP.FirstName) as CreatedBy 
+                                                , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CreatedBy 
                                                 , BN.StatusId
                                                 , BorrowerId
                                                 , ReferenceId
@@ -1690,7 +1729,7 @@ class borrower_model extends CI_Model
                                                 , MobileNo
                                                 , BC.StatusId
                                                 , DATE_FORMAT(BC.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
-                                                , CONCAT(EMP.LastName, ', ', EMP.FirstName) as CreatedBy 
+                                                , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CreatedBy 
                                                 , BorrowerId
                                                 , BorrowerComakerId
                                                 FROM borrower_has_comaker BC
@@ -1706,7 +1745,7 @@ class borrower_model extends CI_Model
     {
       $query_string = $this->db->query("SELECT  BN.BorrowerLogId
                                                 , BN.Description
-                                                , CONCAT(EMP.LastName, ', ', EMP.FirstName) as CreatedBy 
+                                                , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CreatedBy 
                                                 , DATE_FORMAT(BN.DateCreated, '%d %b %Y %h:%i %p') as DateCreated
                                                 , BN.DateCreated as rawDateCreated
                                                 FROM Borrower_has_notifications BN
@@ -1771,7 +1810,7 @@ $query_string = $this->db->query("SELECT  CONCAT('SD-', LPAD(BS.BorrowerIdentifi
                                           , PM.DateCreated as rawDateCreated
                                           , DATE_FORMAT(PM.DateCollected, '%b %d, %Y') as DateCollected
                                           , DATE_FORMAT(PM.PaymentDate, '%b %d, %Y') as PaymentDate
-                                          , CONCAT(EMP.FirstName, ' ', EMP.MiddleName, ' ', EMP.LastName) as CreatedBy
+                                          , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CreatedBy
                                           , PM.StatusId
                                           , BNK.BankName
                                           , PM.PaymentMadeId
