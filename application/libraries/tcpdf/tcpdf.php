@@ -1,13 +1,13 @@
 <?php
 //============================================================+
 // File name   : tcpdf.php
-// Version     : 6.2.26
+// Version     : 6.3.2
 // Begin       : 2002-08-03
-// Last Update : 2018-09-14
+// Last Update : 2019-09-20
 // Author      : Nicola Asuni - Tecnick.com LTD - www.tecnick.com - info@tecnick.com
 // License     : GNU-LGPL v3 (http://www.gnu.org/copyleft/lesser.html)
 // -------------------------------------------------------------------
-// Copyright (C) 2002-2018 Nicola Asuni - Tecnick.com LTD
+// Copyright (C) 2002-2019 Nicola Asuni - Tecnick.com LTD
 //
 // This file is part of TCPDF software library.
 //
@@ -45,7 +45,7 @@
 //  * font subsetting;
 //  * methods to publish some XHTML + CSS code, Javascript and Forms;
 //  * images, graphic (geometric figures) and transformation methods;
-//  * supports JPEG, PNG and SVG images natively, all images supported by GD (GD, GD2, GD2PART, GIF, JPEG, PNG, BMP, XBM, XPM) and all images supported via ImagMagick (http://www.imagemagick.org/www/formats.html)
+//  * supports JPEG, PNG and SVG images natively, all images supported by GD (GD, GD2, GD2PART, GIF, JPEG, PNG, BMP, XBM, XPM) and all images supported via ImageMagick (http://www.imagemagick.org/www/formats.html)
 //  * 1D and 2D barcodes: CODE 39, ANSI MH10.8M-1983, USD-3, 3 of 9, CODE 93, USS-93, Standard 2 of 5, Interleaved 2 of 5, CODE 128 A/B/C, 2 and 5 Digits UPC-Based Extension, EAN 8, EAN 13, UPC-A, UPC-E, MSI, POSTNET, PLANET, RMS4CC (Royal Mail 4-state Customer Code), CBC (Customer Bar Code), KIX (Klant index - Customer index), Intelligent Mail Barcode, Onecode, USPS-B-3200, CODABAR, CODE 11, PHARMACODE, PHARMACODE TWO-TRACKS, Datamatrix, QR-Code, PDF417;
 //  * JPEG and PNG ICC profiles, Grayscale, RGB, CMYK, Spot Colors and Transparencies;
 //  * automatic page header and footer management;
@@ -80,7 +80,7 @@
  * <li>font subsetting;</li>
  * <li>methods to publish some XHTML + CSS code, Javascript and Forms;</li>
  * <li>images, graphic (geometric figures) and transformation methods;
- * <li>supports JPEG, PNG and SVG images natively, all images supported by GD (GD, GD2, GD2PART, GIF, JPEG, PNG, BMP, XBM, XPM) and all images supported via ImagMagick (http://www.imagemagick.org/www/formats.html)</li>
+ * <li>supports JPEG, PNG and SVG images natively, all images supported by GD (GD, GD2, GD2PART, GIF, JPEG, PNG, BMP, XBM, XPM) and all images supported via ImageMagick (http://www.imagemagick.org/www/formats.html)</li>
  * <li>1D and 2D barcodes: CODE 39, ANSI MH10.8M-1983, USD-3, 3 of 9, CODE 93, USS-93, Standard 2 of 5, Interleaved 2 of 5, CODE 128 A/B/C, 2 and 5 Digits UPC-Based Extension, EAN 8, EAN 13, UPC-A, UPC-E, MSI, POSTNET, PLANET, RMS4CC (Royal Mail 4-state Customer Code), CBC (Customer Bar Code), KIX (Klant index - Customer index), Intelligent Mail Barcode, Onecode, USPS-B-3200, CODABAR, CODE 11, PHARMACODE, PHARMACODE TWO-TRACKS, Datamatrix, QR-Code, PDF417;</li>
  * <li>JPEG and PNG ICC profiles, Grayscale, RGB, CMYK, Spot Colors and Transparencies;</li>
  * <li>automatic page header and footer management;</li>
@@ -104,7 +104,7 @@
  * Tools to encode your unicode fonts are on fonts/utils directory.</p>
  * @package com.tecnick.tcpdf
  * @author Nicola Asuni
- * @version 6.2.26
+ * @version 6.3.2
  */
 
 // TCPDF configuration
@@ -128,7 +128,7 @@ require_once(dirname(__FILE__).'/include/tcpdf_static.php');
  * TCPDF project (http://www.tcpdf.org) has been originally derived in 2002 from the Public Domain FPDF class by Olivier Plathey (http://www.fpdf.org), but now is almost entirely rewritten.<br>
  * @package com.tecnick.tcpdf
  * @brief PHP class for generating PDF documents without requiring external extensions.
- * @version 6.2.26
+ * @version 6.3.2
  * @author Nicola Asuni - info@tecnick.com
  * @IgnoreAnnotation("protected")
  * @IgnoreAnnotation("public")
@@ -1761,6 +1761,13 @@ class TCPDF {
 	protected $pdfa_mode = false;
 
 	/**
+	 * version of PDF/A mode (1 - 3).
+	 * @protected
+	 * @since 6.2.26 (2019-03-12)
+	 */
+	protected $pdfa_version = 1;
+
+	/**
 	 * Document creation date-time
 	 * @protected
 	 * @since 5.9.152 (2012-03-22)
@@ -1780,6 +1787,13 @@ class TCPDF {
 	 * @since 5.9.128 (2011-10-06)
 	 */
 	protected $custom_xmp = '';
+
+	/**
+	 * Custom XMP RDF data.
+	 * @protected
+	 * @since 6.3.0 (2019-09-19)
+	 */
+	protected $custom_xmp_rdf = '';
 
 	/**
 	 * Overprint mode array.
@@ -1834,7 +1848,7 @@ class TCPDF {
 	 * @param $unicode (boolean) TRUE means that the input text is unicode (default = true)
 	 * @param $encoding (string) Charset encoding (used only when converting back html entities); default is UTF-8.
 	 * @param $diskcache (boolean) DEPRECATED FEATURE
-	 * @param $pdfa (boolean) If TRUE set the document to PDF/A mode.
+	 * @param $pdfa (integer) If not false, set the document to PDF/A mode and the good version (1 or 3).
 	 * @public
 	 * @see getPageSizeFromFormat(), setPageFormat()
 	 */
@@ -1850,8 +1864,14 @@ class TCPDF {
 		$this->font_obj_ids = array();
 		$this->page_obj_id = array();
 		$this->form_obj_id = array();
+
 		// set pdf/a mode
-		$this->pdfa_mode = $pdfa;
+		if ($pdfa != false) {
+			$this->pdfa_mode = true;
+			$this->pdfa_version = $pdfa;  // 1 or 3
+		} else
+			$this->pdfa_mode = false;
+
 		$this->force_srgb = false;
 		// set language direction
 		$this->rtl = false;
@@ -1960,7 +1980,7 @@ class TCPDF {
 		// set default JPEG quality
 		$this->jpeg_quality = 75;
 		// initialize some settings
-		TCPDF_FONTS::utf8Bidi(array(''), '', false, $this->isunicode, $this->CurrentFont);
+		TCPDF_FONTS::utf8Bidi(array(), '', false, $this->isunicode, $this->CurrentFont);
 		// set default font
 		$this->SetFont($this->FontFamily, $this->FontStyle, $this->FontSizePt);
 		$this->setHeaderFont(array($this->FontFamily, $this->FontStyle, $this->FontSizePt));
@@ -1986,6 +2006,7 @@ class TCPDF {
 		$this->default_graphic_vars = $this->getGraphicVars();
 		$this->header_xobj_autoreset = false;
 		$this->custom_xmp = '';
+		$this->custom_xmp_rdf = '';
 		// Call cleanup method after script execution finishes or exit() is called.
 		// NOTE: This will not be executed if the process is killed with a SIGTERM or SIGKILL signal.
 		register_shutdown_function(array($this, '_destroy'), true);
@@ -2828,10 +2849,13 @@ class TCPDF {
 	 * @since 1.4
 	 */
 	public function SetCompression($compress=true) {
+		$this->compress = false;
 		if (function_exists('gzcompress')) {
-			$this->compress = $compress ? true : false;
-		} else {
-			$this->compress = false;
+			if ($compress) {
+				if ( !$this->pdfa_mode) {
+					$this->compress = true;
+				}
+			}
 		}
 	}
 
@@ -3388,114 +3412,87 @@ class TCPDF {
 	 * It is automatically called by AddPage() and could be overwritten in your own inherited class.
 	 * @public
 	 */
-	public function Header() {
-		if ($this->header_xobjid === false) {
-			// start a new XObject Template
-			$this->header_xobjid = $this->startTemplate($this->w, $this->tMargin);
-			$headerfont = $this->getHeaderFont();
-			$headerdata = $this->getHeaderData();
-			$this->y = $this->header_margin;
-			if ($this->rtl) {
-				$this->x = $this->w - $this->original_rMargin;
-			} else {
-				$this->x = $this->original_lMargin;
-			}
-			if (($headerdata['logo']) AND ($headerdata['logo'] != K_BLANK_IMAGE)) {
-				$imgtype = TCPDF_IMAGES::getImageFileType(K_PATH_IMAGES.$headerdata['logo']);
-				if (($imgtype == 'eps') OR ($imgtype == 'ai')) {
-					$this->ImageEps(K_PATH_IMAGES.$headerdata['logo'], '', '', $headerdata['logo_width']);
-				} elseif ($imgtype == 'svg') {
-					$this->ImageSVG(K_PATH_IMAGES.$headerdata['logo'], '', '', $headerdata['logo_width']);
-				} else {
-					$this->Image(K_PATH_IMAGES.$headerdata['logo'], '', '', $headerdata['logo_width']);
-				}
-				$imgy = $this->getImageRBY();
-			} else {
-				$imgy = $this->y;
-			}
-			$cell_height = $this->getCellHeight($headerfont[2] / $this->k);
-			// set starting margin for text data cell
-			if ($this->getRTL()) {
-				$header_x = $this->original_rMargin + ($headerdata['logo_width'] * 1.1);
-			} else {
-				$header_x = $this->original_lMargin + ($headerdata['logo_width'] * 1.1);
-			}
-			$cw = $this->w - $this->original_lMargin - $this->original_rMargin - ($headerdata['logo_width'] * 1.1);
-			$this->SetTextColorArray($this->header_text_color);
-			// header title
-			$this->SetFont($headerfont[0], 'B', $headerfont[2] + 1);
-			$this->SetX($header_x);
-			$this->Cell($cw, $cell_height, $headerdata['title'], 0, 1, '', 0, '', 0);
-			// header string
-			$this->SetFont($headerfont[0], $headerfont[1], $headerfont[2]);
-			$this->SetX($header_x);
-			$this->MultiCell($cw, $cell_height, $headerdata['string'], 0, '', 0, 1, '', '', true, 0, false, true, 0, 'T', false);
-			// print an ending header line
-			$this->SetLineStyle(array('width' => 0.85 / $this->k, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $headerdata['line_color']));
-			$this->SetY((2.835 / $this->k) + max($imgy, $this->y));
-			if ($this->rtl) {
-				$this->SetX($this->original_rMargin);
-			} else {
-				$this->SetX($this->original_lMargin);
-			}
-			$this->Cell(($this->w - $this->original_lMargin - $this->original_rMargin), 0, '', 'T', 0, 'C');
-			$this->endTemplate();
-		}
-		// print header template
-		$x = 0;
-		$dx = 0;
-		if (!$this->header_xobj_autoreset AND $this->booklet AND (($this->page % 2) == 0)) {
-			// adjust margins for booklet mode
-			$dx = ($this->original_lMargin - $this->original_rMargin);
-		}
-		if ($this->rtl) {
-			$x = $this->w + $dx;
-		} else {
-			$x = 0 + $dx;
-		}
-		$this->printTemplate($this->header_xobjid, $x, 0, 0, 0, '', '', false);
-		if ($this->header_xobj_autoreset) {
-			// reset header xobject template at each page
-			$this->header_xobjid = false;
-		}
-	}
 	// public function Header() {
- //    // get the current page break margin
- //    $bMargin = $this->getBreakMargin();
- //    // get current auto-page-break mode
- //    $auto_page_break = $this->AutoPageBreak;
- //    // disable auto-page-break
- //    $this->SetAutoPageBreak(false, 0);
- //    // set bacground image
- //    $img_file = K_PATH_IMAGES.'approvedWM.png';
- //    $this->Image($img_file, 0, 0, 250, 250, '', '', '', false, 300, '', false, false, 0);
- //    // restore auto-page-break status
- //    $this->SetAutoPageBreak($auto_page_break, $bMargin);
- //    // set the starting point for the page content
- //    $this->setPageMark();
+	// 	if ($this->header_xobjid === false) {
+	// 		// start a new XObject Template
+	// 		$this->header_xobjid = $this->startTemplate($this->w, $this->tMargin);
+	// 		$headerfont = $this->getHeaderFont();
+	// 		$headerdata = $this->getHeaderData();
+	// 		$this->y = $this->header_margin;
+	// 		if ($this->rtl) {
+	// 			$this->x = $this->w - $this->original_rMargin;
+	// 		} else {
+	// 			$this->x = $this->original_lMargin;
+	// 		}
+	// 		if (($headerdata['logo']) AND ($headerdata['logo'] != K_BLANK_IMAGE)) {
+	// 			$imgtype = TCPDF_IMAGES::getImageFileType(K_PATH_IMAGES.$headerdata['logo']);
+	// 			if (($imgtype == 'eps') OR ($imgtype == 'ai')) {
+	// 				$this->ImageEps(K_PATH_IMAGES.$headerdata['logo'], '', '', $headerdata['logo_width']);
+	// 			} elseif ($imgtype == 'svg') {
+	// 				$this->ImageSVG(K_PATH_IMAGES.$headerdata['logo'], '', '', $headerdata['logo_width']);
+	// 			} else {
+	// 				$this->Image(K_PATH_IMAGES.$headerdata['logo'], '', '', $headerdata['logo_width']);
+	// 			}
+	// 			$imgy = $this->getImageRBY();
+	// 		} else {
+	// 			$imgy = $this->y;
+	// 		}
+	// 		$cell_height = $this->getCellHeight($headerfont[2] / $this->k);
+	// 		// set starting margin for text data cell
+	// 		if ($this->getRTL()) {
+	// 			$header_x = $this->original_rMargin + ($headerdata['logo_width'] * 1.1);
+	// 		} else {
+	// 			$header_x = $this->original_lMargin + ($headerdata['logo_width'] * 1.1);
+	// 		}
+	// 		$cw = $this->w - $this->original_lMargin - $this->original_rMargin - ($headerdata['logo_width'] * 1.1);
+	// 		$this->SetTextColorArray($this->header_text_color);
+	// 		// header title
+	// 		$this->SetFont($headerfont[0], 'B', $headerfont[2] + 1);
+	// 		$this->SetX($header_x);
+	// 		$this->Cell($cw, $cell_height, $headerdata['title'], 0, 1, '', 0, '', 0);
+	// 		// header string
+	// 		$this->SetFont($headerfont[0], $headerfont[1], $headerfont[2]);
+	// 		$this->SetX($header_x);
+	// 		$this->MultiCell($cw, $cell_height, $headerdata['string'], 0, '', 0, 1, '', '', true, 0, false, true, 0, 'T', false);
+	// 		// print an ending header line
+	// 		$this->SetLineStyle(array('width' => 0.85 / $this->k, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $headerdata['line_color']));
+	// 		$this->SetY((2.835 / $this->k) + max($imgy, $this->y));
+	// 		if ($this->rtl) {
+	// 			$this->SetX($this->original_rMargin);
+	// 		} else {
+	// 			$this->SetX($this->original_lMargin);
+	// 		}
+	// 		$this->Cell(($this->w - $this->original_lMargin - $this->original_rMargin), 0, '', 'T', 0, 'C');
+	// 		$this->endTemplate();
+	// 	}
+	// 	// print header template
+	// 	$x = 0;
+	// 	$dx = 0;
+	// 	if (!$this->header_xobj_autoreset AND $this->booklet AND (($this->page % 2) == 0)) {
+	// 		// adjust margins for booklet mode
+	// 		$dx = ($this->original_lMargin - $this->original_rMargin);
+	// 	}
+	// 	if ($this->rtl) {
+	// 		$x = $this->w + $dx;
+	// 	} else {
+	// 		$x = 0 + $dx;
+	// 	}
+	// 	$this->printTemplate($this->header_xobjid, $x, 0, 0, 0, '', '', false);
+	// 	if ($this->header_xobj_autoreset) {
+	// 		// reset header xobject template at each page
+	// 		$this->header_xobjid = false;
+	// 	}
 	// }
 
-	// public function Header() {
-	//   // Get the current page break margin
-	//   $bMargin = $this->getBreakMargin();
-
-	//   // Get current auto-page-break mode
-	//   $auto_page_break = $this->AutoPageBreak;
-
-	//   // Disable auto-page-break
-	//   $this->SetAutoPageBreak(false, 0);
-
-	//   // Define the path to the image that you want to use as watermark.
- //    $img_file = K_PATH_IMAGES.'approvedWM.png';
- //    $this->Image($img_file, 0, 0, 300, 250, '', '', '', false, 250, '', false, false, 0);
-
-	//   // Restore the auto-page-break status
-	//   $this->SetAutoPageBreak($auto_page_break, $bMargin);
-
-	//   // Set the starting point for the page content
-	//   $this->setPageMark();
-	// }
-
+    public function Header() {
+        // Logo
+        $image_file = K_PATH_IMAGES.'image001.png';
+        $this->Image($image_file, 5, 5, 60, '', 'PNG', '', 'T', false, 300, '', false, false, 0, false, false, false);
+        // Set font
+        $this->SetFont('helvetica', 'B', 12);
+        // Title
+        // $this->Cell(0, 5, 'M.C. Biliber Report Generation', 0, false, 'C', 0, '', 0, false, 'M', 'M');
+    }
 
 	/**
 	 * This method is used to render the page footer.
@@ -4728,14 +4725,14 @@ class TCPDF {
 	 * Defines the page and position a link points to.
 	 * @param $link (int) The link identifier returned by AddLink()
 	 * @param $y (float) Ordinate of target position; -1 indicates the current position. The default value is 0 (top of page)
-	 * @param $page (int) Number of target page; -1 indicates the current page (default value). If you prefix a page number with the * character, then this page will not be changed when adding/deleting/moving pages.
+	 * @param $page (int|string) Number of target page; -1 indicates the current page (default value). If you prefix a page number with the * character, then this page will not be changed when adding/deleting/moving pages.
 	 * @public
 	 * @since 1.5
 	 * @see AddLink()
 	 */
 	public function SetLink($link, $y=0, $page=-1) {
 		$fixed = false;
-		if (!empty($page) AND ($page[0] == '*')) {
+		if (!empty($page) AND (substr($page, 0, 1) == '*')) {
 			$page = intval(substr($page, 1));
 			// this page number will not be changed when moving/add/deleting pages
 			$fixed = true;
@@ -4844,7 +4841,7 @@ class TCPDF {
 			$this->PageAnnots[$page] = array();
 		}
 		$this->PageAnnots[$page][] = array('n' => ++$this->n, 'x' => $x, 'y' => $y, 'w' => $w, 'h' => $h, 'txt' => $text, 'opt' => $opt, 'numspaces' => $spaces);
-		if (!$this->pdfa_mode) {
+		if (!$this->pdfa_mode || ($this->pdfa_mode && $this->pdfa_version == 3)) {
 			if ((($opt['Subtype'] == 'FileAttachment') OR ($opt['Subtype'] == 'Sound')) AND (!TCPDF_STATIC::empty_string($opt['FS']))
 				AND (@TCPDF_STATIC::file_exists($opt['FS']) OR TCPDF_STATIC::isValidURL($opt['FS']))
 				AND (!isset($this->embeddedfiles[basename($opt['FS'])]))) {
@@ -4870,8 +4867,8 @@ class TCPDF {
 	 * @see Annotation()
 	 */
 	protected function _putEmbeddedFiles() {
-		if ($this->pdfa_mode) {
-			// embedded files are not allowed in PDF/A mode
+		if ($this->pdfa_mode && $this->pdfa_version != 3)  {
+			// embedded files are not allowed in PDF/A mode version 1 and 2
 			return;
 		}
 		reset($this->embeddedfiles);
@@ -4884,7 +4881,10 @@ class TCPDF {
 					$this->efnames[$filename] = $filedata['f'].' 0 R';
 					// embedded file specification object
 					$out = $this->_getobj($filedata['f'])."\n";
-					$out .= '<</Type /Filespec /F '.$this->_datastring($filename, $filedata['f']).' /EF <</F '.$filedata['n'].' 0 R>> >>';
+					$out .= '<</Type /Filespec /F '.$this->_datastring($filename, $filedata['f']);
+					$out .= ' /UF '.$this->_datastring($filename, $filedata['f']);
+					$out .= ' /AFRelationship /Source';
+					$out .= ' /EF <</F '.$filedata['n'].' 0 R>> >>';
 					$out .= "\n".'endobj';
 					$this->_out($out);
 					// embedded file object
@@ -4893,6 +4893,11 @@ class TCPDF {
 						$data = gzcompress($data);
 						$filter = ' /Filter /FlateDecode';
 					}
+
+					if ($this->pdfa_version == 3) {
+						$filter = ' /Subtype /text#2Fxml';
+					}
+
 					$stream = $this->_getrawstream($data, $filedata['n']);
 					$out = $this->_getobj($filedata['n'])."\n";
 					$out .= '<< /Type /EmbeddedFile'.$filter.' /Length '.strlen($stream).' /Params <</Size '.$rawsize.'>> >>';
@@ -6256,12 +6261,12 @@ class TCPDF {
 	 *  		$this->setPage($page);
 	 *  		if ($page == $start_page) {
 	 *  			// first page
-	 *  			$height = $this->h - $start_y - $this->bMargin;
+	 *  			$height += $this->h - $start_y - $this->bMargin;
 	 *  		} elseif ($page == $end_page) {
 	 *  			// last page
-	 *  			$height = $end_y - $this->tMargin;
+	 *  			$height += $end_y - $this->tMargin;
 	 *  		} else {
-	 *  			$height = $this->h - $this->tMargin - $this->bMargin;
+	 *  			$height += $this->h - $this->tMargin - $this->bMargin;
 	 *  		}
 	 *  	}
 	 *  }
@@ -6494,7 +6499,7 @@ class TCPDF {
 					// *** very slow ***
 					$l = $this->GetArrStringWidth(TCPDF_FONTS::utf8Bidi(array_slice($chars, $j, ($i - $j)), '', $this->tmprtl, $this->isunicode, $this->CurrentFont));
 				} else {
-					$l += $this->GetCharWidth($c);
+					$l += $this->GetCharWidth($c, ($i+1 < $nb));
 				}
 				if (($l > $wmax) OR (($c == 173) AND (($l + $tmp_shy_replacement_width) >= $wmax))) {
 					if (($c == 173) AND (($l + $tmp_shy_replacement_width) > $wmax)) {
@@ -6871,6 +6876,12 @@ class TCPDF {
 		list($x, $y) = $this->checkPageRegions($h, $x, $y);
 		$exurl = ''; // external streams
 		$imsize = FALSE;
+
+        // Make sure the file variable is not empty or null because accessing $file[0] later
+        // results in error when running PHP 7.4
+        if (empty($file)) {
+            return false;
+        }
 		// check if we are passing an image as file or string
 		if ($file[0] === '@') {
 			// image from string
@@ -7170,31 +7181,20 @@ class TCPDF {
 			$info['i'] = $this->setImageBuffer($file, $info);
 		}
 		// set alignment
+		$this->img_rb_x = $x + $w;
 		$this->img_rb_y = $y + $h;
+
 		// set alignment
-		if ($this->rtl) {
-			if ($palign == 'L') {
-				$ximg = $this->lMargin;
-			} elseif ($palign == 'C') {
-				$ximg = ($this->w + $this->lMargin - $this->rMargin - $w) / 2;
-			} elseif ($palign == 'R') {
-				$ximg = $this->w - $this->rMargin - $w;
-			} else {
-				$ximg = $x - $w;
-			}
-			$this->img_rb_x = $ximg;
+		if ($palign == 'L') {
+			$ximg = $this->lMargin;
+		} elseif ($palign == 'C') {
+			$ximg = ($this->w + $this->lMargin - $this->rMargin - $w) / 2;
+		} elseif ($palign == 'R') {
+			$ximg = $this->w - $this->rMargin - $w;
 		} else {
-			if ($palign == 'L') {
-				$ximg = $this->lMargin;
-			} elseif ($palign == 'C') {
-				$ximg = ($this->w + $this->lMargin - $this->rMargin - $w) / 2;
-			} elseif ($palign == 'R') {
-				$ximg = $this->w - $this->rMargin - $w;
-			} else {
-				$ximg = $x;
-			}
-			$this->img_rb_x = $ximg + $w;
+			$ximg = $x;
 		}
+		
 		if ($ismask OR $hidden) {
 			// image is not displayed
 			return $info['i'];
@@ -7774,6 +7774,7 @@ class TCPDF {
 		return '';
 	}
 
+	protected static $cleaned_ids = array();
 	/**
 	 * Unset all class variables except the following critical variables.
 	 * @param $destroyall (boolean) if true destroys all class variables, otherwise preserves critical variables.
@@ -7786,11 +7787,26 @@ class TCPDF {
 		if (isset($this->internal_encoding) AND !empty($this->internal_encoding)) {
 			mb_internal_encoding($this->internal_encoding);
 		}
+		if (isset(self::$cleaned_ids[$this->file_id])) {
+			$destroyall = false;
+		}
 		if ($destroyall AND !$preserve_objcopy) {
+			self::$cleaned_ids[$this->file_id] = true;
 			// remove all temporary files
-			$tmpfiles = glob(K_PATH_CACHE.'__tcpdf_'.$this->file_id.'_*');
-			if (!empty($tmpfiles)) {
-				array_map('unlink', $tmpfiles);
+			if ($handle = @opendir(K_PATH_CACHE)) {
+				while ( false !== ( $file_name = readdir( $handle ) ) ) {
+					if (strpos($file_name, '__tcpdf_'.$this->file_id.'_') === 0) {
+						unlink(K_PATH_CACHE.$file_name);
+					}
+				}
+				closedir($handle);
+			}
+			if (isset($this->imagekeys)) {
+				foreach($this->imagekeys as $file) {
+					if (strpos($file, K_PATH_CACHE) === 0) {
+						@unlink($file);
+					}
+				}
 			}
 		}
 		$preserve = array(
@@ -7800,6 +7816,7 @@ class TCPDF {
 			'bufferlen',
 			'buffer',
 			'cached_files',
+			'imagekeys',
 			'sign',
 			'signature_data',
 			'signature_max_length',
@@ -8405,7 +8422,7 @@ class TCPDF {
 							if (is_string($pl['txt']) && !empty($pl['txt'])) {
 								if ($pl['txt'][0] == '#') {
 									// internal destination
-									$annots .= ' /Dest /'.TCPDF_STATIC::encodeNameObject(substr($pl['txt'], 1));
+									$annots .= ' /A <</S /GoTo /D '.TCPDF_STATIC::encodeNameObject(substr($pl['txt'], 1)).'>>';
 								} elseif ($pl['txt'][0] == '%') {
 									// embedded PDF file
 									$filename = basename(substr($pl['txt'], 1));
@@ -8417,7 +8434,7 @@ class TCPDF {
 									$annots .= ' /A << /S /JavaScript /JS '.$this->_textstring($jsa, $annot_obj_id).'>>';
 								} else {
 									$parsedUrl = parse_url($pl['txt']);
-									if (empty($parsedUrl['scheme']) AND (strtolower(substr($parsedUrl['path'], -4)) == '.pdf')) {
+									if (empty($parsedUrl['scheme']) AND (!empty($parsedUrl['path']) && strtolower(substr($parsedUrl['path'], -4)) == '.pdf')) {
 										// relative link to a PDF file
 										$dest = '[0 /Fit]'; // default page 0
 										if (!empty($parsedUrl['fragment'])) {
@@ -8524,8 +8541,8 @@ class TCPDF {
 							break;
 						}
 						case 'fileattachment': {
-							if ($this->pdfa_mode) {
-								// embedded files are not allowed in PDF/A mode
+							if ($this->pdfa_mode && $this->pdfa_version != 3) {
+								// embedded files are not allowed in PDF/A mode version 1 and 2
 								break;
 							}
 							if (!isset($pl['opt']['fs'])) {
@@ -9538,6 +9555,17 @@ class TCPDF {
 	}
 
 	/**
+	 * Set additional XMP data to be added on the default XMP data just before the end of "rdf:RDF" tag.
+	 * IMPORTANT: This data is added as-is without controls, so you have to validate your data before using this method!
+	 * @param $xmp (string) Custom XMP RDF data.
+	 * @since 6.3.0 (2019-09-19)
+	 * @public
+	 */
+	public function setExtraXMPRDF($xmp) {
+		$this->custom_xmp_rdf = $xmp;
+	}
+
+	/**
 	 * Put XMP data object and return ID.
 	 * @return (int) The object ID.
 	 * @since 5.9.121 (2011-09-28)
@@ -9606,7 +9634,7 @@ class TCPDF {
 		$xmp .= "\t\t".'</rdf:Description>'."\n";
 		if ($this->pdfa_mode) {
 			$xmp .= "\t\t".'<rdf:Description rdf:about="" xmlns:pdfaid="http://www.aiim.org/pdfa/ns/id/">'."\n";
-			$xmp .= "\t\t\t".'<pdfaid:part>1</pdfaid:part>'."\n";
+			$xmp .= "\t\t\t".'<pdfaid:part>'.$this->pdfa_version.'</pdfaid:part>'."\n";
 			$xmp .= "\t\t\t".'<pdfaid:conformance>B</pdfaid:conformance>'."\n";
 			$xmp .= "\t\t".'</rdf:Description>'."\n";
 		}
@@ -9618,6 +9646,16 @@ class TCPDF {
 		$xmp .= "\t\t\t\t\t\t".'<pdfaSchema:namespaceURI>http://ns.adobe.com/pdf/1.3/</pdfaSchema:namespaceURI>'."\n";
 		$xmp .= "\t\t\t\t\t\t".'<pdfaSchema:prefix>pdf</pdfaSchema:prefix>'."\n";
 		$xmp .= "\t\t\t\t\t\t".'<pdfaSchema:schema>Adobe PDF Schema</pdfaSchema:schema>'."\n";
+		$xmp .= "\t\t\t\t\t\t".'<pdfaSchema:property>'."\n";
+		$xmp .= "\t\t\t\t\t\t\t".'<rdf:Seq>'."\n";
+		$xmp .= "\t\t\t\t\t\t\t\t".'<rdf:li rdf:parseType="Resource">'."\n";
+		$xmp .= "\t\t\t\t\t\t\t\t\t".'<pdfaProperty:category>internal</pdfaProperty:category>'."\n";
+		$xmp .= "\t\t\t\t\t\t\t\t\t".'<pdfaProperty:description>Adobe PDF Schema</pdfaProperty:description>'."\n";
+		$xmp .= "\t\t\t\t\t\t\t\t\t".'<pdfaProperty:name>InstanceID</pdfaProperty:name>'."\n";
+		$xmp .= "\t\t\t\t\t\t\t\t\t".'<pdfaProperty:valueType>URI</pdfaProperty:valueType>'."\n";
+		$xmp .= "\t\t\t\t\t\t\t\t".'</rdf:li>'."\n";
+		$xmp .= "\t\t\t\t\t\t\t".'</rdf:Seq>'."\n";
+		$xmp .= "\t\t\t\t\t\t".'</pdfaSchema:property>'."\n";
 		$xmp .= "\t\t\t\t\t".'</rdf:li>'."\n";
 		$xmp .= "\t\t\t\t\t".'<rdf:li rdf:parseType="Resource">'."\n";
 		$xmp .= "\t\t\t\t\t\t".'<pdfaSchema:namespaceURI>http://ns.adobe.com/xap/1.0/mm/</pdfaSchema:namespaceURI>'."\n";
@@ -9664,6 +9702,7 @@ class TCPDF {
 		$xmp .= "\t\t\t\t".'</rdf:Bag>'."\n";
 		$xmp .= "\t\t\t".'</pdfaExtension:schemas>'."\n";
 		$xmp .= "\t\t".'</rdf:Description>'."\n";
+		$xmp .= $this->custom_xmp_rdf;
 		$xmp .= "\t".'</rdf:RDF>'."\n";
 		$xmp .= $this->custom_xmp;
 		$xmp .= '</x:xmpmeta>'."\n";
@@ -12258,7 +12297,7 @@ class TCPDF {
 			$x = $this->w;
 		}
 		$fixed = false;
-		if (!empty($page) AND ($page[0] == '*')) {
+		if (!empty($page) AND (substr($page, 0, 1) == '*')) {
 			$page = intval(substr($page, 1));
 			// this page number will not be changed when moving/add/deleting pages
 			$fixed = true;
@@ -12361,7 +12400,8 @@ class TCPDF {
 			$x = $this->w;
 		}
 		$fixed = false;
-		if (!empty($page) AND ($page[0] == '*')) {
+		$pageAsString = (string) $page;
+		if ($pageAsString && $pageAsString[0] == '*') {
 			$page = intval(substr($page, 1));
 			// this page number will not be changed when moving/add/deleting pages
 			$fixed = true;
@@ -14025,7 +14065,7 @@ class TCPDF {
 	 * @since 3.1.000 (2008-06-09)
 	 */
 	public function setPDFVersion($version='1.7') {
-		if ($this->pdfa_mode) {
+		if ($this->pdfa_mode && $this->pdfa_version == 1 ) {
 			// PDF/A mode
 			$this->PDFVersion = '1.4';
 		} else {
@@ -15539,8 +15579,7 @@ class TCPDF {
 	 * <li>int $style['module_height'] height of a single module in points</li>
 	 * <li>array $style['fgcolor'] color array for bars and text</li>
 	 * <li>mixed $style['bgcolor'] color array for background or false for transparent</li>
-	 * <li>string $style['position'] barcode position on the page: L = left margin; C = center; R = right margin; S = stretch</li><li>$style['module_width'] width of a single module in points</li>
-	 * <li>$style['module_height'] height of a single module in points</li></ul>
+	 * <li>string $style['position'] barcode position on the page: L = left margin; C = center; R = right margin; S = stretch</li>
 	 * @param $align (string) Indicates the alignment of the pointer next to barcode insertion relative to barcode height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul>
 	 * @param $distort (boolean) if true distort the barcode to fit width and height, otherwise preserve aspect ratio
 	 * @author Nicola Asuni
@@ -16934,10 +16973,10 @@ class TCPDF {
 					if (($dom[$key]['value'] == 'pre') OR ($dom[$key]['value'] == 'tt')) {
 						$dom[$key]['fontname'] = $this->default_monospaced_font;
 					}
-					if (!empty($dom[$key]['value']) AND ($dom[$key]['value'][0] == 'h') AND (intval($dom[$key]['value']{1}) > 0) AND (intval($dom[$key]['value']{1}) < 7)) {
+					if (!empty($dom[$key]['value']) AND ($dom[$key]['value'][0] == 'h') AND (intval($dom[$key]['value'][1]) > 0) AND (intval($dom[$key]['value'][1]) < 7)) {
 						// headings h1, h2, h3, h4, h5, h6
 						if (!isset($dom[$key]['attribute']['size']) AND !isset($dom[$key]['style']['font-size'])) {
-							$headsize = (4 - intval($dom[$key]['value']{1})) * 2;
+							$headsize = (4 - intval($dom[$key]['value'][1])) * 2;
 							$dom[$key]['fontsize'] = $dom[0]['fontsize'] + $headsize;
 						}
 						if (!isset($dom[$key]['style']['font-weight'])) {
@@ -23386,7 +23425,7 @@ Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value:
 	 */
 	protected function SVGPath($d, $style='') {
 		if ($this->state != 2) {
-			 return;
+			return;
 		}
 		// set fill/stroke style
 		$op = TCPDF_STATIC::getPathPaintOperator($style, '');
@@ -23406,6 +23445,8 @@ Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value:
 		$xmax = 0;
 		$ymin = 2147483647;
 		$ymax = 0;
+		$xinitial = 0;
+		$yinitial = 0;
 		$relcoord = false;
 		$minlen = (0.01 / $this->k); // minimum acceptable length (3 point)
 		$firstcmd = true; // used to print first point
@@ -23450,6 +23491,8 @@ Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value:
 								if ($ck == 1) {
 									$this->_outPoint($x, $y);
 									$firstcmd = false;
+									$xinitial = $x;
+									$yinitial = $y;
 								} else {
 									$this->_outLine($x, $y);
 								}
@@ -23637,8 +23680,8 @@ Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value:
 						if ((($ck + 1) % 7) == 0) {
 							$x0 = $x;
 							$y0 = $y;
-							$rx = abs($params[($ck - 6)]);
-							$ry = abs($params[($ck - 5)]);
+							$rx = max(abs($params[($ck - 6)]), .000000001);
+							$ry = max(abs($params[($ck - 5)]), .000000001);
 							$ang = -$rawparams[($ck - 4)];
 							$angle = deg2rad($ang);
 							$fa = $rawparams[($ck - 3)]; // large-arc-flag
@@ -23725,6 +23768,8 @@ Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value:
 				}
 				case 'Z': {
 					$this->_out('h');
+					$x = $x0 = $xinitial;
+					$y = $y0 = $yinitial;
 					break;
 				}
 			}
@@ -24032,7 +24077,7 @@ Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value:
 			case 'stop': {
 				// gradient stops
 				if (substr($attribs['offset'], -1) == '%') {
-					$offset = floatval(substr($attribs['offset'], -1)) / 100;
+					$offset = floatval(substr($attribs['offset'], 0, -1)) / 100;
 				} else {
 					$offset = floatval($attribs['offset']);
 					if ($offset > 1) {
@@ -24547,54 +24592,3 @@ Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value:
 //============================================================+
 // END OF FILE
 //============================================================+
-
-
-  class ApprovedWatermark extends TCPDF {
-  public function Header() {
-      // Get the current page break margin
-      $bMargin = $this->getBreakMargin();
-
-      // Get current auto-page-break mode
-      $auto_page_break = $this->AutoPageBreak;
-
-      // Disable auto-page-break
-      $this->SetAutoPageBreak(false, 0);
-
-      // Define the path to the image that you want to use as watermark.
-      $img_file = FCPATH.'/uploads/approvedWM.png';
-
-      // Render the image
-  		$this->Image($img_file, 0, 0, 250, 250, '', '', '', false, 300, '', false, false, 0);
-
-      // Restore the auto-page-break status
-      $this->SetAutoPageBreak($auto_page_break, $bMargin);
-
-      // Set the starting point for the page content
-      $this->setPageMark();
-	  }
-	}
-
-  class PendingWatermark extends TCPDF {
-	  public function Header() {
-	    // Get the current page break margin
-	    $bMargin = $this->getBreakMargin();
-
-	    // Get current auto-page-break mode
-	    $auto_page_break = $this->AutoPageBreak;
-
-	    // Disable auto-page-break
-	    $this->SetAutoPageBreak(false, 0);
-
-	    // Define the path to the image that you want to use as watermark.
-	    $img_file = FCPATH.'/uploads/PendingWM.png';
-
-	    // Render the image
-	  	$this->Image($img_file, 0, 0, 250, 250, '', '', '', false, 300, '', false, false, 0);
-
-	    // Restore the auto-page-break status
-	    $this->SetAutoPageBreak($auto_page_break, $bMargin);
-
-	    // Set the starting point for the page content
-	    $this->setPageMark();
-	  }
-	}

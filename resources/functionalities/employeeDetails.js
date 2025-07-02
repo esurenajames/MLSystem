@@ -1,6 +1,6 @@
   var base_url = window.location.origin;
 
-  var baseUrl = base_url + '/ELendingTool'; // initial url for javascripts
+  var baseUrl = base_url + '/NHA'; // initial url for javascripts
 
 
   function chkEmployeeType(radioValue)

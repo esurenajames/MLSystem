@@ -22,1225 +22,432 @@ class home extends CI_Controller {
 	{
 		parent::__construct();		
 		$this->load->model('maintenance_model');
-		$this->load->model('access');
+		$this->load->model('access_model');
+    $this->load->library('Pdf');
     date_default_timezone_set('Asia/Manila');
 
-   	if(empty($this->session->userdata("EmployeeNumber")) || $this->session->userdata("logged_in") == 0)
-   	{
-      $DateNow = date("Y-m-d H:i:s");
-			if($this->session->userdata('EmployeeNumber') === '')
-			{
-	     	$this->session->set_flashdata('logout','Account successfully logged out.'); 
-	      $data = array(
-	      	'Description' => 'Session timed out.'
-	      	, 'DateCreated' => $DateNow
-	      	, 'CreatedBy' => $this->session->userdata('EmployeeNumber')
-	      );
-	      $this->access->audit($data);
-	      $loginSession = array(
-	        'logged_in' => 0,
-	      );
-	   		redirect(site_url());
-			}
-			else
-			{
-	     	$this->session->set_flashdata('error','Session expired.'); 
-	   		redirect(site_url());
-			}
-   	}
+    if(strpos(strtolower($_SERVER['HTTP_USER_AGENT']),'chrome') != TRUE || strpos(strtolower($_SERVER['HTTP_USER_AGENT']),'edge') != FALSE){
+        //Make a redirect to a page forcing the user to use Chrome (Message page)
+        echo "Please use chrome";
+    }
+    else
+    {
+      if(empty($this->session->userdata("EmployeeNumber")) || $this->session->userdata("logged_in") == 0)
+      {
+        $DateNow = date("Y-m-d H:i:s");
+        $this->session->set_flashdata('logout','Session timed out.'); 
+        // audits
+          $auditDetail = 'Session timed out.';
+          $insertData = array(
+            'Description' => $auditDetail,
+            'CreatedBy'   => $this->session->userdata("EmployeeNumber"),
+            'DateCreated' => $DateNow
+          );
+          $auditTable = 'R_Logs';
+          $this->maintenance_model->insertFunction($insertData, $auditTable);
+        $loginSession = array(
+          'logged_in' => 0,
+        );
+        redirect('');
+      }
+    }
 	}
+
+	function download()
+	{
+		if($this->uri->segment(3) == 1) // pr
+		{
+      $Detail = $this->maintenance_model->selectSpecific('exam_has_reviewers', 'ID', $this->uri->segment(4));
+	  	$filepath1 = FCPATH.'/uploads/' . $Detail['FileName'];
+		}
+		else if($this->uri->segment(3) == 2) // hr
+		{
+      $Detail = $this->maintenance_model->selectSpecific('housing_has_requirements', 'HouseRequirementId', $this->uri->segment(4));
+	  	$filepath1 = FCPATH.'/uploads/' . $Detail['FileName'];
+		}
+
+    if(file_exists($filepath1)) {
+      header('Content-Description: File Transfer');
+      header('Content-Type: application/octet-stream');
+      header('Content-Disposition: attachment; filename=' . basename($Detail['FileTitle']));
+      header('Expires: 0');
+      header('Cache-Control: must-revalidate');
+      header('Pragma: public');
+      header('Content-Length: ' . filesize('uploads/' . $Detail['FileName']));
+      readfile('uploads/' . $Detail['FileName']);
+			exit(); 
+    }
+	}
+
+
 
 	function Dashboard()
 	{
-    $AssignedBranchId = $this->session->userdata('BranchId');
 		$sidebar['sidebar'] = 'Dashboard';
 		$sidebar['sidebarMenu'] = 'Dashboard';
 		$header['header'] = 'Dashboard';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$data['access'] = $this->sidebar_model->getAccess();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['securityQuestions'] = $this->employee_model->getSecurityQuestions();
-
-		$data['TotalInterest'] = $this->maintenance_model->getTotalInterestCollected($AssignedBranchId);
-		$data['totalExpense'] = $this->maintenance_model->getTotalExpenses($AssignedBranchId);
-		$data['TotalTransaction'] = $this->maintenance_model->getTransactions($AssignedBranchId);
-		$data['dailyIncome'] = $this->maintenance_model->getDailyIncome($AssignedBranchId);
-		$data['dailyPenalties'] = $this->maintenance_model->getDailyPenalties($AssignedBranchId);
-		$data['dailyApprovedLoans'] = $this->maintenance_model->getApprovedDaily($AssignedBranchId);
-		$data['dailyDisbursement'] = $this->maintenance_model->getDailyDisbursement($AssignedBranchId);
-		$data['dailyExpenses'] = $this->maintenance_model->getDailyExpenses($AssignedBranchId);
-		$data['TotalDisbursement'] = $this->maintenance_model->getTotalDisbursement($AssignedBranchId);
-		$data['totalIncome'] = $this->maintenance_model->getTotalIncome($AssignedBranchId);
-		$data['totalFund'] = $this->maintenance_model->getCurrentFund($AssignedBranchId);
-		$data['totalActiveLoans'] = $this->maintenance_model->getActiveLoans($AssignedBranchId);
-		$data['totalBorrower'] = $this->maintenance_model->getTotalBorrower($AssignedBranchId);
-		$data['totalEmployees'] = $this->maintenance_model->getTotalEmployees($AssignedBranchId);
-		$data['totalUsers'] = $this->maintenance_model->getTotalUsers($AssignedBranchId);
-		$data['totalDeposit'] = $this->maintenance_model->getTotalDeposit($AssignedBranchId);
-		$data['Branch'] = $this->maintenance_model->getBranches();
-
-		// FOR BAR CHARTS
-		$data['ageYear'] = $this->maintenance_model->getYearFilter('r_borrowers');
-		$data['educationYear'] = $this->maintenance_model->getYearFilter('borrower_has_education');
-		$data['genderYear'] = $this->maintenance_model->getYearFilter('R_Borrowers');
-		$data['occupationYear'] = $this->maintenance_model->getYearFilter('Borrower_Has_Employer');
-		$data['IncomeYear'] = $this->maintenance_model->getYearFilter('application_has_monthlyincome');
-		$data['MaritalYear'] = $this->maintenance_model->getYearFilter('r_borrowers');
-		$data['LoanYear'] = $this->maintenance_model->getYearFilter('T_Application');
-		$data['TenorYear'] = $this->maintenance_model->getYearFilter('T_Application');
-		$data['collectionMonth'] = $this->maintenance_model->getYearFilter('T_PaymentsMade');
-		$data['disbursementYear'] = $this->maintenance_model->getYearFilter('Application_has_Disbursement');
-		$data['interestPaid'] = $this->maintenance_model->getYearFilter('T_PaymentsMade');
-		// $data['collectionMonth'] = $this->maintenance_model->getMonthFilter('T_PaymentsMade');
-		// $data['LoanYear'] = $this->maintenance_model->getYearFilter('T_Application');
-
-		// FOR PIE CHARTS
+		$data['questions'] = $this->admin_model->getQuestions();
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
 		$this->load->view('admin/dashboard', $data);
 	}
-	
-	function collectionManagement()
-	{
-		$sidebar['sidebar'] = 'Collection Management';
-		$sidebar['sidebarMenu'] = 'Collection Management';
-		$header['header'] = 'Collection Management';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$data['access'] = $this->sidebar_model->getAccess();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['securityQuestions'] = $this->employee_model->getSecurityQuestions();
 
-		$data['Status'] = $this->maintenance_model->getLoanStatus();
-		$data['borrowerList'] = $this->loanapplication_model->getBorrowerLoanList();
-		$data['LoanType'] = $this->loanapplication_model->getLoanTypesList();
-		$data['ApplicationList'] = $this->loanapplication_model->getLoanApplications();
-		$data['CollectedBy'] = $this->loanapplication_model->getCollectedBy();
-		$data['CollectionDate'] = $this->loanapplication_model->getCollectionDate();
-		$data['Branch'] = $this->maintenance_model->getBranches();
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/collection', $data);
-	}
-
-	function AddBank()
+	function Users()
 	{
-		$sidebar['sidebar'] = 'SystemSetup';
-		$sidebar['sidebarMenu'] = 'Banks';
-		$header['header'] = 'Banks';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$data['access'] = $this->sidebar_model->getAccess();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['securityQuestions'] = $this->employee_model->getSecurityQuestions();
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/AddBank', $data);
-	}
-
-	function AddBranch()
-	{
-		$sidebar['sidebar'] = 'SystemSetup';
-		$sidebar['sidebarMenu'] = "Branches";
-		$header['header'] = 'Branches';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['access'] = $this->sidebar_model->getAccess();
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/AddBranch', $data);
-	}
-
-	function AddLoanType()
-	{
-		$sidebar['sidebar'] = 'Loans';
-		$sidebar['sidebarMenu'] = 'LoanTypes';
-		$header['header'] = 'Loan Types';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['access'] = $this->sidebar_model->getAccess();
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/AddLoanType', $data);
-	}
-
-	function AddConditional()
-	{
-		$sidebar['sidebar'] = "Loans";
-		$sidebar['sidebarMenu'] = 'Conditional';
-		$header['header'] = 'Additional Charges';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['access'] = $this->sidebar_model->getAccess();
+		$sidebar['sidebar'] = 'Admin';
+		$sidebar['sidebarMenu'] = 'Users List';
+		$header['header'] = 'Users List';
+		$data['questions'] = $this->admin_model->getQuestions();
+		$data['employees'] = $this->admin_model->getEmployees();
+		$data['students'] = $this->admin_model->getStudentsForUsers();
+		$data['role'] = $this->admin_model->getRoles();
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/AddConditional', $data);
+		$this->load->view('admin/userlist', $data);
 	}
 
-	function AddOccupation()
+	function Employees()
 	{
-		$sidebar['sidebar'] = "BorrowerManagement";
-		$sidebar['sidebarMenu'] = 'Occupations';
-		$header['header'] = 'Occupations';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['access'] = $this->sidebar_model->getAccess();
+		$sidebar['sidebar'] = 'Admin';
+		$sidebar['sidebarMenu'] = 'Employee List';
+		$header['header'] = 'Employee List';
+		$data['position'] = $this->admin_model->getPositions();
+		$data['branch'] = $this->admin_model->getBranches();
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/AddOccupation', $data);
+		$this->load->view('admin/employees', $data);
 	}
 
-	function AddRequirement()
+	function Audit()
 	{
-		$sidebar['sidebar'] = "Loans";
-		$sidebar['sidebarMenu'] = 'Requirements';
-		$header['header'] = 'Requirements';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['access'] = $this->sidebar_model->getAccess();
+		$sidebar['sidebar'] = 'Admin';
+		$sidebar['sidebarMenu'] = 'AuditLogs';
+		$header['header'] = 'Audit Logs';
+		$data['position'] = $this->admin_model->getPositions();
+		$data['branch'] = $this->admin_model->getBranches();
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/AddRequirement', $data);
+		$this->load->view('admin/audit', $data);
 	}
 
-	function AddPosition()
-	{
-		$sidebar['sidebar'] = 'EmployeeManagement';
-		$sidebar['sidebarMenu'] = 'Positions';
-		$header['header'] = 'Positions';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['access'] = $this->sidebar_model->getAccess();
-
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/AddPosition', $data);
-	}
-
-	function AddOptional()
-	{
-		$sidebar['sidebar'] = 1;
-		$sidebar['sidebarMenu'] = 0;
-		$header['header'] = 'Optional Charges';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['access'] = $this->sidebar_model->getAccess();
-
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/AddOptional', $data);
-	}
-
-	function AddPurpose()
-	{
-		$sidebar['sidebar'] = 'Loans';
-		$sidebar['sidebarMenu'] = 'Purposes';
-		$header['header'] = 'Purpose';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['access'] = $this->sidebar_model->getAccess();
-
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/AddPurpose', $data);
-	}
-
-	function AddMethod()
-	{
-		$sidebar['sidebar'] = 'SystemSetup';
-		$sidebar['sidebarMenu'] = 'Methods';
-		$header['header'] = 'Methods for Payment';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['access'] = $this->sidebar_model->getAccess();
-
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/AddMethod', $data);
-	}
-
-	function AddCategory()
-	{
-		$sidebar['sidebar'] = 'Asset Management';
-		$sidebar['sidebarMenu'] = 'AssetCategories';
-		$header['header'] = 'Asset Categories';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['access'] = $this->sidebar_model->getAccess();
-		$data['Category'] = $this->loanapplication_model->getAssetCategory();
-
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/AddCategory', $data);
-	}
-
-	function AddAssetManagement()
-	{
-		$sidebar['sidebar'] = 'Asset Management';
-		$sidebar['sidebarMenu'] = 'Asset Management';
-		$header['header'] = 'Asset Management';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['Category'] = $this->maintenance_model->getCategory();
-		$data['Branch'] = $this->maintenance_model->getBranches();
-		$data['access'] = $this->sidebar_model->getAccess();
-
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/AddAssetManagement', $data);
-	}
-
-	function AddLoanStatus()
-	{
-		$sidebar['sidebar'] = 'Loans';
-		$sidebar['sidebarMenu'] = 'LoanStatus';
-		$header['header'] = 'Loan Status';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['access'] = $this->sidebar_model->getAccess();
-
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/AddLoanStatus', $data);
-	}
-
-	function AddDisclosure()
-	{
-		$sidebar['sidebar'] = 'SystemSetup';
-		$sidebar['sidebarMenu'] = 'Disclosure';
-		$header['header'] = 'Disclosure Agreement';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$data['access'] = $this->sidebar_model->getAccess();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['securityQuestions'] = $this->employee_model->getSecurityQuestions();
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/AddDisclosure', $data);
-	}
-
-	function AddBorrowerStatus()
-	{
-		$sidebar['sidebar'] = 'BorrowerManagement';
-		$sidebar['sidebarMenu'] = 'BorrowerStatus';
-		$header['header'] = 'Borrower Status';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['access'] = $this->sidebar_model->getAccess();
-
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/AddBorrowerStatus', $data);
-	}
-
-	function AddIndustry()
-	{
-		$sidebar['sidebar'] = "BorrowerManagement";
-		$sidebar['sidebarMenu'] = "Industries";
-		$header['header'] = 'Industries';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['access'] = $this->sidebar_model->getAccess();
-
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/AddIndustry', $data);
-	}
-
-	function AddEducation()
-	{
-		$sidebar['sidebar'] = 'BorrowerManagement';
-		$sidebar['sidebarMenu'] = 'Education';
-		$header['header'] = 'Education Level';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['access'] = $this->sidebar_model->getAccess();
-
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/AddEducation', $data);
-	}
-
-	function AddRepaymentCycle()
-	{
-		$sidebar['sidebar'] = 'Loans';
-		$sidebar['sidebarMenu'] = 'RepaymentCycle';
-		$header['header'] = 'Repayment Cycles';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['access'] = $this->sidebar_model->getAccess();
-
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/AddRepaymentCycle', $data);
-	}
-
-	function AddDisbursement()
-	{
-		$sidebar['sidebar'] = 'SystemSetup';
-		$sidebar['sidebarMenu'] = 'Disbursement';
-		$header['header'] = 'Disbursements';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['access'] = $this->sidebar_model->getAccess();
-
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/AddDisbursement', $data);
-	}
-
-	function HistoryLogs()
-	{
-		$sidebar['sidebar'] = 'HistoryLog';
-		$sidebar['sidebarMenu'] = 'HistoryLog';
-		$header['header'] = 'History Logs';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['access'] = $this->sidebar_model->getAccess();
-
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/HistoryLog', $data);
-	}
-
-	function AddInitialCapital()
-	{
-		$sidebar['sidebar'] = 'SystemSetup';
-		$sidebar['sidebarMenu'] = 'InitialCapital';
-		$header['header'] = 'Set Initial Capital';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['access'] = $this->sidebar_model->getAccess();
-
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/AddInitialCapital', $data);
-	}
-
-	function AddExpenseType()
-	{
-		$sidebar['sidebar'] = 'Finance';
-		$sidebar['sidebarMenu'] = 'ExpenseType';
-		$header['header'] = 'Types of Expenses';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['access'] = $this->sidebar_model->getAccess();
-
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/AddExpenseType', $data);
-	}
-
-	function AddExpense()
-	{
-		$sidebar['sidebar'] = 'Finance';
-		$sidebar['sidebarMenu'] = 'Expenses';
-		$header['header'] = 'Expenses';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['access'] = $this->sidebar_model->getAccess();
-
-		$data['ExpenseType'] = $this->maintenance_model->getExpenseType2();
-		$data['CreatedBy'] = $this->maintenance_model->getExpenseCreatedBy();
-		$data['ExpenseDate'] = $this->maintenance_model->getExpenseDate();
-		$data['Branch'] = $this->maintenance_model->getBranches();
-
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/AddExpense', $data);
-	}
-
-	function addDepositType()
-	{
-		$sidebar['sidebar'] = 'Finance';
-		$sidebar['sidebarMenu'] = 'DepositType';
-		$header['header'] = 'Types of Deposit';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['access'] = $this->sidebar_model->getAccess();
-
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/AddWithdrawalType', $data);
-	}
-
-	function addDeposit()
-	{
-		$sidebar['sidebar'] = 'Finance';
-		$sidebar['sidebarMenu'] = 'Deposit';
-		$header['header'] = 'Deposit';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['WithdrawalType'] = $this->maintenance_model->getWithdrawalType();
-		$data['access'] = $this->sidebar_model->getAccess();
-
-		$data['DepositType'] = $this->maintenance_model->getWithdrawalType2();
-		$data['CreatedBy'] = $this->maintenance_model->getDepositCreatedBy();
-		$data['DepositDate'] = $this->maintenance_model->getDepositDate();
-		$data['Branch'] = $this->maintenance_model->getBranches();
-
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/AddWithdrawal', $data);
-	}
-
-	function ViewLoans()
-	{
-		$sidebar['sidebar'] = 'Loans';
-		$sidebar['sidebarMenu'] = 'View Loans';
-		$header['header'] = 'View Loans';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['access'] = $this->sidebar_model->getAccess();
-		$data['Status'] = $this->maintenance_model->getLoanStatus();
-		$data['borrowerList'] = $this->loanapplication_model->getBorrowerLoanList();
-		$data['LoanType'] = $this->loanapplication_model->getLoanTypesList();
-		$data['Branch'] = $this->maintenance_model->getBranches();
-
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('transaction/dashboard', $data);
-	}
-
-	function LoanApplication()
-	{
-		$sidebar['sidebar'] = 'Loans';
-		$sidebar['sidebarMenu'] = 'Loan Application';
-		$header['header'] = 'Loan Application';
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['access'] = $this->sidebar_model->getAccess();
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$data['LoanType'] = $this->maintenance_model->getLoanTypes();
-		$data['Purpose'] = $this->maintenance_model->getPurpose();
-		$data['Source'] = $this->maintenance_model->getSource();
-		$data['BorrowerId'] = $this->uri->segment(3);
-
-		$data['Sex'] = $this->maintenance_model->getSex();
-		$data['Nationality'] = $this->maintenance_model->getNationality();
-		$data['CivilStatus'] = $this->maintenance_model->getCivilStatus();
-		$data['Salutation'] = $this->maintenance_model->getSalutation();
-		$data['Position'] = $this->maintenance_model->getBorrowerPosition();
-		$data['Status'] = $this->maintenance_model->getBorrowerStatus();
-
-		$data['repaymentCycle'] = $this->maintenance_model->getRepayments();
-		$data['disbursements'] = $this->maintenance_model->getDisbursements();
-		$data['requirementType'] = $this->maintenance_model->getRequirementType();
-		$data['loanStatus'] = $this->maintenance_model->getLoanStatus();
-		$data['borrowerList'] = $this->maintenance_model->getBorrowerList();
-		$data['RequirementList'] = $this->loanapplication_model->getRequirementForApplication2();
-
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('transaction/LoanApplication', $data);
-	}
-
-	function Renew()
+	function EmployeeDetail()
 	{
 		$Id = $this->uri->segment(3);
-		$sidebar['sidebar'] = 'Loans';
-		$sidebar['sidebarMenu'] = 'Loan Application';
-		$header['header'] = 'Renew Loan Application';
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['access'] = $this->sidebar_model->getAccess();
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-
-
-		$data['RequirementList'] = $this->loanapplication_model->getRequirementForApplication();
-		$data['selectedRequirements'] = $this->loanapplication_model->getRequirementSelected($Id);
-		$data['detail'] = $this->loanapplication_model->getLoanApplicationDetails($Id);
-		$data['LoanType'] = $this->loanapplication_model->getLoanTypes();
-		$data['Purpose'] = $this->loanapplication_model->getPurpose();
-		$data['disbursements'] = $this->maintenance_model->getDisbursements2();
-		$data['repaymentCycle'] = $this->loanapplication_model->getRepaymentCycle();
-		$data['charges'] = $this->loanapplication_model->getCharges($Id);
-		$data['borrowerList'] = $this->loanapplication_model->getBorrowerList();
-
-
-		$data['obligations'] = $this->loanapplication_model->getLoanObligations($Id);
-		$data['expense'] = $this->loanapplication_model->getExpenses($Id);
-		$data['income'] = $this->loanapplication_model->getIncome($Id);
-		$data['approvers'] = $this->loanapplication_model->getApprovers($Id);
-
-
-		$data['Source'] = $this->maintenance_model->getSource();
-		$data['requirementType'] = $this->maintenance_model->getRequirementType();
-		$data['loanStatus'] = $this->maintenance_model->getLoanStatus();
+		$sidebar['sidebar'] = 'Admin';
+		$sidebar['sidebarMenu'] = 'Employee List';
+		$header['header'] = 'Employee List';
+    $userDetails = $this->maintenance_model->selectSpecific('R_Employees', 'Id', $Id);
+		$data['detail'] = $this->admin_model->getUserDetail($userDetails['EmployeeNumber']);
+		$data['position'] = $this->admin_model->getPositions();
+		$data['branch'] = $this->admin_model->getBranches();
+		$data['status'] = $this->admin_model->getStatus();
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('transaction/renew', $data);
+		$this->load->view('admin/EmployeeDetail', $data);
 	}
 
-	function createBorrowerLoan()
+	function Profile()
 	{
-		$Id = $this->uri->segment(3);
-		$sidebar['sidebar'] = 'Loans';
-		$sidebar['sidebarMenu'] = 'Loan Application';
-		$header['header'] = 'Loan Application';
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['access'] = $this->sidebar_model->getAccess();
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$data['LoanType'] = $this->maintenance_model->getLoanTypes();
-		$data['Purpose'] = $this->maintenance_model->getPurpose();
-		$data['Source'] = $this->maintenance_model->getSource();
-		$data['BorrowerId'] = $this->uri->segment(3);
-
-		$data['Sex'] = $this->maintenance_model->getSex();
-		$data['Nationality'] = $this->maintenance_model->getNationality();
-		$data['CivilStatus'] = $this->maintenance_model->getCivilStatus();
-		$data['Salutation'] = $this->maintenance_model->getSalutation();
-		$data['Position'] = $this->maintenance_model->getBorrowerPosition();
-		$data['Status'] = $this->maintenance_model->getBorrowerStatus();
-
-		$data['repaymentCycle'] = $this->maintenance_model->getRepayments();
-		$data['disbursements'] = $this->maintenance_model->getDisbursements();
-		$data['requirementType'] = $this->maintenance_model->getRequirementType();
-		$data['loanStatus'] = $this->maintenance_model->getLoanStatus();
-		$data['borrowerList'] = $this->maintenance_model->getBorrowerList();
-		$data['RequirementList'] = $this->loanapplication_model->getRequirementForApplication2();
-
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('transaction/createBorrowerLoan', $data);
-	}
-	
-	function LoanCalculator()
-	{
-		$sidebar['sidebar'] = 'Loans';
-		$sidebar['sidebarMenu'] = 'Loan Calculator';
-		$header['header'] = 'Loan Calculator';
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['access'] = $this->sidebar_model->getAccess();
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$data['LoanType'] = $this->maintenance_model->getLoanTypes();
-		$data['Purpose'] = $this->maintenance_model->getPurpose();
-		$data['Source'] = $this->maintenance_model->getSource();
-		$data['BorrowerId'] = $this->uri->segment(3);
-
-
-		$data['Sex'] = $this->maintenance_model->getSex();
-		$data['Nationality'] = $this->maintenance_model->getNationality();
-		$data['CivilStatus'] = $this->maintenance_model->getCivilStatus();
-		$data['Salutation'] = $this->maintenance_model->getSalutation();
-		$data['Position'] = $this->maintenance_model->getBorrowerPosition();
-		$data['Status'] = $this->maintenance_model->getBorrowerStatus();
-
-		$data['repaymentCycle'] = $this->maintenance_model->getRepayments();
-		$data['disbursements'] = $this->maintenance_model->getDisbursements();
-		$data['requirementType'] = $this->maintenance_model->getRequirementType();
-		$data['loanStatus'] = $this->maintenance_model->getLoanStatus();
-		$data['borrowerList'] = $this->maintenance_model->getBorrowerList();
-		$data['RequirementList'] = $this->loanapplication_model->getRequirementForApplication();
-
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('transaction/LoanCalculator', $data);
-	}
-
-	function loandetail()
-	{
-		$Id = $this->uri->segment(3);
-		$sidebar['sidebar'] = 'Loans';
-		$sidebar['sidebarMenu'] = 'View Loans';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$header['header'] = 'Loan Application Detail';
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-
-		$data['checkApprover'] = $this->loanapplication_model->checkEmployeeApprover($Id);
-		$data['requirements'] = $this->loanapplication_model->getRequirements($Id);
-		$data['detail'] = $this->loanapplication_model->getLoanApplicationDetails($Id);
-		$data['repayment'] = $this->loanapplication_model->getRepayments($Id);
-		$data['charges'] = $this->loanapplication_model->getCharges($Id);
-		$data['penalties'] = $this->loanapplication_model->getPenalties($Id);
-		$data['DisplayPenalty'] = $this->loanapplication_model->DisplayPenalty($Id);
-		$data['payments'] = $this->loanapplication_model->getPayments($Id);
-		$data['approvers'] = $this->loanapplication_model->getApprovers($Id);
-		$data['comments'] = $this->loanapplication_model->getLoanComments($Id);
-		$data['requirementList'] = $this->loanapplication_model->displayRequirements($Id);
-		$data['LoanHistory'] = $this->loanapplication_model->displayLoanHistory($Id);
-		$data['obligations'] = $this->loanapplication_model->getLoanObligations($Id);
-		$data['expense'] = $this->loanapplication_model->getExpenses($Id);
-		$data['income'] = $this->loanapplication_model->getIncome($Id);
-		$data['disbursement'] = $this->loanapplication_model->getDisbursementDisplay($Id);
-		$data['collateralType'] = $this->loanapplication_model->getCollateralType();
-		$data['collateralStatus'] = $this->loanapplication_model->getCollateralStatus($Id);
-		$data['collateral'] = $this->loanapplication_model->getCollateral($Id);
-		$data['chargeList'] = $this->loanapplication_model->displayCharges($Id);
-		$data['selectCharges'] = $this->loanapplication_model->selectCharges($Id);
-		$data['selectChanges'] = $this->loanapplication_model->selectChanges($Id);
-		$data['selectPersonalRef'] = $this->loanapplication_model->selectPersonalReference($Id);
-
-		$data['interestPaid'] = $this->loanapplication_model->getInterestPaid($Id);
-		$data['principalpaid'] = $this->loanapplication_model->getPrincipalPaid($Id);
-		$data['otherPaid'] = $this->loanapplication_model->getOtherPaid($Id);
-		$data['disbursedReleased'] = $this->loanapplication_model->getTotalDisbursed($Id);
-		$data['comakers'] = $this->loanapplication_model->borrowerCoMakers($Id);
-
-
-		$data['Payments'] = $this->loanapplication_model->getPaymentsMade($Id);
-		$data['disbursements'] = $this->maintenance_model->getPaymentMethod();
-		$data['bank'] = $this->loanapplication_model->getBank();
-
-		$data['paymentDates'] = $this->loanapplication_model->getPaymentDates($Id);
-		$data['paymentDues'] = $this->loanapplication_model->getDue($Id);
-
-		$data['DisplayPenalty'] = $this->loanapplication_model->DisplayPenalty($Id);
-		$data['repaymentCycle'] = $this->loanapplication_model->getRepaymentCycle();
-		$data['loanStatus'] = $this->maintenance_model->getLoanStatus();
-
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('transaction/loandetails', $data);
-	}
-
-	function loanDetailApproval()
-	{
-		$Id = $this->uri->segment(3);
-		$sidebar['sidebar'] = 'Loans';
-		$sidebar['sidebarMenu'] = 'Loan Application';
-		$header['header'] = 'Loan Application Detail';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['detail'] = $this->loanapplication_model->getLoanApplicationDetails($Id);
-		$data['repayment'] = $this->loanapplication_model->getRepayments($Id);
-		$data['charges'] = $this->loanapplication_model->getCharges($Id);
-		$data['penalties'] = $this->loanapplication_model->getPenalties($Id);
-		$data['payments'] = $this->loanapplication_model->getPayments($Id);
-		$data['approvers'] = $this->loanapplication_model->getApprovers($Id);
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('transaction/approvals/loandetail', $data);
-	}
-
-	function LoanApprovals()
-	{
-		$sidebar['sidebar'] = 'Loans';
-		$sidebar['sidebarMenu'] = 'Loan Approvals';
-		$header['header'] = 'Loan Applications for Approval';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('transaction/Approvals/dashboard');
-	}
-
-	function employeeDetails()
-	{
-		$Id = $this->uri->segment(3);
-		$sidebar['sidebar'] = 'EmployeeManagement';
-		$sidebar['sidebarMenu'] = 'EmployeeManagement';
-		$header['header'] = 'Employee Details';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-
-		$data['detail'] = $this->employee_model->getEmployeeDetails($Id);
-		$data['BranchManagement'] = $this->employee_model->branchManagement($Id);
-		$data['EmailAddress'] = $this->employee_model->employeeEmails($Id);
-		$data['ContactNumber'] = $this->employee_model->contactNumbers($Id);
-		$data['Address'] = $this->employee_model->employeeAddress($Id);
-		$data['Ids'] = $this->employee_model->employeeIDs($Id);
-		$data['Audit'] = $this->employee_model->employeeNotification($Id);
-
-		$data['Status'] = $this->maintenance_model->getEmployeeStatus();
-		$data['IDCategory'] = $this->maintenance_model->IDCategory();
-		$data['IDCategory'] = $this->maintenance_model->IDCategory2($Id);
-		$data['Sex'] = $this->maintenance_model->getSex();
-		$data['Nationality'] = $this->maintenance_model->getNationality();
-		$data['CivilStatus'] = $this->maintenance_model->getCivilStatus();
-		$data['Salutation'] = $this->maintenance_model->getSalutation();
-		$data['Branch'] = $this->maintenance_model->getBranches();
-		$data['Position'] = $this->maintenance_model->getPosition();
-		$data['Roles'] = $this->maintenance_model->getRoles();
-
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('employees/employeeDetails', $data);
-	}
-
-	function DashboardM()
-	{
-		$sidebar['sidebar'] = 1;
-		$sidebar['sidebarMenu'] = 0;
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$data['access'] = $this->sidebar_model->getAccess();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('manager/dashboard', $data);
-	}
-	
-	
-	function NewBorrower()
-	{
-		$this->load->view('includes/header');
-		$this->load->view('includes/sidebar');
-		$this->load->view('borrower/NewCustomer');
-	}
-	
-	function adminAuditLogs()
-	{
-		$sidebar['sidebar'] = 4;
-		$sidebar['sidebarMenu'] = 2;
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$this->load->view('includes/header');
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/auditLogs');
-	}
-	
-	function addUser()
-	{
-		$sidebar['sidebar'] = 'EmployeeManagement';
-		$sidebar['sidebarMenu'] = 'Users';
-		$header['header'] = 'Users';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/addUser');
-	}
-
-	function addEmployees()
-	{
-		$sidebar['sidebar'] = 'EmployeeManagement';
-		$sidebar['sidebarMenu'] = 'EmployeeManagement';
-		$header['header'] = 'Employees';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['Sex'] = $this->maintenance_model->getSex();
-		$data['Nationality'] = $this->maintenance_model->getNationality();
-		$data['CivilStatus'] = $this->maintenance_model->getCivilStatus();
-		$data['Salutation'] = $this->maintenance_model->getSalutation();
-		$data['Branch'] = $this->maintenance_model->getBranches();
-		$data['Position'] = $this->maintenance_model->getPosition();
-		$data['Roles'] = $this->maintenance_model->getRoles();
-		$data['EmployeeStats'] = $this->maintenance_model->getFilterEmployeeStatus();
-		$data['EmployeeManager'] = $this->maintenance_model->getFilterEmployeeManager();
-		$data['EmployeeDateHired'] = $this->maintenance_model->getFilterEmployeeDateHired();
-		$data['Detail'] = $this->employee_model->getEmployeeDetail($this->session->userdata('EmployeeId'));
-
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('employees/addEmployees', $data);
-	}
-
-	function accessManagement()
-	{
-		$Id = $this->uri->segment(3);
-		$sidebar['sidebar'] = 'EmployeeManagement';
-		$sidebar['sidebarMenu'] = 'EmployeeManagement';
-		$header['header'] = 'Employee Management';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['Modules'] = $this->employee_model->getAccessManagement();
-		$data['Branch'] = $this->employee_model->getBranchManagement();
-		$data['branchAccess'] = $this->employee_model->getBranchAccess($Id);
-		$data['SubModule'] = $this->employee_model->getSubmodules();
-		$data['UserAccess'] = $this->employee_model->getModuleAccess($Id);
-		$data['Detail'] = $this->employee_model->getEmployeeDetail($Id);
-
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('employees/accessMngmt', $data);
-	}
-	
-	function userProfile()
-	{
-		$Id = $this->uri->segment(3);
 		$sidebar['sidebar'] = '';
 		$sidebar['sidebarMenu'] = '';
-		$header['header'] = 'User Profile';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['securityQuestions'] = $this->employee_model->getSecurityQuestions();
-		$data['detail'] = $this->employee_model->getEmployeeProfile($Id);
-		$data['Audit'] = $this->employee_model->employeeNotification($Id);
-		$data['Audit2'] = $this->maintenance_model->getManagerNotification($Id);
-		$data['SecQuestion1'] = $this->employee_model->getEmployeeSecurityQuestions($Id, 1);
-		$data['SecQuestion2'] = $this->employee_model->getEmployeeSecurityQuestions($Id, 2);
-		$data['SecQuestion3'] = $this->employee_model->getEmployeeSecurityQuestions($Id, 3);
+		$header['header'] = 'Profile';
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    if($this->session->userdata('RoleId') == 4) // student
+    {
+			$data['detail'] = $this->admin_model->getStudentDetails($EmployeeNumber);
+    }
+    else
+    {
+			$data['detail'] = $this->admin_model->getUserDetail($EmployeeNumber);
+    }
+		$data['SecQuestion1'] = $this->admin_model->getEmployeeSecurityQuestions(1);
+		$data['SecQuestion2'] = $this->admin_model->getEmployeeSecurityQuestions(2);
+		$data['SecQuestion3'] = $this->admin_model->getEmployeeSecurityQuestions(3);
+		$data['questions'] = $this->admin_model->getQuestions();
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('profile/userProfile', $data);
+		$this->load->view('admin/profile', $data);
 	}
-	
-	function borrowers()
-	{
-		$sidebar['sidebar'] = 'BorrowerManagement';
-		$sidebar['sidebarMenu'] = 'BorrowerManagement';
-		$header['header'] = 'Borrowers';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['Sex'] = $this->maintenance_model->getSex();
-		$data['Nationality'] = $this->maintenance_model->getNationality();
-		$data['CivilStatus'] = $this->maintenance_model->getCivilStatus();
-		$data['Salutation'] = $this->maintenance_model->getSalutation();
-		$data['Branch'] = $this->maintenance_model->getBranches();
-		$data['Position'] = $this->maintenance_model->getPosition();
-		$data['Roles'] = $this->maintenance_model->getRoles();
-		$data['Status'] = $this->maintenance_model->getBorrowerStatus();
-		$data['CreatedBy'] = $this->maintenance_model->getBorrowerCreator();
-		$data['detail'] = $this->employee_model->getEmployeeDetailsEmpNo();
 
-		
-		$data['ageYear'] = $this->maintenance_model->getYearFilter('r_borrowers');
+	function ClassList()
+	{
+		$sidebar['sidebar'] = 'Registrar';
+		$sidebar['sidebarMenu'] = 'Class list';
+		$header['header'] = 'Class list';
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('borrowers/dashboard', $data);
+		$this->load->view('admin/classlist');
 	}
 
-	function BorrowerDetails()
+	function FacultyClassList()
 	{
-		$Id = $this->uri->segment(3);
-		$sidebar['sidebar'] = 'BorrowerManagement';
-		$sidebar['sidebarMenu'] = 'BorrowerManagement';
-		$header['header'] = 'Borrower Details';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['Sex'] = $this->maintenance_model->getSex();
-		$data['detail'] = $this->borrower_model->getBorrowerDetails($Id);
-		$data['Nationality'] = $this->maintenance_model->getNationality();
-		$data['CivilStatus'] = $this->maintenance_model->getCivilStatus();
-		$data['Salutation'] = $this->maintenance_model->getSalutation();
-		$data['Position'] = $this->maintenance_model->getBorrowerPosition();
-		$data['Occupation'] = $this->maintenance_model->getOccupation();
-		$data['Industry'] = $this->maintenance_model->getIndustry();
-		$data['Status'] = $this->maintenance_model->getBorrowerStatus();
-
-		$data['Reference'] = $this->borrower_model->getReference($Id);
-		$data['CoMaker'] = $this->borrower_model->getComaker($Id);
-		$data['Audit'] = $this->borrower_model->getAudit($Id);
-		$data['Ids'] = $this->borrower_model->getSupportingDocuments($Id);
-		$data['Spouse'] = $this->borrower_model->getSpouseList($Id);
-		$data['Employment'] = $this->borrower_model->getEmploymentList($Id);
-		$data['Education'] = $this->borrower_model->getEducationList($Id);
-		$data['EducationList'] = $this->maintenance_model->getEducationList($Id);
-
-		$data['EmailAddress'] = $this->borrower_model->getBorrowerEmails($Id);
-		$data['ContactNumber'] = $this->borrower_model->getBorrowerNumber($Id);
-		$data['diary'] = $this->borrower_model->getBorrowerDiary($Id);
-		$data['Address'] = $this->borrower_model->getBorrowerAddress($Id);
-
-		$data['Collections'] = $this->borrower_model->getCollectionsMade($Id);
+		$sidebar['sidebar'] = 'Dashboard';
+		$sidebar['sidebarMenu'] = 'Class list';
+		$header['header'] = 'Class list';
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('borrowers/BorrowerDetails', $data);
+		$this->load->view('faculty/FacultyClassList');
 	}
 
-	function branchDatabase()
+	function StudentClassList()
 	{
-		$Id = $this->uri->segment(3);
-		$sidebar['sidebar'] = 'SystemSetup';
-		$sidebar['sidebarMenu'] = 'DB';
-		$header['header'] = 'Database Management';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['profilePicture'] = $this->sidebar_model->getProfilePicture();
+		$sidebar['sidebar'] = 'Dashboard';
+		$sidebar['sidebarMenu'] = 'Class list';
+		$header['header'] = 'Class list';
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('admin/branchDatabase', $data);
+		$this->load->view('student/classList');
 	}
 
-	function generateLoanCollection()
+	function SubjectList()
 	{
-		$Id = $this->uri->segment(3);
-		$sidebar['sidebar'] = 'Reports';
-		$sidebar['sidebarMenu'] = 'Loan Collections';
-		$header['header'] = 'Generate Loan Collections';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['employee'] = $this->employee_model->getEmployeeList();
-		$data['Branch'] = $this->maintenance_model->getBranches();
+		$sidebar['sidebar'] = 'Registrar';
+		$sidebar['sidebarMenu'] = 'Subject list';
+		$header['header'] = 'Subject list';
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('reports/income/loanCollections', $data);
+		$this->load->view('admin/subjectList');
 	}
 
-	function generateCollaterals()
+	function StudentList()
 	{
-		$Id = $this->uri->segment(3);
-		$sidebar['sidebar'] = 'Reports';
-		$sidebar['sidebarMenu'] = 'Loan Collateral';
-		$header['header'] = 'Generate Collaterals';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['employee'] = $this->employee_model->getEmployeeList();
-		$data['Branch'] = $this->maintenance_model->getBranches();
-		$data['Collateral'] = $this->loanapplication_model->getCollateralType();
+		$sidebar['sidebar'] = 'Registrar';
+		$sidebar['sidebarMenu'] = 'Student list';
+		$header['header'] = 'Student list';
+		$data['maritalStatus'] = $this->admin_model->getMaritalStatus();
+		$data['graduatingStatus'] = $this->admin_model->getGraduatingStatus();
+		$data['occupations'] = $this->admin_model->getOccupations();
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('reports/income/collateral', $data);
+		$this->load->view('admin/studentList', $data);
 	}
 
-	function generateExpenses()
+	function classDetails()
 	{
-		$Id = $this->uri->segment(3);
-		$sidebar['sidebar'] = 'Reports';
-		$sidebar['sidebarMenu'] = 'Expenses';
-		$header['header'] = 'Generate Expense Report';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['ExpenseType'] = $this->maintenance_model->getExpenseTypeReport();
-		$data['Branch'] = $this->maintenance_model->getBranches();
+		$sidebar['sidebar'] = 'Registrar';
+		$sidebar['sidebarMenu'] = 'Class list';
+		$header['header'] = 'Class Details';
+
+		$data['detail'] = $this->admin_model->getClassDetail($this->uri->segment(3));
+		$data['subjects'] = $this->admin_model->getSubjects();
+		$data['faculty'] = $this->admin_model->getFaculty();
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('reports/income/expenses', $data);
+		$this->load->view('admin/classDetails', $data);
 	}
 
-	function generateDues()
+	function facultyClassDetails()
 	{
-		$Id = $this->uri->segment(3);
-		$sidebar['sidebar'] = 'Reports';
-		$sidebar['sidebarMenu'] = 'Dues';
-		$header['header'] = 'Generate Due Report';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['access'] = $this->sidebar_model->getAccess();
-		$data['Status'] = $this->maintenance_model->getLoanStatus();
-		$data['borrowerList'] = $this->loanapplication_model->getBorrowerLoanList();
-		$data['LoanType'] = $this->loanapplication_model->getLoanTypesList();
-		$data['Branch'] = $this->maintenance_model->getBranches();
+		$sidebar['sidebar'] = 'Dashboard';
+		$sidebar['sidebarMenu'] = 'Class list';
+		$header['header'] = 'Class list';
+
+		$data['detail'] = $this->admin_model->getClassDetail($this->uri->segment(3));
+		$data['subjects'] = $this->admin_model->getSubjects();
+		$data['faculty'] = $this->admin_model->getFaculty();
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('transaction/dues', $data);
+		$this->load->view('faculty/facultyClassDetails', $data);
 	}
 
-	function generateIncomeStatement()
+	function createExam()
 	{
-		$Id = $this->uri->segment(3);
-		$sidebar['sidebar'] = 'Reports';
-		$sidebar['sidebarMenu'] = 'Income Statement';
-		$header['header'] = 'Generate Income Statement';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['ExpenseType'] = $this->maintenance_model->getExpenseTypeReport();
-		$data['ageYear'] = $this->maintenance_model->getYearFilter('r_borrowers');
-		$data['Branch'] = $this->maintenance_model->getBranches();
+		$data['detail'] = $this->admin_model->getSubjectClassDetails($this->uri->segment(3));
+		$data['examSchedule'] = $this->admin_model->getSubjectSchedule($this->uri->segment(3));
+		$sidebar['sidebar'] = 'Dashboard';
+		$sidebar['sidebarMenu'] = 'Class list';
+		$header['header'] = 'Examination';
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('reports/IncomeStatement', $data);
+		$this->load->view('faculty/createExam', $data);
 	}
 
-	function generateDemographics()
+	function examDetails()
 	{
-		$Id = $this->uri->segment(3);
-		$sidebar['sidebar'] = 'Reports';
-		$sidebar['sidebarMenu'] = 'Demographics Report';
-		$header['header'] = 'Generate Demographics Report';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['Year'] = $this->maintenance_model->getYearFilter('r_borrowers');
-		$data['Branch'] = $this->maintenance_model->getBranches();
+		$data['detail'] = $this->admin_model->getSubjectExamDetails($this->uri->segment(3));
+		$data['examSchedule'] = $this->admin_model->getSubjectSchedule($this->uri->segment(4));
+		$sidebar['sidebar'] = 'Dashboard';
+		$sidebar['sidebarMenu'] = 'Class list';
+		$header['header'] = 'Examination';
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('reports/demographics', $data);
+		$this->load->view('faculty/examdetails', $data);
 	}
 
-	function generateLoansExtended()
+	function categoryDetails()
 	{
-		$Id = $this->uri->segment(3);
-		$sidebar['sidebar'] = 'Reports';
-		$sidebar['sidebarMenu'] = 'Loans Extended Report';
-		$header['header'] = 'Generate Loans Extended Report';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['Year'] = $this->maintenance_model->getYearFilter('T_Application');
-		$data['Branch'] = $this->maintenance_model->getBranches();
+		$data['detail'] = $this->admin_model->getSubjectExamCategoryDetails($this->uri->segment(4));
+		$data['subCategories'] = $this->admin_model->getSubjectExamCategorySubDetails($this->uri->segment(4));
+		$sidebar['sidebar'] = 'Dashboard';
+		$sidebar['sidebarMenu'] = 'Class list';
+		$header['header'] = 'Examination';
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('reports/loansExtended', $data);
+		$this->load->view('faculty/examcategorydetails', $data);
 	}
 
-	function generateFinancialHealth()
+	function subCategoryDetails()
 	{
-		$Id = $this->uri->segment(3);
-		$sidebar['sidebar'] = 'Reports';
-		$sidebar['sidebarMenu'] = 'Financial Health Report';
-		$header['header'] = 'Generate Financial Health Report';
-		$sidebar['access'] = $this->sidebar_model->checkSideBar();
-		$sidebar['subModule'] = $this->sidebar_model->checkSubModules();
-		$sidebar['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$header['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['profilePicture'] = $this->sidebar_model->getProfilePicture();
-		$data['Year'] = $this->maintenance_model->getYearFilter('T_Application');
-		$data['Branch'] = $this->maintenance_model->getBranches();
+		$data['detail'] = $this->admin_model->getSubjectExamSubCategoryDetails($this->uri->segment(3));
+		$data['subCategories'] = $this->admin_model->getSubjectExamCategorySubDetails($this->uri->segment(4));
+		$sidebar['sidebar'] = 'Dashboard';
+		$sidebar['sidebarMenu'] = 'Class list';
+		$header['header'] = 'Subcategory Questionnaires';
 
 		$this->load->view('includes/header', $header);
 		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('reports/financialhealth', $data);
+		$this->load->view('faculty/examsubcategoryquestionnaire', $data);
 	}
 
-	function download($id)
+	function takeExam()
 	{
-  	//load download helper
-    $this->load->helper('download');
-   	$this->load->library('zip');
-  	if($this->uri->segment(3) == 1) // download payment cancellation
-  	{
-	    //get file info from database
-  			$detail = $this->maintenance_model->selectSpecific('application_has_notifications', 'NotificationId', $this->uri->segment(4));
-        // File path
-        $filepath1 = FCPATH.'/uploads/' . $detail['FileName'];
-        // Add file
-        $fileName = 'Attachments.zip';
-        $this->zip->read_file($filepath1, $detail['FileTitle']);
-	      $this->zip->download($fileName);
-  	}
-  	if($this->uri->segment(3) == 2) // download requirements submitted
-  	{
-	    //get file info from database
-  			$detail = $this->loanapplication_model->getSubmittedRequirment($this->uri->segment(4));
-        // File path
-        $filepath1 = FCPATH.'/borrowerarchive/' . $detail['FileName'];
-        // Add file
-        $fileName = 'Attachments.zip';
-        $this->zip->read_file($filepath1, $detail['FileTitle']);
-	      $this->zip->download($fileName);
-  	}
-  	if($this->uri->segment(3) == 3) // download comment attachments
-  	{
-	    //get file info from database
-  			$detail = $this->maintenance_model->selectSpecific('comments_has_attachments', 'CommentId', $this->uri->segment(4));
-        // File path
-        $filepath1 = FCPATH.'/uploads/' . $detail['FileName'];
-        // Add file
-        $fileName = 'Attachments.zip';
-        $this->zip->read_file($filepath1, $detail['Title']);
-	      $this->zip->download($fileName);
-  	}
-  	if($this->uri->segment(3) == 4) // download collateral attachments
-  	{
-	    //get file info from database
-  			$detail = $this->maintenance_model->selectSpecific2('collaterals_has_files', 'CollateralId', $this->uri->segment(4));
-        // File path
-        $filepath1 = FCPATH.'/uploads/' . $detail['FileName'];
-        // Add file
-        $fileName = 'Attachments.zip';
-        $this->zip->read_file($filepath1, $detail['Title']);
-	      $this->zip->download($fileName);
-  	}
+		$data['detail'] = $this->admin_model->getSubjectExamDetails($this->uri->segment(3));
+		$data['examCategory'] = $this->admin_model->getExamCategories($this->uri->segment(3));
+		$sidebar['sidebar'] = 'Dashboard';
+		$sidebar['sidebarMenu'] = 'Class list';
+		$header['header'] = 'Examination';
 
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('Examination/takeExam', $data);
 	}
 
+	function viewClass()
+	{
+		$sidebar['sidebar'] = 'Dashboard';
+		$sidebar['sidebarMenu'] = 'Class list';
+		$header['header'] = 'Class list';
+
+		$data['detail'] = $this->admin_model->getClassDetail($this->uri->segment(3));
+		$data['subjects'] = $this->admin_model->getSubjects();
+		$data['faculty'] = $this->admin_model->getFaculty();
+
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('student/classDetails', $data);
+	}
+
+	function FacultysubjectStudents()
+	{
+		$sidebar['sidebar'] = 'Dashboard';
+		$sidebar['sidebarMenu'] = 'Class list';
+		$header['header'] = 'Class list';
+
+		$data['detail'] = $this->admin_model->getSubjectClassDetails($this->uri->segment(3));
+		$data['students'] = $this->admin_model->getStudents($this->uri->segment(3));
+
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('admin/subjectStudents', $data);
+	}
+
+	function subjectStudents()
+	{
+		$sidebar['sidebar'] = 'Dashboard';
+		$sidebar['sidebarMenu'] = 'Class list';
+		$header['header'] = 'Class list';
+
+		$data['detail'] = $this->admin_model->getSubjectClassDetails($this->uri->segment(3));
+		$data['hasTakenExam'] = $this->admin_model->studentHasExam($this->uri->segment(3));
+		$data['examDetails'] = $this->admin_model->studentExamDetails($this->uri->segment(3));
+		$data['examSchedule'] = $this->admin_model->getSubjectSchedule($this->uri->segment(3));
+		/* MOCK EXAM */
+		$data['countExamCreated'] = $this->admin_model->countMockExam($this->uri->segment(3));
+
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('student/subjectDetails', $data);
+	}
+
+	function viewExam()
+	{
+		$data['detail'] = $this->admin_model->getSubjectExamDetails($this->uri->segment(3));
+		$data['examCategory'] = $this->admin_model->getExamCategories($this->uri->segment(3));
+		$data['correctAnswer'] = $this->admin_model->countCorrectAnswers($this->uri->segment(3));
+		$data['wrongAnswer'] = $this->admin_model->countIncorrectAnswers($this->uri->segment(3));
+		$sidebar['sidebar'] = 'Dashboard';
+		$sidebar['sidebarMenu'] = 'Class list';
+		$header['header'] = 'Examination';
+
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('Examination/viewExam', $data);
+	}
+
+	function viewExamFormat()
+	{
+		$data['detail'] = $this->admin_model->getSubjectExamDetails($this->uri->segment(3));
+		$data['examCategory'] = $this->admin_model->getExamCategories($this->uri->segment(3));
+		$data['correctAnswer'] = $this->admin_model->countCorrectAnswers($this->uri->segment(3));
+		$data['wrongAnswer'] = $this->admin_model->countIncorrectAnswers($this->uri->segment(3));
+		$sidebar['sidebar'] = 'Dashboard';
+		$sidebar['sidebarMenu'] = 'Class list';
+		$header['header'] = 'Examination';
+
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('Examination/viewExamFormat', $data);
+	}
+
+	function ScheduleExam()
+	{
+		$sidebar['sidebar'] = 'Registrar';
+		$sidebar['sidebarMenu'] = 'Schedule list';
+		$header['header'] = 'Examination Schedule List';
+
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('registrar/ScheduleExam');
+	}
+
+	function registrarClassList()
+	{
+		$data['detail'] = $this->admin_model->getSubjectClassDetails($this->uri->segment(3));
+		$sidebar['sidebar'] = 'Registrar';
+		$sidebar['sidebarMenu'] = 'Schedule list';
+		$header['header'] = 'Examination Schedule';
+
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('registrar/scheduleClass', $data);
+	}
+
+	function FacultyRetakeApproval()
+	{
+		$sidebar['sidebar'] = 'Faculty';
+		$sidebar['sidebarMenu'] = 'Exam Retake';
+		$header['header'] = 'Approval for Retake of Examination';
+
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('faculty/examRetake');
+	}
+
+	function generateStudents()
+	{
+		$sidebar['sidebar'] = 'Registrar Reports';
+		$sidebar['sidebarMenu'] = 'Students with Subjects';
+		$header['header'] = 'Generate Students with Subjects';
+
+		$data['subjects'] = $this->admin_model->getClassSubjects();
+		$this->load->view('includes/header', $header);
+		$this->load->view('includes/sidebar', $sidebar);
+		$this->load->view('registrar/studentList', $data);
+	}
 }

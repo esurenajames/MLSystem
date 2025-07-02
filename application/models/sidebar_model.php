@@ -5,7 +5,7 @@ class sidebar_model extends CI_Model
     {
       parent::__construct();
 			$this->load->model('maintenance_model');
-			$this->load->model('access');
+			$this->load->model('access_model');
       date_default_timezone_set('Asia/Manila');
     }
 
@@ -27,7 +27,7 @@ class sidebar_model extends CI_Model
       $query_string = $this->db->query("SELECT  ProfileId
                                                 , FileName
                                                   FROM R_ProfilePicture
-                                                    WHERE EmployeeNumber = $EmployeeNumber
+                                                    WHERE EmployeeNumber = '$EmployeeNumber'
                                                     AND StatusId = 1
       ");
       $data = $query_string->result_array();

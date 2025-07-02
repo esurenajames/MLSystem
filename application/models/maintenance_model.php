@@ -5,7 +5,7 @@ class maintenance_model extends CI_Model
     {
       parent::__construct();
 			$this->load->model('maintenance_model');
-			$this->load->model('access');
+			$this->load->model('access_model');
       date_default_timezone_set('Asia/Manila');
     }
 
@@ -173,7 +173,7 @@ class maintenance_model extends CI_Model
         $search = ' AND B.BranchId = ' . $selectedBranch;
         $defaultSearch = '';
       }
-      $query_string = $this->db->query("SELECT DISTINCT COALESCE(SUM(DISTINCT PM.InterestAmount), 0) as Total
+      $query_string = $this->db->query("SELECT COALESCE(SUM(PM.InterestAmount), 0) as Total
                                                 FROM t_paymentsmade PM
                                                   INNER JOIN t_application A
                                                     ON A.ApplicationId = PM.ApplicationId
@@ -1119,7 +1119,7 @@ class maintenance_model extends CI_Model
                                         LIMIT 1
       ");
       $data = $query->row_array();
-      if($data['Name']!= null)
+      if(isset($data['Name']))
       {
         return $data['Name'];
       }
@@ -1691,8 +1691,7 @@ class maintenance_model extends CI_Model
                                         FROM branch_has_manager BR
                                         INNER JOIN r_employee EMP
                                           ON EMP.EmployeeNumber = BR.EmployeeNumber
-                                          WHERE BR.BranchId = '".$BranchId."' 
-                                          AND BR.StatusId = 1 
+                                          WHERE BR.StatusId = 1 
                                           ORDER BY BR.EmployeeNumber ASC");
       $output = '<option selected value="">Select Manager</option>';
       foreach ($query->result() as $row)
@@ -1890,7 +1889,7 @@ class maintenance_model extends CI_Model
       $EmployeeNumber = $this->session->userdata('EmployeeNumber');
       $query = $this->db->query("SELECT  MAX(".$input['column'].") as ".$input['column']."
                                 FROM ".$input['table']."
-                                  WHERE CreatedBy = ".$input['CreatedBy']."
+                                  WHERE CreatedBy = '".$input['CreatedBy']."'
       ");
 
       $data = $query->row_array();
@@ -1978,21 +1977,6 @@ class maintenance_model extends CI_Model
       return $output;
     }
 
-    function getRequirementType()
-    {
-      $query = $this->db->query("SELECT   DISTINCT RHT.RequirementTypeId
-                                          , RHT.Name
-                                          FROM requirement_has_type RHT
-                                              WHERE RHT.StatusId = 1
-      ");
-      $output = '<option selected disabled value="">Select Requirement Type</option>';
-      foreach ($query->result() as $row)
-      {
-        $output .= '<option value="'.$row->RequirementTypeId.'">'.$row->Name.'</option>';
-      }
-      return $output;
-    }
-
     function getLoanStatus()
     {
       $query = $this->db->query("SELECT   LoanStatusId
@@ -2029,7 +2013,15 @@ class maintenance_model extends CI_Model
     function selectSpecific($tableName, $Condition, $Id)
     {
       $query = $this->db->query("select * from $tableName where $Condition = '$Id' LIMIT 1");
-      return $query->row_array();
+      if($query->num_rows() > 0)
+      {
+        $result = $query->row_array();
+      }
+      else
+      {
+        $result = 0;
+      }
+      return $result;
     }
 
     function selectSpecific2($tableName, $Condition, $Id)
@@ -2627,7 +2619,14 @@ class maintenance_model extends CI_Model
                                         FROM ".$table."
                                         WHERE ".$condition." = LTRIM(RTRIM('".$desc."'))
       ");
-      $result = $query->row_array();
+      if($query->num_rows() > 0)
+      {
+        $result = $query->row_array();
+      }
+      else
+      {
+        $result = 0;
+      }
       return $result;
     }
 
@@ -2655,5 +2654,87 @@ class maintenance_model extends CI_Model
       array_push($dataArray, $TotalBorrowers['Total'], $TotalEmployees['Total'], $TotalInterest['Total'], $totalExpense['Total'], $dailyIncome['Total'], $TotalTransaction['Total'], $dailyPenalties['Total'], $dailyApprovedLoans['Total'], $dailyDisbursement['Total'], $dailyExpenses['Total'], $TotalDisbursement['Total'], $totalIncome['Total'], $totalFund['Total'], $totalActiveLoans['Total'], $totalUsers['Total'], $totalDeposit['Total']);
 
       return $dataArray;
+    }
+
+
+  // NHA
+    function getRequirement($ID)
+    {
+      $query = $this->db->query("SELECT   DISTINCT RHT.RequirementId
+                                          , RHT.Name
+                                          , RHT.Description
+                                          , DATE_FORMAT(DateFrom, '%b %d, %Y') as DateFrom
+                                          , DATE_FORMAT(DateFrom, '%Y') as Year
+                                          FROM R_Requirement RHT
+                                            WHERE RHT.StatusId = 1
+                                            AND RequirementId NOT IN (SELECT RequirementId FROM Petitioner_Has_Requirements WHERE StatusId != 2 AND PetitionerId = $ID)
+      ");
+      $output = '<option selected disabled value="">Select Requirement</option>';
+      foreach ($query->result() as $row)
+      {
+        if($row->RequirementId == 1) // on or before date
+        {
+          $output .= '<option value="'.$row->RequirementId.'">'.$row->Name.' '.$row->DateFrom.'</option>';
+        }
+        else if($row->RequirementId == 2) // year
+        {
+          $output .= '<option value="'.$row->RequirementId.'">'.$row->Name.' '.$row->Year.'</option>';
+        }
+        else
+        {
+          if($row->Description != '')
+          {
+            $output .= '<option value="'.$row->RequirementId.'">'.$row->Name.' - '.$row->Description.'</option>';
+          }
+          else
+          {
+            $output .= '<option value="'.$row->RequirementId.'">'.$row->Name.'</option>';
+          }
+        }
+      }
+      return $output;
+    }
+
+    function getRequirementHouse($ID)
+    {
+      $query = $this->db->query("SELECT   DISTINCT RHT.RequirementId
+                                          , RHT.Name
+                                          , RHT.Description
+                                          , DATE_FORMAT(DateFrom, '%b %d, %Y') as DateFrom
+                                          , DATE_FORMAT(DateFrom, '%Y') as Year
+                                          FROM R_Requirement RHT
+                                            WHERE RHT.StatusId = 1
+                                            AND RequirementId NOT IN (SELECT RequirementId FROM housing_has_requirements WHERE StatusId != 2 AND HouseId = $ID)
+      ");
+      $output = '<option selected disabled value="">Select Requirement</option>';
+      foreach ($query->result() as $row)
+      {
+        if($row->RequirementId == 1) // on or before date
+        {
+          $output .= '<option value="'.$row->RequirementId.'">'.$row->Name.' '.$row->DateFrom.'</option>';
+        }
+        else if($row->RequirementId == 2) // year
+        {
+          $output .= '<option value="'.$row->RequirementId.'">'.$row->Name.' '.$row->Year.'</option>';
+        }
+        else
+        {
+          if($row->Description != '')
+          {
+            $output .= '<option value="'.$row->RequirementId.'">'.$row->Name.' - '.$row->Description.'</option>';
+          }
+          else
+          {
+            $output .= '<option value="'.$row->RequirementId.'">'.$row->Name.'</option>';
+          }
+        }
+      }
+      return $output;
+    }
+
+    function deleteFunction($id, $condition, $table)
+    {
+      $query = $this->db->query("DELETE FROM ".$table." WHERE ".$condition." = ".$id."
+      ");
     }
 }

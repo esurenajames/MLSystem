@@ -1,0 +1,35 @@
+Faculty
+USERNAME:00001
+PASSWORD: Password123!
+1. Exam creation
+2. Grading of students
+3. Viewing of class
+4. Approval of re-take ng exam ng student
+5. Grade student
+
+Registrar
+USERNAME:00002
+PASSWORD: Password123!
+1. Adding ng students
+2. Creating of class list
+3. Creating of subjects
+4. Exam scheduling
+5. Report generation
+	a. Student List
+	b. Students with subjects (add status, average all subjects per student)
+6. Grade student
+
+Student
+USERNAME: SS-00002
+PASSWORD: Password123@
+1. Take exam
+2. Request re-taking of exam if failed
+3. Viewing of class list
+4. Viewing of exam result
+
+Admin
+USERNAME: 00008
+PASSWORD: Password123!
+1. Adding of employees
+2. Adding of users
+3. Audit logs

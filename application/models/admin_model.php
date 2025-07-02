@@ -5,1684 +5,1547 @@ class admin_model extends CI_Model
     {
       parent::__construct();
 			$this->load->model('maintenance_model');
-			$this->load->model('access');
+			$this->load->model('access_model');
       date_default_timezone_set('Asia/Manila');
+    }
+
+    function getEmployeeList()
+    {
+      $query = $this->db->query("SELECT   CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as Name
+                                          , EMP.EmployeeNumber
+                                          , S.Description as StatusDescription
+                                          , EMP.StatusId
+                                          , P.Description as Position
+                                          , EMP.DateCreated
+                                          , S.Color
+                                          , EMP.ID
+                                          FROM r_employees EMP
+                                            INNER JOIN R_Status S
+                                              ON S.Id = EMP.StatusId
+                                            INNER JOIN R_Position P
+                                              ON P.Id = EMP.PositionId
+      ");
+      return $query->result_array();
+    }
+
+    function getUserList()
+    {
+      $query = $this->db->query("SELECT   CASE
+                                          WHEN U.RoleId != 4
+                                                THEN CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, ''))
+                                              ELSE CONCAT(SS.LastName, ', ', SS.FirstName, ' ', COALESCE(SS.MiddleName,'N/A'), ' ', COALESCE(SS.ExtName, ''))
+                                           END as Name
+                                          , U.EmployeeNumber
+                                          , S.Description as StatusDescription
+                                          , U.StatusId
+                                          , CASE
+                                              WHEN P.Description IS NULL
+                                              THEN 'Student' 
+                                              ELSE P.Description
+                                          END as Position
+                                          , U.DateCreated
+                                          , S.Color
+                                          , U.ID
+                                          , U.IsNew
+                                          , PP.Description as Role
+                                          , PP.Id as RoleId
+                                          FROM R_Users U 
+                                            LEFT JOIN r_employees EMP
+                                              ON EMP.EmployeeNumber = U.EmployeeNumber
+                                            LEFT JOIN r_students SS
+                                              ON SS.StudentNumber = U.EmployeeNumber
+                                            LEFT JOIN R_Status S
+                                              ON S.Id = U.StatusId
+                                            LEFT JOIN R_Position P
+                                              ON P.Id = EMP.PositionId
+                                            LEFT JOIN R_Roles PP
+                                              ON PP.Id = U.RoleId
+      ");
+      return $query->result_array();
+    }
+
+    function getUserLogs()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT   Description
+                                          , Remarks
+                                          , DATE_FORMAT(DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                          , DateCreated as rawDateCreated
+                                          FROM r_logs
+                                          WHERE NotifyTo = '$EmployeeNumber'
+                                            ORDER BY DateCreated ASC
+      ");
+      return $query->result_array();
     }
 
     function getAuditLogs()
     {
-      $query_string = $this->db->query("SELECT  L.Description
-                                                , CONCAT(FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as Name
-                                                , CASE
-                                                  WHEN Remarks IS NULL
-                                                  THEN 'N/A'
-                                                  ELSE Remarks
-                                                END as Remarks
-                                                , DATE_FORMAT(L.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
-                                                , LogId
-                                                , BRNCH.Name as Branch
-                                                FROM R_Logs L
-                                                  INNER JOIN R_Employee EMP
-                                                    ON EMP.EmployeeNumber = L.CreatedBy
-                                                  INNER JOIN R_Branches BRNCH
-                                                    ON BRNCH.BranchId = L.BranchId
-                                                    ORDER BY DateCreated DESC
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT   L.Description
+                                          , L.Remarks
+                                          , DATE_FORMAT(L.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                          , L.DateCreated as rawDateCreated
+                                          , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as Name
+                                          FROM r_logs L
+                                            INNER JOIN r_employees EMP
+                                              ON EMP.EmployeeNumber = L.CreatedBy
+                                              WHERE L.NotifyTo = ''
+                                              ORDER BY L.DateCreated ASC
       ");
-      $data = $query_string->result_array();
-      return $data;
+      return $query->result_array();
     }
 
-    function getEmployees($keyword)
+    function getViewLogs($Id)
     {
-      $query_result = [];
-      $query = $this->db->query("SELECT   EmployeeNumber 'id'
-                                          , CONCAT(EmployeeNumber, ' - ', FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as 'text'
-                                          FROM R_Employee 
-                                            WHERE (
-                                              StatusId = 1
-                                              OR 
-                                              StatusId = 2
-                                            )
-                                            AND 
-                                            (
-                                              EmployeeNumber LIKE '%$keyword%'
-                                              OR FirstName LIKE '%$keyword%'
-                                              OR LastName LIKE '%$keyword%'
-                                              OR ExtName LIKE '%$keyword%'
-                                              OR MiddleName LIKE '%$keyword%'
-                                            )
-                                            AND EmployeeNumber != '000000'
-                                            AND EmployeeNumber NOT IN (SELECT EmployeeNumber FROM R_UserRole)
+      $userDetails = $this->maintenance_model->selectSpecific('R_Employees', 'Id', $Id);
+      $query = $this->db->query("SELECT   Description
+                                          , Remarks
+                                          , DATE_FORMAT(DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                          , DateCreated as rawDateCreated
+                                          FROM r_logs
+                                          WHERE NotifyTo = '".$userDetails['EmployeeNumber']."'
+                                          ORDER BY DateCreated ASC
       ");
-      return $query->result();
+      return $query->result_array();
     }
 
-    function getReportEmployees($keyword)
+    function getUserDetail($Id)
     {
-      $query_result = [];
-      $query = $this->db->query("SELECT   CONCAT(EmployeeNumber, ' - ', FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END , ' - ', P.Name ) 'id'
-                                          , CONCAT(EmployeeNumber, ' - ', FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END , ' - ', P.Name )  as 'text'
-                                          FROM R_Employee EMP
+      $query = $this->db->query("SELECT   CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as Name
+                                          , EMP.EmployeeNumber
+                                          , EMP.MiddleName
+                                          , EMP.LastName
+                                          , EMP.FirstName
+                                          , EMP.ExtName
+                                          , EMP.BranchId
+                                          , EMP.PositionId
+                                          , S.Description as StatusDescription
+                                          , EMP.StatusId
+                                          , P.Description as Position
+                                          , DATE_FORMAT(EMP.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                          , S.Color
+                                          , EMP.ID
+                                          , U.IsNew
+                                          , R.Description as Role
+                                          , B.Description as Branch
+                                          FROM R_Users U 
+                                            INNER JOIN r_employees EMP
+                                              ON EMP.EmployeeNumber = U.EmployeeNumber
+                                            INNER JOIN R_Status S
+                                              ON S.Id = U.StatusId
                                             INNER JOIN R_Position P
-                                              ON P.PositionId = EMP.PositionId
-                                              WHERE (
-                                                EMP.StatusId = 1
-                                                OR 
-                                                EMP.StatusId = 2
-                                              )
-                                              AND 
-                                              (
-                                                EmployeeNumber LIKE '%$keyword%'
-                                                OR FirstName LIKE '%$keyword%'
-                                                OR LastName LIKE '%$keyword%'
-                                                OR ExtName LIKE '%$keyword%'
-                                                OR MiddleName LIKE '%$keyword%'
-                                              )
-                                              AND EmployeeNumber != '000000'
+                                              ON P.Id = EMP.PositionId
+                                            INNER JOIN R_Roles R
+                                              ON R.Id = U.RoleId
+                                            INNER JOIN R_Branch B
+                                              ON B.Id = EMP.BranchId
+                                                WHERE EMP.ID = '$Id'
       ");
-      return $query->result();
+      return $query->row_array();
     }
 
-    function getBorrowers($keyword)
+    function getStudentDetails($Id)
     {
-      $query_result = [];
-      $query = $this->db->query("SELECT   BorrowerNumber 'id'
-                                          , CONCAT(EmployeeNumber, ' - ', FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as 'text'
-                                          FROM R_Borrowers 
-                                            WHERE (
-                                              StatusId = 1
-                                              OR 
-                                              StatusId = 2
-                                            )
-                                            AND 
-                                            (
-                                              BorrowerNumber LIKE '%$keyword%'
-                                              OR FirstName LIKE '%$keyword%'
-                                              OR LastName LIKE '%$keyword%'
-                                              OR ExtName LIKE '%$keyword%'
-                                              OR MiddleName LIKE '%$keyword%'
-                                            )
-                                            AND BorrowerNumber != '000000'
+      $query = $this->db->query("SELECT   CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as Name
+                                          , EMP.StudentNumber
+                                          , 'Student' as Position
+                                          , 'N/A' as Branch
+                                          , EMP.MiddleName
+                                          , EMP.LastName
+                                          , EMP.FirstName
+                                          , EMP.ExtName
+                                          , S.Description as StatusDescription
+                                          , EMP.StatusId
+                                          , DATE_FORMAT(EMP.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                          , S.Color
+                                          , EMP.ID
+                                          , U.IsNew
+                                          , R.Description as Role
+                                          FROM R_Users U 
+                                            INNER JOIN r_students EMP
+                                              ON EMP.StudentNumber = U.EmployeeNumber
+                                            INNER JOIN R_Status S
+                                              ON S.Id = U.StatusId
+                                            INNER JOIN R_Roles R
+                                              ON R.Id = U.RoleId
+                                                WHERE EMP.StudentNumber = '$Id'
       ");
-      return $query->result();
+      return $query->row_array();
     }
 
-    function getRoles($keyword)
+    function getPositions()
     {
-      $query_result = [];
-      $query = $this->db->query("SELECT   RoleId 'id'
-                                          , Description as 'text'
-                                          FROM R_Role 
-                                            WHERE Description LIKE '%$keyword%'
+      $query = $this->db->query("SELECT Id
+                                        , Description
+                                        FROM R_Position
+                                          WHERE StatusId = 1
       ");
-      return $query->result();
+      return $query->result_array();
     }
 
-    function getGender()
+    function getStatus()
     {
-      $query_result = [];
-      $query = $this->db->query("SELECT   SexId
-                                          , Name 
-                                          FROM R_Sex
+      $query = $this->db->query("SELECT Id
+                                        , Description
+                                        FROM R_Status
+      ");
+      return $query->result_array();
+    }
+
+    function getBranches()
+    {
+      $query = $this->db->query("SELECT Id
+                                        , Description
+                                        FROM r_branch
+                                          WHERE StatusId = 1
+      ");
+      return $query->result_array();
+    }
+
+    function getQuestions()
+    {
+      $query = $this->db->query("SELECT Id
+                                        , Name as Description
+                                        FROM r_securityquestions
+                                          WHERE StatusId = 1
+      ");
+      return $query->result_array();
+    }
+
+    function getEmployees()
+    {
+      $query = $this->db->query("SELECT   CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as Name
+                                          , LPAD(EMP.ID, 5, 0) as EmployeeNumber
+                                          , EMP.ID
+                                          FROM r_employees EMP
+                                            WHERE EMP.StatusId = 1
+                                            AND NOT EXISTS(SELECT * FROM r_users WHERE EmployeeNumber = EMP.EmployeeNumber)
+      ");
+      return $query->result_array();
+    }
+
+    function getRoles()
+    {
+      $query = $this->db->query("SELECT   Id
+                                        , Description
+                                          FROM r_roles
                                             WHERE StatusId = 1
       ");
+      return $query->result_array();
+    }
+
+    function countRecord($data)
+    {
+      $query_string = $this->db->query("SELECT  * 
+                                                FROM ".$data['Table']."
+                                                  ".$data['Column']."
+      ");
+      $data = $query_string->num_rows();
+      return $data;
+    }
+
+    function getEmployeeSecurityQuestions($QuestionNo)
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query_string = $this->db->query("SELECT  US.SecurityQuestionId as ID
+                                                , US.Answer
+                                                FROM question_has_answer US
+                                                  INNER JOIN r_securityquestions SQ
+                                                    ON US.SecurityQuestionId = SQ.Id
+                                                    WHERE US.EmployeeNumber = '$EmployeeNumber'
+                                                    AND US.QuestionNumber = ".$QuestionNo."
+                                                    AND US.StatusId = 1
+
+      ");
+      $data = $query_string->row_array();
+      return $data;
+    }
+
+    function getCurrentPassword($Password ,$EmployeeNumber)
+    {
+      $query_string = $this->db->query("SELECT Password
+                                                FROM R_Users
+                                                  WHERE EmployeeNumber = '$EmployeeNumber'
+                                                  AND Password = '$Password'
+      ");
+      $data = $query_string->num_rows();
+      return $data;
+    }
+
+    function checkExisitingEmployee($EmployeeNumber)
+    {
+      $query = $this->db->query("SELECT  EmployeeNumber
+                                                FROM r_Employees
+                                                  WHERE EmployeeNumber = '$EmployeeNumber'
+                                                  AND StatusId = 1 
+      ");
+      
+      $data = $query->num_rows();
+      return $data;
+    }
+
+    function checkSecurity($Question, $Answer, $QuestionNumber)
+    {
+      $query = $this->db->query("SELECT *
+                                        FROM question_has_answer
+                                          WHERE SecurityQuestionId = $Question
+                                          AND Answer = '".htmlentities($Answer, ENT_QUOTES)."'
+                                          AND QuestionNumber = $QuestionNumber
+                                          AND StatusId = 1
+      ");
+      
+      
+      $data = $query->num_rows();
+      return $data;
+    }
+
+    function getSubjectList()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as Name
+                                        , S.Name as SubjectName
+                                        , SS.Description as StatusDescription
+                                        , S.StatusId
+                                        , S.Description as SubjectDescription
+                                        , S.Code
+                                        , S.Units
+                                        , SS.Color
+                                        , S.Id
+                                        FROM R_Subjects S
+                                          INNER JOIN R_Status SS
+                                            ON SS.Id = S.StatusId
+                                          INNER JOIN r_employees EMP
+                                            ON EMP.EmployeeNumber = S.CreatedBy 
+      ");
+      return $query->result_array();
+    }
+
+    function getClassList()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as Name
+                                        , S.MaxStudents as MaxStudents
+                                        , SS.Description as StatusDescription
+                                        , S.StatusId
+                                        , S.Description as ClassDescription
+                                        , S.Name as ClassName
+                                        , SS.Color
+                                        , S.Id
+                                        FROM R_ClassList S
+                                          INNER JOIN R_Status SS
+                                            ON SS.Id = S.StatusId
+                                          INNER JOIN r_employees EMP
+                                            ON EMP.EmployeeNumber = S.CreatedBy 
+                                            GROUP BY S.ID
+      ");
+      return $query->result_array();
+    }
+
+    function getFacultyClassList()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as Name
+                                        , S.MaxStudents as MaxStudents
+                                        , SS.Description as StatusDescription
+                                        , S.StatusId
+                                        , S.Description as ClassDescription
+                                        , S.Name as ClassName
+                                        , SS.Color
+                                        , S.Id
+                                        FROM R_ClassList S
+                                          INNER JOIN R_Status SS
+                                            ON SS.Id = S.StatusId
+                                          INNER JOIN r_employees EMP
+                                            ON EMP.EmployeeNumber = S.CreatedBy 
+                                            WHERE EXISTS (SELECT * FROM class_has_subjects WHERE ClassId = S.Id AND StatusId = 1 AND FacultyId = '$EmployeeNumber')
+                                            GROUP BY S.ID
+      ");
+      return $query->result_array();
+    }
+
+    function getSubjects()
+    {
+      $query = $this->db->query("SELECT Id
+                                        , Name as Description
+                                        , Code
+                                        FROM r_subjects
+                                          WHERE StatusId = 1
+      ");
+      return $query->result_array();
+    }
+
+    function getFaculty()
+    {
+      $query = $this->db->query("SELECT   CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as Name
+                                          , EMP.EmployeeNumber
+                                          FROM r_employees EMP
+                                                INNER JOIN r_position P
+                                                    ON P.ID = EMP.PositionId
+                                                      WHERE P.Id = 1
+                                                      AND EMP.StatusId = 1
+      ");
+      return $query->result_array();
+    }
+
+    function getStudentList()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CreatedBy
+                                        , CONCAT(S.LastName, ', ', S.FirstName, ' ', COALESCE(S.MiddleName, 'N/A'), ' ', COALESCE(S.ExtName, '')) as StudentName
+                                        , S.StatusId
+                                        , S.FirstName
+                                        , S.MiddleName
+                                        , S.LastName
+                                        , S.ExtName
+                                        , S.StudentNumber
+                                        , DATE_FORMAT(S.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                        , S.DateCreated as rawDateCreated
+                                        , SS.Description as StatusDescription
+                                        , SS.Color
+                                        , S.Id
+                                        FROM R_Students S
+                                          INNER JOIN R_Status SS
+                                            ON SS.Id = S.StatusId
+                                          INNER JOIN r_employees EMP
+                                            ON EMP.EmployeeNumber = S.CreatedBy
+      ");
+      return $query->result_array();
+    }
+
+    function get_datatables_StudentList()
+    {
+      $this->_get_datatables_query_StudentList($filter);
+      if($_POST['length'] != -1)
+      $this->db->limit($_POST['length'], $_POST['start']);
+      $query = $this->db->get();
       return $query->result();
     }
 
-    function countExistingUserRole($data)
-    {
-      $query_string = $this->db->query("SELECT  * 
-                                                FROM R_UserRole
-                                                  WHERE EmployeeNumber = '".$data['EmployeeNumber']."'
-                                                  AND RoleId = '".$data['RoleId']."'
+    private function _get_datatables_query_StudentList()
+    { 
+      $UserId = $this->session->userdata('UserId');
+      $EmployeeId = $this->session->userdata('EmployeeId');
+
+      $table = 'R_Students S';
+      $column_order = array(
+          'S.StudentNumber'
+          , 'S.LastName'
+          , 'EMP.LastName'
+          , 'S.DateCreated'
+          ,'SS.Description'
+        ); //set column field database for datatable orderable
+
+      
+      $column_search = array(
+        'S.StudentNumber'
+        ,'S.LastName'
+        ,'S.FirstName'
+        ,'S.MiddleName'
+        ,'S.ExtName'
+        ,'EMP.LastName'
+        ,'S.DateCreated'
+        ,'SS.Description'
+      ); //set column field database for datatable searchable 
+
+
+      $order = array("S.StudentNumber" => 'ASC');
+      $this->db->distinct();
+      $this->db->select("CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CreatedBy
+                                , CONCAT(S.LastName, ', ', S.FirstName, ' ', COALESCE(S.MiddleName, 'N/A'), ' ', COALESCE(S.ExtName, '')) as StudentName
+                                , S.StatusId
+                                , S.FirstName
+                                , S.MiddleName
+                                , S.LastName
+                                , S.ExtName
+                                , S.StudentNumber
+                                , DATE_FORMAT(S.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                , S.DateCreated as rawDateCreated
+                                , SS.Description as StatusDescription
+                                , SS.Color
+                                , S.Id
+                                , S.AddressLine
+                                , B.brgyCode as barangayId
+                                , B.regCode
+                                , B.provCode
+                                , B.citymunCode as cityCode
+                                , S.studentContactNo
+                                , S.studentEmailAddress
+                                , S.placeOfBirth
+                                , S.dateOfBirth
+                                , S.genderId
+                                , S.maritalStatusId
+                                , S.graduatingStatusId
+                                , S.fatherName
+                                , S.fatherOccupation
+                                , S.motherName
+                                , S.motherOccupation
+                                , S.guardianName
+                                , S.guardianOccupation
+                                , S.guardianContactNumber
       ");
-      $data = $query_string->num_rows();
-      return $data;
+
+      $this->db->from($table);
+      $this->db->join('R_Status SS', 'SS.Id = S.StatusId', 'INNER');
+      $this->db->join('r_employees EMP', 'EMP.EmployeeNumber = S.CreatedBy', 'INNER');
+      $this->db->join('add_barangay B', 'S.barangayId = B.brgyCode', 'INNER');
+      $i = 0;
+     
+      foreach ($column_search as $item) // loop column 
+      {
+        if($_POST['search']['value']) // if datatable send POST for search
+        {
+          if($i===0) // first loop
+          {
+            $this->db->group_start(); 
+            $this->db->like($item, $_POST['search']['value']);
+          }
+          else
+          {
+            $this->db->or_like($item, $_POST['search']['value']);
+          }
+
+          if(count($column_search) - 1 == $i) //last loop
+          $this->db->group_end(); //close bracket
+            
+        }
+        $i = $i+1;
+      }
+       
+      if(isset($_POST['order'])) // here order processing
+      {
+        $this->db->order_by($column_order[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
+      } 
+      else if(isset($order))
+      {
+        $this->db->order_by(key($order), $order[key($order)]);
+      }
     }
 
-    function countBank($data)
+    function countAllFilteredStudentList()
     {
-      $query_string = $this->db->query("SELECT  * 
-                                                FROM R_Bank
-                                                  WHERE BankName = '".$data['BankName']."'
-                                                  AND Description = '".$data['Description']."'
-                                                  AND AccountNumber = '".$data['AccountNumber']."'
+      $UserId = $this->session->userdata('UserId'); 
+      $EmployeeId = $this->session->userdata('EmployeeId');
+
+      $query = $this->db->query("SELECT CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CreatedBy
+                                        , CONCAT(S.LastName, ', ', S.FirstName, ' ', COALESCE(S.MiddleName, 'N/A'), ' ', COALESCE(S.ExtName, '')) as StudentName
+                                        , S.StatusId
+                                        , S.FirstName
+                                        , S.MiddleName
+                                        , S.LastName
+                                        , S.ExtName
+                                        , S.StudentNumber
+                                        , DATE_FORMAT(S.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                        , S.DateCreated as rawDateCreated
+                                        , SS.Description as StatusDescription
+                                        , SS.Color
+                                        , S.Id
+                                        FROM R_Students S
+                                          INNER JOIN R_Status SS
+                                            ON SS.Id = S.StatusId
+                                          INNER JOIN r_employees EMP
+                                            ON EMP.EmployeeNumber = S.CreatedBy
+                                          INNER JOIN add_barangay B
+                                            ON S.barangayId = B.brgyCode
       ");
-      $data = $query_string->num_rows();
-      return $data;
+      return $query->num_rows();
     }
 
-    function getBankDetails($Id)
+    function countFilteredStudentList()
     {
-      $query_string = $this->db->query("SELECT  BNK.BankName
-                                                , BNK.Description
-                                                , BNK.AccountNumber
-                                                FROM R_Bank BNK
-                                                  WHERE BNK.BankId = '$Id'
-      ");
-      $BankDetail = $query_string->row_array();
-      return $BankDetail;
+      $this->_get_datatables_query_StudentList();
+      $query = $this->db->get();
+      return $query->num_rows();
     }
 
-    function countBranch($data)
-    {
-      $query_string = $this->db->query("SELECT  * 
-                                                FROM R_Branches
-                                                  WHERE Code = '".$data['Code']."'
-                                                  AND Name = '".$data['Name']."'
-                                                  AND Description = '".$data['Description']."'
-                                                  AND LeaseMonthly = '".$data['LeaseMonthly']."'
-                                                  AND Description = '".$data['Description']."'
-      ");
-      $data = $query_string->num_rows();
-      return $data;
-    }
-
-    function getBranchDetails($Id)
-    {
-      $query_string = $this->db->query("SELECT BRNCH.Name as Name
-                                                , BranchId
-                                                , BRNCH.Description
-                                                , BRNCH.Code
-                                                , BRNCH.CreatedBy
-                                                , BRNCH.StatusId
-                                                , BRNCH.LeaseMonthly
-                                                , DATE_FORMAT(BRNCH.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
-                                                , DATE_FORMAT(BRNCH.DateUpdated, '%b %d, %Y %h:%i %p') as DateUpdated
-                                                , DATE_FORMAT(BRNCH.DateFromLease, '%b %d, %Y %h:%i %p') as DateFrom
-                                                , DATE_FORMAT(BRNCH.DateToLease, '%b %d, %Y %h:%i %p') as DateTo
-                                                FROM R_Branches BRNCH
-                                                  WHERE BRNCH.BranchId = '$Id'
-      ");
-      $BranchDetail = $query_string->row_array();
-      return $BranchDetail;
-    }
-
-    function countLoanType($data)
-    {
-      $query_string = $this->db->query("SELECT  * 
-                                                FROM R_Loans
-                                                  WHERE Name = '".$data['Name']."'
-                                                  AND Description = '".$data['Description']."'
-      ");
-      $data = $query_string->num_rows();
-      return $data;
-    }
-
-    function getLoanTypeDetails($Id)
-    {
-      $query_string = $this->db->query("SELECT  L.Name as LoanName
-                                                , L.Description
-                                                FROM R_Loans L
-                                                  WHERE L.LoanId = '$Id'
-      ");
-      $LoanTypeDetail = $query_string->row_array();
-      return $LoanTypeDetail;
-    }
-
-    function countCharges($data)
-    {
-      $query_string = $this->db->query("SELECT  * 
-                                                FROM R_Charges
-                                                  WHERE Name = '".$data['Name']."'
-                                                  AND Description = '".$data['Description']."'
-                                                  AND ChargeType = '".$data['ChargeType']."'
-                                                  AND Amount = '".$data['Amount']."'
-      ");
-      $data = $query_string->num_rows();
-      return $data;
-    }
-
-    function getChargeDetails($Id)
-    {
-      $query_string = $this->db->query("SELECT  ChargeType
-                                                , Name
-                                                , Description
-                                                , Amount
-                                                FROM R_Charges 
-                                                  WHERE ChargeId = '$Id'
-      ");
-      $ChargeDetail = $query_string->row_array();
-      return $ChargeDetail;
-    }
-
-    function countOptional($data)
-    {
-      $query_string = $this->db->query("SELECT  * 
-                                                FROM R_OptionalCharges
-                                                  WHERE Name = '".$data['Name']."'
-                                                  AND Description = '".$data['Description']."'
-
-      ");
-      $data = $query_string->num_rows();
-      return $data;
-    }
-
-    function getOptionalDetails($Id)
-    {
-      $query_string = $this->db->query("SELECT  Name
-                                                , Description
-                                                FROM R_OptionalCharges 
-                                                  WHERE OptionalId = '$Id'
-      ");
-      $OptionalDetail = $query_string->row_array();
-      return $OptionalDetail;
-    }
-
-    function countRequirements($data)
-    {
-      $query_string = $this->db->query("SELECT  * 
-                                                FROM R_Requirements
-                                                  WHERE Name = '".$data['Name']."'
-                                                  AND Description = '".$data['Description']."'
-                                                  AND StatusId = 1
-      ");
-      $data = $query_string->num_rows();
-      return $data;
-    }
-
-    function getRequirementDetails($Id)
-    {
-      $query_string = $this->db->query("SELECT  Name
-                                                , Description
-                                                , IsMandatory
-                                                FROM R_Requirements 
-                                                  WHERE RequirementId = '$Id'
-      ");
-      $RequirementDetail = $query_string->row_array();
-      return $RequirementDetail;
-    }
-
-    function countPositions($data)
-    {
-      $query_string = $this->db->query("SELECT  * 
-                                                FROM R_Position
-                                                  WHERE Name = '".$data['Name']."'
-                                                  AND Description = '".$data['Description']."'
-      ");
-      $data = $query_string->num_rows();
-      return $data;
-    }
-
-    function getPositionDetails($Id)
-    {
-      $query_string = $this->db->query("SELECT  Name
-                                                , Description
-                                                FROM R_Position 
-                                                  WHERE PositionId = '$Id'
-      ");
-      $PositionDetail = $query_string->row_array();
-      return $PositionDetail;
-    }
-
-    function countPurpose($data)
-    {
-      $query_string = $this->db->query("SELECT  * 
-                                                FROM R_Purpose
-                                                  WHERE Name = '".$data['Name']."'
-                                                  AND Description = '".$data['Description']."'
-      ");
-      $data = $query_string->num_rows();
-      return $data;
-    }
-
-    function getPurposeDetails($Id)
-    {
-      $query_string = $this->db->query("SELECT  Name
-                                                , Description
-                                                FROM R_Purpose 
-                                                  WHERE PurposeId = '$Id'
-      ");
-      $PurposeDetail = $query_string->row_array();
-      return $PurposeDetail;
-    }
-
-    function countMethod($data)
-    {
-      $query_string = $this->db->query("SELECT  * 
-                                                FROM R_Disbursement
-                                                  WHERE Name = '".$data['Name']."'
-      ");
-      $data = $query_string->num_rows();
-      return $data;
-    }
-
-    function getMethodDetails($Id)
-    {
-      $query_string = $this->db->query("SELECT  Name
-                                                , Description
-                                                FROM R_MethodOfPayment 
-                                                  WHERE MethodId = '$Id'
-      ");
-      $MethodDetail = $query_string->row_array();
-      return $MethodDetail;
-    }
-
-    function countAsset($data)
-    {
-      $query_string = $this->db->query("SELECT  * 
-                                                FROM R_Category
-                                                  WHERE Name = '".$data['Name']."'
-                                                  AND Description = '".$data['Description']."'
-      ");
-      $data = $query_string->num_rows();
-      return $data;
-    }
-
-    function getAssetDetails($Id)
-    {
-      $query_string = $this->db->query("SELECT  Name
-                                                , Description
-                                                FROM R_Category 
-                                                  WHERE CategoryId = '$Id'
-      ");
-      $AssetDetail = $query_string->row_array();
-      return $AssetDetail;
-    }
-
-    function getAssetManagementDetails($Id)
-    {
-      $query_string = $this->db->query("SELECT  AM.AssetManagementId
-                                                , AM.Type
-                                                , AM.Name as AssetName
-                                                , CONCAT('AM-', LPAD(AM.AssetManagementId, 6, 0)) as rowNumber
-                                                , CONCAT(AM.Stock, '/', AM.CriticalLevel) as Stock
-                                                , AM.CategoryId
-                                                , AM.PurchaseValue
-                                                , AM.ReplacementValue
-                                                , AM.SerialNumber
-                                                , AM.BoughtFrom
-                                                , AM.Description
-                                                , AM.BranchId
-                                                , AM.Stock
-                                                , AM.CriticalLevel
-                                                , AssignedTo
-                                                , BRNCH.Name
-                                                FROM R_AssetManagement AM
-                                                INNER JOIN R_Branches BRNCH
-                                                  ON BRNCH.BranchId = AM.BranchId
-                                                  WHERE AM.AssetManagementId = '$Id'
-      ");
-      $AssetManagementId = $query_string->row_array();
-      return $AssetManagementId;
-    }
-
-    function countLoanStatus($data)
-    {
-      $query_string = $this->db->query("SELECT  * 
-                                                FROM R_LoanStatus
-                                                  WHERE Name = '".$data['Name']."'
-
-      ");
-      $data = $query_string->num_rows();
-      return $data;
-    }
-
-    function getLoanStatusDetails($Id)
-    {
-      $query_string = $this->db->query("SELECT  Name
-                                                , Description
-                                                FROM R_LoanStatus 
-                                                  WHERE LoanStatusId = '$Id'
-      ");
-      $LoanStatusDetail = $query_string->row_array();
-      return $LoanStatusDetail;
-    }
-
-    function countBorrowerStatus($data)
-    {
-      $query_string = $this->db->query("SELECT  * 
-                                                FROM R_BorrowerStatus
-                                                  WHERE Name = '".$data['Name']."'
-                                                  AND StatusId = 1
-      ");
-      $data = $query_string->num_rows();
-      return $data;
-    }
-
-    function getBorrowerStatusDetails($Id)
-    {
-      $query_string = $this->db->query("SELECT  Name
-                                                FROM R_BorrowerStatus 
-                                                  WHERE BorrowerStatusId = '$Id'
-      ");
-      $BorrowerStatusDetail = $query_string->row_array();
-      return $BorrowerStatusDetail;
-    }
-
-    function countIndustry($data)
-    {
-      $query_string = $this->db->query("SELECT  * 
-                                                FROM R_Industry I
-                                                  WHERE Name = '".$data['Name']."'
-                                                  AND Description = '".$data['Description']."'
-      ");
-      $data = $query_string->num_rows();
-      return $data;
-    }
-
-    function getIndustryDetails($Id)
-    {
-      $query_string = $this->db->query("SELECT  Name
-                                                , Description
-                                                FROM R_Industry 
-                                                  WHERE IndustryId = '$Id'
-      ");
-      $IndustryDetail = $query_string->row_array();
-      return $IndustryDetail;
-    }
-
-    function getEducationDetails($Id)
-    {
-      $query_string = $this->db->query("SELECT  EDU.Name
-                                                , EDU.Description
-                                                FROM R_Education EDU 
-                                                  WHERE EducationId = '$Id'
-      ");
-      $EducationDetail = $query_string->row_array();
-      return $EducationDetail;
-    }
-
-    function countEducation($data)
-    {
-      $query_string = $this->db->query("SELECT  * 
-                                                FROM R_Education EDU
-                                                  WHERE EDU.Name = '".$data['Name']."'
-                                                  AND EDU.Description = '".$data['Description']."'
-      ");
-      $data = $query_string->num_rows();
-      return $data;
-    }
-
-    function countTangibles($data)
-    {
-      $query_string = $this->db->query("SELECT  * 
-                                                FROM R_AssetManagement T
-                                                  WHERE T.SerialNumber = '".$data['SerialNumber']."'
-      ");
-      $data = $query_string->num_rows();
-      return $data;
-    }
-
-    function getOccupationDetails($Id)
-    {
-      $query_string = $this->db->query("SELECT  OCCU.Name
-                                                , OCCU.Description
-                                                FROM R_Occupation OCCU 
-                                                  WHERE OccupationId = '$Id'
-      ");
-      $OccupationDetail = $query_string->row_array();
-      return $OccupationDetail;
-    }
-
-    function countOccupation($data)
-    {
-      $query_string = $this->db->query("SELECT  * 
-                                                FROM R_Occupation OCCU
-                                                  WHERE OCCU.Name = '".$data['Name']."'
-                                                  AND OCCU.Description = '".$data['Description']."'
-      ");
-      $data = $query_string->num_rows();
-      return $data;
-    }
-
-    function getRepaymentDetails($Id)
-    {
-      $query_string = $this->db->query("SELECT  RC.Type
-                                                FROM R_RepaymentCycle RC 
-                                                  WHERE RepaymentId = '$Id'
-      ");
-      $RepaymentDetail = $query_string->row_array();
-      return $RepaymentDetail;
-    }
-
-    function countRepayment($data)
-    {
-      $query_string = $this->db->query("SELECT  * 
-                                                FROM R_RepaymentCycle RC
-                                                  WHERE RC.Type = '".$data['Name']."'
-      ");
-      $data = $query_string->num_rows();
-      return $data;
-    }
-
-    function getDisbursementDetails($Id)
-    {
-      $query_string = $this->db->query("SELECT  Name
-                                                FROM R_Disbursement D 
-                                                  WHERE DisbursementId = '$Id'
-      ");
-      $DisbursementDetail = $query_string->row_array();
-      return $DisbursementDetail;
-    }
-
-    function getDisclosureDetails($Id)
-    {
-      $query_string = $this->db->query("SELECT  Description
-                                                FROM R_Loanundertaking LU 
-                                                  WHERE UndertakingId = '$Id'
-      ");
-      $DisclosureDetail = $query_string->row_array();
-      return $DisclosureDetail;
-    }
-
-    function countDisclosure($data)
-    {
-      $query_string = $this->db->query("SELECT  * 
-                                                FROM R_Loanundertaking LU
-                                                  WHERE LU.Description = '".$data['Description']."'
-      ");
-      $data = $query_string->num_rows();
-      return $data;
-    }
-
-    function getQuestionDetails($Id)
-    {
-      $query_string = $this->db->query("SELECT  Name
-                                                FROM R_Securityquestions SQ 
-                                                  WHERE SecurityQuestionId = '$Id'
-      ");
-      $QuestionDetail = $query_string->row_array();
-      return $QuestionDetail;
-    }
-
-    function countQuestion($data)
-    {
-      $query_string = $this->db->query("SELECT  * 
-                                                FROM R_Securityquestions SQ
-                                                  WHERE SQ.Name = '".$data['Description']."'
-      ");
-      $data = $query_string->num_rows();
-      return $data;
-    }
-
-    function countDisbursement($data)
-    {
-      $query_string = $this->db->query("SELECT  * 
-                                                FROM R_Disbursement D
-                                                  WHERE D.Name = '".$data['Name']."'
-      ");
-      $data = $query_string->num_rows();
-      return $data;
-    }
-
-    function getCapitalDetails($Id)
-    {
-      $query_string = $this->db->query("SELECT  C.Amount
-                                                , CapitalId
-                                                , CONCAT('IC-', LPAD(C.CapitalId, 6, 0)) as ReferenceNo
-                                                , C.BranchId
-                                                FROM R_Capital C 
-                                                  WHERE CapitalId = '$Id'
-      ");
-      $CapitalDetail = $query_string->row_array();
-      return $CapitalDetail;
-    }
-
-    function countCapital($data)
-    {
-      $query_string = $this->db->query("SELECT  * 
-                                                FROM R_Capital C
-                                                  WHERE C.Amount = '".$data['Amount']."'
-      ");
-      $data = $query_string->num_rows();
-      return $data;
-    }
-
-    function getExpenseTypeDetails($Id)
-    {
-      $query_string = $this->db->query("SELECT  ET.Name as ExpenseType
-                                                , ET.Description
-                                                , ExpenseTypeId
-                                                , CONCAT('ET-', LPAD(ET.ExpenseTypeId, 6, 0)) as ReferenceNo
-                                                FROM R_ExpenseType ET 
-                                                  WHERE ExpenseTypeId = '$Id'
-      ");
-      $ExpenseTypeDetail = $query_string->row_array();
-      return $ExpenseTypeDetail;
-    }
-
-    function countExpenseType($data)
-    {
-      $query_string = $this->db->query("SELECT  * 
-                                                FROM R_ExpenseType ET
-                                                  WHERE ET.Name = '".$data['Name']."'
-                                                  AND ET.Description = '".$data['Description']."'
-      ");
-      $data = $query_string->num_rows();
-      return $data;
-    }
-
-    function getExpenseDetails($Id)
-    {
-      $query_string = $this->db->query("SELECT  EX.ExpenseTypeId
-                                                , EX.Amount
-                                                , ET.Name as ExpenseName
-                                                , ExpenseId
-                                                , EX.ExpenseTypeId
-                                                , EX.DateExpense
-                                                , CONCAT('EX-', LPAD(EX.ExpenseId, 6, 0)) as ReferenceNo
-                                                , DATE_FORMAT(EX.DateExpense, '%b %d, %Y %h:%i %p') as DateExpense
-                                                FROM R_Expense EX 
-                                                  INNER JOIN R_ExpenseType ET
-                                                   ON EX.ExpenseTypeId = ET.ExpenseTypeId
-                                                  WHERE ExpenseId = '$Id'
-      ");
-      $ExpenseDetail = $query_string->row_array();
-      return $ExpenseDetail;
-    }
-
-    function countExpense($data)
-    {
-      $query_string = $this->db->query("SELECT  * 
-                                                FROM R_Expense EX
-                                                  WHERE EX.Amount = '".$data['Amount']."'
-      ");
-      $data = $query_string->num_rows();
-      return $data;
-    }
-
-    function getWithdrawalTypeDetails($Id)
-    {
-      $query_string = $this->db->query("SELECT  WT.Name as WithdrawalType
-                                                , WT.Description
-                                                , WithdrawalTypeId
-                                                , CONCAT('WT-', LPAD(WT.WithdrawalTypeId, 6, 0)) as ReferenceNo
-                                                FROM R_WithdrawalType WT 
-                                                  WHERE WithdrawalTypeId = '$Id'
-      ");
-      $WithdrawalTypeDetail = $query_string->row_array();
-      return $WithdrawalTypeDetail;
-    }
-
-    function countWithdrawalType($data)
-    {
-      $query_string = $this->db->query("SELECT  * 
-                                                FROM R_WithdrawalType WT
-                                                  WHERE WT.Name = '".$data['Name']."'
-                                                  AND WT.Description = '".$data['Description']."'
-                                                  AND StatusId = 1
-      ");
-      $data = $query_string->num_rows();
-      return $data;
-    }
-
-    function getWithdrawalDetails($Id)
-    {
-      $query_string = $this->db->query("SELECT  WT.WithdrawalTypeId
-                                                , W.Amount
-                                                , WT.Name as WithdrawalName
-                                                , WithdrawalId
-                                                , W.WithdrawalTypeId
-                                                , W.DateWithdrawal
-                                                , CONCAT('DEP-', LPAD(W.WithdrawalId, 6, 0)) as ReferenceNo
-                                                , DATE_FORMAT(W.DateWithdrawal, '%d %b %Y') as DateWithdrawal
-                                                , DATE_FORMAT(W.DateWithdrawal, '%Y-%m-%d') as rawDateWithdrawal
-                                                FROM R_Withdrawal W 
-                                                  INNER JOIN R_WithdrawalType WT
-                                                   ON W.WithdrawalTypeId = WT.WithdrawalTypeId
-                                                  WHERE WithdrawalId = '$Id'
-      ");
-      $WithdrawalDetail = $query_string->row_array();
-      return $WithdrawalDetail;
-    }
-
-    function countWithdrawal($data)
-    {
-      $query_string = $this->db->query("SELECT  * 
-                                                FROM R_Withdrawal W
-                                                  WHERE W.Amount = '".$data['Amount']."'
-                                                  AND WithdrawalTypeId = '".$data['WithdrawalTypeId']."'
-                                                  AND DateWithdrawal = '".$data['DateWithdrawal']."'
-      ");
-      $data = $query_string->num_rows();
-      return $data;
-    }
-
-    function updateStatus($input)
+    function getStudentsForUsers()
     {
       $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-      $DateNow = date("Y-m-d H:i:s");
-
-      if($input['tableType'] == 'Bank')
-      {
-        $count = $this->db->query("SELECT  COUNT(*) as ifUsed
-                                                    FROM t_paymentsmade
-                                                      WHERE BankId = ".$input['Id']."
-                                                      AND StatusId = 1
-        ")->row_array();
-        if($count['ifUsed'] == 0)
-        {
-          $Detail = $this->db->query("SELECT  BankName
-                                              , CONCAT('BNK-', LPAD(BNK.BankId, 6, 0)) as ReferenceNo
-                                                FROM R_Bank BNK
-                                                  WHERE BankId = ".$input['Id']."
-          ")->row_array();
-
-          // update status
-            $set = array(
-              'StatusId' => $input['updateType'],
-              'UpdatedBy' => $EmployeeNumber,
-              'DateUpdated' => $DateNow,
-            );
-            $condition = array(
-              'BankId' => $input['Id']
-            );
-            $table = 'R_Bank';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-          // admin audits finalss
-            if($input['updateType'] == 1)
-            {
-              $auditLogsManager = 'Re-activated bank #' .$Detail['ReferenceNo']. ' at the bank setup'; // main log
-              $auditAffectedEmployee = 'Re-activated bank #' .$Detail['ReferenceNo']. ' at the bank setup'; // main log
-            }
-            else if($input['updateType'] == 0)
-            {
-              $auditLogsManager = 'Deactivated bank #' .$Detail['ReferenceNo']. ' at the bank setup'; // main log
-              $auditAffectedEmployee = 'Deactivated bank #' .$Detail['ReferenceNo']. ' at the bank setup'; // main log
-            }
-            $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
-            return 1;
-        }
-        else
-        {
-          return 0;
-        }
-      }
-      else if($input['tableType'] == 'Branch')
-      {
-        $count = $this->db->query("SELECT  COUNT(*) as ifUsed
-                                                    FROM branch_has_employee
-                                                      WHERE BranchId = ".$input['Id']."
-                                                      AND StatusId != 3
-        ")->row_array();
-        if($count['ifUsed'] == 0)
-        {
-          $Detail = $this->db->query("SELECT  Name
-                                                    , CONCAT('BRNCH-', LPAD(BRNCH.BranchId, 6, 0)) as ReferenceNo
-                                                      FROM R_Branches BRNCH
-                                                        WHERE BranchId = ".$input['Id']."
-          ")->row_array();
-
-          // update status
-            $set = array(
-              'StatusId' => $input['updateType'],
-              'UpdatedBy' => $EmployeeNumber,
-              'DateUpdated' => $DateNow,
-            );
-            $condition = array(
-              'BranchId' => $input['Id']
-            );
-            $table = 'R_Branches';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-          // admin audits finalss
-            if($input['updateType'] == 1)
-            {
-              $auditLogsManager = 'Re-activated branch #' .$Detail['ReferenceNo']. ' at the branch setup'; // main log
-              $auditAffectedEmployee = 'Re-activated branch #' .$Detail['ReferenceNo']. ' at the branch setup'; // main log
-            }
-            else if($input['updateType'] == 0)
-            {
-              $auditLogsManager = 'Deactivated branch #' .$Detail['ReferenceNo']. ' at the branch setup'; // main log
-              $auditAffectedEmployee = 'Deactivated branch #' .$Detail['ReferenceNo']. ' at the branch setup'; // main log
-            }
-            $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
-            return 1;
-        }
-        else
-        {
-          return 0;
-        }
-      }
-      else if($input['tableType'] == 'Loan')
-      {
-        $Detail = $this->db->query("SELECT  Name
-                                            , CONCAT('LT-', LPAD(L.LoanId, 6, 0)) as ReferenceNo
-                                            FROM R_Loans L
-                                              WHERE LoanId = ".$input['Id']."
-        ")->row_array();
-
-        $count = $this->db->query("SELECT  COUNT(*) as ifUsed
-                                                    FROM t_application
-                                                          WHERE LoanId = ".$input['Id']."
-        ")->row_array();
-        if($count['ifUsed'] == 0)
-        {
-          // update status
-            $set = array(
-              'StatusId' => $input['updateType'],
-              'UpdatedBy' => $EmployeeNumber,
-              'DateUpdated' => $DateNow,
-            );
-            $condition = array(
-              'LoanId' => $input['Id']
-            );
-            $table = 'R_Loans';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-          // admin audits finalss
-            if($input['updateType'] == 1)
-            {
-              $auditLogsManager = 'Re-activated loan #' .$Detail['ReferenceNo']. ' at the loan setup'; // main log
-              $auditAffectedEmployee = 'Re-activated loan #' .$Detail['ReferenceNo']. ' at the loan setup'; // main log
-            }
-            else if($input['updateType'] == 0)
-            {
-              $auditLogsManager = 'Deactivated loan #' .$Detail['ReferenceNo']. ' at the loan setup'; // main log
-              $auditAffectedEmployee = 'Deactivated loan #' .$Detail['ReferenceNo']. ' at the loan setup'; // main log
-            }
-            $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
-        }
-      }
-      else if($input['tableType'] == 'Charge')
-      {
-        $Detail = $this->db->query("SELECT  Name
-                                                  , CONCAT('CH-', LPAD(CH.ChargeId, 6, 0)) as ReferenceNo
-                                                  FROM R_Charges CH
-                                                    WHERE ChargeId = ".$input['Id']."
-        ")->row_array();
-
-        // update status
-          $set = array(
-            'StatusId' => $input['updateType'],
-            'UpdatedBy' => $EmployeeNumber,
-            'DateUpdated' => $DateNow,
-          );
-          $condition = array(
-            'ChargeId' => $input['Id']
-          );
-          $table = 'R_Charges';
-          $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // admin audits finalss
-          if($input['updateType'] == 1)
-          {
-            $auditLogsManager = 'Re-activated charge #' .$Detail['ReferenceNo']. ' at the charges setup'; // main log
-            $auditAffectedEmployee = 'Re-activated charge #' .$Detail['ReferenceNo']. ' at the charges setup'; // main log
-          }
-          else if($input['updateType'] == 0)
-          {
-            $auditLogsManager = 'Deactivated charge #' .$Detail['ReferenceNo']. ' at the charges setup'; // main log
-            $auditAffectedEmployee = 'Deactivated charge #' .$Detail['ReferenceNo']. ' at the charges setup'; // main log
-          }
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
-      }
-      else if($input['tableType'] == 'Education')
-      {
-        $Detail = $this->db->query("SELECT  Name
-                                            , CONCAT('EDU-', LPAD(EDU.EducationId, 6, 0)) as ReferenceNo
-                                              FROM R_Education EDU
-                                                WHERE EducationId= ".$input['Id']."
-        ")->row_array();
-
-        // update status
-          $set = array(
-            'StatusId' => $input['updateType'],
-            'UpdatedBy' => $EmployeeNumber,
-            'DateUpdated' => $DateNow,
-          );
-          $condition = array(
-            'EducationId' => $input['Id']
-          );
-          $table = 'R_Education';
-          $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // admin audits finalss
-          if($input['updateType'] == 1)
-          {
-            $auditLogsManager = 'Re-activated education #' .$Detail['ReferenceNo']. ' at the education setup'; // main log
-            $auditAffectedEmployee = 'Re-activated education #' .$Detail['ReferenceNo']. ' at the education setup'; // main log
-          }
-          else if($input['updateType'] == 0)
-          {
-            $auditLogsManager = 'Deactivated education #' .$Detail['ReferenceNo']. ' at the education setup'; // main log
-            $auditAffectedEmployee = 'Deactivated education #' .$Detail['ReferenceNo']. ' at the education setup'; // main log
-          }
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
-      }
-      else if($input['tableType'] == 'Requirement')
-      {
-        $Detail = $this->db->query("SELECT  Name
-                                            , CONCAT('REQ-', LPAD(R.RequirementId, 6, 0)) as ReferenceNo
-                                            FROM R_Requirements R
-                                              WHERE RequirementId = ".$input['Id']."
-        ")->row_array();
-        $count = $this->db->query("SELECT  COUNT(*) as ifUsed
-                                                    FROM application_has_requirements
-                                                      WHERE RequirementId = ".$input['Id']."
-                                                      AND StatusId = 1
-        ")->row_array();
-        if($count['ifUsed'] == 0)
-        {
-          // update status
-            $set = array(
-              'StatusId' => $input['updateType'],
-              'UpdatedBy' => $EmployeeNumber,
-              'DateUpdated' => $DateNow,
-            );
-            $condition = array(
-              'RequirementId' => $input['Id']
-            );
-            $table = 'R_Requirements';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-
-          // admin audits finalss
-            if($input['updateType'] == 1)
-            {
-              $auditLogsManager = 'Re-activated requirement #' .$Detail['ReferenceNo']. ' at the requirement setup'; // main log
-              $auditAffectedEmployee = 'Re-activated requirement #' .$Detail['ReferenceNo']. ' at the requirement setup'; // main log
-            }
-            else if($input['updateType'] == 0)
-            {
-              $auditLogsManager = 'Deactivated requirement #' .$Detail['ReferenceNo']. ' at the requirement setup'; // main log
-              $auditAffectedEmployee = 'Deactivated requirement #' .$Detail['ReferenceNo']. ' at the requirement setup'; // main log
-            }
-            $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
-        }
-      }
-      else if($input['tableType'] == 'Position')
-      {
-        $count = $this->db->query("SELECT  COUNT(*) as ifUsed
-                                                    FROM R_Employee
-                                                          WHERE PositionId = ".$input['Id']."
-        ")->row_array();
-        if($count['ifUsed'] == 0)
-        {
-          $PositionDetail = $this->db->query("SELECT  Name
-                                                      , CONCAT('POS-', LPAD(PS.PositionId, 6, 0)) as ReferenceNo
-                                                      FROM R_Position PS
-                                                        WHERE PositionId = ".$input['Id']."
-          ")->row_array();
-
-          // update status
-            $set = array(
-              'StatusId' => $input['updateType'],
-              'UpdatedBy' => $EmployeeNumber,
-            );
-            $condition = array(
-              'PositionId' => $input['Id']
-            );
-            $table = 'R_Position';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-          // admin audits finalss
-            if($input['updateType'] == 1)
-            {
-              $auditLogsManager = 'Re-activated position #' .$PositionDetail['ReferenceNo']. ' at the positions setup'; // main log
-              $auditAffectedEmployee = 'Re-activated position #' .$PositionDetail['ReferenceNo']. ' at the positions setup'; // main log
-            }
-            else if($input['updateType'] == 0)
-            {
-              $auditLogsManager = 'Deactivated position #' .$PositionDetail['ReferenceNo']. ' at the positions setup'; // main log
-              $auditAffectedEmployee = 'Deactivated position #' .$PositionDetail['ReferenceNo']. ' at the positions setup'; // main log
-            }
-            $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
-          return 1;
-        }
-        else
-        {
-          return 0;
-        }
-      }
-      else if($input['tableType'] == 'Optional')
-      {
-        $OptionalDetail = $this->db->query("SELECT  Name
-                                                    FROM R_OptionalCharges OC
-                                                      WHERE OptionalId = ".$input['Id']."
-        ")->row_array();
-
-        // update status
-          $set = array(
-            'StatusId' => $input['updateType'],
-            'UpdatedBy' => $EmployeeNumber,
-            'DateUpdated' => $DateNow,
-          );
-          $condition = array(
-            'OptionalId' => $input['Id']
-          );
-          $table = 'R_OptionalCharges';
-          $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // insert into logs
-          if($input['updateType'] == 1)
-          {
-            $Description = 'Re-activated ' .$OptionalDetail['Name']. ' at the system setup'; // main log
-          }
-          else if($input['updateType'] == 0)
-          {
-            $Description = 'Deactivated ' .$OptionalDetail['Name']. '  at the system setup'; // main log
-          }
-          $data2 = array(
-            'Description'   => $Description,
-            'CreatedBy'     => $EmployeeNumber,
-            'DateCreated'   => $DateNow
-          );
-          $this->db->insert('R_Logs', $data2);
-      }
-      else if($input['tableType'] == 'Purpose')
-      {
-        $Detail = $this->db->query("SELECT  Name
-                                            , CONCAT('PP-', LPAD(PP.PurposeId, 6, 0)) as ReferenceNo
-                                              FROM R_Purpose PP
-                                                WHERE PurposeId = ".$input['Id']."
-        ")->row_array();
-
-
-        $count = $this->db->query("SELECT  COUNT(*) as ifUsed
-                                                    FROM t_application
-                                                          WHERE PurposeId = ".$input['Id']."
-        ")->row_array();
-        if($count['ifUsed'] == 0)
-        {
-          // update status
-            $set = array(
-              'StatusId' => $input['updateType'],
-              'UpdatedBy' => $EmployeeNumber,
-              'DateUpdated' => $DateNow,
-            );
-            $condition = array(
-              'PurposeId' => $input['Id']
-            );
-            $table = 'R_Purpose';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-          // admin audits finalss
-            if($input['updateType'] == 1)
-            {
-              $auditLogsManager = 'Re-activated purpose #' .$Detail['ReferenceNo']. ' at the purpose setup'; // main log
-              $auditAffectedEmployee = 'Re-activated purpose #' .$Detail['ReferenceNo']. ' at the purpose setup'; // main log
-            }
-            else if($input['updateType'] == 0)
-            {
-              $auditLogsManager = 'Deactivated purpose #' .$Detail['ReferenceNo']. ' at the purpose setup'; // main log
-              $auditAffectedEmployee = 'Deactivated purpose #' .$Detail['ReferenceNo']. ' at the purpose setup'; // main log
-            }
-            $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
-        }
-      }
-      else if($input['tableType'] == 'Method')
-      {
-        $Detail = $this->db->query("SELECT  Name
-                                                  , CONCAT('MP-', LPAD(M.DisbursementId, 6, 0)) as ReferenceNo
-                                                    FROM R_Disbursement M
-                                                      WHERE DisbursementId = ".$input['Id']."
-        ")->row_array();
-
-        $count = $this->db->query("SELECT  COUNT(*) as ifUsed
-                                                    FROM t_paymentsmade
-                                                      WHERE PaymentMethod = ".$input['Id']."
-                                                      AND StatusId = 1
-        ")->row_array();
-        if($count['ifUsed'] == 0)
-        {
-          // update status
-            $set = array(
-              'StatusId' => $input['updateType'],
-            );
-            $condition = array(
-              'DisbursementId' => $input['Id']
-            );
-            $table = 'R_Disbursement';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-          // admin audits finalss
-            if($input['updateType'] == 1)
-            {
-              $auditLogsManager = 'Re-activated method of payment #' .$Detail['ReferenceNo']. ' at the method of payment setup'; // main log
-              $auditAffectedEmployee = 'Re-activated method of payment #' .$Detail['ReferenceNo']. ' at the method of payment setup'; // main log
-            }
-            else if($input['updateType'] == 0)
-            {
-              $auditLogsManager = 'Deactivated method of payment #' .$Detail['ReferenceNo']. ' at the method of payment setup'; // main log
-              $auditAffectedEmployee = 'Deactivated method of payment #' .$Detail['ReferenceNo']. ' at the method of payment setup'; // main log
-            }
-            $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
-        }
-      }
-      else if($input['tableType'] == 'Category')
-      {
-        $Detail = $this->db->query("SELECT  Name
-                                                  , CONCAT('CAT-', LPAD(A.CategoryId, 6, 0)) as ReferenceNo
-                                                    FROM R_Category A
-                                                      WHERE CategoryId = ".$input['Id']."
-        ")->row_array();
-
-        // update status
-          $set = array(
-            'StatusId' => $input['updateType'],
-            'UpdatedBy' => $EmployeeNumber,
-            'DateUpdated' => $DateNow,
-          );
-          $condition = array(
-            'CategoryId' => $input['Id']
-          );
-          $table = 'R_Category';
-          $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // admin audits finalss
-          if($input['updateType'] == 1)
-          {
-            $auditLogsManager = 'Re-activated asset category #' .$Detail['ReferenceNo']. ' at the asset category setup'; // main log
-            $auditAffectedEmployee = 'Re-activated asset category #' .$Detail['ReferenceNo']. ' at the asset category setup'; // main log
-          }
-          else if($input['updateType'] == 0)
-          {
-            $auditLogsManager = 'Deactivated asset category #' .$Detail['ReferenceNo']. ' at the asset category setup'; // main log
-            $auditAffectedEmployee = 'Deactivated asset category #' .$Detail['ReferenceNo']. ' at the asset category setup'; // main log
-          }
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
-      }
-      else if($input['tableType'] == 'LoanStatus')
-      {
-        $Detail = $this->db->query("SELECT  Name
-                                            , CONCAT('ALS-', LPAD(LS.LoanStatusId, 6, 0)) as ReferenceNo
-                                            FROM Application_has_Status LS
-                                              WHERE LoanStatusId = ".$input['Id']."
-        ")->row_array();
-
-        // update status
-          $set = array(
-            'StatusId' => $input['updateType'],
-          );
-          $condition = array(
-            'LoanStatusId' => $input['Id']
-          );
-          $table = 'Application_has_Status';
-          $this->maintenance_model->updateFunction1($set, $condition, $table);
-
-        // admin audits finalss
-          if($input['updateType'] == 1)
-          {
-            $auditLogsManager = 'Re-activated loan status #' .$Detail['ReferenceNo']. ' at the loan status setup'; // main log
-            $auditAffectedEmployee = 'Re-activated loan status #' .$Detail['ReferenceNo']. ' at the loan status setup'; // main log
-          }
-          else if($input['updateType'] == 0)
-          {
-            $auditLogsManager = 'Deactivated loan status #' .$Detail['ReferenceNo']. ' at the loan status setup'; // main log
-            $auditAffectedEmployee = 'Deactivated loan status #' .$Detail['ReferenceNo']. ' at the loan status setup'; // main log
-          }
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
-      }
-      else if($input['tableType'] == 'BorrowerStatus')
-      {
-        $Detail = $this->db->query("SELECT  Name
-                                            , CONCAT('BST-', LPAD(BS.BorrowerStatusId, 6, 0)) as ReferenceNo
-                                            FROM R_BorrowerStatus BS
-                                              WHERE BorrowerStatusId = ".$input['Id']."
-        ")->row_array();
-
-        // update status
-          $set = array(
-            'StatusId' => $input['updateType'],
-          );
-          $condition = array(
-            'BorrowerStatusId' => $input['Id']
-          );
-          $table = 'R_BorrowerStatus';
-          $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // admin audits finalss
-          if($input['updateType'] == 1)
-          {
-            $auditLogsManager = 'Re-activated borrower status #' .$Detail['ReferenceNo']. ' at the borrower status setup'; // main log
-            $auditAffectedEmployee = 'Re-activated borrower status #' .$Detail['ReferenceNo']. ' at the borrower status setup'; // main log
-          }
-          else if($input['updateType'] == 0)
-          {
-            $auditLogsManager = 'Deactivated borrower status #' .$Detail['ReferenceNo']. ' at the borrower status setup'; // main log
-            $auditAffectedEmployee = 'Deactivated borrower status #' .$Detail['ReferenceNo']. ' at the borrower status setup'; // main log
-          }
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
-      }
-      else if($input['tableType'] == 'Industry')
-      {
-        $Detail = $this->db->query("SELECT  Name
-                                            , CONCAT('IND-', LPAD(IndustryId, 6, 0)) as ReferenceNo
-                                            FROM R_Industry
-                                              WHERE IndustryId = ".$input['Id']."
-        ")->row_array();
-
-        // update status
-          $set = array(
-            'StatusId' => $input['updateType'],
-            'UpdatedBy' => $EmployeeNumber,
-            'DateUpdated' => $DateNow,
-          );
-          $condition = array(
-            'IndustryId' => $input['Id']
-          );
-          $table = 'R_Industry';
-          $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // admin audits finalss
-          if($input['updateType'] == 1)
-          {
-            $auditLogsManager = 'Re-activated industry #' .$Detail['ReferenceNo']. ' at the industry setup'; // main log
-            $auditAffectedEmployee = 'Re-activated industry #' .$Detail['ReferenceNo']. ' at the industry setup'; // main log
-          }
-          else if($input['updateType'] == 0)
-          {
-            $auditLogsManager = 'Deactivated industry #' .$Detail['ReferenceNo']. ' at the industry setup'; // main log
-            $auditAffectedEmployee = 'Deactivated industry #' .$Detail['ReferenceNo']. ' at the industry setup'; // main log
-          }
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
-          return 1;
-      }
-      else if($input['tableType'] == 'AssetManagement')
-      {
-        $Detail = $this->db->query("SELECT  SerialNumber
-                                                  , CONCAT('AM-', LPAD(AM.AssetManagementId, 6, 0)) as ReferenceNo
-                                                    FROM R_AssetManagement AM
-                                                      WHERE AssetManagementId = ".$input['Id']."
-        ")->row_array();
-
-        // update status
-          $set = array(
-            'StatusId' => $input['updateType'],
-            'UpdatedBy' => $EmployeeNumber,
-            'DateUpdated' => $DateNow,
-          );
-          $condition = array(
-            'AssetManagementId' => $input['Id']
-          );
-          $table = 'R_AssetManagement';
-          $this->maintenance_model->updateFunction1($set, $condition, $table);
-
-        // admin audits finalss
-          if($input['updateType'] == 2)
-          {
-            $auditLogsManager = 'Re-activated asset #' .$Detail['ReferenceNo']. ' at the asset management module'; // main log
-            $auditAffectedEmployee = 'Re-activated asset #' .$Detail['ReferenceNo']. ' at the asset management module'; // main log
-          }
-          else if($input['updateType'] == 6)
-          {
-            $auditLogsManager = 'Deactivated asset #' .$Detail['ReferenceNo']. ' at the asset management module'; // main log
-            $auditAffectedEmployee = 'Deactivated asset #' .$Detail['ReferenceNo']. ' at the asset management module'; // main log
-          }
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
-      }
-      else if($input['tableType'] == 'Occupation')
-      {
-        $count = $this->db->query("SELECT  COUNT(*) as ifUsed
-                                                    FROM borrower_has_employer
-                                                      WHERE PositionId = ".$input['Id']."
-                                                      AND StatusId = 1
-        ")->row_array();
-        if($count['ifUsed'] == 0)
-        {
-          $OccupationDetail = $this->db->query("SELECT  Name
-                                                      , CONCAT('OCC-', LPAD(OCCU.OccupationId, 6, 0)) as ReferenceNo
-                                                      FROM R_Occupation OCCU
-                                                        WHERE OccupationId = ".$input['Id']."
-          ")->row_array();
-
-          // update status
-            $set = array(
-              'StatusId' => $input['updateType'],
-              'UpdatedBy' => $EmployeeNumber,
-              'DateUpdated' => $DateNow,
-            );
-            $condition = array(
-              'OccupationId' => $input['Id']
-            );
-            $table = 'R_Occupation';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-          // admin audits finalss
-            if($input['updateType'] == 1)
-            {
-              $auditLogsManager = 'Re-activated occupation #' .$OccupationDetail['ReferenceNo']. ' at the occupations setup'; // main log
-              $auditAffectedEmployee = 'Re-activated occupation #' .$OccupationDetail['ReferenceNo']. ' at the occupations setup'; // main log
-            }
-            else if($input['updateType'] == 0)
-            {
-              $auditLogsManager = 'Deactivated occupation #' .$OccupationDetail['ReferenceNo']. ' at the occupations setup'; // main log
-              $auditAffectedEmployee = 'Deactivated occupation #' .$OccupationDetail['ReferenceNo']. ' at the occupations setup'; // main log
-            }
-            $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
-            return 1;
-        }
-        else
-        {
-          return 0;
-        }
-      }
-      else if($input['tableType'] == 'Repayment')
-      {
-        $Detail = $this->db->query("SELECT  Type
-                                            , CONCAT('RC-', LPAD(RC.RepaymentId, 6, 0)) as ReferenceNo
-                                              FROM R_RepaymentCycle RC
-                                                WHERE RepaymentId = ".$input['Id']."
-        ")->row_array();
-
-
-        $count = $this->db->query("SELECT  COUNT(*) as ifUsed
-                                                    FROM t_application
-                                                      WHERE RepaymentId = ".$input['Id']."
-        ")->row_array();
-        if($count['ifUsed'] == 0)
-        {
-          // update status
-            $set = array(
-              'StatusId' => $input['updateType'],
-              'UpdatedBy' => $EmployeeNumber,
-              'DateUpdated' => $DateNow,
-            );
-            $condition = array(
-              'RepaymentId' => $input['Id']
-            );
-            $table = 'R_RepaymentCycle';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-
-          // admin audits finalss
-            if($input['updateType'] == 1)
-            {
-              $auditLogsManager = 'Re-activated repayment cycle #' .$Detail['ReferenceNo']. ' at the repayment cycle setup'; // main log
-              $auditAffectedEmployee = 'Re-activated repayment cycle #' .$Detail['ReferenceNo']. ' at the repayment cycle setup'; // main log
-            }
-            else if($input['updateType'] == 0)
-            {
-              $auditLogsManager = 'Deactivated repayment cycle #' .$Detail['ReferenceNo']. ' at the repayment cycle setup'; // main log
-              $auditAffectedEmployee = 'Deactivated repayment cycle #' .$Detail['ReferenceNo']. ' at the repayment cycle setup'; // main log
-            }
-            $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
-            return 1;
-        }
-        else
-        {
-          return 0;
-        }
-      }
-      else if($input['tableType'] == 'Disbursement')
-      {
-        $Detail = $this->db->query("SELECT  Name
-                                            , CONCAT('DB-', LPAD(RC.DisbursementId, 6, 0)) as ReferenceNo
-                                            FROM R_Disbursement RC
-                                              WHERE DisbursementId = ".$input['Id']."
-        ")->row_array();
-
-        $count = $this->db->query("SELECT  COUNT(*) as ifUsed
-                                                    FROM application_has_disbursement
-                                                      WHERE DisbursedBy = ".$input['Id']."
-                                                      AND StatusId = 1
-        ")->row_array();
-        if($count['ifUsed'] == 0)
-        {
-          // update status
-            $set = array(
-              'StatusId' => $input['updateType'],
-            );
-            $condition = array(
-              'DisbursementId' => $input['Id']
-            );
-            $table = 'R_Disbursement';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-
-          // admin audits finalss
-            if($input['updateType'] == 1)
-            {
-              $auditLogsManager = 'Re-activated disbursement type #' .$Detail['ReferenceNo']. ' at the disbursements setup'; // main log
-              $auditAffectedEmployee = 'Re-activated disbursement type #' .$Detail['ReferenceNo']. ' at the disbursements setup'; // main log
-            }
-            else if($input['updateType'] == 0)
-            {
-              $auditLogsManager = 'Deactivated disbursement type #' .$Detail['ReferenceNo']. ' at the disbursements setup'; // main log
-              $auditAffectedEmployee = 'Deactivated disbursement type #' .$Detail['ReferenceNo']. ' at the disbursements setup'; // main log
-            }
-            $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
-        }
-      }
-      else if($input['tableType'] == 'Capital')
-      {
-        $Detail = $this->db->query("SELECT  Amount
-                                            , CONCAT('IC-', LPAD(C.CapitalId, 6, 0)) as ReferenceNo
-                                            FROM R_Capital C
-                                              WHERE CapitalId = ".$input['Id']."
-        ")->row_array();
-
-        // update status
-          $set = array(
-            'StatusId' => $input['updateType'],
-            'UpdatedBy' => $EmployeeNumber,
-            'DateUpdated' => $DateNow,
-          );
-          $condition = array(
-            'CapitalId' => $input['Id']
-          );
-          $table = 'R_Capital';
-          $this->maintenance_model->updateFunction1($set, $condition, $table);
-
-        // admin audits finalss
-          if($input['updateType'] == 1)
-          {
-            $auditLogsManager = 'Re-activated capital #' .$Detail['ReferenceNo']. ' at the initial capital setup'; // main log
-            $auditAffectedEmployee = 'Re-activated capital #' .$Detail['ReferenceNo']. ' at the initial capital setup'; // main log
-          }
-          else if($input['updateType'] == 0)
-          {
-            $auditLogsManager = 'Deactivated capital #' .$Detail['ReferenceNo']. ' at the initial capital setup'; // main log
-            $auditAffectedEmployee = 'Deactivated capital #' .$Detail['ReferenceNo']. ' at the initial capital setup'; // main log
-          }
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
-      }
-      else if($input['tableType'] == 'ExpenseType')
-      {
-        $Detail = $this->db->query("SELECT  Name
-                                            , CONCAT('EXT-', LPAD(ET.ExpenseTypeId, 6, 0)) as ReferenceNo
-                                            FROM R_ExpenseType ET
-                                              WHERE ExpenseTypeId = ".$input['Id']."
-        ")->row_array();
-
-        // update status
-          $set = array(
-            'StatusId' => $input['updateType'],
-            'UpdatedBy' => $EmployeeNumber,
-            'DateUpdated' => $DateNow,
-          );
-          $condition = array(
-            'ExpenseTypeId' => $input['Id']
-          );
-          $table = 'R_ExpenseType';
-          $this->maintenance_model->updateFunction1($set, $condition, $table);
-
-        // admin audits finalss
-          if($input['updateType'] == 1)
-          {
-            $auditLogsManager = 'Re-activated expense type #' .$Detail['ReferenceNo']. ' at the types of expenses setup'; // main log
-            $auditAffectedEmployee = 'Re-activated expense type #' .$Detail['ReferenceNo']. ' at the types of expenses setup'; // main log
-          }
-          else if($input['updateType'] == 0)
-          {
-            $auditLogsManager = 'Deactivated expense type #' .$Detail['ReferenceNo']. ' at the types of expenses setup'; // main log
-            $auditAffectedEmployee = 'Deactivated expense type #' .$Detail['ReferenceNo']. ' at the types of expenses setup'; // main log
-          }
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
-      }
-      else if($input['tableType'] == 'Expense')
-      {
-        $Detail = $this->db->query("SELECT  EX.ExpenseTypeId as Name
-                                                , CONCAT('EXP-', LPAD(EX.ExpenseId, 6, 0)) as ReferenceNo
-                                                    FROM R_Expense EX
-                                                      WHERE ExpenseId = ".$input['Id']."
-        ")->row_array();
-
-        // update status
-          $set = array(
-            'StatusId' => $input['updateType'],
-            'UpdatedBy' => $EmployeeNumber,
-            'DateUpdated' => $DateNow,
-          );
-          $condition = array(
-            'ExpenseId' => $input['Id']
-          );
-          $table = 'R_Expense';
-          $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // admin audits finalss
-          if($input['updateType'] == 1)
-          {
-            $auditLogsManager = 'Re-activated expense #' .$Detail['ReferenceNo']. ' at the expense finance management module'; // main log
-            $auditAffectedEmployee = 'Re-activated expense #' .$Detail['ReferenceNo']. ' at the expense finance management module'; // main log
-          }
-          else if($input['updateType'] == 0)
-          {
-            $auditLogsManager = 'Deactivated expense #' .$Detail['ReferenceNo']. ' at the expense finance management module'; // main log
-            $auditAffectedEmployee = 'Deactivated expense #' .$Detail['ReferenceNo']. ' at the expense finance management module'; // main log
-          }
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
-      }
-      else if($input['tableType'] == 'WithdrawalType')
-      {
-        $Detail = $this->db->query("SELECT  Name
-                                            , CONCAT('DET-', LPAD(ET.WithdrawalTypeId, 6, 0)) as ReferenceNo
-                                                    FROM R_WithdrawalType ET
-                                                      WHERE WithdrawalTypeId = ".$input['Id']."
-        ")->row_array();
-
-        // update status
-          $set = array(
-            'StatusId' => $input['updateType'],
-            'UpdatedBy' => $EmployeeNumber,
-            'DateUpdated' => $DateNow,
-          );
-          $condition = array(
-            'WithdrawalTypeId' => $input['Id']
-          );
-          $table = 'R_WithdrawalType';
-          $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // admin audits finalss
-          if($input['updateType'] == 1)
-          {
-            $auditLogsManager = 'Re-activated deposit type #' .$Detail['ReferenceNo']. ' at the types of deposit setup'; // main log
-            $auditAffectedEmployee = 'Re-activated deposit type #' .$Detail['ReferenceNo']. ' at the types of deposit setup'; // main log
-          }
-          else if($input['updateType'] == 0)
-          {
-            $auditLogsManager = 'Deactivated deposit type #' .$Detail['ReferenceNo']. ' at the types of deposit setup'; // main log
-            $auditAffectedEmployee = 'Deactivated deposit type #' .$Detail['ReferenceNo']. ' at the types of deposit setup'; // main log
-          }
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
-      }
-      else if($input['tableType'] == 'Withdrawal')
-      {
-        $Detail = $this->db->query("SELECT  W.WithdrawalId as Name
-                                                , CONCAT('DEP-', LPAD(W.WithdrawalId, 6, 0)) as ReferenceNo
-                                                FROM R_Withdrawal W
-                                                  WHERE WithdrawalId = ".$input['Id']."
-        ")->row_array();
-
-        // update status
-          $set = array(
-            'StatusId' => $input['updateType'],
-            'UpdatedBy' => $EmployeeNumber,
-            'DateUpdated' => $DateNow,
-          );
-          $condition = array(
-            'WithdrawalId' => $input['Id']
-          );
-          $table = 'R_Withdrawal';
-          $this->maintenance_model->updateFunction1($set, $condition, $table);
-        // admin audits finalss
-          if($input['updateType'] == 1)
-          {
-            $auditLogsManager = 'Re-activated deposit #' .$Detail['ReferenceNo']. ' at the deposit finance management'; // main log
-            $auditAffectedEmployee = 'Re-activated deposit #' .$Detail['ReferenceNo']. ' at the deposit finance management'; // main log
-          }
-          else if($input['updateType'] == 0)
-          {
-            $auditLogsManager = 'Deactivated deposit #' .$Detail['ReferenceNo']. ' at the deposit finance management'; // main log
-            $auditAffectedEmployee = 'Deactivated deposit #' .$Detail['ReferenceNo']. ' at the deposit finance management'; // main log
-          }
-          $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
-      }
-      else if($input['tableType'] == 'Disclosure')
-      {
-        $Detail = $this->db->query("SELECT  Description
-                                            , CONCAT('DA-', LPAD(DA.UndertakingId, 6, 0)) as ReferenceNo
-                                            FROM R_Loanundertaking DA
-                                              WHERE UndertakingId = ".$input['Id']."
-        ")->row_array();
-
-        $count = $this->db->query("SELECT  COUNT(*) as ifUsed
-                                                    FROM R_Loanundertaking
-                                                      WHERE UndertakingId = ".$input['Id']."
-                                                      AND StatusId = 1
-        ")->row_array();
-
-        if($count['ifUsed'] == 0)
-        {
-          // update status
-            $set = array(
-              'StatusId' => $input['updateType'],
-            );
-            $condition = array(
-              'UndertakingId' => $input['Id']
-            );
-            $table = 'R_Loanundertaking';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-
-          // admin audits finalss
-            if($input['updateType'] == 1)
-            {
-              $auditLogsManager = 'Re-activated disclosure agreement #' .$Detail['ReferenceNo']. ' at the disclosure agreement setup'; // main log
-              $auditAffectedEmployee = 'Re-activated disclosure agreement #' .$Detail['ReferenceNo']. ' at the disclosure agreement setup'; // main log
-            }
-            else if($input['updateType'] == 0)
-            {
-              $auditLogsManager = 'Deactivated disclosure agreement #' .$Detail['ReferenceNo']. ' at the disclosure agreement setup'; // main log
-              $auditAffectedEmployee = 'Deactivated disclosure agreement #' .$Detail['ReferenceNo']. ' at the disclosure agreement setup'; // main log
-            }
-            $this->finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $this->session->userdata('ManagerId'), $EmployeeNumber, null, null, null, null);
-        }
-      }
-    }
-
-    function finalAuditFunction($auditLogsManager, $auditAffectedEmployee, $ManagerId, $AffectedEmployeeNumber, $auditLoanDets, $ApplicationId, $independentTable, $independentColumn)
-    {
-      $AssignedBranchId = $this->session->userdata('EmployeeNumber');
-      $CreatedBy = $this->session->userdata('EmployeeNumber');
-      $DateNow = date("Y-m-d H:i:s");
-      $insertMainLog = array(
-        'Description'       => $auditLogsManager
-        , 'CreatedBy'       => $CreatedBy
-        , 'BranchId'        => $AssignedBranchId
-      );
-      $auditTable1 = 'R_Logs';
-      $this->maintenance_model->insertFunction($insertMainLog, $auditTable1);
-      $insertManagerAudit = array(
-        'Description'         => $auditLogsManager
-        , 'ManagerBranchId'   => $ManagerId
-        , 'CreatedBy'         => $CreatedBy
-        , 'BranchId'        => $AssignedBranchId
-      );
-      $auditTable3 = 'manager_has_notifications';
-      $this->maintenance_model->insertFunction($insertManagerAudit, $auditTable3);
-      $insertEmpLog = array(
-        'Description'       => $auditAffectedEmployee
-        , 'EmployeeNumber'  => $AffectedEmployeeNumber
-        , 'CreatedBy'       => $CreatedBy
-        , 'BranchId'        => $AssignedBranchId
-      );
-      $auditTable2 = 'employee_has_notifications';
-      $this->maintenance_model->insertFunction($insertEmpLog, $auditTable2);
-
-      if($auditLoanDets != null)
-      {
-        $insertApplicationLog = array(
-          'Description'       => $auditLoanDets
-          , ''.$independentColumn.''   => $ApplicationId
-          , 'CreatedBy'       => $CreatedBy
-          , 'BranchId'        => $AssignedBranchId
-        );
-        $auditLoanApplicationTable = $independentTable;
-        $this->maintenance_model->insertFunction($insertApplicationLog, $auditLoanApplicationTable);
-      }
-    }
-
-    function getLogs()
-    {
-      $query_string = $this->db->query("SELECT  L.Description
-                                                , L.Remarks
-                                                , DATE_FORMAT(L.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
-                                                , CONCAT(FirstName, ' ', MiddleName, ' ', LastName, CASE WHEN ExtName != '' THEN CONCAT(', ', ExtName) ELSE '' END ) as Name
-                                                FROM R_Logs L
-                                                  INNER JOIN R_Employee EMP
-                                                    ON EMP.EmployeeNumber = L.CreatedBy
-                                                      ORDER BY DateCreated DESC
+      $query = $this->db->query("SELECT CONCAT(S.LastName, ', ', S.FirstName, ' ', COALESCE(S.MiddleName, 'N/A'), ' ', COALESCE(S.ExtName, '')) as StudentName
+                                        , S.StudentNumber
+                                        , S.Id
+                                        FROM R_Students S
+                                        WHERE S.StatusId = 1
       ");
-      $data = $query_string->result_array();
-      return $data;
+      return $query->result_array();
     }
-    
+
+    function getClassDetail($Id)
+    {
+      $query = $this->db->query("SELECT Name
+                                        , MaxStudents
+                                        , Description
+                                        FROM R_ClassList
+                                          WHERE Id = $Id
+      ");
+      return $query->row_array();
+    }
+
+    function getSubjectClassList($Id)
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT   S.Code
+                                          , S.Name as SubjectName
+                                          , S.Units
+                                          , AHS.StatusId
+                                          , S.Id
+                                          , AHS.Description
+                                          , AHS.MaxStudents
+                                          , AHS.SubjectId
+                                          , AHS.FacultyId
+                                          , SS.Description as StatusDescription
+                                          , SS.Color
+                                          , AHS.Id as ClassSubjectId
+                                          , COUNT(CHS.StudentId) as TotalStudents
+                                          FROM class_has_subjects AHS
+                                          INNER JOIN r_classlist C
+                                            ON C.Id = AHS.ClassId
+                                          INNER JOIN r_subjects S
+                                            ON S.Id = AHS.SubjectId
+                                          INNER JOIN R_Status SS
+                                            ON SS.Id = AHS.StatusId
+                                          LEFT JOIN ClassSubject_has_students CHS
+                                            ON CHS.ClassSubjectId = AHS.Id
+                                            WHERE C.Id = $Id
+                                            GROUP BY AHS.Id
+      ");
+      return $query->result_array();
+    }
+
+    function getFacultySubjectClassList($Id)
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT   S.Code
+                                          , S.Name as SubjectName
+                                          , S.Units
+                                          , AHS.StatusId
+                                          , S.Id
+                                          , AHS.Description
+                                          , AHS.MaxStudents
+                                          , AHS.SubjectId
+                                          , AHS.FacultyId
+                                          , SS.Description as StatusDescription
+                                          , SS.Color
+                                          , AHS.Id as ClassSubjectId
+                                          , COUNT(CHS.StudentId) as TotalStudents
+                                          FROM class_has_subjects AHS
+                                          INNER JOIN r_classlist C
+                                            ON C.Id = AHS.ClassId
+                                          INNER JOIN r_subjects S
+                                            ON S.Id = AHS.SubjectId
+                                          INNER JOIN R_Status SS
+                                            ON SS.Id = AHS.StatusId
+                                          LEFT JOIN ClassSubject_has_students CHS
+                                            ON CHS.ClassSubjectId = AHS.Id
+                                            WHERE C.Id = $Id
+                                            AND AHS.FacultyId = '$EmployeeNumber'
+                                            AND AHS.StatusId = 1
+                                            GROUP BY AHS.Id
+      ");
+      return $query->result_array();
+    }
+
+    function getSubjectClassDetails($Id)
+    {
+      $query = $this->db->query("SELECT   S.Code
+                                          , S.Name as SubjectName
+                                          , AHS.Description as SubjectDescription
+                                          , CONCAT(S.Code, '-', LPAD(AHS.Id, 5, 0)) as SubjectCode
+                                          , S.Units
+                                          , AHS.StatusId
+                                          , S.Id
+                                          , AHS.Description
+                                          , AHS.MaxStudents
+                                          , AHS.Description
+                                          , SS.Description as StatusDescription
+                                          , C.Name as ClassName
+                                          , C.Id as ClassId
+                                          , SS.Color
+                                          , AHS.Id as ClassSubjectId
+                                          FROM class_has_subjects AHS
+                                          INNER JOIN r_classlist C
+                                            ON C.Id = AHS.ClassId
+                                          INNER JOIN r_subjects S
+                                            ON S.Id = AHS.SubjectId
+                                          INNER JOIN R_Status SS
+                                            ON SS.Id = AHS.StatusId
+                                            WHERE AHS.Id = $Id
+      ");
+      return $query->row_array();
+    }
+
+    function getSubjectStudentList($Id)
+    {
+      $query = $this->db->query("SELECT   CONCAT(S.LastName, ', ', S.FirstName, ' ', COALESCE(S.MiddleName,'N/A'), ' ', COALESCE(S.ExtName, '')) as Name
+                                          , S.StudentNumber
+                                          , CHS.StatusId
+                                          , SS.Description as StatusDescription
+                                          , SS.Color
+                                          , CHS.StatusId
+                                          , CHS.Grade
+                                          , CHS.Id as ClassStudentId
+                                          FROM classsubject_has_students CHS
+                                                INNER JOIN r_students S
+                                                    ON S.Id = CHS.StudentId
+                                                  INNER JOIN r_status SS
+                                                    ON SS.Id = S.StatusId
+                                                      WHERE CHS.ClassSubjectId = $Id
+      ");
+      return $query->result_array();
+    }
+
+    function getStudents($Id)
+    {
+      $query = $this->db->query("SELECT   CONCAT(S.LastName, ', ', S.FirstName, ' ', COALESCE(S.MiddleName,'N/A'), ' ', COALESCE(S.ExtName, '')) as Name
+                                          , S.Id
+                                          FROM R_Students S
+                                            WHERE StatusId = 1
+                                            AND NOT EXISTS(SELECT * FROM ClassSubject_has_students WHERE ClassSubjectId = $Id AND StudentId = S.Id)
+      ");
+      return $query->result_array();
+    }
+
+    function getSubjectCreatedExam($Id)
+    {
+      $query = $this->db->query("SELECT   CSE.Id as ExamId
+                                          , CSE.Description
+                                          , S.Description as StatusDescription
+                                          , S.Color
+                                          , CSE.StatusId
+                                          , CONCAT('EX-', LPAD(CSE.Id, 6, 0)) as ExamCode
+                                          FROM classsubject_has_exam CSE
+                                                INNER JOIN class_has_subjects CHS
+                                                    ON CHS.ID = CSE.ClassSubjectId
+                                                  INNER JOIN r_status S
+                                                    ON S.Id = CSE.StatusId
+                                                      WHERE CHS.ID = $Id
+      ");
+      return $query->result_array();
+    }
+
+    function getSubjectExamDetails($Id)
+    {
+      $query = $this->db->query("SELECT   S.Code
+                                          , S.Name as SubjectName
+                                          , AHS.Description as SubjectDescription
+                                          , CONCAT(S.Code, '-', LPAD(AHS.Id, 5, 0)) as SubjectCode
+                                          , S.Units
+                                          , AHS.StatusId
+                                          , S.Id
+                                          , AHS.Description
+                                          , AHS.MaxStudents
+                                          , AHS.Description
+                                          , SS.Description as StatusDescription
+                                          , SS.Color
+                                          , C.Name as ClassName
+                                          , C.Id as ClassId
+                                          , AHS.Id as ClassSubjectId
+                                          , CSE.Description
+                                          , CONCAT('EX-', LPAD(CSE.Id, 6, 0)) as ExamCode
+                                          FROM classsubject_has_exam CSE
+                                          INNER JOIN class_has_subjects AHS
+                                            ON CSE.ClassSubjectId = AHS.Id
+                                          INNER JOIN r_classlist C
+                                            ON C.Id = AHS.ClassId
+                                          INNER JOIN r_subjects S
+                                            ON S.Id = AHS.SubjectId
+                                          INNER JOIN R_Status SS
+                                            ON SS.Id = AHS.StatusId
+                                            WHERE CSE.Id = $Id
+      ");
+      return $query->row_array();
+    }
+
+    function getExamCategories($Id)
+    {
+      $query = $this->db->query("SELECT   EHC.Name
+                                          , EHC.Instructions
+                                          , EHC.Percentage
+                                          , SS.Description as StatusDescription
+                                          , SS.Color
+                                          , EHC.StatusId
+                                          , EHC.Id as CategoryId
+                                          , COUNT(EHS.Id) as TotalSubCategory
+                                          FROM exam_has_category EHC
+                                            INNER JOIN classsubject_has_exam CHE
+                                              ON CHE.ID = EHC.ExamId
+                                            INNER JOIN R_Status SS
+                                              ON SS.Id = EHC.StatusId
+                                            LEFT JOIN exam_has_subcategory EHS
+                                              ON EHS.ExamCategoryId = EHC.ID
+                                              WHERE EHC.ExamId = $Id
+                                              AND EHC.StatusId = 1
+                                              GROUP BY EHC.ID
+      ");
+      return $query->result_array();
+    }
+
+    function getExamReviewers($Id)
+    {
+      $query = $this->db->query("SELECT   EH.FileName
+                                          , EH.FileTitle
+                                          , EH.Notes
+                                          , EH.ID
+                                          , EH.StatusId
+                                          , S.Color
+                                          , S.Description as StatusDescription
+                                          , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CreatedBy
+                                          , DATE_FORMAT(EH.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                          FROM exam_has_reviewers EH
+                                                INNER JOIN r_employees EMP
+                                                    ON EMP.EmployeeNumber = EH.CreatedBy
+                                                  INNER JOIN r_status S
+                                                    ON S.Id = EH.StatusId
+                                                WHERE EH.ExamId = $Id
+                                                  AND EH.StatusId = 1
+      ");
+      return $query->result_array();
+    }
+
+    function getSubjectExamCategoryDetails($Id)
+    {
+      $query = $this->db->query("SELECT   S.Code
+                                          , S.Name as SubjectName
+                                          , AHS.Description as SubjectDescription
+                                          , CONCAT(S.Code, '-', LPAD(AHS.Id, 5, 0)) as SubjectCode
+                                          , S.Units
+                                          , AHS.StatusId
+                                          , S.Id
+                                          , AHS.Description
+                                          , AHS.MaxStudents
+                                          , AHS.Description
+                                          , SS.Description as StatusDescription
+                                          , SS.Color
+                                          , C.Name as ClassName
+                                          , C.Id as ClassId
+                                          , AHS.Id as ClassSubjectId
+                                          , CSE.Description
+                                          , CONCAT('EX-', LPAD(CSE.Id, 6, 0)) as ExamCode
+                                          , AHSS.Name as Category
+                                          , AHSS.Percentage
+                                          , COALESCE(AHSS.Percentage / COUNT(EHS.Id), 0) as PercentageBySubCategory
+                                          , CSE.Id as ExamId
+                                          FROM classsubject_has_exam CSE
+                                          INNER JOIN class_has_subjects AHS
+                                            ON CSE.ClassSubjectId = AHS.Id
+                                          INNER JOIN r_classlist C
+                                            ON C.Id = AHS.ClassId
+                                          INNER JOIN r_subjects S
+                                            ON S.Id = AHS.SubjectId
+                                          INNER JOIN R_Status SS
+                                            ON SS.Id = AHS.StatusId
+                                          INNER JOIN exam_has_category AHSS
+                                            ON AHSS.ExamId = CSE.Id
+                                          LEFT JOIN exam_has_subcategory EHS
+                                            ON EHS.ExamCategoryId = AHSS.ID
+                                            WHERE AHSS.Id = $Id
+                                            GROUP BY CSE.Id
+      ");
+      return $query->row_array();
+    }
+
+    function getSubjectExamCategorySubDetails($Id)
+    {
+      $query = $this->db->query("SELECT   ES.Id as SubCategoryId
+                                          , ES.Name as SubCategory
+                                          , ES.Instructions
+                                          FROM exam_has_subcategory ES
+                                                INNER JOIN exam_has_category EC
+                                                    ON ES.ExamCategoryId = EC.Id
+                                                        WHERE EC.ID = $Id
+                                                        AND ES.StatusId = 1
+      ");
+      return $query->result_array();
+    }
+
+    function getExamSubCategories($Id)
+    {
+      $query = $this->db->query("SELECT   ES.Id as SubCategoryId
+                                          , ES.Name as SubCategory
+                                          , ES.Instructions
+                                          , EC.Id as CategoryId
+                                          , COUNT(SHQ.Id) as TotalQuestions
+                                          , ES.Instructions
+                                          FROM exam_has_subcategory ES
+                                                INNER JOIN exam_has_category EC
+                                                    ON ES.ExamCategoryId = EC.Id
+                                                LEFT JOIN subcategory_has_questions SHQ
+                                                  ON SHQ.SubCategoryId = ES.Id
+                                                        WHERE EC.ID = $Id
+                                                        AND ES.StatusId = 1
+                                                        GROUP BY ES.Id
+      ");
+      return $query->result_array();
+    }
+
+    function getExamQuestions($Id)
+    {
+      $query = $this->db->query("SELECT  DISTINCT COUNT(DISTINCT SO.Id) as TotalOptions
+                                        , SQ.Question
+                                        , SQ.Id as QuestionId
+                                        , SO2.OptionName
+                                        , SQ.Id
+                                        , SQ.StatusId
+                                        FROM subcategory_has_questions SQ
+                                          INNER JOIN subcategory_has_options SO
+                                            ON SO.subquestionId = SQ.Id
+                                          INNER JOIN subcategory_has_options SO2
+                                            ON SO2.OptionNo = SQ.Answer
+                                            AND SO2.subquestionId = SQ.Id
+                                            WHERE SQ.SubCategoryId = $Id
+                                            GROUP BY SQ.Id
+      ");
+      return $query->result_array();
+    }
+
+    function getSubjectExamSubCategoryDetails($Id)
+    {
+      $query = $this->db->query("SELECT   S.Code
+                                          , S.Name as SubjectName
+                                          , AHS.Description as SubjectDescription
+                                          , CONCAT(S.Code, '-', LPAD(AHS.Id, 5, 0)) as SubjectCode
+                                          , S.Units
+                                          , AHS.StatusId
+                                          , S.Id
+                                          , AHS.Description
+                                          , AHS.MaxStudents
+                                          , AHS.Description
+                                          , SS.Description as StatusDescription
+                                          , SS.Color
+                                          , C.Name as ClassName
+                                          , C.Id as ClassId
+                                          , AHS.Id as ClassSubjectId
+                                          , CSE.Description
+                                          , CONCAT('EX-', LPAD(CSE.Id, 6, 0)) as ExamCode
+                                          , AHSS.Name as Category
+                                          , AHSS.Percentage
+                                          , AHSS.Percentage / COUNT(EHS.Id) as PercentageBySubCategory
+                                          , EHS.Name as SubCategory
+                                          , CSE.Id as ExamId
+                                          , AHSS.Id as CategoryId
+                                          FROM classsubject_has_exam CSE
+                                          INNER JOIN class_has_subjects AHS
+                                            ON CSE.ClassSubjectId = AHS.Id
+                                          INNER JOIN r_classlist C
+                                            ON C.Id = AHS.ClassId
+                                          INNER JOIN r_subjects S
+                                            ON S.Id = AHS.SubjectId
+                                          INNER JOIN R_Status SS
+                                            ON SS.Id = AHS.StatusId
+                                          INNER JOIN exam_has_category AHSS
+                                            ON AHSS.ExamId = CSE.Id
+                                          LEFT JOIN exam_has_subcategory EHS
+                                            ON EHS.ExamCategoryId = AHSS.ID
+                                            WHERE CSE.Id = $Id
+                                            GROUP BY CSE.Id
+      ");
+      return $query->row_array();
+    }
+
+    function getExamSubCategoryQuestions($Id)
+    {
+      $query = $this->db->query("SELECT   Question
+                                          , ID
+                                          , Answer
+                                          FROM subcategory_has_questions EHQ
+                                                WHERE EHQ.SubCategoryId = $Id
+      ");
+      return $query->result_array();
+    }
+
+    function getExamSubCategoryOptions($Id)
+    {
+      $query = $this->db->query("SELECT   OptionName
+                                          , subquestionId
+                                          , OptionNo
+                                          FROM subcategory_has_options
+                                                WHERE subquestionId = $Id
+      ");
+      return $query->result_array();
+    }
+
+    function getStudentClassList()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $StudentId = $this->session->userdata('EmployeeId');
+      $query = $this->db->query("SELECT CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as Name
+                                        , S.MaxStudents as MaxStudents
+                                        , SS.Description as StatusDescription
+                                        , S.StatusId
+                                        , S.Description as ClassDescription
+                                        , S.Name as ClassName
+                                        , SS.Color
+                                        , S.Id
+                                        FROM R_ClassList S
+                                          INNER JOIN R_Status SS
+                                            ON SS.Id = S.StatusId
+                                          INNER JOIN r_employees EMP
+                                            ON EMP.EmployeeNumber = S.CreatedBy 
+                                          INNER JOIN class_has_subjects CHS
+                                            ON CHS.ClassId = S.Id
+                                            WHERE EXISTS (SELECT * FROM classsubject_has_students WHERE ClassSubjectId = CHS.Id AND StatusId = 1 AND StudentId = '$StudentId')
+                                            GROUP BY S.ID
+      ");
+      return $query->result_array();
+    }
+
+    function getStudentSubjectClassList($Id)
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT   S.Code
+                                          , S.Name as SubjectName
+                                          , S.Units
+                                          , AHS.StatusId
+                                          , S.Id
+                                          , AHS.Description
+                                          , AHS.MaxStudents
+                                          , AHS.SubjectId
+                                          , AHS.FacultyId
+                                          , SS.Description as StatusDescription
+                                          , SS.Color
+                                          , AHS.Id as ClassSubjectId
+                                          , COUNT(CHS.StudentId) as TotalStudents
+                                          FROM class_has_subjects AHS
+                                          INNER JOIN r_classlist C
+                                            ON C.Id = AHS.ClassId
+                                          INNER JOIN r_subjects S
+                                            ON S.Id = AHS.SubjectId
+                                          INNER JOIN R_Status SS
+                                            ON SS.Id = AHS.StatusId
+                                          LEFT JOIN ClassSubject_has_students CHS
+                                            ON CHS.ClassSubjectId = AHS.Id
+                                            WHERE C.Id = $Id
+                                            AND AHS.StatusId = 1
+                                            GROUP BY AHS.Id
+      ");
+      return $query->result_array();
+    }
+
+    function studentHasExam($Id)
+    {
+      $StudentId = $this->session->userdata('EmployeeId');
+      $query = $this->db->query("SELECT   * 
+                                          FROM classsubject_has_exam CHE
+                                                INNER JOIN classsubject_has_students CHS
+                                                  ON CHS.ClassSubjectId = CHE.ClassSubjectId
+                                                INNER JOIN student_has_exam HE
+                                                  ON HE.StudentId = CHS.StudentId
+                                                  WHERE CHE.ClassSubjectId = $Id
+                                                  AND CHS.StudentId = $StudentId
+      ");
+      return $query->num_rows();
+    }
+
+    function studentExamDetails($Id)
+    {
+      $StudentId = $this->session->userdata('EmployeeId');
+      $query = $this->db->query("SELECT   HE.DateCreated
+                                          , HE.StatusId
+                                          , S.Description as StatusDescription
+                                          , S.Color
+                                          , DATE_FORMAT(HE.DateCreated, '%b %d, %Y %h:%i %p') as DateTaken
+                                          , HE.ExamId
+                                          FROM classsubject_has_exam CHE
+                                                INNER JOIN classsubject_has_students CHS
+                                                    ON CHS.ClassSubjectId = CHE.ClassSubjectId
+                                                  INNER JOIN student_has_exam HE
+                                                    ON HE.StudentId = CHS.StudentId
+                                                  INNER JOIN R_Status S
+                                                      ON S.Id = HE.StatusId
+                                                      WHERE CHE.ClassSubjectId = $Id
+                                                      AND CHS.StudentId = $StudentId
+      ");
+      return $query->row_array();
+    }
+
+    function countMockExam($Id)
+    {
+      $StudentId = $this->session->userdata('EmployeeId');
+      $query = $this->db->query("SELECT   * 
+                                          FROM classsubject_has_exam
+                                              WHERE ClassSubjectId = $Id
+      ");
+      return $query->num_rows();
+    }
+
+    function getExamAnswers($Id)
+    {
+      $query = $this->db->query("SELECT   EHA.IsCorrect
+                                          , EHA.AnswerId
+                                          , EHA.CorrectAnswer
+                                          , EHA.QuestionId
+                                          FROM student_has_exam SHE
+                                                INNER JOIN exam_has_answers EHA
+                                                    ON EHA.StudentExamId = SHE.ID
+                                                        WHERE QuestionId = $Id
+      ");
+      return $query->row_array();
+    }
+
+    function countCorrectAnswers($Id)
+    {
+      $query = $this->db->query("SELECT   *
+                                          FROM student_has_exam SHE
+                                                INNER JOIN exam_has_answers EHA
+                                                    ON EHA.StudentExamId = SHE.ID
+                                                        WHERE SHE.ExamId = $Id
+                                                        AND EHA.IsCorrect = 1
+      ");
+      return $query->num_rows();
+    }
+
+    function countQuestions($Id)
+    {
+      $query = $this->db->query("SELECT   DISTINCT SHQ.Id
+                                          FROM classsubject_has_exam CHE
+                                                INNER JOIN exam_has_category EHC
+                                                    ON EHC.ExamId = CHE.ID
+                                                  INNER JOIN exam_has_subcategory EHS
+                                                    ON EHS.ExamCategoryId = EHC.ID
+                                            INNER JOIN subcategory_has_questions SHQ
+                                                    ON SHQ.SubCategoryId = EHS.Id
+                                                        WHERE CHE.Id = $Id
+      ");
+      return $query->num_rows();
+    }
+
+    function countIncorrectAnswers($Id)
+    {
+      $query = $this->db->query("SELECT   *
+                                          FROM student_has_exam SHE
+                                                INNER JOIN exam_has_answers EHA
+                                                    ON EHA.StudentExamId = SHE.ID
+                                                        WHERE SHE.ExamId = $Id
+                                                        AND EHA.IsCorrect = 0
+      ");
+      return $query->num_rows();
+    }
+
+    function getRegistrarSubjectList()
+    {
+      $query = $this->db->query("SELECT   S.Code
+                                          , S.Name
+                                          , CONCAT(S.Code, '-', LPAD(S.Id, 5, 0)) as SubjectCode
+                                          , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as Faculty
+                                          , C.Name as ClassName
+                                          , C.Description as ClassDescription
+                                          , SS.Description as StatusDescription
+                                          , SS.Color
+                                          , CHS.StatusId
+                                          , CHS.ClassId
+                                          , CONCAT(DATE_FORMAT(EXS.StartDate, '%b %d, %Y %h:%i %p'), ' to ', DATE_FORMAT(EXS.EndDate, '%b %d, %Y %h:%i %p')) as ExamSchedule
+                                          , CHS.Id as ClassSubjectId
+                                          FROM class_has_subjects CHS
+                                            INNER JOIN r_subjects S 
+                                              ON CHS.SubjectId = S.Id
+                                            INNER JOIN r_employees EMP
+                                              ON EMP.EmployeeNumber = CHS.FacultyId
+                                            INNER JOIN r_classlist C
+                                              ON C.Id = CHS.ClassId
+                                            INNER JOIN R_Status SS
+                                              ON SS.Id = CHS.StatusId
+                                            LEFT JOIN classsubject_has_examschedule EXS
+                                              ON EXS.ClassSubjectId = CHS.Id
+                                              AND EXS.StatusId = 1
+                                              WHERE C.StatusId = 1
+                                              AND EMP.StatusId = 1
+                                              AND S.StatusId = 1
+      ");
+      return $query->result_array();
+    }
+
+    function getSubjectSchedule($Id)
+    {
+      $query = $this->db->query("SELECT   CONCAT(DATE_FORMAT(ES.StartDate, '%b %d, %Y %h:%i %p'), ' to ', DATE_FORMAT(ES.EndDate, '%b %d, %Y %h:%i %p')) as ExamSchedule
+                                          , DATE_FORMAT(ES.StartDate - interval 1 hour, '%b %d, %Y %h:%i %p') as LastDateToCreate
+                                          , DATE_FORMAT(ES.StartDate, '%b %d, %Y %h:%i %p') as DateStart
+                                          , CASE
+                                              WHEN ES.StartDate - interval 1 hour > NOW()
+                                                THEN 'OK'
+                                                ELSE 'NOT OKAY'
+                                          END as ForCreation
+                                          , CASE
+                                              WHEN NOW() BETWEEN ES.StartDate AND ES.EndDate
+                                                THEN 'For exam'
+                                                ELSE 'NOT FOR EXAM'
+                                          END as ForExam
+                                          FROM classsubject_has_examschedule ES
+                                                INNER JOIN class_has_subjects CS
+                                                    ON CS.ID = ES.ClassSubjectId
+                                                    WHERE CS.ID = $Id
+                                                    AND ES.StatusId = 1
+      ");
+      if($query->num_rows() > 0)
+      {
+        return $query->row_array();
+      }
+      else
+      {
+        return 0;
+      }
+    }
+
+    function getQuestionOptions($Id)
+    {
+      $query = $this->db->query("SELECT   subquestionId  as QuestionNo
+                                          , OptionNo
+                                          , OptionName
+                                          , SHQ.Question
+                                          , SHQ.Answer
+                                          FROM subcategory_has_options SHO
+                                            INNER JOIN subcategory_has_questions SHQ
+                                              ON SHQ.Id = SHO.subquestionId
+                                                WHERE subquestionId = $Id
+      ");
+      return $query->result_array();
+    }
+
+    function getStudentSubjectList()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $StudentId = $this->session->userdata('EmployeeId');
+      $query = $this->db->query("SELECT  DISTINCT CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as Faculty
+                                          , S.Name
+                                          , CHS.Grade
+                                          , CONCAT(S.Code, '-', LPAD(CHS2.Id, 5, 0)) as SubjectCode
+                                          , CHS.ClassSubjectId
+                                          , CHS2.ClassId
+                                          , SHE.Id as ExamId
+                                          , CSExam.Id as CreatedExamId
+                                          , SHE.StatusId
+                                          FROM classsubject_has_students CHS
+                                            INNER JOIN class_has_subjects CHS2
+                                              ON CHS.ClassSubjectId = CHS2.ID
+                                            INNER JOIN r_subjects S
+                                              ON S.Id = CHS2.SubjectId
+                                            INNER JOIN r_employees EMP
+                                              ON EMP.EmployeeNumber = CHS2.FacultyId
+                                            LEFT JOIN classsubject_has_exam CSExam
+                                              ON CSExam.ClassSubjectId = CHS.ClassSubjectId
+                                            LEFT JOIN student_has_exam SHE
+                                              ON SHE.StudentId = CHS.StudentId
+                                              AND SHE.ExamId = CSExam.ID
+                                              WHERE CHS.StudentId = $StudentId
+      ");
+      return $query->result_array();
+    }
+
+    function getExamGrade()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $StudentId = $this->session->userdata('EmployeeId');
+      $query = $this->db->query("SELECT   CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as Faculty
+                                          , S.Name
+                                          , CHS.Grade
+                                          , CONCAT(S.Code, '-', LPAD(CHS2.Id, 5, 0)) as SubjectCode
+                                          FROM classsubject_has_students CHS
+                                                INNER JOIN class_has_subjects CHS2
+                                                    ON CHS.ClassSubjectId = CHS2.ID
+                                                  INNER JOIN r_subjects S
+                                                    ON S.Id = CHS2.SubjectId
+                                                  INNER JOIN r_employees EMP
+                                                    ON EMP.EmployeeNumber = CHS2.FacultyId
+                                                    WHERE CHS.StudentId = $StudentId
+      ");
+      return $query->row_array();
+    }
+
+    function getExamsApproval()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT   CONCAT(SS.Code, '-', LPAD(SS.Id, 5, 0)) as SubjectCode
+                                            , SS.Name
+                                            , CONCAT(S.LastName, ', ', S.FirstName, ' ', COALESCE(S.MiddleName,'N/A'), ' ', COALESCE(S.ExtName, ''), ' - ', S.StudentNumber) as Student
+                                            , C.Name as ClassName
+                                            , C.Description as ClassDescription
+                                            , CHE.Id as PreviousExamId
+                                            , STAT.Color
+                                            , STAT.Description as StatusDescription
+                                            , SHE.StatusId
+                                            FROM student_has_exam SHE
+                                              INNER JOIN r_students S
+                                                ON S.Id = SHE.StudentId
+                                              INNER JOIN classsubject_has_exam CHE
+                                                ON CHE.ID = SHE.ExamId
+                                              INNER JOIN class_has_subjects SHS
+                                                ON SHS.ID = CHE.ClassSubjectId
+                                              INNER JOIN r_subjects SS
+                                                ON SS.ID = SHS.SubjectId
+                                              INNER JOIN r_classlist C
+                                                ON C.Id = SHS.ClassId
+                                              INNER JOIN R_Status STAT
+                                                ON STAT.Id = SHE.StatusId
+                                                  WHERE (
+                                                    SHE.StatusId = 9
+                                                    OR
+                                                    SHE.StatusId = 10
+                                                  )
+                                                  AND SHS.FacultyId = '$EmployeeNumber'
+      ");
+      return $query->result_array();
+    }
+
+    function getExamSchedules($Id)
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT   CONCAT(DATE_FORMAT(ES.StartDate, '%b %d, %Y %h:%i %p'), ' to ', DATE_FORMAT(ES.EndDate, '%b %d, %Y %h:%i %p')) as ExamSchedule
+                                          , DATE_FORMAT(ES.StartDate - interval 1 hour, '%b %d, %Y %h:%i %p') as LastDateToCreate
+                                          , DATE_FORMAT(ES.StartDate, '%b %d, %Y %h:%i %p') as DateStart
+                                          , CASE
+                                              WHEN ES.StartDate - interval 1 hour > NOW()
+                                                THEN 'OK'
+                                                ELSE 'NOT OKAY'
+                                          END as ForCreation
+                                          , CASE
+                                              WHEN NOW() BETWEEN ES.StartDate AND ES.EndDate
+                                                THEN 'For exam'
+                                                ELSE 'NOT FOR EXAM'
+                                          END as ForExam
+                                          , S.Description as StatusDescription
+                                          , S.Color
+                                          , ES.StatusId
+                                          , ES.Id as ScheduleId
+                                          FROM classsubject_has_examschedule ES
+                                            INNER JOIN class_has_subjects CS
+                                              ON CS.ID = ES.ClassSubjectId
+                                            INNER JOIN R_Status S
+                                              ON S.Id = ES.StatusId
+                                              WHERE CS.ID = $Id
+      ");
+      return $query->result_array();
+    }
+
+    function generateStudentList()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CreatedBy
+                                        , CONCAT(S.LastName, ', ', S.FirstName, ' ', COALESCE(S.MiddleName, 'N/A'), ' ', COALESCE(S.ExtName, '')) as StudentName
+                                        , S.StatusId
+                                        , S.FirstName
+                                        , S.MiddleName
+                                        , S.LastName
+                                        , S.ExtName
+                                        , S.StudentNumber
+                                        , DATE_FORMAT(S.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                        , S.DateCreated as rawDateCreated
+                                        , SS.Description as StatusDescription
+                                        , SS.Color
+                                        , S.Id
+                                        FROM R_Students S
+                                          INNER JOIN R_Status SS
+                                            ON SS.Id = S.StatusId
+                                          INNER JOIN r_employees EMP
+                                            ON EMP.EmployeeNumber = S.CreatedBy
+      ");
+      return $query->result_array();
+    }
+
+    function getSearchResult($GradeFrom, $GradeTo, $SubjectId)
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+
+      $search = '';
+      if($GradeFrom == 0 && $GradeTo == 0)
+      {
+        $search .= '';
+      }
+      else if($GradeFrom > 0 && $GradeTo > 0)
+      {
+        $search .= ' AND Grade BETWEEN '.$GradeFrom.' AND '.$GradeFrom.'';
+      }
 
 
+      if($SubjectId == 'All')
+      {
+        $search .= '';
+      }
+      else
+      {
+        $search .= ' AND ClassSubject.ID = '. $SubjectId;
+      }
+
+      $query = $this->db->query("SELECT   CONCAT(SS.Code, '-', LPAD(ClassSubject.Id, 5, 0)) as SubjectCode
+                                          , SS.Name
+                                          , CONCAT(S.LastName, ', ', S.FirstName, ' ', COALESCE(S.MiddleName,'N/A'), ' ', COALESCE(S.ExtName, '')) as StudentName
+                                          , S.StudentNumber
+                                          , ClassExam.Id as PreviousExamId
+                                          , Grade
+                                          FROM class_has_subjects ClassSubject
+                                          INNER JOIN classsubject_has_students ClassStuds
+                                              ON ClassStuds.ClassSubjectId = ClassSubject.ID
+                                            INNER JOIN r_students S
+                                              ON S.Id = ClassStuds.StudentId
+                                            LEFT JOIN classsubject_has_exam ClassExam
+                                              ON ClassExam.ClassSubjectId = ClassSubject.ID
+                                            LEFT JOIN r_subjects SS
+                                              ON SS.ID = ClassSubject.SubjectId
+                                              WHERE SS.StatusId = 1
+                                                ".$search."
+      ");
+      return $query->result_array();
+    }
+
+    function getSubjectDetails($GradeFrom, $GradeTo, $SubjectId)
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+
+      $search = '';
+      if($SubjectId == 'All')
+      {
+        $search .= '';
+      }
+      else
+      {
+        $search .= ' AND ClassSubject.ID = '. $SubjectId;
+      }
+
+      $query = $this->db->query("SELECT   CONCAT(SS.Code, '-', LPAD(ClassSubject.Id, 5, 0)) as SubjectCode
+                                          , SS.Name
+                                          , CONCAT(S.LastName, ', ', S.FirstName, ' ', COALESCE(S.MiddleName,'N/A'), ' ', COALESCE(S.ExtName, '')) as StudentName
+                                          , S.StudentNumber
+                                          , ClassExam.Id as PreviousExamId
+                                          , Grade
+                                          FROM class_has_subjects ClassSubject
+                                          INNER JOIN classsubject_has_students ClassStuds
+                                              ON ClassStuds.ClassSubjectId = ClassSubject.ID
+                                            INNER JOIN r_students S
+                                              ON S.Id = ClassStuds.StudentId
+                                            LEFT JOIN classsubject_has_exam ClassExam
+                                              ON ClassExam.ClassSubjectId = ClassSubject.ID
+                                            LEFT JOIN r_subjects SS
+                                              ON SS.ID = ClassSubject.SubjectId
+                                              WHERE SS.StatusId = 1
+                                                ".$search."
+      ");
+      return $query->row_array();
+    }
+
+    function getClassSubjects()
+    {
+      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+      $query = $this->db->query("SELECT   CONCAT(S.Code, '-', LPAD(CHS.Id, 5, 0)) as SubjectCode
+                                          , S.Name as SubjectName
+                                          , CHS.ID as ClassSubjectId
+                                          FROM class_has_subjects CHS
+                                                INNER JOIN r_subjects S
+                                                    ON S.ID = CHS.SubjectId
+                                                  INNER JOIN r_classlist C
+                                                    ON C.Id = CHS.ClassId
+                                                      WHERE C.StatusId = 1
+      ");
+      return $query->result_array();
+    }
+
+    function getRegionList()
+    {
+      $query = $this->db->query("SELECT regDesc as 'text'
+                                        , regCode as 'id'
+                                        FROM add_region
+      ");
+      $output = '<option selected disabled value="">Select Region</option>';
+      if($query)
+      {
+        foreach ($query->result() as $row)
+        {
+          $output .= '<option value="'.$row->id.'">'.$row->text.'</option>';
+        }
+      }
+      return $output;
+    }
+
+    function getProvinces($RegionCode)
+    {
+      $query = $this->db->query("SELECT ProvDesc, provCode FROM add_province WHERE RegCode = '".$RegionCode."' ORDER BY provCode ASC");
+      $output = '<option selected disabled value="">Select Province</option>';
+      if($query)
+      {
+        foreach ($query->result() as $row)
+        {
+          $output .= '<option value="'.$row->provCode.'">'.$row->ProvDesc.'</option>';
+        }
+      }
+      return $output;
+    }
+
+    function getCities($ProvinceCode)
+    {
+      $query = $this->db->query("SELECT citymunDesc, citymunCode FROM add_city WHERE provCode = '".$ProvinceCode."' ORDER BY citymunCode ASC");
+      $output = '<option selected disabled value="">Select City</option>';
+      if($query)
+      {
+        foreach ($query->result() as $row)
+        {
+          $output .= '<option value="'.$row->citymunCode.'">'.$row->citymunDesc.'</option>';
+        }
+      }
+      return $output;
+    }
+
+    function getBarangays($cityMunCode)
+    {
+      $query = $this->db->query("SELECT brgyCode, brgyDesc FROM add_barangay WHERE cityMunCode = '".$cityMunCode."' ORDER BY brgyCode ASC");
+      $output = '<option selected disabled value="">Select Barangay</option>';
+      if($query)
+      {
+        foreach ($query->result() as $row)
+        {
+          $output .= '<option value="'.$row->brgyCode.'">'.$row->brgyDesc.'</option>';
+        }
+      }
+      return $output;
+    }
+
+    function getMaritalStatus()
+    {
+      $query = $this->db->query("SELECT   id
+                                          , description
+                                          FROM r_marital_status
+                                          WHERE statusId = 1
+      ");
+      $output = '<option selected disabled value="">Select Marital Status</option>';
+      if($query)
+      {
+        foreach ($query->result() as $row)
+        {
+          $output .= '<option value="'.$row->id.'">'.$row->description.'</option>';
+        }
+      }
+      return $output;
+    }
+
+    function getGraduatingStatus()
+    {
+      $query = $this->db->query("SELECT   id
+                                          , description
+                                          FROM r_graduating_status
+                                          WHERE statusId = 1
+      ");
+      $output = '<option selected disabled value="">Select Graduating Status</option>';
+      if($query)
+      {
+        foreach ($query->result() as $row)
+        {
+          $output .= '<option value="'.$row->id.'">'.$row->description.'</option>';
+        }
+      }
+      return $output;
+    }
+
+    function getOccupations()
+    {
+      $query = $this->db->query("SELECT   id
+                                          , description
+                                          FROM r_occupation
+                                          WHERE statusId = 1
+      ");
+      $output = '<option selected disabled value="">Select Occupation</option>';
+      if($query)
+      {
+        foreach ($query->result() as $row)
+        {
+          $output .= '<option value="'.$row->id.'">'.$row->description.'</option>';
+        }
+      }
+      return $output;
+    }
 
 }

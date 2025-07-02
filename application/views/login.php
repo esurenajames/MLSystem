@@ -1,145 +1,108 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>E-Lending | Login</title>
-  <!-- Tell the browser to be responsive to screen width -->
-  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-  <!-- Bootstrap 3.3.7 -->
-  <link rel="stylesheet" href="<?php echo base_url(); ?>resources/bower_components/bootstrap/dist/css/bootstrap.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ML System</title>
+
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
   <!-- Font Awesome -->
-  <link rel="stylesheet" href="<?php echo base_url(); ?>resources/bower_components/font-awesome/css/font-awesome.min.css">
-  <!-- Ionicons -->
-  <link rel="stylesheet" href="<?php echo base_url(); ?>resources/bower_components/Ionicons/css/ionicons.min.css">
+  <link rel="stylesheet" href="<?php echo base_url(); ?>resources/plugins/fontawesome-free/css/all.min.css">
+  <!-- icheck bootstrap -->
+  <link rel="stylesheet" href="<?php echo base_url(); ?>resources/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
   <!-- Theme style -->
-  <link rel="stylesheet" href="<?php echo base_url(); ?>resources/dist/css/AdminLTE.min.css">
-  <!-- iCheck -->
-  <link rel="stylesheet" href="<?php echo base_url(); ?>resources/plugins/iCheck/square/blue.css">
-
-  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-  <!--[if lt IE 9]>
-  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-  <![endif]-->
-
-  <!-- Google Font -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+  <link rel="stylesheet" href="<?php echo base_url(); ?>resources/dist/css/adminlte.min.css">
+  <link rel="stylesheet" href="<?php echo base_url(); ?>resources/bower_components/select2/dist/css/select2.min.css">
 </head>
 <body class="hold-transition login-page">
 <div class="login-box">
-  <div class="login-logo">
-      <div class="col-md-12">
-        <img src="<?php echo base_url(); ?>/resources/ELENDiNG.png" style="width: 100%; height: 100px" >
-      </div>
-      <br>
-      <br>
-  </div>
   <!-- /.login-logo -->
-  <div class="login-box-body">
-    <p class="login-box-msg">Sign in to start your session</p>
+  <div class="card card-outline card-primary">
+    <div class="card-header text-center">
+      <a href="#" class="h1"><b>ML</b>System</a>
+    </div>
+    <div class="card-body">
+      <p class="login-box-msg">Sign in to start your session</p>
     
     <?php if($this->session->flashdata('error'))
-    {
-      echo '
-        <div class="alert alert-danger alert-dismissible">
-                '.$this->session->flashdata('error').'
-              </div>
-      ';
-    } else if($this->session->flashdata('logout'))
-    {
-      echo '
-        <div class="alert alert-success alert-dismissible">
-                '.$this->session->flashdata('logout').'
-              </div>
-      ';
-    }
+      {
+        echo '
+          <div class="alert alert-danger alert-dismissible">
+                  '.$this->session->flashdata('error').'
+                </div>
+        ';
+      } else if($this->session->flashdata('logout'))
+      {
+        echo '
+          <div class="alert alert-success alert-dismissible">
+                  '.$this->session->flashdata('logout').'
+                </div>
+        ';
+      }
     ?>
+
 
     <div class="modal fade" id="modalResetPassword">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title">Reset Password</h4>
-          </div>
-            <form action="<?php echo base_url(); ?>LMS/ResetPassword" autocomplete="off" method="post">
+            <div class="modal-header">
+              <h4 class="modal-title">Forgot password</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <form action="<?php echo base_url(); ?>access_controller/ResetPassword" autocomplete="off" method="post">
               <div class="modal-body">
                 <div class="row">
-                  <div class="form-group">
-                    <label class="col-sm-2 control-label">Employee No.</label>
-                    <div class="col-sm-10">
-                      <input type="text" class="form-control" name="EmployeeNumber">
-                    </div>
+                  <div class="col-md-12">
+                    <h6>Employee No.</h6>
+                      <input type="text" required="" class="form-control" name="EmployeeNumber">
                   </div>
-                  <br>
-                  <br>
-                  <div class="form-group">
-                    <label class="col-sm-2 control-label">Question No. 1</label>
-                    <div class="col-sm-10">
-                      <select type="text" class="form-control" name="Question1" placeholder="Name">
-                        <?php 
-                          foreach($securityQuestions as $row)
-                          {
-                            echo "<option value='".$row['SecurityQuestionId']."'>".$row['Name']."</option>";
-                          }
-                        ?>
-                      </select> 
-                    </div>
+                  <div class="col-md-6">
+                    <h6>1st Question</h6>
+                    <select class="form-control select2" required="" name="Question1" style="width: 100%;">
+                      <?php 
+                        foreach ($questions as $key => $value) 
+                        {
+                          echo '<option value="'.$value['Id'].'">'.$value['Description'].'</option>';
+                        }
+                      ?>
+                    </select>
                   </div>
-                  <br>
-                  <br>
-                  <div class="form-group">
-                    <label class="col-sm-2 control-label">Answer</label>
-                    <div class="col-sm-10">
-                      <input type="text" class="form-control" name="Answer1" placeholder="Name">
-                    </div>
-                  </div><br>
-                  <br>
-                  <div class="form-group">
-                    <label class="col-sm-2 control-label">Question No. 2</label>
-                    <div class="col-sm-10">
-                      <select type="text" class="form-control" name="Question2" placeholder="Name">
-                        <?php 
-                          foreach($securityQuestions as $row)
-                          {
-                            echo "<option value='".$row['SecurityQuestionId']."'>".$row['Name']."</option>";
-                          }
-                        ?>
-                      </select> 
-                    </div>
+                  <div class="col-md-6">
+                    <h6>Answer</h6>
+                    <input type="text" name="Answer1" required="" class="form-control">
                   </div>
-                  <br>
-                  <br>
-                  <div class="form-group">
-                    <label class="col-sm-2 control-label">Answer</label>
-                    <div class="col-sm-10">
-                      <input type="text" class="form-control" name="Answer2" placeholder="Name">
-                    </div>
-                  </div><br>
-                  <br>
-                  <div class="form-group">
-                    <label class="col-sm-2 control-label">Question No. 3</label>
-                    <div class="col-sm-10">
-                      <select type="text" class="form-control" name="Question3" placeholder="Name">
-                        <?php 
-                          foreach($securityQuestions as $row)
-                          {
-                            echo "<option value='".$row['SecurityQuestionId']."'>".$row['Name']."</option>";
-                          }
-                        ?>
-                      </select> 
-                    </div>
+                  <div class="col-md-6">
+                    <h6>2nd Question</h6>
+                    <select class="form-control select2" required="" name="Question2" style="width: 100%;">
+                      <?php 
+                        foreach ($questions as $key => $value) 
+                        {
+                          echo '<option value="'.$value['Id'].'">'.$value['Description'].'</option>';
+                        }
+                      ?>
+                    </select>
                   </div>
-                  <br>
-                  <br>
-                  <div class="form-group">
-                    <label class="col-sm-2 control-label">Answer</label>
-                    <div class="col-sm-10">
-                      <input type="text" class="form-control" name="Answer3" placeholder="Name">
-                    </div>
+                  <div class="col-md-6">
+                    <h6>Answer</h6>
+                    <input type="text" name="Answer2" required="" class="form-control">
+                  </div>
+                  <div class="col-md-6">
+                    <h6>3rd Question</h6>
+                    <select class="form-control select2" required="" name="Question3" style="width: 100%;">
+                      <?php 
+                        foreach ($questions as $key => $value) 
+                        {
+                          echo '<option value="'.$value['Id'].'">'.$value['Description'].'</option>';
+                        }
+                      ?>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <h6>Answer</h6>
+                    <input type="text" name="Answer3" required="" class="form-control">
                   </div>
                 </div>
               </div>
@@ -149,59 +112,54 @@
               </div>
             </form>
         </div>
-        <!-- /.modal-content -->
       </div>
-      <!-- /.modal-dialog -->
     </div>
 
-
-    <form action="<?php echo base_url(); ?>LMS/accessCheck" id="formLogin" method="post">
-      <div class="form-group has-feedback">
-        <input type="text" name="txtUsername" class="form-control" placeholder="Employee Number">
-        <span class="glyphicon glyphicon-user form-control-feedback"></span>
-      </div>
-      <div class="form-group has-feedback">
-        <input type="password" name="txtPassword" class="form-control" placeholder="Password">
-        <span class="glyphicon glyphicon-lock form-control-feedback"></span>
-      </div>
-      <div class="row">
-        <!-- /.col -->
-        <div class="col-xs-12">
-          <button type="submit" name="btnProcess" value="1" class="btn btn-success btn-block btn-flat">Sign In</button>
+      <form action="<?php echo base_url(); ?>access_controller/accessCheck/1" id="formLogin" method="post">
+        <div class="input-group mb-3">
+          <input type="text" class="form-control" name="Username" placeholder="Username">
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-user"></span>
+            </div>
+          </div>
         </div>
-        <!-- /.col -->
-      </div>
-    </form>
-    <br>
+        <div class="input-group mb-3">
+          <input type="password" class="form-control" name="Password" placeholder="Password">
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-lock"></span>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <!-- /.col -->
+          <div class="col-12">
+            <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+          </div>
+          <!-- /.col -->
+        </div>
+      </form>
 
-      <button name="btnProcess" value="2" class="btn btn-primary btn-block btn-flat" data-toggle="modal" data-target="#modalResetPassword">Reset Password</button>
-
-
+      <p class="mb-1">
+        <a href="#" data-toggle="modal" data-target="#modalResetPassword">I forgot my password</a>
+      </p>
+    </div>
   </div>
-  <!-- /.login-box-body -->
 </div>
-<!-- /.login-box -->
 
-<!-- jQuery 3 -->
-<script src="<?php echo base_url(); ?>resources/bower_components/jquery/dist/jquery.min.js"></script>
-<!-- Bootstrap 3.3.7 -->
-<script src="<?php echo base_url(); ?>resources/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-<!-- iCheck -->
-<script src="<?php echo base_url(); ?>resources/plugins/iCheck/icheck.min.js"></script>
+<!-- jQuery -->
+<script src="<?php echo base_url(); ?>resources/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="<?php echo base_url(); ?>resources/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- AdminLTE App -->
+<script src="<?php echo base_url(); ?>resources/dist/js/adminlte.min.js"></script>
+<script src="<?php echo base_url(); ?>resources/bower_components/select2/dist/js/select2.full.min.js"></script>
+
 <script>
   $(function () {
+    $('.select2').select2();
 
-
-    if("<?php print_r($this->session->flashdata('alertTitle')) ?>" != '')
-    {
-      swal({
-        title: '<?php print_r($this->session->flashdata('alertTitle')) ?>',
-        text: '<?php print_r($this->session->flashdata('alertText')) ?>',
-        type: '<?php print_r($this->session->flashdata('alertType')) ?>',
-        buttonsStyling: false,
-        confirmButtonClass: 'btn btn-primary'
-      });
-    }
     
     $('input').iCheck({
       checkboxClass: 'icheckbox_square-blue',
@@ -240,7 +198,7 @@
       }
     });
 
-
+    <?php session_destroy(); ?>
   });
 </script>
 </body>

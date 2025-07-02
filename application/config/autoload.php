@@ -132,4 +132,4 @@ $autoload['language'] = array();
 |
 |	$autoload['model'] = array('first_model' => 'first');
 */
-$autoload['model'] = array('maintenance_model', 'access', 'sidebar_model', 'employee_model', 'admin_model', 'borrower_model', 'loanapplication_model');
+$autoload['model'] = array('maintenance_model', 'access_model', 'sidebar_model', 'admin_model');
