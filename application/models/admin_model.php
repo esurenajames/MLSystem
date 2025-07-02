@@ -28,6 +28,18 @@ class admin_model extends CI_Model
       return $query->result_array();
     }
 
+    public function getCurrentSubjectsByStudent($studentId)
+    {
+        $this->db->select('s.Code as SubjectCode, s.Name as SubjectName');
+        $this->db->from('classsubject_has_students cs');
+        $this->db->join('class_has_subjects chs', 'chs.Id = cs.ClassSubjectId');
+        $this->db->join('r_subjects s', 's.Id = chs.SubjectId');
+        $this->db->where('cs.StudentId', $studentId);
+        $this->db->where('cs.StatusId', 1); // Only active/enrolled
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
     function getUserList()
     {
       $query = $this->db->query("SELECT   CASE

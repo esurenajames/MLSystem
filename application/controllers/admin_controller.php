@@ -2308,69 +2308,77 @@ class admin_controller extends CI_Controller {
       // $pdf->Output('Payment Dues.pdf', 'D');
     }
 
-    function generateStudentList()
+  function generateStudentList()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $DateNow = date("Y-m-d H:i:s");
+
+    $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+    $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+    $pdf->setPrintHeader(false);
+    $pdf->SetMargins(10, 10, 10);
+    $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+    $pdf->SetFont('dejavusans', '', 10);
+
+    $pdf->setPrintHeader(false);
+    $pdf->AddPage('L', 'A4');
+    $html ='
+      <style>
+      p {
+        text-align: center;
+        font-size: 10px;
+      }
+      a {
+        text-align: center;
+        font-size: 15px;
+      }
+      </style>
+      <p><u><strong>STUDENT LIST</strong></u><br></p>
+      <br>
+      <br>
+      <table nobr="true" cellspacing="0" cellpadding="2" border="1">
+        <tbody>
+          <tr>
+            <td><strong>Student Number</strong></td>
+            <td><strong>Student Name</strong></td>
+            <td><strong>Current Enrolled Subjects</strong></td>
+          </tr>
+    ';
+
+    $studentList = $this->admin_model->generateStudentList();
+    if($studentList)
     {
-      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-      $DateNow = date("Y-m-d H:i:s");
-
-      $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-      // set default monospaced font
-      $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
-      $pdf->setPrintHeader(false);
-      // set margins
-      $pdf->SetMargins(10, 10, 10);
-      $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
-      $pdf->SetFont('dejavusans', '', 10);
-
-
-      $pdf->setPrintHeader(false);
-      // set default header data
-      // $pdf->SetHeaderData('', PDF_HEADER_LOGO_WIDTH, '');
-      $pdf->AddPage('L', 'A4');
-      $html ='
-        <style>
-        p {
-          text-align: center;
-          font-size: 10px;
+      foreach ($studentList as $key => $value) 
+      {
+        // Fetch current enrolled subjects for this student
+        $subjects = $this->admin_model->getCurrentSubjectsByStudent($value['Id']); // Make sure 'Id' is available in $value
+        $subjectStr = '';
+        if ($subjects && count($subjects) > 0) {
+          $subjectArr = [];
+          foreach ($subjects as $subj) {
+            $subjectArr[] = strtoupper($subj['SubjectCode']) . ' - ' . strtoupper($subj['SubjectName']);
+          }
+          $subjectStr = implode('<br>', $subjectArr);
+        } else {
+          $subjectStr = 'None';
         }
 
-        a {
-          text-align: center;
-          font-size: 15px;
-        }
-        </style>
-        <p><u><strong>STUDENT LIST</strong></u><br></p>
-        <br>
-        <br>
-        <table nobr="true" cellspacing="0" cellpadding="2" border="1">
-          <tbody>
-            <tr>
-              <td><strong>Student Number</strong></td>
-              <td><strong>Student Name</strong></td>
-            </tr>
-            ';
-              $studentList = $this->admin_model->generateStudentList();
-              if($studentList)
-              {
-                foreach ($studentList as $key => $value) 
-                {
-                  $html .= '
-                    <tr>
-                      <td>'.strtoupper($value['StudentNumber']).'</td>
-                      <td>'.strtoupper($value['StudentName']).'</td>
-                    </tr>
-                  ';
-                }
-              }
-          $html .= '
+        $html .= '
+          <tr>
+            <td>'.strtoupper($value['StudentNumber']).'</td>
+            <td>'.strtoupper($value['StudentName']).'</td>
+            <td>'.$subjectStr.'</td>
+          </tr>
+        ';
+      }
+    }
+    $html .= '
         </tbody>
       </table>
       ';
-      $pdf->writeHTML($html, true, false, true, false, '');
-
-      // $pdf->Output('Income Statement.pdf', 'I');
-      $pdf->Output('Student List.pdf', 'D');
-    }
+    $pdf->writeHTML($html, true, false, true, false, '');
+    $pdf->Output('Student List.pdf', 'D');
+  }
 
     function generateStudentListSubjects()
     {
