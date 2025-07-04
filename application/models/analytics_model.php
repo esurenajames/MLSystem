@@ -28,7 +28,7 @@ class analytics_model extends CI_Model
         ];
 
         // Python API endpoint
-        $url = 'http://your-python-api-url/analyze'; // Change to your actual endpoint
+        $url = 'https://mlr-analytics-tsukkimen.replit.app/';
 
         // Initialize cURL
         $ch = curl_init($url);

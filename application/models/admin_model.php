@@ -8,7 +8,33 @@ class admin_model extends CI_Model
 			$this->load->model('access_model');
       date_default_timezone_set('Asia/Manila');
     }
+    public function get_all_student_scores()
+    {
+        $students = $this->db->query("
+            SELECT 
+                S.StudentNumber as student_number,
+                CONCAT(S.LastName, ', ', S.FirstName, ' ', COALESCE(S.MiddleName,'N/A'), ' ', COALESCE(S.ExtName, '')) as student_name,
+                CHS.Grade,
+                ClassExam.Id as ExamId
+            FROM classsubject_has_students CHS
+            INNER JOIN r_students S ON S.Id = CHS.StudentId
+            LEFT JOIN classsubject_has_exam ClassExam ON ClassExam.ClassSubjectId = CHS.ClassSubjectId
+            WHERE CHS.Grade IS NOT NULL
+        ")->result_array();
 
+        foreach ($students as &$student) {
+            if (!empty($student['ExamId'])) {
+                $correct = $this->countCorrectAnswers($student['ExamId']);
+                $total = $this->countQuestions($student['ExamId']);
+                $student['exam_score'] = ($total > 0) ? round(($correct / $total) * 100, 2) : null;
+            } else {
+                $student['exam_score'] = null;
+            }
+            unset($student['ExamId']);
+        }
+        return $students;
+    }
+    
     function getEmployeeList()
     {
       $query = $this->db->query("SELECT   CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as Name

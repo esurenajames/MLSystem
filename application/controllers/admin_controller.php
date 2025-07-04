@@ -1810,13 +1810,13 @@ class admin_controller extends CI_Controller {
 
       if($this->uri->segment(3) !== null)
       {
-        // delete previous exam
-          $prevStudentExamId = $this->maintenance_model->selectSpecific('student_has_exam', 'StudentId', $EmployeeNumber);
-          if($prevStudentExamId != 0)
-          {
-            $this->maintenance_model->deleteFunction($prevStudentExamId['ID'], 'StudentExamId', 'exam_has_answers');
-            $this->maintenance_model->deleteFunction($EmployeeNumber, 'StudentId', 'student_has_exam');
-          }
+        // // delete previous exam
+        //   $prevStudentExamId = $this->maintenance_model->selectSpecific('student_has_exam', 'StudentId', $EmployeeNumber);
+        //   if($prevStudentExamId != 0)
+        //   {
+        //     $this->maintenance_model->deleteFunction($prevStudentExamId['ID'], 'StudentExamId', 'exam_has_answers');
+        //     $this->maintenance_model->deleteFunction($EmployeeNumber, 'StudentId', 'student_has_exam');
+        //   }
         // exam details
           $insertData1 = array(
             'StudentId'             => $EmployeeNumber,
