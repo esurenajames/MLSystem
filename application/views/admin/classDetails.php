@@ -1,4 +1,5 @@
-<div class="content-wrapper">
+
+  <div class="content-wrapper">
     <div class="content-header">
       <div class="container-fluid">
         <div class="row mb-2">
@@ -23,8 +24,7 @@
                 <div class="row">
                   <div class="col-md-12">
                     <h6>Subject</h6>
-                    <select class="form-control select2" style="width: 100%" name="SubjectId" id="SubjectId" required>
-                      <option value="">Select Subject</option>
+                    <select class="form-control select2" style="width: 100%" name="SubjectId">
                       <?php 
                         foreach ($subjects as $key => $value) {
                           echo '<option value="'.$value['Id'].'">'.$value['Code'].'-'.$value['Description'].'</option>';
@@ -34,14 +34,17 @@
                   </div>
                   <div class="col-md-12">
                     <h6>Faculty</h6>
-                    <select class="form-control select2" style="width: 100%" name="EmployeeNumber" id="EmployeeNumber" required>
-                      <option value="">Select Subject First</option>
+                    <select class="form-control select2" style="width: 100%" name="EmployeeNumber">
+                      <?php 
+                        foreach ($faculty as $key => $value) {
+                          echo '<option value="'.$value['EmployeeNumber'].'">'.$value['Name'].'</option>';
+                        }
+                      ?>
                     </select>
-                    <small class="form-text text-muted">Only faculty assigned to the selected subject will be shown</small>
                   </div>
                   <div class="col-md-12">
                     <h6>Max no of Students</h6>
-                    <input class="form-control" type="number" min="1" max="100" name="MaxNo" required>
+                    <input class="form-control" type="number" min="1" max="100" name="MaxNo">
                   </div>
                   <div class="col-md-12">
                     <h6>Description</h6>
@@ -62,7 +65,7 @@
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
             <div class="modal-header">
-              <h4 class="modal-title">Edit Subject/Faculty</h4>
+              <h4 class="modal-title">Add Subject/Faculty</h4>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -70,10 +73,10 @@
             <form action="<?php echo base_url(); ?>admin_controller/editSubjectClass/<?php print_r($this->uri->segment(3)); ?>" class="frminsert2" method="post">
               <div class="modal-body">
                 <div class="row">
-                  <input class="form-control" id="txtId" type="hidden" name="Id">
+                  <input class="form-control" id="txtId" type="" name="Id">
                   <div class="col-md-12">
                     <h6>Subject</h6>
-                    <select class="form-control select2" id="txtSubject" style="width: 100%" name="SubjectId" required>
+                    <select class="form-control select2" readonly id="txtSubject" style="width: 100%" name="SubjectId">
                       <?php 
                         foreach ($subjects as $key => $value) {
                           echo '<option value="'.$value['Id'].'">'.$value['Code'].'-'.$value['Description'].'</option>';
@@ -83,14 +86,17 @@
                   </div>
                   <div class="col-md-12">
                     <h6>Faculty</h6>
-                    <select class="form-control select2" id="txtFaculty" style="width: 100%" name="EmployeeNumber" required>
-                      <option value="">Select Subject First</option>
+                    <select class="form-control select2" readonly id="txtFaculty" style="width: 100%" name="EmployeeNumber">
+                      <?php 
+                        foreach ($faculty as $key => $value) {
+                          echo '<option value="'.$value['EmployeeNumber'].'">'.$value['Name'].'</option>';
+                        }
+                      ?>
                     </select>
-                    <small class="form-text text-muted">Only faculty assigned to the selected subject will be shown</small>
                   </div>
                   <div class="col-md-12">
                     <h6>Max no of Students</h6>
-                    <input class="form-control" id="txtMaxNo" type="number" min="1" max="100" name="MaxNo" required>
+                    <input class="form-control" id="txtMaxNo" type="number" min="1" max="100" name="MaxNo">
                   </div>
                   <div class="col-md-12">
                     <h6>Description</h6>
@@ -150,7 +156,6 @@
                   <tr>
                     <th width="15%">Subject Code</th>
                     <th>Subject Name</th>
-                    <th>Faculty</th>
                     <th>Units</th>
                     <th>Total Enrolled Students</th>
                     <th>Max Students</th>
@@ -179,65 +184,15 @@
     UserTable.ajax.url(url).load();
   }
 
-  function loadFacultyBySubject(subjectId, targetSelect) {
-    if(subjectId) {
-      $.ajax({
-        url: '<?php echo base_url()."admin_controller/getFacultyBySubjectForClass/"; ?>',
-        method: 'POST',
-        data: { SubjectId: subjectId },
-        dataType: 'json',
-        success: function(data) {
-          var facultySelect = $(targetSelect);
-          facultySelect.empty();
-          
-          if(data.length > 0) {
-            facultySelect.append('<option value="">Select Faculty</option>');
-            $.each(data, function(index, faculty) {
-              facultySelect.append('<option value="' + faculty.EmployeeNumber + '">' + faculty.Name + '</option>');
-            });
-          } else {
-            facultySelect.append('<option value="">No faculty assigned to this subject</option>');
-          }
-          
-          facultySelect.trigger('change');
-        },
-        error: function() {
-          var facultySelect = $(targetSelect);
-          facultySelect.empty();
-          facultySelect.append('<option value="">Error loading faculty</option>');
-          
-          swal({
-            title: 'Error!',
-            text: 'Failed to load faculty for this subject',
-            type: 'error',
-            buttonsStyling: false,
-            confirmButtonClass: 'btn btn-primary'
-          });
-        }
-      });
-    } else {
-      var facultySelect = $(targetSelect);
-      facultySelect.empty();
-      facultySelect.append('<option value="">Select Subject First</option>');
-    }
-  }
-
   function updateRecord(Id, Type, Description, MaxStudents, SubjectId, FacultyId)
   {
     if(Type == 4) // update role
     {
-      $('#txtId').val(Id);
-      $('#txtSubject').val(SubjectId).change();
-      $('#txtMaxNo').val(MaxStudents);
-      $('#txtDescription').val(Description);
-      
-      // Load faculty for this subject and then select the current faculty
-      loadFacultyBySubject(SubjectId, '#txtFaculty');
-      
-      // Set the faculty value after a short delay to ensure the options are loaded
-      setTimeout(function() {
-        $('#txtFaculty').val(FacultyId).change();
-      }, 500);
+      $('#txtId').val(Id)
+      $('#txtSubject').val(SubjectId).change()
+      $('#txtFaculty').val(FacultyId).change()
+      $('#txtMaxNo').val(MaxStudents)
+      $('#txtDescription').val(Description)
     }
     else
     {
@@ -266,8 +221,8 @@
           method: "POST",
           async: false,
           data:   {
-                    Id : Id,
-                    Type : Type
+                    Id : Id
+                    , Type : Type
                   },  
           dataType: "JSON",
           beforeSend: function(){
@@ -301,18 +256,6 @@
 
   $(function () {
 
-    // Handle subject change for add modal
-    $('#SubjectId').on('change', function() {
-      var subjectId = $(this).val();
-      loadFacultyBySubject(subjectId, '#EmployeeNumber');
-    });
-
-    // Handle subject change for edit modal
-    $('#txtSubject').on('change', function() {
-      var subjectId = $(this).val();
-      loadFacultyBySubject(subjectId, '#txtFaculty');
-    });
-
     $(".frminsert2").on('submit', function (e) {
       e.preventDefault(); 
       swal({
@@ -329,43 +272,45 @@
       });
     });
 
+
     $('.select2').select2();
 
     UserTable = $('#example1').DataTable({
       "pageLength": 10,
       "ajax": { url: '<?php echo base_url()."/admin_controller/getSubjectClassList/". $this->uri->segment(3); ?>', type: 'POST', "dataSrc": "" },
-      "columns": [  { data: "Code" },
-                    { data: "SubjectName" },
-                    { data: "FacultyName" },
-                    { data: "Units" },
-                    { data: "TotalStudents" },
-                    { data: "MaxStudents" },
-                    { data: "Description" },
-                    {
+      "columns": [  { data: "Code" }
+                    , { data: "SubjectName" }
+                    , { data: "Units" }
+                    , { data: "TotalStudents" }
+                    , { data: "MaxStudents" }
+                    , { data: "Description" }
+                    , {
                       data: "StatusId", "render": function (data, type, row) {
                         return "<span class='badge bg-"+row.Color+"'>"+row.StatusDescription+"</span>";
                       }
-                    },
-                    {
+                    }
+                    , {
                       data: "StatusId", "render": function (data, type, row) {
                         if(row.StatusId == 1){
                           if(row.TotalStudents > 0)
                           {
-                            return '<a href="<?php echo base_url() ?>home/FacultysubjectStudents/'+row.ClassSubjectId+'" class="btn btn-sm btn-info" title="View Students"><i class="fa fa-eye"></i></a> <a onclick="updateRecord('+row.Id+', 1)" class="btn btn-sm btn-danger" title="Deactivate"><i class="fa fa-window-close"></i></a>';
+                            return '<a href="<?php echo base_url() ?>home/FacultysubjectStudents/'+row.ClassSubjectId+'" class="btn btn-default" title="View"><span class="fa fa-eye"></span></a> <a onclick="updateRecord('+row.Id+', 1)" class="btn btn-danger" title="Deactivate"><span class="fa fa-window-close"></span></a>';
                           }
                           else
                           {
-                            return '<a href="<?php echo base_url() ?>home/FacultysubjectStudents/'+row.ClassSubjectId+'" class="btn btn-sm btn-info" title="View Students"><i class="fa fa-eye"></i></a> <a onclick="updateRecord('+row.Id+', 4, \''+row.Description+'\', \''+row.MaxStudents+'\', \''+row.SubjectId+'\', \''+row.FacultyId+'\')" data-toggle="modal" data-target="#modalEdit" class="btn btn-sm btn-primary" title="Edit"><i class="fa fa-edit"></i></a> <a onclick="updateRecord('+row.Id+', 1)" class="btn btn-sm btn-danger" title="Deactivate"><i class="fa fa-window-close"></i></a>';
+                            return '<a href="<?php echo base_url() ?>home/FacultysubjectStudents/'+row.ClassSubjectId+'" class="btn btn-default" title="View"><span class="fa fa-eye"></span></a> <a onclick="updateRecord('+row.Id+', 4, \''+row.Description+'\', \''+row.MaxStudents+'\', \''+row.SubjectId+'\', \''+row.FacultyId+'\')"  data-toggle="modal" data-target="#modalEdit" class="btn btn-primary" title="Edit"><span class="fa fa-edit"></span></a> <a onclick="updateRecord('+row.Id+', 1)" class="btn btn-danger" title="Deactivate"><span class="fa fa-window-close"></span></a>';
                           }
                         }
                         else
                         {
-                          return '<a onclick="updateRecord('+row.Id+', 2)" class="btn btn-sm btn-warning" title="Re-activate"><i class="fa fa-retweet"></i></a>';
+                          return '<a onclick="updateRecord('+row.Id+', 2)" class="btn btn-warning" title="Re-activate"><span class="fa fa-retweet"></span></a>';
                         }
                       }
                     },
       ],
+      // "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
       "order": [[0, "asc"]]
     });
+
   });
 </script>

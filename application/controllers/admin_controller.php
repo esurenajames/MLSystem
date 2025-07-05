@@ -1644,10 +1644,9 @@ class admin_controller extends CI_Controller {
   /* END OF FACULTY CLASS LIST */
 
   /* FACULTY CLASS SUBJECT */
-    function getFacultyBySubjectForClass()
+    function getFacultySubjectClassList()
     {
-      $subjectId = $this->input->post('SubjectId');
-      $result = $this->admin_model->getFacultyBySubject($subjectId);
+      $result = $this->admin_model->getFacultySubjectClassList($this->uri->segment(3));;
       echo json_encode($result);
     }
 
