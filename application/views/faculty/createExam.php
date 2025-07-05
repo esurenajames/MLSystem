@@ -1,5 +1,4 @@
-
-  <div class="content-wrapper">
+<div class="content-wrapper">
     <div class="content-header">
       <div class="container-fluid">
         <div class="row mb-2">
@@ -26,13 +25,6 @@
                     <h6>Description</h6>
                     <textarea class="form-control" name="Description"></textarea>
                   </div>
-                  <!-- <div class="col-md-12">
-                    <h6>Status</h6>
-                    <select class="form-control select2" style="width:100%" name="StatusId">
-                      <option value="3">Exam Proper</option>
-                      <option value="4">Mock Exam</option>
-                    </select>
-                  </div> -->
                 </div>
               </div>
               <div class="modal-footer justify-content-between">
@@ -81,11 +73,11 @@
                 <h5 class="m-0">Exam List for <?php print_r($detail['SubjectCode']) ?></h5> <small>* Only 1 exam is valid for student to take.</small>
               </div>
               <div class="card-body">
-                <?php if(isset($examSchedule)) { ?>
-                  <?php if($examSchedule['ForCreation'] == "OK") { ?>
+                <?php if(isset($examSchedule) && is_array($examSchedule)) { ?>
+                  <?php if(isset($examSchedule['ForCreation']) && $examSchedule['ForCreation'] == "OK") { ?>
                     <div class="alert alert-success alert-dismissible">
                       <h5><i class="icon fas fa-check"></i> Exam scheduled!</h5>
-                      NOTE: This exam has been scheduled to be participated by students enrolled on <?php print_r($examSchedule['ExamSchedule']) ?>. Please create your exam on or before <?php print_r($examSchedule['LastDateToCreate']) ?>. <strong>Only exams tagged as EXAM PROPER are to be answered by the students.</strong>
+                      NOTE: This exam has been scheduled to be participated by students enrolled on <?php echo isset($examSchedule['ExamSchedule']) ? $examSchedule['ExamSchedule'] : 'N/A' ?>. Please create your exam on or before <?php echo isset($examSchedule['LastDateToCreate']) ? $examSchedule['LastDateToCreate'] : 'N/A' ?>. <strong>Only exams tagged as EXAM PROPER are to be answered by the students.</strong>
                     </div>
                     <div class="float-right">
                       <a class="btn btn-md btn-primary" data-toggle="modal" data-target="#modal-default">Add Exam</a>
@@ -94,8 +86,8 @@
                     <br>
                   <?php } else { ?>
                     <div class="alert alert-warning alert-dismissible">
-                      <h5><i class="icon fas fa-exclamation-triangle"></i> Exam Editing Closed!</h5>
-                        Deactivation/editing of created exam is closed. Exam is to start at <?php print_r($examSchedule['DateStart']) ?>
+                      <h5><i class="icon fas fa-exclamation-triangle"></i> Exam Creation Closed!</h5>
+                        Exam creation/editing has been closed. <?php echo isset($examSchedule['DateStart']) ? 'Exam is to start at ' . $examSchedule['DateStart'] : '' ?>
                     </div>
                   <?php } ?>
                 <?php } else { ?>
@@ -242,13 +234,10 @@
                     , {
                       data: "StatusId", "render": function (data, type, row) {
 
-                        <?php if(isset($examSchedule)) { ?>
-                          if("<?php echo $examSchedule['ForCreation'] ?>" == 'OK')
-                          {
+                        <?php if(isset($examSchedule) && is_array($examSchedule)) { ?>
+                          <?php if(isset($examSchedule['ForCreation']) && $examSchedule['ForCreation'] == 'OK') { ?>
                             if(row.StatusId == 3){ // EXAM PROPER
                               return '<a href="<?php echo base_url() ?>home/examDetails/'+row.ExamId+'/'+<?php echo $this->uri->segment(3); ?>+'" class="btn btn-primary" title="Edit Exam"><span class="fa fa-pen-square"></span></a> <a href="<?php echo base_url() ?>home/viewExamFormat/'+row.ExamId+'/'+<?php echo $this->uri->segment(3); ?>+'" class="btn btn-default" title="View Exam"><span class="fa fa-eye"></span></a> <a href="<?php echo base_url() ?>home/takeExam/'+row.ExamId+'" class="btn btn-danger" title="Deactivate"><span class="fa fa-window-close"></span></a>';
-
-                              // <a href="<?php echo base_url() ?>home/takeExam/'+row.ExamId+'" class="btn btn-warning" title="Set as mock exam"><span class="fa fa-check-circle"></span></a> 
                             }
                             else if(row.StatusId == 4) // MOCK EXAM
                             {
@@ -258,14 +247,11 @@
                             {
                               return '';
                             }
-                          }
-                          else
-                          {
+                          <?php } else { ?>
                             return '<a href="<?php echo base_url() ?>home/viewExam/'+row.ExamId+'" class="btn btn-default" title="View Exam"><span class="fa fa-eye"></span></a>';
-                          }
-
+                          <?php } ?>
                         <?php } else { ?>
-
+                          return '<a href="<?php echo base_url() ?>home/viewExam/'+row.ExamId+'" class="btn btn-default" title="View Exam"><span class="fa fa-eye"></span></a>';
                         <?php } ?>
                       }
                     },
