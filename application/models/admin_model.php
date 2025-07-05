@@ -39,6 +39,15 @@ class admin_model extends CI_Model
         $query = $this->db->get();
         return $query->result_array();
     }
+    public function getFacultyList()
+    {
+        $this->db->select("e.Id, CONCAT(e.LastName, ', ', e.FirstName, ' ', COALESCE(e.MiddleName,'N/A'), ' ', COALESCE(e.ExtName, '')) as Name");
+        $this->db->from('r_employees e');
+        $this->db->join('r_position p', 'e.PositionId = p.Id');
+        $this->db->where('p.Description', 'Faculty');
+        $this->db->where('e.StatusId', 1); // Only active faculty
+        return $this->db->get()->result_array();
+    }
 
     function getUserList()
     {
@@ -315,19 +324,28 @@ class admin_model extends CI_Model
     {
       $EmployeeNumber = $this->session->userdata('EmployeeNumber');
       $query = $this->db->query("SELECT CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as Name
-                                        , S.Name as SubjectName
-                                        , SS.Description as StatusDescription
-                                        , S.StatusId
-                                        , S.Description as SubjectDescription
-                                        , S.Code
-                                        , S.Units
-                                        , SS.Color
-                                        , S.Id
-                                        FROM R_Subjects S
-                                          INNER JOIN R_Status SS
-                                            ON SS.Id = S.StatusId
-                                          INNER JOIN r_employees EMP
-                                            ON EMP.EmployeeNumber = S.CreatedBy 
+                                      , S.Name as SubjectName
+                                      , SS.Description as StatusDescription
+                                      , S.StatusId
+                                      , S.Description as SubjectDescription
+                                      , S.Code
+                                      , S.Units
+                                      , SS.Color
+                                      , S.Id
+                                      , COALESCE(FC.FacultyCount, 0) as FacultyCount
+                                      FROM R_Subjects S
+                                        INNER JOIN R_Status SS
+                                          ON SS.Id = S.StatusId
+                                        INNER JOIN r_employees EMP
+                                          ON EMP.EmployeeNumber = S.CreatedBy
+                                        LEFT JOIN (
+                                          SELECT SubjectId, COUNT(*) as FacultyCount
+                                          FROM subject_has_faculty SHF
+                                          INNER JOIN r_employees E ON E.EmployeeNumber = SHF.FacultyId
+                                          WHERE SHF.StatusId = 1 AND E.StatusId = 1
+                                          GROUP BY SubjectId
+                                        ) FC ON FC.SubjectId = S.Id
+                                        ORDER BY S.Code
       ");
       return $query->result_array();
     }
@@ -335,20 +353,20 @@ class admin_model extends CI_Model
     function getClassList()
     {
       $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-      $query = $this->db->query("SELECT CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as Name
-                                        , S.MaxStudents as MaxStudents
-                                        , SS.Description as StatusDescription
-                                        , S.StatusId
-                                        , S.Description as ClassDescription
-                                        , S.Name as ClassName
-                                        , SS.Color
-                                        , S.Id
-                                        FROM R_ClassList S
-                                          INNER JOIN R_Status SS
-                                            ON SS.Id = S.StatusId
-                                          INNER JOIN r_employees EMP
-                                            ON EMP.EmployeeNumber = S.CreatedBy 
-                                            GROUP BY S.ID
+      $query = $this->db->query("
+        SELECT 
+          CONCAT(FAC.LastName, ', ', FAC.FirstName, ' ', COALESCE(FAC.MiddleName,'N/A'), ' ', COALESCE(FAC.ExtName, '')) as FacultyName,
+          S.MaxStudents as MaxStudents,
+          SS.Description as StatusDescription,
+          S.StatusId,
+          S.Description as ClassDescription,
+          S.Name as ClassName,
+          SS.Color,
+          S.Id
+        FROM R_ClassList S
+          INNER JOIN R_Status SS ON SS.Id = S.StatusId
+          LEFT JOIN r_employees FAC ON FAC.Id = S.FacultyId
+        GROUP BY S.ID
       ");
       return $query->result_array();
     }
@@ -434,7 +452,7 @@ class admin_model extends CI_Model
     }
 
     private function _get_datatables_query_StudentList()
-    { 
+    {
       $UserId = $this->session->userdata('UserId');
       $EmployeeId = $this->session->userdata('EmployeeId');
 
@@ -592,40 +610,119 @@ class admin_model extends CI_Model
       return $query->row_array();
     }
 
-    function getSubjectClassList($Id)
+    function getSubjectClassList($classId)
     {
-      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-      $query = $this->db->query("SELECT   S.Code
-                                          , S.Name as SubjectName
-                                          , S.Units
-                                          , AHS.StatusId
-                                          , S.Id
-                                          , AHS.Description
-                                          , AHS.MaxStudents
-                                          , AHS.SubjectId
-                                          , AHS.FacultyId
-                                          , SS.Description as StatusDescription
-                                          , SS.Color
-                                          , AHS.Id as ClassSubjectId
-                                          , COUNT(CHS.StudentId) as TotalStudents
-                                          FROM class_has_subjects AHS
-                                          INNER JOIN r_classlist C
-                                            ON C.Id = AHS.ClassId
-                                          INNER JOIN r_subjects S
-                                            ON S.Id = AHS.SubjectId
-                                          INNER JOIN R_Status SS
-                                            ON SS.Id = AHS.StatusId
-                                          LEFT JOIN ClassSubject_has_students CHS
-                                            ON CHS.ClassSubjectId = AHS.Id
-                                            WHERE C.Id = $Id
-                                            GROUP BY AHS.Id
+      $query = $this->db->query("SELECT CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CreatedBy
+                                      , S.Name as SubjectName
+                                      , S.Code
+                                      , S.Units
+                                      , S.Description as SubjectDescription
+                                      , SS.Description as StatusDescription
+                                      , CHS.StatusId
+                                      , CHS.Description
+                                      , CHS.MaxStudents
+                                      , CHS.Id
+                                      , CHS.SubjectId
+                                      , CHS.FacultyId
+                                      , CHS.Id as ClassSubjectId
+                                      , SS.Color
+                                      , CONCAT(FACULTY.LastName, ', ', FACULTY.FirstName, ' ', COALESCE(FACULTY.MiddleName,'N/A'), ' ', COALESCE(FACULTY.ExtName, '')) as FacultyName
+                                      , COALESCE(STUDENT_COUNT.TotalStudents, 0) as TotalStudents
+                                      FROM class_has_subjects CHS
+                                        INNER JOIN R_Status SS
+                                          ON SS.Id = CHS.StatusId
+                                        INNER JOIN r_employees EMP
+                                          ON EMP.EmployeeNumber = CHS.CreatedBy
+                                        INNER JOIN r_subjects S
+                                          ON S.Id = CHS.SubjectId
+                                        INNER JOIN r_employees FACULTY
+                                          ON FACULTY.EmployeeNumber = CHS.FacultyId
+                                        LEFT JOIN (
+                                          SELECT ClassSubjectId, COUNT(*) as TotalStudents
+                                          FROM classsubject_has_students
+                                          WHERE StatusId = 1
+                                          GROUP BY ClassSubjectId
+                                        ) STUDENT_COUNT ON STUDENT_COUNT.ClassSubjectId = CHS.Id
+                                        WHERE CHS.ClassId = '$classId'
+                                        ORDER BY S.Code
+      ");
+      return $query->result_array();
+    }
+    function getFacultyBySubject($subjectId)
+    {
+      $query = $this->db->query("SELECT   CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as Name
+                                        , EMP.EmployeeNumber
+                                        , EMP.Id
+                                        FROM r_employees EMP
+                                          INNER JOIN subject_has_faculty SHF
+                                            ON SHF.FacultyId = EMP.EmployeeNumber
+                                          INNER JOIN r_position P
+                                            ON P.Id = EMP.PositionId
+                                            WHERE SHF.SubjectId = '$subjectId'
+                                            AND SHF.StatusId = 1
+                                            AND EMP.StatusId = 1
+                                            AND P.Id = 1
       ");
       return $query->result_array();
     }
 
+    function getAssignedFacultyBySubject($subjectId)
+    {
+      $query = $this->db->query("SELECT   EMP.EmployeeNumber
+                                        , EMP.Id
+                                        , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as Name
+                                        FROM subject_has_faculty SHF
+                                          INNER JOIN r_employees EMP
+                                            ON SHF.FacultyId = EMP.EmployeeNumber
+                                            WHERE SHF.SubjectId = '$subjectId'
+                                            AND SHF.StatusId = 1
+                                            AND EMP.StatusId = 1
+      ");
+      return $query->result_array();
+    }
+
+    function getAllFacultyForSubjectAssignment()
+    {
+      $query = $this->db->query("SELECT   CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as Name
+                                        , EMP.EmployeeNumber
+                                        , EMP.Id
+                                        FROM r_employees EMP
+                                          INNER JOIN r_position P
+                                            ON P.Id = EMP.PositionId
+                                            WHERE P.Id = 1
+                                            AND EMP.StatusId = 1
+                                            ORDER BY EMP.LastName, EMP.FirstName
+      ");
+      return $query->result_array();
+    }
+
+    function validateFacultySubjectAssignment($subjectId, $facultyId)
+    {
+      $query = $this->db->query("SELECT   COUNT(*) as count
+                                        FROM subject_has_faculty SHF
+                                          WHERE SHF.SubjectId = '$subjectId'
+                                          AND SHF.FacultyId = '$facultyId'
+                                          AND SHF.StatusId = 1
+      ");
+      $result = $query->row_array();
+      return $result['count'] > 0;
+    }
+
+    function canFacultyTeachSubject($facultyId, $subjectId)
+    {
+      $query = $this->db->query("SELECT   COUNT(*) as canTeach
+                                        FROM subject_has_faculty SHF
+                                          WHERE SHF.FacultyId = '$facultyId'
+                                          AND SHF.SubjectId = '$subjectId'
+                                          AND SHF.StatusId = 1
+      ");
+      $result = $query->row_array();
+      return $result['canTeach'] > 0;
+    }
+
     function getFacultySubjectClassList($Id)
     {
-      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
       $query = $this->db->query("SELECT   S.Code
                                           , S.Name as SubjectName
                                           , S.Units
@@ -803,8 +900,8 @@ class admin_model extends CI_Model
                                           , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CreatedBy
                                           , DATE_FORMAT(EH.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
                                           FROM exam_has_reviewers EH
-                                                INNER JOIN r_employees EMP
-                                                    ON EMP.EmployeeNumber = EH.CreatedBy
+                                          INNER JOIN r_employees EMP
+                                            ON EMP.EmployeeNumber = EH.CreatedBy
                                                   INNER JOIN r_status S
                                                     ON S.Id = EH.StatusId
                                                 WHERE EH.ExamId = $Id
@@ -1159,8 +1256,8 @@ class admin_model extends CI_Model
                                               ON EXS.ClassSubjectId = CHS.Id
                                               AND EXS.StatusId = 1
                                               WHERE C.StatusId = 1
-                                              AND EMP.StatusId = 1
-                                              AND S.StatusId = 1
+                                            AND EMP.StatusId = 1
+                                            AND S.StatusId = 1
       ");
       return $query->result_array();
     }
@@ -1243,7 +1340,7 @@ class admin_model extends CI_Model
 
     function getExamGrade()
     {
-      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+$EmployeeNumber = $this->session->userdata('EmployeeNumber');
       $StudentId = $this->session->userdata('EmployeeId');
       $query = $this->db->query("SELECT   CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as Faculty
                                           , S.Name
@@ -1363,9 +1460,9 @@ class admin_model extends CI_Model
       else if($GradeFrom > 0 && $GradeTo > 0)
       {
         $search .= ' AND Grade BETWEEN '.$GradeFrom.' AND '.$GradeFrom.'';
-      }
+    }
 
-
+    
       if($SubjectId == 'All')
       {
         $search .= '';
@@ -1402,8 +1499,8 @@ class admin_model extends CI_Model
 
       $search = '';
       if($SubjectId == 'All')
-      {
-        $search .= '';
+    {
+$search .= '';
       }
       else
       {

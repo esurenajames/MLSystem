@@ -668,14 +668,13 @@ class admin_controller extends CI_Controller {
   }
   /* END OF USERS */
 
-  /* SUBJECT */
+  /* SUBJECTS */
   function addSubject()
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $DateNow = date("Y-m-d H:i:s");
     $data = array(
-      'Column' => " WHERE Code = '".htmlentities(preg_replace('/\s+/', ' ', $_POST['Code']), ENT_QUOTES)."'
-      ",
+      'Column' => " WHERE Code = '".htmlentities(preg_replace('/\s+/', ' ', $_POST['Code']), ENT_QUOTES)."'",
       'Table' => 'r_subjects',
     );
     $query = $this->admin_model->countRecord($data);
@@ -689,7 +688,7 @@ class admin_controller extends CI_Controller {
         );
         $auditTable = 'R_Logs';
         $this->maintenance_model->insertFunction($insertData, $auditTable);
-      // insert
+      // insert subject
         $insertData2 = array(
           'Code'            => htmlentities(preg_replace('/\s+/', ' ', $_POST['Code']), ENT_QUOTES),
           'Name'            => htmlentities(preg_replace('/\s+/', ' ', $_POST['Name']), ENT_QUOTES),
@@ -700,6 +699,43 @@ class admin_controller extends CI_Controller {
         );
         $insertTable2 = 'r_subjects';
         $this->maintenance_model->insertFunction($insertData2, $insertTable2);
+      
+      // get generated subject id
+        $generatedIdData = array(
+          'table'     => 'r_subjects',
+          'column'    => 'Id',
+          'CreatedBy' => $EmployeeNumber
+        );
+        $NewSubjectId = $this->maintenance_model->getGeneratedId2($generatedIdData);
+      
+      // insert faculty assignments if any
+        if(isset($_POST['FacultyIds']) && is_array($_POST['FacultyIds'])) {
+          foreach($_POST['FacultyIds'] as $facultyId) {
+            // Check if faculty assignment already exists
+            $checkData = array(
+              'Column' => " WHERE SubjectId = '".$NewSubjectId['Id']."' AND FacultyId = '".$facultyId."'",
+              'Table' => 'subject_has_faculty',
+            );
+            $existingRecord = $this->admin_model->countRecord($checkData);
+            
+            if($existingRecord > 0) {
+              // Update existing record to active status
+              $updateData = array('StatusId' => 1);
+              $updateCondition = array('SubjectId' => $NewSubjectId['Id'], 'FacultyId' => $facultyId);
+              $this->maintenance_model->updateFunction1($updateData, $updateCondition, 'subject_has_faculty');
+            } else {
+              // Insert new record
+              $insertFacultyData = array(
+                'SubjectId'   => $NewSubjectId['Id'],
+                'FacultyId'   => $facultyId,
+                'StatusId'    => 1,
+                'CreatedBy'   => $EmployeeNumber,
+              );
+              $this->maintenance_model->insertFunction($insertFacultyData, 'subject_has_faculty');
+            }
+          }
+        }
+      
       // notification
         $this->session->set_flashdata('alertTitle','Success!'); 
         $this->session->set_flashdata('alertText','Record successfully added!'); 
@@ -716,6 +752,26 @@ class admin_controller extends CI_Controller {
     redirect('home/SubjectList');
   }
 
+  function getFacultyBySubject()
+  {
+    $subjectId = $this->input->post('SubjectId');
+    $result = $this->admin_model->getFacultyBySubject($subjectId);
+    echo json_encode($result);
+  }
+
+  function getAllFacultyForSubjectAssignment()
+  {
+    $result = $this->admin_model->getAllFacultyForSubjectAssignment();
+    echo json_encode($result);
+  }
+
+  function getAssignedFacultyBySubject()
+  {
+    $subjectId = $this->input->post('SubjectId');
+    $result = $this->admin_model->getAssignedFacultyBySubject($subjectId);
+    echo json_encode($result);
+  }
+
   function getSubjectList()
   {
     $result = $this->admin_model->getSubjectList();
@@ -726,6 +782,8 @@ class admin_controller extends CI_Controller {
   {
     $EmployeeNumber = $this->session->userdata('EmployeeNumber');
     $DateNow = date("Y-m-d H:i:s");
+    $SubjectId = $_POST['Id'];
+    
     // audits
       $auditDetail = 'Edited subject '.htmlentities(preg_replace('/\s+/', ' ', $_POST['Code']), ENT_QUOTES).'.';
       $insertData = array(
@@ -734,7 +792,8 @@ class admin_controller extends CI_Controller {
       );
       $auditTable = 'R_Logs';
       $this->maintenance_model->insertFunction($insertData, $auditTable);
-    // edit
+    
+    // edit subject details
       $set = array( 
           'Name'            => htmlentities(preg_replace('/\s+/', ' ', $_POST['Name']), ENT_QUOTES),
           'Units'           => htmlentities(preg_replace('/\s+/', ' ', $_POST['Units']), ENT_QUOTES),
@@ -742,13 +801,48 @@ class admin_controller extends CI_Controller {
       );
 
       $condition = array( 
-        'ID' => $_POST['Id'],
+        'ID' => $SubjectId,
       );
       $table = 'R_Subjects';
       $this->maintenance_model->updateFunction1($set, $condition, $table);
+    
+    // Update faculty assignments
+      // First, deactivate existing faculty assignments
+      $setFaculty = array('StatusId' => 2);
+      $conditionFaculty = array('SubjectId' => $SubjectId);
+      $this->maintenance_model->updateFunction1($setFaculty, $conditionFaculty, 'subject_has_faculty');
+      
+      // Then activate selected faculty assignments
+      if(isset($_POST['FacultyIds']) && is_array($_POST['FacultyIds'])) {
+        foreach($_POST['FacultyIds'] as $facultyId) {
+          // Check if faculty assignment already exists
+          $checkData = array(
+            'Column' => " WHERE SubjectId = '".$SubjectId."' AND FacultyId = '".$facultyId."'",
+            'Table' => 'subject_has_faculty',
+          );
+          $existingRecord = $this->admin_model->countRecord($checkData);
+          
+          if($existingRecord > 0) {
+            // Update existing record to active status
+            $updateData = array('StatusId' => 1);
+            $updateCondition = array('SubjectId' => $SubjectId, 'FacultyId' => $facultyId);
+            $this->maintenance_model->updateFunction1($updateData, $updateCondition, 'subject_has_faculty');
+          } else {
+            // Insert new record
+            $insertFacultyData = array(
+              'SubjectId'   => $SubjectId,
+              'FacultyId'   => $facultyId,
+              'StatusId'    => 1,
+              'CreatedBy'   => $EmployeeNumber,
+            );
+            $this->maintenance_model->insertFunction($insertFacultyData, 'subject_has_faculty');
+          }
+        }
+      }
+    
     // notification
       $this->session->set_flashdata('alertTitle','Success!'); 
-      $this->session->set_flashdata('alertText','Record successfully added!'); 
+      $this->session->set_flashdata('alertText','Record successfully updated!'); 
       $this->session->set_flashdata('alertType','success'); 
     
     redirect('home/SubjectList');
@@ -804,6 +898,73 @@ class admin_controller extends CI_Controller {
     $this->output->set_output(print(json_encode($output)));
     exit();
   }
+
+  function manageSubjectFaculty()
+  {
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $SubjectId = $_POST['SubjectId'];
+    
+    // Deactivate existing faculty assignments
+    $set = array('StatusId' => 2);
+    $condition = array('SubjectId' => $SubjectId);
+    $this->maintenance_model->updateFunction1($set, $condition, 'subject_has_faculty');
+    
+    // Activate selected faculty assignments
+    if(isset($_POST['FacultyIds']) && is_array($_POST['FacultyIds'])) {
+      foreach($_POST['FacultyIds'] as $facultyId) {
+        // Check if faculty assignment already exists
+        $checkData = array(
+          'Column' => " WHERE SubjectId = '".$SubjectId."' AND FacultyId = '".$facultyId."'",
+          'Table' => 'subject_has_faculty',
+        );
+        $existingRecord = $this->admin_model->countRecord($checkData);
+        
+        if($existingRecord > 0) {
+          // Update existing record to active status
+          $updateData = array('StatusId' => 1);
+          $updateCondition = array('SubjectId' => $SubjectId, 'FacultyId' => $facultyId);
+          $this->maintenance_model->updateFunction1($updateData, $updateCondition, 'subject_has_faculty');
+        } else {
+          // Insert new record
+          $insertData = array(
+            'SubjectId'   => $SubjectId,
+            'FacultyId'   => $facultyId,
+            'StatusId'    => 1,
+            'CreatedBy'   => $EmployeeNumber,
+          );
+          $this->maintenance_model->insertFunction($insertData, 'subject_has_faculty');
+        }
+      }
+    }
+    
+    // audit trail
+    $subjectDetails = $this->maintenance_model->selectSpecific('r_subjects', 'Id', $SubjectId);
+    $auditDetail = 'Updated faculty assignments for subject '.$subjectDetails['Code'].' - '.$subjectDetails['Name'];
+    $insertData = array(
+      'Description' => $auditDetail,
+      'CreatedBy'   => $EmployeeNumber,
+    );
+    $auditTable = 'R_Logs';
+    $this->maintenance_model->insertFunction($insertData, $auditTable);
+    
+    $output = 'OK';
+    echo json_encode($output);
+  }
+
+  function validateSubjectFaculty()
+  {
+    $subjectId = $this->input->post('SubjectId');
+    $facultyId = $this->input->post('FacultyId');
+    
+    // Check if faculty is assigned to this subject
+    $checkData = array(
+      'Column' => " WHERE SubjectId = '$subjectId' AND FacultyId = '$facultyId' AND StatusId = 1",
+      'Table' => 'subject_has_faculty',
+    );
+    $result = $this->admin_model->countRecord($checkData);
+    
+    echo json_encode(array('isValid' => $result > 0));
+  }
   /* END OF SUBJECT */
 
   /* CLASS LIST */
@@ -812,43 +973,42 @@ class admin_controller extends CI_Controller {
       $EmployeeNumber = $this->session->userdata('EmployeeNumber');
       $DateNow = date("Y-m-d H:i:s");
       $data = array(
-        'Column' => " WHERE Name = '".htmlentities(preg_replace('/\s+/', ' ', $_POST['Name']), ENT_QUOTES)."'
-        ",
+        'Column' => " WHERE Name = '".htmlentities(preg_replace('/\s+/', ' ', $_POST['Name']), ENT_QUOTES)."'",
         'Table' => 'r_classlist',
       );
       $query = $this->admin_model->countRecord($data);
       if($query == 0) // not existing
       {
         // audits
-          $auditDetail = 'Added class '.htmlentities(preg_replace('/\s+/', ' ', $_POST['Name']), ENT_QUOTES).'.';
-          $insertData = array(
-            'Description' => $auditDetail,
-            'CreatedBy'   => $EmployeeNumber,
-          );
-          $auditTable = 'R_Logs';
-          $this->maintenance_model->insertFunction($insertData, $auditTable);
+        $auditDetail = 'Added class '.htmlentities(preg_replace('/\s+/', ' ', $_POST['Name']), ENT_QUOTES).'.';
+        $insertData = array(
+          'Description' => $auditDetail,
+          'CreatedBy'   => $EmployeeNumber,
+        );
+        $auditTable = 'R_Logs';
+        $this->maintenance_model->insertFunction($insertData, $auditTable);
         // insert
-          $insertData2 = array(
-            'Name'            => htmlentities(preg_replace('/\s+/', ' ', $_POST['Name']), ENT_QUOTES),
-            'Description'     => htmlentities(preg_replace('/\s+/', ' ', $_POST['Description']), ENT_QUOTES),
-            'CreatedBy'       => $EmployeeNumber,
-            'StatusId'        => 1,
-          );
-          $insertTable2 = 'r_classlist';
-          $this->maintenance_model->insertFunction($insertData2, $insertTable2);
+        $insertData2 = array(
+          'Name'        => htmlentities(preg_replace('/\s+/', ' ', $_POST['Name']), ENT_QUOTES),
+          'Description' => htmlentities(preg_replace('/\s+/', ' ', $_POST['Description']), ENT_QUOTES),
+          'FacultyId'   => $_POST['FacultyId'], 
+          'CreatedBy'   => $EmployeeNumber,
+          'StatusId'    => 1,
+        );
+        $insertTable2 = 'r_classlist';
+        $this->maintenance_model->insertFunction($insertData2, $insertTable2);
         // notification
-          $this->session->set_flashdata('alertTitle','Success!'); 
-          $this->session->set_flashdata('alertText','Record successfully added!'); 
-          $this->session->set_flashdata('alertType','success'); 
+        $this->session->set_flashdata('alertTitle','Success!'); 
+        $this->session->set_flashdata('alertText','Record successfully added!'); 
+        $this->session->set_flashdata('alertType','success'); 
       }
       else
       {
         // notification
-          $this->session->set_flashdata('alertTitle','Warning!'); 
-          $this->session->set_flashdata('alertText','Record already existing!'); 
-          $this->session->set_flashdata('alertType','warning'); 
+        $this->session->set_flashdata('alertTitle','Warning!'); 
+        $this->session->set_flashdata('alertText','Record already existing!'); 
+        $this->session->set_flashdata('alertType','warning'); 
       }
-      
       redirect('home/ClassList');
     }
 
@@ -863,29 +1023,29 @@ class admin_controller extends CI_Controller {
       $EmployeeNumber = $this->session->userdata('EmployeeNumber');
       $DateNow = date("Y-m-d H:i:s");
       // audits
-        $auditDetail = 'Edited class '.$_POST['Name'].'.';
-        $insertData = array(
-          'Description' => $auditDetail,
-          'CreatedBy'   => $EmployeeNumber,
-        );
-        $auditTable = 'R_Logs';
-        $this->maintenance_model->insertFunction($insertData, $auditTable);
+      $auditDetail = 'Edited class '.$_POST['Name'].'.';
+      $insertData = array(
+        'Description' => $auditDetail,
+        'CreatedBy'   => $EmployeeNumber,
+      );
+      $auditTable = 'R_Logs';
+      $this->maintenance_model->insertFunction($insertData, $auditTable);
       // edit
-        $set = array( 
-          'Name'            => htmlentities(preg_replace('/\s+/', ' ', $_POST['Name']), ENT_QUOTES),
-          'Description'     => htmlentities(preg_replace('/\s+/', ' ', $_POST['Description']), ENT_QUOTES),
-        );
+      $set = array( 
+        'Name'        => htmlentities(preg_replace('/\s+/', ' ', $_POST['Name']), ENT_QUOTES),
+        'Description' => htmlentities(preg_replace('/\s+/', ' ', $_POST['Description']), ENT_QUOTES),
+        'FacultyId'   => $_POST['FacultyId'], 
+      );
 
-        $condition = array( 
-          'ID' => $_POST['Id'],
-        );
-        $table = 'r_classlist';
-        $this->maintenance_model->updateFunction1($set, $condition, $table);
+      $condition = array( 
+        'ID' => $_POST['Id'],
+      );
+      $table = 'r_classlist';
+      $this->maintenance_model->updateFunction1($set, $condition, $table);
       // notification
-        $this->session->set_flashdata('alertTitle','Success!'); 
-        $this->session->set_flashdata('alertText','Record successfully added!'); 
-        $this->session->set_flashdata('alertType','success'); 
-      
+      $this->session->set_flashdata('alertTitle','Success!'); 
+      $this->session->set_flashdata('alertText','Record successfully added!'); 
+      $this->session->set_flashdata('alertType','success'); 
       redirect('home/ClassList');
     }
 
@@ -1484,9 +1644,10 @@ class admin_controller extends CI_Controller {
   /* END OF FACULTY CLASS LIST */
 
   /* FACULTY CLASS SUBJECT */
-    function getFacultySubjectClassList()
+    function getFacultyBySubjectForClass()
     {
-      $result = $this->admin_model->getFacultySubjectClassList($this->uri->segment(3));
+      $subjectId = $this->input->post('SubjectId');
+      $result = $this->admin_model->getFacultyBySubject($subjectId);
       echo json_encode($result);
     }
 
