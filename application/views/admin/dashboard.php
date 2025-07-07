@@ -702,10 +702,20 @@
 
   });
 
-  setInterval(function() {
-      fetch('/admin_controller/sendAnalyticsData')
-          .then(response => response.text())
-          .then(data => console.log('Analytics sent:', data));
-  }, 300000); // every 5 minutes (300,000 ms)
+// Immediately send analytics data on page load
+fetch('<?php echo base_url("admin_controller/sendAnalyticsData"); ?>', {
+    credentials: 'same-origin'
+})
+.then(response => response.text())
+.then(data => console.log('Analytics sent (on load):', data));
+
+// Continue sending every 5 minutes as before
+setInterval(function() {
+    fetch('<?php echo base_url("admin_controller/sendAnalyticsData"); ?>', {
+        credentials: 'same-origin'
+    })
+    .then(response => response.text())
+    .then(data => console.log('Analytics sent:', data));
+}, 300000); // every 5 minutes
 
 </script>

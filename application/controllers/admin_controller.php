@@ -2481,22 +2481,43 @@ class admin_controller extends CI_Controller {
   /* END OF REGISTRAR */
   public function sendAnalyticsData()
 {
-    $this->load->model('analytics_model');
-    $result = $this->analytics_model->send_scores_to_api();
+    $students_raw = $this->admin_model->get_all_student_scores();
 
-    // You can handle the response as needed:
-    if ($result) {
-        $this->session->set_flashdata('alertTitle','Success!');
-        $this->session->set_flashdata('alertText','Analytics data sent successfully!');
-        $this->session->set_flashdata('alertType','success');
-    } else {
-        $this->session->set_flashdata('alertTitle','Error!');
-        $this->session->set_flashdata('alertText','Failed to send analytics data.');
-        $this->session->set_flashdata('alertType','error');
+    // Only include students with valid gwa and exam_score
+    $students = [];
+    foreach ($students_raw as $s) {
+        // Check if both gwa and exam_score are numeric and not null
+        if (
+            isset($s['Grade'], $s['exam_score']) &&
+            is_numeric($s['Grade']) &&
+            is_numeric($s['exam_score'])
+        ) {
+            $students[] = [
+                'student_id'  => $s['student_number'] ?? '',
+                'name'        => $s['student_name'] ?? '',
+                'gwa'         => floatval($s['Grade']),
+                'exam_score'  => floatval($s['exam_score'])
+            ];
+        }
     }
 
-    // Redirect or return a response as needed
-    redirect('home/Dashboard'); // Change this to your desired page
+    $data = [
+        "students" => $students
+    ];
+
+    $url = 'https://mlr-analytics-tsukkimen.replit.app/analyze';
+
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    $response = curl_exec($ch);
+    curl_close($ch);
+
+    header('Content-Type: text/plain');
+    echo $response ? $response : 'No response from analytics API.';
+    exit;
 }
 
 
