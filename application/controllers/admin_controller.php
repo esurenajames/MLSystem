@@ -2479,7 +2479,25 @@ class admin_controller extends CI_Controller {
       // $pdf->Output('Student List.pdf', 'D');
     }
   /* END OF REGISTRAR */
+  public function sendAnalyticsData()
+{
+    $this->load->model('analytics_model');
+    $result = $this->analytics_model->send_scores_to_api();
 
+    // You can handle the response as needed:
+    if ($result) {
+        $this->session->set_flashdata('alertTitle','Success!');
+        $this->session->set_flashdata('alertText','Analytics data sent successfully!');
+        $this->session->set_flashdata('alertType','success');
+    } else {
+        $this->session->set_flashdata('alertTitle','Error!');
+        $this->session->set_flashdata('alertText','Failed to send analytics data.');
+        $this->session->set_flashdata('alertType','error');
+    }
+
+    // Redirect or return a response as needed
+    redirect('home/Dashboard'); // Change this to your desired page
+}
 
 
   function getRegionList()

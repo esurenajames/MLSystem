@@ -701,4 +701,11 @@
     });
 
   });
+
+  setInterval(function() {
+      fetch('/admin_controller/sendAnalyticsData')
+          .then(response => response.text())
+          .then(data => console.log('Analytics sent:', data));
+  }, 300000); // every 5 minutes (300,000 ms)
+
 </script>
