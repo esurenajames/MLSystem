@@ -1772,9 +1772,7 @@ class admin_controller extends CI_Controller {
       $result = $this->admin_model->getSubjectCreatedExam($this->uri->segment(3));
       echo json_encode($result);
     }
-  /* END FACULTY CLASS SUBJECT EXAM */
-
-  /* FACULTY EXAM */
+    /* END FACULTY CLASS SUBJECT EXAM */
     function addExamCategory()
     {
       $EmployeeNumber = $this->session->userdata('EmployeeNumber');
@@ -1782,7 +1780,6 @@ class admin_controller extends CI_Controller {
       $data = array(
         'Column' => " WHERE Name = '".htmlentities(preg_replace('/\s+/', ' ', $_POST['CategoryName']), ENT_QUOTES)."'
                       AND ExamId  = '".$this->uri->segment(3)."'
-                      AND Percentage  = '".htmlentities(preg_replace('/\s+/', ' ', $_POST['Instructions']), ENT_QUOTES)."'
         ",
         'Table' => 'exam_has_category',
       );
@@ -1825,55 +1822,7 @@ class admin_controller extends CI_Controller {
       redirect('home/examDetails/'.$this->uri->segment(3).'/'.$this->uri->segment(4));
     }
 
-    function addExamSubCategory()
-    {
-      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-      $DateNow = date("Y-m-d H:i:s");
-
-      $totalInserted = 0;
-      $totalRecords = 0;
-      for($count = 0; $count < count($this->input->post('rowCount')); $count++)
-      {
-        $totalRecords++;
-        $data = array(
-          'Column' => " WHERE ExamCategoryId  = '".htmlentities(preg_replace('/\s+/', ' ', $_POST['CategoryId']), ENT_QUOTES)."'
-                        AND Name  = '".htmlentities(preg_replace('/\s+/', ' ', $_POST['SubName'][$count]), ENT_QUOTES)."'
-          ",
-          'Table' => 'exam_has_subcategory',
-        );
-        $query = $this->admin_model->countRecord($data);
-        if($query == 0) // not existing
-        {
-          // insert
-            $insertData2 = array(
-              'ExamCategoryId'    => htmlentities(preg_replace('/\s+/', ' ', $_POST['CategoryId']), ENT_QUOTES),
-              'Name'              => htmlentities(preg_replace('/\s+/', ' ', $_POST['SubName'][$count]), ENT_QUOTES),
-              'Instructions'      => htmlentities(preg_replace('/\s+/', ' ', $_POST['Instructions'][$count]), ENT_QUOTES),
-              'CreatedBy'         => $EmployeeNumber,
-              'StatusId'          => 1,
-            );
-            $insertTable2 = 'exam_has_subcategory';
-            $this->maintenance_model->insertFunction($insertData2, $insertTable2);
-          // audits
-            $details = $this->maintenance_model->selectSpecific('classsubject_has_exam', 'Id', $this->uri->segment(3));
-            $category = $this->maintenance_model->selectSpecific('exam_has_category', 'Id', htmlentities(preg_replace('/\s+/', ' ', $_POST['CategoryId']), ENT_QUOTES));
-            $auditDetail = 'Added sub category to category '.$category['Name'].' and exam #EX-'.sprintf('%06d', $details['ID']).'.';
-            $insertData = array(
-              'Description' => $auditDetail,
-              'CreatedBy'   => $EmployeeNumber,
-            );
-            $auditTable = 'R_Logs';
-            $this->maintenance_model->insertFunction($insertData, $auditTable);
-          $totalInserted++;
-        }
-      }
-      // notification
-        $this->session->set_flashdata('alertTitle','Success!'); 
-        $this->session->set_flashdata('alertText', $totalInserted .' out of '.$totalRecords.' sub-category successfully added!'); 
-        $this->session->set_flashdata('alertType','success'); 
-      redirect('home/examDetails/'.$this->uri->segment(3).'/'.$this->uri->segment(4));
-    }
-
+    // REMOVED addExamSubCategory and getExamSubCategories
     function getExamReviewers()
     {
       $result = $this->admin_model->getExamReviewers($this->uri->segment(3));
@@ -1886,81 +1835,82 @@ class admin_controller extends CI_Controller {
       echo json_encode($result);
     }
 
-    function getExamSubCategories()
-    {
-      $result = $this->admin_model->getExamSubCategories($this->uri->segment(3));
-      echo json_encode($result);
-    }
-
-    function addSubCategoryQuestion()
+    // NEW: Add question directly to category
+    function addCategoryQuestion()
     {
       $EmployeeNumber = $this->session->userdata('EmployeeNumber');
       $DateNow = date("Y-m-d H:i:s");
 
-      $totalInserted = 0;
-      $totalRecords = 0;
-
-
+      // Insert the question
       for($count = 0; $count < count($this->input->post('QuestionRow')); $count++)
       {
-        // insert
-          $insertData2 = array(
-            'SubCategoryId'        => htmlentities(preg_replace('/\s+/', ' ', $this->uri->segment(5)), ENT_QUOTES),
-            'Question'             => htmlentities(preg_replace('/\s+/', ' ', $_POST['Question1'][$count]), ENT_QUOTES),
-            'Answer'               => htmlentities(preg_replace('/\s+/', ' ', $_POST['Answer'][$count]), ENT_QUOTES),
-            'StatusId'             => 1,
-            'CreatedBy'            => $EmployeeNumber,
-          );
-          $insertTable2 = 'subcategory_has_questions';
-          $this->maintenance_model->insertFunction($insertData2, $insertTable2);
+        $insertData2 = array(
+          'CategoryId'        => htmlentities(preg_replace('/\s+/', ' ', $this->uri->segment(4)), ENT_QUOTES),
+          'Question'          => htmlentities(preg_replace('/\s+/', ' ', $_POST['Question1'][$count]), ENT_QUOTES),
+          'StatusId'          => 1,
+          'CreatedBy'         => $EmployeeNumber,
+        );
+        $insertTable2 = 'category_has_questions';
+        $this->maintenance_model->insertFunction($insertData2, $insertTable2);
       }
 
-      // get generated id
-        $generatedIdData = array(
-          'table'                     => 'subcategory_has_questions'
-          , 'column'                  => 'Id'
-          , 'CreatedBy'               => $EmployeeNumber
-        );
-        $NewId = $this->maintenance_model->getGeneratedId2($generatedIdData);
+      // Get the last inserted question ID
+      $generatedIdData = array(
+        'table'     => 'category_has_questions',
+        'column'    => 'Id',
+        'CreatedBy' => $EmployeeNumber
+      );
+      $NewId = $this->maintenance_model->getGeneratedId2($generatedIdData);
 
+      // Insert options and find the correct answer
+      $correctOptionNo = 0;
       $totalOptions = 1;
       for($QOptions = 0; $QOptions < count($this->input->post('OptionRowCount')); $QOptions++)
       {
-        // insert
-          $insertData2 = array(
-            'subquestionId'        => htmlentities(preg_replace('/\s+/', ' ', $NewId['Id']), ENT_QUOTES),
-            'OptionNo'             => $totalOptions,
-            'OptionName'           => htmlentities(preg_replace('/\s+/', ' ', $_POST['Options'][$QOptions]), ENT_QUOTES),
-            'StatusId'             => 1,
-          );
-          $insertTable2 = 'subcategory_has_options';
-          $this->maintenance_model->insertFunction($insertData2, $insertTable2);
-        // update
-          if($_POST['Answer'][$QOptions] == 1)
-          {
-            $set = array( 
-              'Answer'     => $totalOptions,
-            );
+        $insertData2 = array(
+          'questionId'        => htmlentities(preg_replace('/\s+/', ' ', $NewId['Id']), ENT_QUOTES),
+          'OptionNo'          => $totalOptions,
+          'OptionName'        => htmlentities(preg_replace('/\s+/', ' ', $_POST['Options'][$QOptions]), ENT_QUOTES),
+          'StatusId'          => 1,
+        );
+        $insertTable2 = 'category_has_options';
+        $this->maintenance_model->insertFunction($insertData2, $insertTable2);
 
-            $condition = array( 
-              'ID' => $NewId['Id']
-            );
-            $table = 'subcategory_has_questions';
-            $this->maintenance_model->updateFunction1($set, $condition, $table);
-          }
-          $totalOptions++;
+        if($_POST['Answer'][$QOptions] == 1)
+        {
+          $correctOptionNo = $totalOptions;
+        }
+        $totalOptions++;
       }
+
+      // Insert correct answer into category_has_answer
+      if($correctOptionNo > 0) {
+        $insertAnswer = array(
+          'QuestionId' => $NewId['Id'],
+          'Answer'     => $correctOptionNo,
+          'StatusId'   => 1
+        );
+        $this->maintenance_model->insertFunction($insertAnswer, 'category_has_answer');
+      }
+
       // notification
-        $this->session->set_flashdata('alertTitle','Success!'); 
-        $this->session->set_flashdata('alertText', 'Record successfully added!'); 
-        $this->session->set_flashdata('alertType','success'); 
-      redirect('home/subCategoryDetails/'.$this->uri->segment(3).'/'.$this->uri->segment(4).'/'.$this->uri->segment(5));
+      $this->session->set_flashdata('alertTitle','Success!'); 
+      $this->session->set_flashdata('alertText', 'Record successfully added!'); 
+      $this->session->set_flashdata('alertType','success'); 
+      redirect('home/categoryDetails/'.$this->uri->segment(3).'/'.$this->uri->segment(4));
     }
 
-    function getExamQuestions()
+    function getCategoryQuestions()
     {
-      $result = $this->admin_model->getExamQuestions($this->uri->segment(3));
+      $result = $this->admin_model->getCategoryQuestions($this->uri->segment(4));
       echo json_encode($result);
+    }
+
+    public function getCategoryQuestionsWithOptions($categoryId)
+    {
+        $this->load->model('admin_model');
+        $questions = $this->admin_model->getCategoryQuestionsWithOptions($categoryId);
+        echo json_encode($questions);
     }
 
     function insertExamAnswers()
@@ -1970,13 +1920,6 @@ class admin_controller extends CI_Controller {
 
       if($this->uri->segment(3) !== null)
       {
-        // // delete previous exam
-        //   $prevStudentExamId = $this->maintenance_model->selectSpecific('student_has_exam', 'StudentId', $EmployeeNumber);
-        //   if($prevStudentExamId != 0)
-        //   {
-        //     $this->maintenance_model->deleteFunction($prevStudentExamId['ID'], 'StudentExamId', 'exam_has_answers');
-        //     $this->maintenance_model->deleteFunction($EmployeeNumber, 'StudentId', 'student_has_exam');
-        //   }
         // exam details
           $insertData1 = array(
             'StudentId'             => $EmployeeNumber,
@@ -1997,7 +1940,8 @@ class admin_controller extends CI_Controller {
         $isCorrect = 0;
         foreach ($_POST['questionId'] as $key => $questioId) 
         {
-          $answerKey = $this->maintenance_model->selectSpecific('subcategory_has_questions', 'Id', $questioId);
+          // Get correct answer from category_has_answer
+          $answerKey = $this->maintenance_model->selectSpecific('category_has_answer', 'QuestionId', $questioId);
           if($answerKey['Answer'] == $_POST['AnswerId'][$key])
           {
             $isCorrect = 1;
@@ -2147,7 +2091,7 @@ class admin_controller extends CI_Controller {
 
     function getQuestionOptions()
     {
-      $output = $this->admin_model->getQuestionOptions($_POST['Id']);
+      $output = $this->admin_model->getCategoryQuestionOptions($_POST['Id']);
       $this->output->set_output(print(json_encode($output)));
       exit();
     }
@@ -2157,7 +2101,6 @@ class admin_controller extends CI_Controller {
       $result = $this->admin_model->getExamsApproval();
       foreach ($result as $key => $value) 
       {
-        // $result[$key]['ExamGrade'] = $this->admin_model->getExamGrade($value['ClassSubjectId']);
         if(isset($value['PreviousExamId']))
         {
           $result[$key]['correctAnswer'] = $this->admin_model->countCorrectAnswers($value['PreviousExamId']);
@@ -2171,31 +2114,42 @@ class admin_controller extends CI_Controller {
       }
       echo json_encode($result);
     }
-
-    function removeSubCategory()
+    public function updateCategoryQuestion()
     {
-      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-      $DateNow = date("Y-m-d H:i:s");
+        $questionId = $this->input->post('QuestionId');
+        $questionText = $this->input->post('Question');
+        $options = $this->input->post('Options');
+        $correct = $this->input->post('CorrectAnswer');
 
-      $this->maintenance_model->deleteFunction($_POST['Id'], 'Id', 'exam_has_subcategory');
-      $output = 'OK!';
-      $this->output->set_output(print(json_encode($output)));
-      exit();
+        // Update question text
+        $this->db->where('Id', $questionId)->update('category_has_questions', ['Question' => $questionText]);
+
+        // Update options
+        foreach($options as $optionNo => $optionText) {
+            $this->db->where(['questionId' => $questionId, 'OptionNo' => $optionNo])
+                    ->update('category_has_options', ['OptionName' => $optionText]);
+        }
+
+        // Update correct answer
+        $this->db->where('QuestionId', $questionId)
+                ->update('category_has_answer', ['Answer' => $correct]);
+
+        $this->output->set_content_type('application/json')->set_output(json_encode(['status' => 'OK']));
     }
 
-    function removeQuestions()
+    public function removeCategoryQuestion()
     {
-      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-      $DateNow = date("Y-m-d H:i:s");
-
-      $this->maintenance_model->deleteFunction($_POST['Id'], 'Id', 'subcategory_has_questions');
-      $output = 'OK!';
-      $this->output->set_output(print(json_encode($output)));
-      exit();
+        $questionId = $this->input->post('Id');
+        $this->db->where('questionId', $questionId)->delete('category_has_options');
+        $this->db->where('QuestionId', $questionId)->delete('category_has_answer');
+        $this->db->where('Id', $questionId)->delete('category_has_questions');
+        $output = 'OK!';
+        $this->output->set_output(print(json_encode($output)));
+        exit();
     }
-  /* END FACULTY EXAM */
+    /* END FACULTY EXAM */
 
-  /* STUDENTS */
+    /* STUDENTS */
     function getStudentClassList()
     {
       $result = $this->admin_model->getStudentClassList();

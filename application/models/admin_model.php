@@ -842,17 +842,17 @@ class admin_model extends CI_Model
     function getSubjectCreatedExam($Id)
     {
       $query = $this->db->query("SELECT   CSE.Id as ExamId
-                                          , CSE.Description
-                                          , S.Description as StatusDescription
-                                          , S.Color
-                                          , CSE.StatusId
-                                          , CONCAT('EX-', LPAD(CSE.Id, 6, 0)) as ExamCode
-                                          FROM classsubject_has_exam CSE
-                                                INNER JOIN class_has_subjects CHS
-                                                    ON CHS.ID = CSE.ClassSubjectId
-                                                  INNER JOIN r_status S
-                                                    ON S.Id = CSE.StatusId
-                                                      WHERE CHS.ID = $Id
+                                        , CSE.Description
+                                        , S.Description as StatusDescription
+                                        , S.Color
+                                        , CSE.StatusId
+                                        , CONCAT('EX-', LPAD(CSE.Id, 6, 0)) as ExamCode
+                                  FROM classsubject_has_exam CSE
+                                    INNER JOIN class_has_subjects CHS
+                                      ON CHS.ID = CSE.ClassSubjectId
+                                    INNER JOIN r_status S
+                                      ON S.Id = CSE.StatusId
+                                  WHERE CHS.ID = $Id
       ");
       return $query->result_array();
     }
@@ -860,56 +860,59 @@ class admin_model extends CI_Model
     function getSubjectExamDetails($Id)
     {
       $query = $this->db->query("SELECT   S.Code
-                                          , S.Name as SubjectName
-                                          , AHS.Description as SubjectDescription
-                                          , CONCAT(S.Code, '-', LPAD(AHS.Id, 5, 0)) as SubjectCode
-                                          , S.Units
-                                          , AHS.StatusId
-                                          , S.Id
-                                          , AHS.Description
-                                          , AHS.MaxStudents
-                                          , AHS.Description
-                                          , SS.Description as StatusDescription
-                                          , SS.Color
-                                          , C.Name as ClassName
-                                          , C.Id as ClassId
-                                          , AHS.Id as ClassSubjectId
-                                          , CSE.Description
-                                          , CONCAT('EX-', LPAD(CSE.Id, 6, 0)) as ExamCode
-                                          FROM classsubject_has_exam CSE
-                                          INNER JOIN class_has_subjects AHS
-                                            ON CSE.ClassSubjectId = AHS.Id
-                                          INNER JOIN r_classlist C
-                                            ON C.Id = AHS.ClassId
-                                          INNER JOIN r_subjects S
-                                            ON S.Id = AHS.SubjectId
-                                          INNER JOIN R_Status SS
-                                            ON SS.Id = AHS.StatusId
-                                            WHERE CSE.Id = $Id
+                                        , S.Name as SubjectName
+                                        , AHS.Description as SubjectDescription
+                                        , CONCAT(S.Code, '-', LPAD(AHS.Id, 5, 0)) as SubjectCode
+                                        , S.Units
+                                        , AHS.StatusId
+                                        , S.Id
+                                        , AHS.Description
+                                        , AHS.MaxStudents
+                                        , AHS.Description
+                                        , SS.Description as StatusDescription
+                                        , SS.Color
+                                        , C.Name as ClassName
+                                        , C.Id as ClassId
+                                        , AHS.Id as ClassSubjectId
+                                        , CSE.Description
+                                        , CONCAT('EX-', LPAD(CSE.Id, 6, 0)) as ExamCode
+                                  FROM classsubject_has_exam CSE
+                                    INNER JOIN class_has_subjects AHS
+                                      ON CSE.ClassSubjectId = AHS.Id
+                                    INNER JOIN r_classlist C
+                                      ON C.Id = AHS.ClassId
+                                    INNER JOIN r_subjects S
+                                      ON S.Id = AHS.SubjectId
+                                    INNER JOIN R_Status SS
+                                      ON SS.Id = AHS.StatusId
+                                  WHERE CSE.Id = $Id
       ");
       return $query->row_array();
     }
 
+    
     function getExamCategories($Id)
     {
-      $query = $this->db->query("SELECT   EHC.Name
-                                          , EHC.Instructions
-                                          , EHC.Percentage
-                                          , SS.Description as StatusDescription
-                                          , SS.Color
-                                          , EHC.StatusId
-                                          , EHC.Id as CategoryId
-                                          , COUNT(EHS.Id) as TotalSubCategory
-                                          FROM exam_has_category EHC
-                                            INNER JOIN classsubject_has_exam CHE
-                                              ON CHE.ID = EHC.ExamId
-                                            INNER JOIN R_Status SS
-                                              ON SS.Id = EHC.StatusId
-                                            LEFT JOIN exam_has_subcategory EHS
-                                              ON EHS.ExamCategoryId = EHC.ID
-                                              WHERE EHC.ExamId = $Id
-                                              AND EHC.StatusId = 1
-                                              GROUP BY EHC.ID
+      $query = $this->db->query("
+        SELECT 
+          EHC.Name,
+          EHC.Instructions,
+          EHC.Percentage,
+          SS.Description as StatusDescription,
+          SS.Color,
+          EHC.StatusId,
+          EHC.Id as CategoryId,
+          (
+            SELECT COUNT(*) 
+            FROM category_has_questions Q 
+            WHERE Q.CategoryId = EHC.Id AND Q.StatusId = 1
+          ) as TotalQuestions
+        FROM exam_has_category EHC
+          INNER JOIN classsubject_has_exam CHE ON CHE.ID = EHC.ExamId
+          INNER JOIN R_Status SS ON SS.Id = EHC.StatusId
+        WHERE EHC.ExamId = $Id
+          AND EHC.StatusId = 1
+        GROUP BY EHC.ID
       ");
       return $query->result_array();
     }
@@ -917,21 +920,21 @@ class admin_model extends CI_Model
     function getExamReviewers($Id)
     {
       $query = $this->db->query("SELECT   EH.FileName
-                                          , EH.FileTitle
-                                          , EH.Notes
-                                          , EH.ID
-                                          , EH.StatusId
-                                          , S.Color
-                                          , S.Description as StatusDescription
-                                          , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CreatedBy
-                                          , DATE_FORMAT(EH.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
-                                          FROM exam_has_reviewers EH
-                                          INNER JOIN r_employees EMP
-                                            ON EMP.EmployeeNumber = EH.CreatedBy
-                                                  INNER JOIN r_status S
-                                                    ON S.Id = EH.StatusId
-                                                WHERE EH.ExamId = $Id
-                                                  AND EH.StatusId = 1
+                                        , EH.FileTitle
+                                        , EH.Notes
+                                        , EH.ID
+                                        , EH.StatusId
+                                        , S.Color
+                                        , S.Description as StatusDescription
+                                        , CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as CreatedBy
+                                        , DATE_FORMAT(EH.DateCreated, '%b %d, %Y %h:%i %p') as DateCreated
+                                  FROM exam_has_reviewers EH
+                                    INNER JOIN r_employees EMP
+                                      ON EMP.EmployeeNumber = EH.CreatedBy
+                                    INNER JOIN r_status S
+                                      ON S.Id = EH.StatusId
+                                  WHERE EH.ExamId = $Id
+                                    AND EH.StatusId = 1
       ");
       return $query->result_array();
     }
@@ -939,164 +942,115 @@ class admin_model extends CI_Model
     function getSubjectExamCategoryDetails($Id)
     {
       $query = $this->db->query("SELECT   S.Code
-                                          , S.Name as SubjectName
-                                          , AHS.Description as SubjectDescription
-                                          , CONCAT(S.Code, '-', LPAD(AHS.Id, 5, 0)) as SubjectCode
-                                          , S.Units
-                                          , AHS.StatusId
-                                          , S.Id
-                                          , AHS.Description
-                                          , AHS.MaxStudents
-                                          , AHS.Description
-                                          , SS.Description as StatusDescription
-                                          , SS.Color
-                                          , C.Name as ClassName
-                                          , C.Id as ClassId
-                                          , AHS.Id as ClassSubjectId
-                                          , CSE.Description
-                                          , CONCAT('EX-', LPAD(CSE.Id, 6, 0)) as ExamCode
-                                          , AHSS.Name as Category
-                                          , AHSS.Percentage
-                                          , COALESCE(AHSS.Percentage / COUNT(EHS.Id), 0) as PercentageBySubCategory
-                                          , CSE.Id as ExamId
-                                          FROM classsubject_has_exam CSE
-                                          INNER JOIN class_has_subjects AHS
-                                            ON CSE.ClassSubjectId = AHS.Id
-                                          INNER JOIN r_classlist C
-                                            ON C.Id = AHS.ClassId
-                                          INNER JOIN r_subjects S
-                                            ON S.Id = AHS.SubjectId
-                                          INNER JOIN R_Status SS
-                                            ON SS.Id = AHS.StatusId
-                                          INNER JOIN exam_has_category AHSS
-                                            ON AHSS.ExamId = CSE.Id
-                                          LEFT JOIN exam_has_subcategory EHS
-                                            ON EHS.ExamCategoryId = AHSS.ID
-                                            WHERE AHSS.Id = $Id
-                                            GROUP BY CSE.Id
+                                        , S.Name as SubjectName
+                                        , AHS.Description as SubjectDescription
+                                        , CONCAT(S.Code, '-', LPAD(AHS.Id, 5, 0)) as SubjectCode
+                                        , S.Units
+                                        , AHS.StatusId
+                                        , S.Id
+                                        , AHS.Description
+                                        , AHS.MaxStudents
+                                        , AHS.Description
+                                        , SS.Description as StatusDescription
+                                        , SS.Color
+                                        , C.Name as ClassName
+                                        , C.Id as ClassId
+                                        , AHS.Id as ClassSubjectId
+                                        , CSE.Description
+                                        , CONCAT('EX-', LPAD(CSE.Id, 6, 0)) as ExamCode
+                                        , AHSS.Name as Category
+                                        , AHSS.Percentage
+                                        , CSE.Id as ExamId
+                                  FROM classsubject_has_exam CSE
+                                    INNER JOIN class_has_subjects AHS
+                                      ON CSE.ClassSubjectId = AHS.Id
+                                    INNER JOIN r_classlist C
+                                      ON C.Id = AHS.ClassId
+                                    INNER JOIN r_subjects S
+                                      ON S.Id = AHS.SubjectId
+                                    INNER JOIN R_Status SS
+                                      ON SS.Id = AHS.StatusId
+                                    INNER JOIN exam_has_category AHSS
+                                      ON AHSS.ExamId = CSE.Id
+                                  WHERE AHSS.Id = $Id
+                                  GROUP BY CSE.Id
       ");
       return $query->row_array();
     }
 
-    function getSubjectExamCategorySubDetails($Id)
+    // REMOVED getSubjectExamCategorySubDetails, getExamSubCategories, getExamSubCategoryQuestions, getExamSubCategoryOptions
+
+    function getCategoryQuestions($categoryId)
     {
-      $query = $this->db->query("SELECT   ES.Id as SubCategoryId
-                                          , ES.Name as SubCategory
-                                          , ES.Instructions
-                                          FROM exam_has_subcategory ES
-                                                INNER JOIN exam_has_category EC
-                                                    ON ES.ExamCategoryId = EC.Id
-                                                        WHERE EC.ID = $Id
-                                                        AND ES.StatusId = 1
+      $query = $this->db->query("SELECT  Q.Id as QuestionId
+                                        , Q.Question
+                                        , Q.StatusId
+                                FROM category_has_questions Q
+                                WHERE Q.CategoryId = $categoryId
+                                AND Q.StatusId = 1
       ");
       return $query->result_array();
     }
 
-    function getExamSubCategories($Id)
+    // Get all options for a question
+    function getCategoryQuestionOptions($questionId)
     {
-      $query = $this->db->query("SELECT   ES.Id as SubCategoryId
-                                          , ES.Name as SubCategory
-                                          , ES.Instructions
-                                          , EC.Id as CategoryId
-                                          , COUNT(SHQ.Id) as TotalQuestions
-                                          , ES.Instructions
-                                          FROM exam_has_subcategory ES
-                                                INNER JOIN exam_has_category EC
-                                                    ON ES.ExamCategoryId = EC.Id
-                                                LEFT JOIN subcategory_has_questions SHQ
-                                                  ON SHQ.SubCategoryId = ES.Id
-                                                        WHERE EC.ID = $Id
-                                                        AND ES.StatusId = 1
-                                                        GROUP BY ES.Id
+      $query = $this->db->query("SELECT   O.Id
+                                        , O.questionId
+                                        , O.OptionNo
+                                        , O.OptionName
+                                FROM category_has_options O
+                                WHERE O.questionId = $questionId
       ");
       return $query->result_array();
     }
 
-    function getExamQuestions($Id)
+    // Get the correct answer for a question from question_has_answer
+    function getCorrectAnswer($questionId)
     {
-      $query = $this->db->query("SELECT  DISTINCT COUNT(DISTINCT SO.Id) as TotalOptions
-                                        , SQ.Question
-                                        , SQ.Id as QuestionId
-                                        , SO2.OptionName
-                                        , SQ.Id
-                                        , SQ.StatusId
-                                        FROM subcategory_has_questions SQ
-                                          INNER JOIN subcategory_has_options SO
-                                            ON SO.subquestionId = SQ.Id
-                                          INNER JOIN subcategory_has_options SO2
-                                            ON SO2.OptionNo = SQ.Answer
-                                            AND SO2.subquestionId = SQ.Id
-                                            WHERE SQ.SubCategoryId = $Id
-                                            GROUP BY SQ.Id
+      $query = $this->db->query("SELECT Answer
+                                FROM category_has_answer
+                                WHERE QuestionId = $questionId
+                                  AND StatusId = 1
+                                LIMIT 1
       ");
-      return $query->result_array();
+      $row = $query->row_array();
+      return $row ? $row['Answer'] : null;
     }
 
-    function getSubjectExamSubCategoryDetails($Id)
+    public function getCategoryById($categoryId)
     {
-      $query = $this->db->query("SELECT   S.Code
-                                          , S.Name as SubjectName
-                                          , AHS.Description as SubjectDescription
-                                          , CONCAT(S.Code, '-', LPAD(AHS.Id, 5, 0)) as SubjectCode
-                                          , S.Units
-                                          , AHS.StatusId
-                                          , S.Id
-                                          , AHS.Description
-                                          , AHS.MaxStudents
-                                          , AHS.Description
-                                          , SS.Description as StatusDescription
-                                          , SS.Color
-                                          , C.Name as ClassName
-                                          , C.Id as ClassId
-                                          , AHS.Id as ClassSubjectId
-                                          , CSE.Description
-                                          , CONCAT('EX-', LPAD(CSE.Id, 6, 0)) as ExamCode
-                                          , AHSS.Name as Category
-                                          , AHSS.Percentage
-                                          , AHSS.Percentage / COUNT(EHS.Id) as PercentageBySubCategory
-                                          , EHS.Name as SubCategory
-                                          , CSE.Id as ExamId
-                                          , AHSS.Id as CategoryId
-                                          FROM classsubject_has_exam CSE
-                                          INNER JOIN class_has_subjects AHS
-                                            ON CSE.ClassSubjectId = AHS.Id
-                                          INNER JOIN r_classlist C
-                                            ON C.Id = AHS.ClassId
-                                          INNER JOIN r_subjects S
-                                            ON S.Id = AHS.SubjectId
-                                          INNER JOIN R_Status SS
-                                            ON SS.Id = AHS.StatusId
-                                          INNER JOIN exam_has_category AHSS
-                                            ON AHSS.ExamId = CSE.Id
-                                          LEFT JOIN exam_has_subcategory EHS
-                                            ON EHS.ExamCategoryId = AHSS.ID
-                                            WHERE CSE.Id = $Id
-                                            GROUP BY CSE.Id
-      ");
-      return $query->row_array();
+        return $this->db->get_where('exam_has_category', ['Id' => $categoryId])->row_array();
     }
 
-    function getExamSubCategoryQuestions($Id)
+    public function getCategoryQuestionsWithOptions($categoryId)
     {
-      $query = $this->db->query("SELECT   Question
-                                          , ID
-                                          , Answer
-                                          FROM subcategory_has_questions EHQ
-                                                WHERE EHQ.SubCategoryId = $Id
-      ");
-      return $query->result_array();
+        $questions = $this->db->query("SELECT Id as QuestionId, Question FROM category_has_questions WHERE CategoryId = ? AND StatusId = 1", [$categoryId])->result_array();
+        foreach ($questions as &$q) {
+            $options = $this->db->query("SELECT OptionNo, OptionName FROM category_has_options WHERE questionId = ? ORDER BY OptionNo ASC", [$q['QuestionId']])->result_array();
+            $q['Options'] = '';
+            $optionLetterMap = [];
+            foreach ($options as $idx => $opt) {
+                // Convert OptionNo to letter: 1 -> a, 2 -> b, etc.
+                $letter = chr(96 + $opt['OptionNo']); // 96 + 1 = 97 = 'a'
+                $optionLetterMap[$opt['OptionNo']] = $letter;
+                $q['Options'] .= $letter . '. ' . $opt['OptionName'] . '<br>';
+            }
+            $answerRow = $this->db->query("SELECT Answer FROM category_has_answer WHERE QuestionId = ? AND StatusId = 1 LIMIT 1", [$q['QuestionId']])->row_array();
+            $correctAnswerNo = $answerRow ? $answerRow['Answer'] : '';
+            $correctOption = '';
+            foreach ($options as $opt) {
+                if ($opt['OptionNo'] == $correctAnswerNo) {
+                    $letter = isset($optionLetterMap[$opt['OptionNo']]) ? $optionLetterMap[$opt['OptionNo']] : $opt['OptionNo'];
+                    $correctOption = $letter . '. ' . $opt['OptionName'];
+                    break;
+                }
+            }
+            $q['CorrectAnswer'] = $correctOption;
+        }
+        return $questions;
     }
-
-    function getExamSubCategoryOptions($Id)
-    {
-      $query = $this->db->query("SELECT   OptionName
-                                          , subquestionId
-                                          , OptionNo
-                                          FROM subcategory_has_options
-                                                WHERE subquestionId = $Id
-      ");
-      return $query->result_array();
-    }
+    // REMOVED getSubjectExamCategorySubDetails, getExamSubCategories, getExamSubCategoryQuestions, getExamSubCategoryOptions
 
     function getStudentClassList()
     {
@@ -1228,17 +1182,14 @@ class admin_model extends CI_Model
       return $query->num_rows();
     }
 
-    function countQuestions($Id)
+    function countQuestions($examId)
     {
-      $query = $this->db->query("SELECT   DISTINCT SHQ.Id
-                                          FROM classsubject_has_exam CHE
-                                                INNER JOIN exam_has_category EHC
-                                                    ON EHC.ExamId = CHE.ID
-                                                  INNER JOIN exam_has_subcategory EHS
-                                                    ON EHS.ExamCategoryId = EHC.ID
-                                            INNER JOIN subcategory_has_questions SHQ
-                                                    ON SHQ.SubCategoryId = EHS.Id
-                                                        WHERE CHE.Id = $Id
+      $query = $this->db->query("SELECT Q.Id
+                                FROM exam_has_category C
+                                INNER JOIN category_has_questions Q ON Q.CategoryId = C.Id
+                                WHERE C.ExamId = $examId
+                                AND C.StatusId = 1
+                                AND Q.StatusId = 1
       ");
       return $query->num_rows();
     }
@@ -1319,17 +1270,11 @@ class admin_model extends CI_Model
       }
     }
 
-    function getQuestionOptions($Id)
+    function getQuestionOptions($questionId)
     {
-      $query = $this->db->query("SELECT   subquestionId  as QuestionNo
-                                          , OptionNo
-                                          , OptionName
-                                          , SHQ.Question
-                                          , SHQ.Answer
-                                          FROM subcategory_has_options SHO
-                                            INNER JOIN subcategory_has_questions SHQ
-                                              ON SHQ.Id = SHO.subquestionId
-                                                WHERE subquestionId = $Id
+      $query = $this->db->query("SELECT O.Id, O.questionId, O.OptionNo, O.OptionName
+        FROM category_has_options O
+        WHERE O.questionId = $questionId
       ");
       return $query->result_array();
     }

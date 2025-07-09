@@ -289,10 +289,22 @@ class home extends CI_Controller {
 		$this->load->view('faculty/examdetails', $data);
 	}
 
-	function categoryDetails()
+	public function categoryDetails($examId, $categoryId)
 	{
-		$data['detail'] = $this->admin_model->getSubjectExamCategoryDetails($this->uri->segment(4));
-		$data['subCategories'] = $this->admin_model->getSubjectExamCategorySubDetails($this->uri->segment(4));
+		$this->load->model('admin_model');
+		$category = $this->admin_model->getCategoryById($categoryId); // You need to implement this if not present
+		$exam = $this->admin_model->getSubjectExamDetails($examId);
+
+		$detail = [
+			'ExamId'        => $examId,
+			'ClassSubjectId'=> $exam['ClassSubjectId'],
+			'CategoryId'    => $categoryId,
+			'Category'      => $category['Name'],
+			'Percentage'    => $category['Percentage']
+		];
+
+		$data['detail'] = $detail;
+
 		$sidebar['sidebar'] = 'Dashboard';
 		$sidebar['sidebarMenu'] = 'Class list';
 		$header['header'] = 'Examination';
@@ -302,18 +314,18 @@ class home extends CI_Controller {
 		$this->load->view('faculty/examcategorydetails', $data);
 	}
 
-	function subCategoryDetails()
-	{
-		$data['detail'] = $this->admin_model->getSubjectExamSubCategoryDetails($this->uri->segment(3));
-		$data['subCategories'] = $this->admin_model->getSubjectExamCategorySubDetails($this->uri->segment(4));
-		$sidebar['sidebar'] = 'Dashboard';
-		$sidebar['sidebarMenu'] = 'Class list';
-		$header['header'] = 'Subcategory Questionnaires';
+	// function subCategoryDetails()
+	// {
+	// 	$data['detail'] = $this->admin_model->getSubjectExamSubCategoryDetails($this->uri->segment(3));
+	// 	$data['subCategories'] = $this->admin_model->getSubjectExamCategorySubDetails($this->uri->segment(4));
+	// 	$sidebar['sidebar'] = 'Dashboard';
+	// 	$sidebar['sidebarMenu'] = 'Class list';
+	// 	$header['header'] = 'Subcategory Questionnaires';
 
-		$this->load->view('includes/header', $header);
-		$this->load->view('includes/sidebar', $sidebar);
-		$this->load->view('faculty/examsubcategoryquestionnaire', $data);
-	}
+	// 	$this->load->view('includes/header', $header);
+	// 	$this->load->view('includes/sidebar', $sidebar);
+	// 	$this->load->view('faculty/examsubcategoryquestionnaire', $data);
+	// }
 
 	function takeExam()
 	{

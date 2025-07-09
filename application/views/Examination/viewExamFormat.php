@@ -105,181 +105,143 @@
       }
   }
 </style>
-  <div class="content-wrapper">
-    <div class="content-header">
-      <div class="container-fluid">
-        <div class="row mb-2">
-          <div class="col-sm-6">
-            <h1 class="m-0">View Exam for <a href="<?php echo base_url() ?>home/facultyClassDetails/<?php print_r($detail['ClassId']) ?>"><?php print_r($detail['ClassName']) ?> - <?php print_r($detail['SubjectCode']) ?></a></h1>
-          </div>
+<div class="content-wrapper">
+  <div class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1 class="m-0">View Exam for <a href="<?php echo base_url() ?>home/facultyClassDetails/<?php print_r($detail['ClassId']) ?>"><?php print_r($detail['ClassName']) ?> - <?php print_r($detail['SubjectCode']) ?></a></h1>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Main content -->
-    <div class="content">
-      <div class="container-fluid">
-        <div class="row">
-          <div class="col-lg-12">
-            <div class="card">
-              <div class="card-header">
-                <h5 class="m-0">Subject Details</h5>
-              </div>
-              <div class="card-body">
-                <div class="row">
-                  <div class="col-md-3">
-                    <label>Subject Code</label>
-                    <h6><?php print_r($detail['Code']) ?></h6>
-                  </div>
-                  <div class="col-md-3">
-                    <label>Subject Name</label>
-                    <h6><?php print_r($detail['SubjectName']) ?></h6>
-                  </div>
-                  <div class="col-md-3">
-                    <label>Subject Description</label>
-                    <h6><?php print_r($detail['SubjectDescription']) ?></h6>
-                  </div>
-                  <div class="col-md-3">
-                    <label>Max no. of Students</label>
-                    <h6><?php print_r($detail['MaxStudents']) ?></h6>
-                  </div>
+  <!-- Main content -->
+  <div class="content">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="m-0">Subject Details</h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-3">
+                  <label>Subject Code</label>
+                  <h6><?php print_r($detail['Code']) ?></h6>
+                </div>
+                <div class="col-md-3">
+                  <label>Subject Name</label>
+                  <h6><?php print_r($detail['SubjectName']) ?></h6>
+                </div>
+                <div class="col-md-3">
+                  <label>Subject Description</label>
+                  <h6><?php print_r($detail['SubjectDescription']) ?></h6>
+                </div>
+                <div class="col-md-3">
+                  <label>Max no. of Students</label>
+                  <h6><?php print_r($detail['MaxStudents']) ?></h6>
                 </div>
               </div>
             </div>
           </div>
-          <div class="col-lg-12">
-            <div class="card">
-              <div class="card-header">
-                <h5 class="m-0">Details for Exam #<?php print_r($detail['ExamCode']); ?></h5>
-              </div>
-              <div class="card-body">
-                <div class="row">
-                  <div class="col-md-4">
-                    <h6>Answered:</h6>
-                    <label id="lblAnswered"></label>
-                  </div>
-                  <div class="col-md-4">
-                    <h6>Unanswered:</h6>
-                    <label id="lblUnanswered"></label>
-                  </div>
-                  <div class="col-md-4">
-                    <h6>Total Questions:</h6>
-                    <label  id="lblTotalQuestions"></label>
-                  </div>
+        </div>
+        <div class="col-lg-12">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="m-0">Details for Exam #<?php print_r($detail['ExamCode']); ?></h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-4">
+                  <h6>Answered:</h6>
+                  <label id="lblAnswered"></label>
                 </div>
-                <form action="<?php echo base_url(); ?>admin_controller/insertExamAnswers/<?php print_r($this->uri->segment(3)); ?>" class="frminsert2" method="post">
+                <div class="col-md-4">
+                  <h6>Unanswered:</h6>
+                  <label id="lblUnanswered"></label>
+                </div>
+                <div class="col-md-4">
+                  <h6>Total Questions:</h6>
+                  <label  id="lblTotalQuestions"></label>
+                </div>
+              </div>
+              <form action="<?php echo base_url(); ?>admin_controller/insertExamAnswers/<?php print_r($this->uri->segment(3)); ?>" class="frminsert2" method="post">
+                <div id="accordion">
                   <?php 
                     $rowNo = 1;
-                    $isActive = '';
                     $rowOption = 1;
                     $rowQuestionNo = 1;
                     foreach ($examCategory as $key => $value) 
                     {
-                      if($rowNo == 1)
-                      {
-                        $isActive = 'show';
-                      }
-                      else
-                      {
-                        $isActive = '';
-                      }
+                      $isActive = ($rowNo == 1) ? 'show' : '';
                       echo '
-                        <div id="accordion">
-                          <div class="card card-primary">
-                            <div class="card-header">
-                              <h4 class="card-title w-100">
-                                <a class="d-block w-100" data-toggle="collapse" href="#collapse'.$rowNo.'" aria-expanded="false"> '.$value['Name'].' - '.$value['Percentage'].'% <br><small>INSTRUCTIONS: '.$value['Instructions'].'</small>
-                                </a>
-                              </h4>
-                            </div>
-                            <div id="collapse'.$rowNo.'" class="collapse '.$isActive.'" data-parent="#accordion" style="">
-                              <div class="card-body">
+                        <div class="card card-primary">
+                          <div class="card-header">
+                            <h4 class="card-title w-100">
+                              <a class="d-block w-100" data-toggle="collapse" href="#collapse'.$rowNo.'" aria-expanded="'.($rowNo == 1 ? 'true' : 'false').'"> '.$value['Name'].' - '.$value['Percentage'].'% <br><small>INSTRUCTIONS: '.$value['Instructions'].'</small>
+                              </a>
+                            </h4>
+                          </div>
+                          <div id="collapse'.$rowNo.'" class="collapse '.$isActive.'" data-parent="#accordion">
+                            <div class="card-body">
                       ';
 
-                      $subCategories = $this->admin_model->getExamSubCategories($value['CategoryId']);
-                      foreach ($subCategories as $key => $subcategory) 
-                      {
+                      // Get all questions for this category
+                      $questions = $this->admin_model->getCategoryQuestions($value['CategoryId']);
+                      foreach ($questions as $q) {
                         echo '
                           <table class="table table-bordered">
                           <tbody>
                             <tr>
-                              <td><label>'.strtoupper($subcategory['SubCategory']) .'</label><br><small>INSTRUCTIONS: '.$subcategory['Instructions'].'</small></td>
-                            </tr>
-                        ';
-                        $subQuestions = $this->admin_model->getExamSubCategoryQuestions($subcategory['SubCategoryId']);
-                        foreach ($subQuestions as $key => $subquestion) 
-                        {
-                          echo '
-                              <tr>
-                                <td>
-                                  <div class="question ml-sm-12 pl-sm-12 pt-2">
-                                      <div class="py-2 h6"><b>'.$rowQuestionNo.'. '.$subquestion['Question'] .'</b> <input type="hidden" id="isAnswered'.$subquestion['ID'].'" class="classAnsweredSubCategory" value="0"> <input type="hidden" id="answerKey'.$subquestion['ID'].'" placeholder="Answer Key" value="" name="AnswerId[]"> <input type="hidden" id="subquestionoptionId'.$subquestion['ID'].'" value="'.$subquestion['ID'].'" name="questionId[]"></div>
-                                      <div class="ml-md-3 ml-sm-3 pl-md-12 pt-sm-0 pt-3" id="options"> 
-                          ';
-
-                          $subOptions = $this->admin_model->getExamSubCategoryOptions($subquestion['ID']);
-                          foreach ($subOptions as $key => $suboptions) 
-                          {
-                            if($suboptions['OptionNo'] == $subquestion['Answer'])
-                            {
-                              echo '<label class="options">
-                                      '.$suboptions['OptionName'].' 
-                                      <input type="radio" disabled checked name="radio'.$suboptions['subquestionId'].'" onclick="optionClick('.$suboptions['subquestionId'].', '.$suboptions['OptionNo'].')"> 
-                                      <span class="checkmark"></span> 
-                                    </label> 
-                                    
-                              ';
-                            }
-                            else
-                            {
-                              echo '<label class="options">
-                                      '.$suboptions['OptionName'].' 
-                                      <input type="radio" disabled name="radio'.$suboptions['subquestionId'].'" onclick="optionClick('.$suboptions['subquestionId'].', '.$suboptions['OptionNo'].')"> 
-                                      <span class="checkmark"></span> 
-                                    </label> 
-                                    
-                              ';
-                            }
-                            $rowOption ++;
-                          }
-
-                          echo'   </div>
-                                </td>
-                              </tr>
-                          ';
-                          $rowQuestionNo++;
+                              <td>
+                                <div class="question ml-sm-12 pl-sm-12 pt-2">
+                                  <div class="py-2 h6"><b>'.$rowQuestionNo.'. '.$q['Question'].'</b>
+                                    <input type="hidden" id="isAnswered'.$q['QuestionId'].'" class="classAnsweredSubCategory" value="0">
+                                    <input type="hidden" id="answerKey'.$q['QuestionId'].'" placeholder="Answer Key" value="" name="AnswerId[]">
+                                    <input type="hidden" id="subquestionoptionId'.$q['QuestionId'].'" value="'.$q['QuestionId'].'" name="questionId[]">
+                                  </div>
+                                  <div class="ml-md-3 ml-sm-3 pl-md-12 pt-sm-0 pt-3" id="options">';
+                        // Render options
+                        $options = $this->admin_model->getCategoryQuestionOptions($q['QuestionId']);
+                        foreach ($options as $opt) {
+                          echo '<label class="options">
+                                  '.$opt['OptionName'].'
+                                  <input type="radio" name="radio'.$q['QuestionId'].'" onclick="optionClick('.$q['QuestionId'].', '.$opt['OptionNo'].')">
+                                  <span class="checkmark"></span>
+                                </label>';
+                          $rowOption++;
                         }
-                        echo '
-                            </tbody>
+                        echo '        </div>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
                           </table>
                         ';
+                        $rowQuestionNo++;
                       }
 
                       echo '</div>
                             </div>
                           </div>
-                        </div>  ';
-
-
+                        ';
                       $rowNo++;
-
                     }
                   ?>
-
-                  <div class="modal-footer justify-content-between">
-                  </div>
-                </form>
-              </div>
+                </div>
+              </form>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <!-- /.content -->
-
   </div>
+  <!-- /.content -->
+</div>
 
-  <?php $this->load->view('includes/footer'); ?>
+<?php $this->load->view('includes/footer'); ?>
 
 <script type="text/javascript">
   var totalAnswers = 0;
@@ -310,9 +272,7 @@
     $('#lblTotalQuestions').text(TotalQuestions);
   }
   $(function () {
-
     optionClick(0)
-
     $(".frminsert2").on('submit', function (e) {
       e.preventDefault();
       if(totalUnAnswered == 0 && totalAnswers > 0)
@@ -341,7 +301,5 @@
         });
       }
     });
-
-
   });
 </script>

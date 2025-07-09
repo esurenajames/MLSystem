@@ -1,5 +1,4 @@
-
-  <div class="content-wrapper">
+<div class="content-wrapper">
     <div class="content-header">
       <div class="container-fluid">
         <div class="row mb-2">
@@ -10,120 +9,122 @@
       </div>
     </div>
 
-      <div class="modal fade" id="modal-default">
-        <div class="modal-dialog modal-lg">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h4 class="modal-title">Add Category</h4>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <form action="<?php echo base_url(); ?>admin_controller/addExamCategory/<?php print_r($this->uri->segment(3)); ?>/<?php print_r($this->uri->segment(4)); ?>" class="frminsert2" method="post">
-              <div class="modal-body">
-                <div class="row">
-                  <div class="col-md-12">
-                    <h6>Category Name</h6>
-                    <input class="form-control" name="CategoryName" required="" type="text">
-                  </div>
-                  <div class="col-md-12">
-                    <h6>Percentage</h6>
-                    <input class="form-control" name="Percentage" required="" type="number" min="0" max="100">
-                  </div>
-                  <div class="col-md-12">
-                    <h6>Instructions</h6>
-                    <textarea class="form-control" name="Instructions"></textarea>
-                  </div>
-                </div>
-              </div>
-              <div class="modal-footer justify-content-between">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary">Save changes</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
 
-      <div class="modal fade" id="modalSubcategory">
-        <div class="modal-dialog modal-xl">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h4 class="modal-title">Add Sub-Category</h4>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <form action="<?php echo base_url(); ?>admin_controller/addExamSubCategory/<?php print_r($this->uri->segment(3)); ?>/<?php print_r($this->uri->segment(4)); ?>" class="frminsert2" method="post">
-              <div class="modal-body">
-                <div class="float-right">
-                  <a  class="btn btn-success" title="Add Row" onclick="addRow()">Add Row</a>
-                </div>
-                <br>
-                <br>
-                <div class="row">
-                  <input type="hidden" class="form-control" id="txtId" required="" name="CategoryId">
-                  <table id="example2" class="table table-bordered table-striped">
-                    <thead>
-                      <th>Sub-Category Name</th>
-                      <th>Instructions</th>
-                      <th>Action</th>
-                    </thead>
-                    <tbody>
-                      <tr id="row1">
-                        <td>
-                            <input type="hidden" class="form-control" value="1" required="" name="rowCount[]">
-                            <input type="text" class="form-control" required="" name="SubName[]">
-                        </td>
-                        <td><textarea class="form-control" name="Instructions[]"></textarea></td>
-                        <td></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-              <div class="modal-footer justify-content-between">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary">Save changes</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
 
-      <div class="modal fade" id="modalUploadReviewer">
-        <div class="modal-dialog modal-lg">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h4 class="modal-title">Upload Reviewer</h4>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <form action="<?php echo base_url(); ?>admin_controller/uploadReviewer/<?php print_r($this->uri->segment(3)); ?>/<?php print_r($this->uri->segment(4)); ?>" class="frminsert2" method="post" enctype="multipart/form-data">
-              <div class="modal-body">
-                <div class="row">
-                  <div class="col-md-12">
-                    <div class="form-group">
-                      <label>Upload Reviewer</label>
-                      <br>
-                      <input type="file" name="Attachment[]" id="Attachment" accept=".jpeg, .jpg, .png">
-                    </div>
-                  </div>
-                  <div class="col-md-12">
-                    <h6>Notes</h6>
-                    <textarea class="form-control" name="Notes"></textarea>
-                  </div>
+    <!-- Add Category Modal -->
+    <div class="modal fade" id="modal-default">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Add Category</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <form action="<?php echo base_url(); ?>admin_controller/addExamCategory/<?php print_r($this->uri->segment(3)); ?>/<?php print_r($this->uri->segment(4)); ?>" class="frminsert2" method="post">
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-md-12">
+                  <h6>Category Name</h6>
+                  <input class="form-control" name="CategoryName" required="" type="text">
+                </div>
+                <div class="col-md-12">
+                  <h6>Percentage</h6>
+                  <input class="form-control" name="Percentage" required="" type="number" min="0" max="100">
+                </div>
+                <div class="col-md-12">
+                  <h6>Instructions</h6>
+                  <textarea class="form-control" name="Instructions"></textarea>
                 </div>
               </div>
-              <div class="modal-footer justify-content-between">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary">Save changes</button>
-              </div>
-            </form>
-          </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Save changes</button>
+            </div>
+          </form>
         </div>
       </div>
+    </div>
+
+    <!-- Add Question Modal -->
+    <div class="modal fade" id="modalAddQuestion">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Add Question</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <form id="formAddQuestion" action="" method="post" class="frminsert2">
+            <div class="modal-body">
+              <div class="col-lg-12" id="example2">
+                <input type="hidden" class="form-control" value="1" required="" name="QuestionRow[]">
+                <table id="dtblQuestions1" class="table table-bordered">
+                  <tbody>
+                    <tr>
+                      <td><input type="text" class="form-control" required="" placeholder="Untitled Question" id="txtQuestion" name="Question1[]"></td>
+                      <td width="10%"><a class="btn  btn-sm btn-success" onclick="addOption(1)" title="Add Option"><span class="fa fa-plus-square"></span></a></td>
+                    </tr>
+                    <tr id="OptionRow1" class="OptionRowClass11">
+                      <td>
+                        <h6>Option 1</h6>
+                        <input type="hidden" class="form-control" value="1" required="" name="OptionRowCount[]">
+                        <input type="hidden" name="Answer[]" value="0" class="answerClass" id="txtAnswer11">
+                        <input class="form-control" required="" name="Options[]" type="text">
+                      </td>
+                      <td width="10%">
+                        <a class="btn btn-sm btn-primary" onclick="setAnswer(1, 1)" title="Set as Answer"><span class="fa fa-check"></span></a>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Add Question</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upload Reviewer Modal -->
+    <div class="modal fade" id="modalUploadReviewer">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Upload Reviewer</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <form action="<?php echo base_url(); ?>admin_controller/uploadReviewer/<?php print_r($this->uri->segment(3)); ?>/<?php print_r($this->uri->segment(4)); ?>" class="frminsert2" method="post" enctype="multipart/form-data">
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label>Upload Reviewer</label>
+                    <br>
+                    <input type="file" name="Attachment[]" id="Attachment" accept=".jpeg, .jpg, .png">
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <h6>Notes</h6>
+                  <textarea class="form-control" name="Notes"></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Save changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
 
     <!-- Main content -->
     <div class="content">
@@ -198,7 +199,7 @@
                             <th>Category Name</th>
                             <th>Instructions</th>
                             <th>Percentage</th>
-                            <th>Total Subcategory</th>
+                            <th>Total Questions</th>
                             <th>Status</th>
                             <th>Action</th>
                           </tr>
@@ -242,6 +243,8 @@
 <script type="text/javascript">
 
   var rowNo = 2;
+  var varSelectedAnswer = 0;
+
   function refreshPage(){
     var url = '<?php echo base_url()."admin_controller/getExamCategories/".$this->uri->segment(3); ?>';
     UserTable.ajax.url(url).load();
@@ -250,9 +253,7 @@
   function refreshPage2(){
     var url = '<?php echo base_url()."admin_controller/getExamReviewers/".$this->uri->segment(3); ?>';
     UserTable2.ajax.url(url).load();
-
   }
-
 
   function updateRecord(Id, Type, FirstName, MiddleName, LastName, ExtName)
   {
@@ -324,47 +325,100 @@
     }
   }
 
-  function addRow()
+  var varOptionNo = 1;
+  function addOption(QuestionNo)
   {
+    var colCount = $("#dtblQuestions"+QuestionNo+" tr").length;
+    varOptionNo = colCount;
     newRow = '';
-    newRow += '<tr id="row'+rowNo+'">';
-    newRow += '<td><input type="hidden" class="form-control" value="'+rowNo+'" required="" name="rowCount[]"><input type="text" class="form-control" required="" name="SubName[]"></td>';
-    newRow += '<td><textarea class="form-control" name="Instructions[]"></textarea></td>';
-    newRow += '<td>'+rowNo+'<a class="btn btn-danger" title="Remove" onclick="removeRow('+rowNo+')"><span class="fa fa-window-close"></span></a></td>';
-    newRow += '</tr>';
-    $('#example2').append(newRow);
-    rowNo++;
+    newRow += '<tr id="OptionRow'+QuestionNo+'" class="OptionRowClass'+QuestionNo+''+varOptionNo+'"><td><input type="hidden" class="form-control" value="1" required="" name="OptionRowCount[]"><input type="hidden"  value="0" name="Answer[]" class="answerClass" id="txtAnswer'+varOptionNo+''+QuestionNo+'"><h6>Option '+varOptionNo+'</h6><input class="form-control"  name="Options[]" required="" type="text"></td><td width="10%"><a class="btn btn-sm btn-primary" onclick="setAnswer('+varOptionNo+', '+QuestionNo+')" title="Set as Answer"><span class="fa fa-check"></span></a> <a class="btn btn-sm btn-danger" onclick="removeOption('+varOptionNo+', '+QuestionNo+')" title="Remove Option"><span class="fa fa-trash"></span></a></td></tr>';
+    $('#dtblQuestions'+QuestionNo+'').append(newRow);
+    varOptionNo++;
   }
 
-  function addSubCategory (Id)
+  function removeOption(OptionNo, QuestionNo)
   {
-    $('#txtId').val(Id)
+    // If the removed option was the selected answer, reset varSelectedAnswer
+    if($("#txtAnswer"+OptionNo+""+QuestionNo+"").val() == 1)
+    {
+      varSelectedAnswer = 0; 
+    }
+    $('.OptionRowClass'+QuestionNo+''+OptionNo+'').remove();
+    // Check if any answer is still selected
+    var anySelected = false;
+    $(".answerClass").each(function() {
+      if($(this).val() == 1) anySelected = true;
+    });
+    if(anySelected) {
+      varSelectedAnswer = 1;
+    }
   }
 
-  function removeRow(id)
+  function setAnswer(OptionNo, QuestionNo)
   {
-    $('#row'+id+'').remove();
-    rowNo--;
+    $("#dtblQuestions1 tr").css("background-color", "transparent")
+    $(".OptionRowClass"+QuestionNo+""+OptionNo+"").css('background-color', '#A3FFBD');
+    $(".answerClass").val(0);
+    $("#txtAnswer"+OptionNo+""+QuestionNo+"").val(1);
+    varSelectedAnswer = 1;
+  }
+
+  // Open Add Question Modal for a Category
+  function addQuestion(categoryId)
+  {
+    $('#formAddQuestion')[0].reset();
+    $('#formAddQuestion').attr('action', '<?php echo base_url(); ?>admin_controller/addCategoryQuestion/<?php echo $this->uri->segment(3); ?>/'+categoryId);
+    varSelectedAnswer = 0; 
+    // Reset all answerClass hidden inputs to 0
+    $(".answerClass").val(0);
+    $('#modalAddQuestion').modal('show');
   }
 
   $(function () {
 
-    $(".frminsert2").on('submit', function (e) {
-      e.preventDefault(); 
+  $("#formAddQuestion").on('submit', function (e) {
+    e.preventDefault();
+    if(typeof varSelectedAnswer !== 'undefined' && varSelectedAnswer == 0)
+    {
       swal({
-        title: 'Confirm',
-        text: 'Are you sure you want to confirm?',
-        type: 'info',
-        showCancelButton: true,
+        title: 'Warning',
+        text: 'Please select an answer for this question.',
+        type: 'warning',
         buttonsStyling: false,
-        confirmButtonClass: 'btn btn-success',
-        confirmButtonText: 'Confirm',
-        cancelButtonClass: 'btn btn-secondary'
-      }).then(function(){
-        e.currentTarget.submit();
+        confirmButtonClass: 'btn btn-primary'
       });
+      return false;
+    }
+    swal({
+      title: 'Confirm',
+      text: 'Are you sure you want to confirm?',
+      type: 'info',
+      showCancelButton: true,
+      buttonsStyling: false,
+      confirmButtonClass: 'btn btn-success',
+      confirmButtonText: 'Confirm',
+      cancelButtonClass: 'btn btn-secondary'
+    }).then(function(){
+      e.currentTarget.submit();
     });
+  });
 
+  // For other forms (like Add Category), just show the confirm dialog
+  $(".frminsert2").not("#formAddQuestion").on('submit', function (e) {
+    e.preventDefault();
+    swal({
+      title: 'Confirm',
+      text: 'Are you sure you want to confirm?',
+      type: 'info',
+      showCancelButton: true,
+      buttonsStyling: false,
+      confirmButtonClass: 'btn btn-success',
+      confirmButtonText: 'Confirm',
+      cancelButtonClass: 'btn btn-secondary'
+    }).then(function(){
+      e.currentTarget.submit();
+    });
+  });
 
     $('.select2').select2();
     $('#selectStudent').select2({
@@ -377,7 +431,7 @@
       "columns": [  { data: "Name" }
                     , { data: "Instructions" }
                     , { data: "Percentage" }
-                    , { data: "TotalSubCategory" }
+                    , { data: "TotalQuestions" }
                     , {
                       data: "StatusId", "render": function (data, type, row) {
                         return "<span class='badge bg-"+row.Color+"'>"+row.StatusDescription+"</span>";
@@ -386,16 +440,15 @@
                     , {
                       data: "StatusId", "render": function (data, type, row) {
                         if(row.StatusId == 1){
-                          return '<a href="<?php echo base_url() ?>home/categoryDetails/'+<?php echo $this->uri->segment(3); ?>+'/'+row.CategoryId+'" class="btn btn-sm btn-default" title="View Sub-Category"><span class="fa fa-eye"></span></a> <a data-toggle="modal" data-target="#modalSubcategory" onclick="addSubCategory('+row.CategoryId+')" class="btn btn-sm btn-success" title="Add Sub-category"><span class="fa fa-layer-group"></span></a>  <a onclick="updateRecord('+row.CategoryId+', 2)" class="btn btn-sm btn-danger" title="Deactivate"><span class="fa fa-window-close"></span></a>';
-                        }
-                        else
-                        {
+                          return '<a href="<?php echo base_url() ?>home/categoryDetails/'+<?php echo $this->uri->segment(3); ?>+'/'+row.CategoryId+'" class="btn btn-sm btn-default" title="View Questions"><span class="fa fa-eye"></span></a> ' +
+                                 '<a class="btn btn-sm btn-success" title="Add" onclick="addQuestion('+row.CategoryId+')"><span class="fa fa-plus"></span></a> ' +
+                                 '<a onclick="updateRecord('+row.CategoryId+', 2)" class="btn btn-sm btn-danger" title="Deactivate"><span class="fa fa-window-close"></span></a>';
+                        } else {
                           return '<a href="<?php echo base_url() ?>home/categoryDetails/'+<?php echo $this->uri->segment(3); ?>+'/'+row.CategoryId+'" class="btn btn-sm btn-default" title="View Exam"><span class="fa fa-eye"></span></a>';
                         }
                       }
                     },
       ],
-      // "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
       "order": [[0, "asc"]]
     });
 
@@ -417,7 +470,6 @@
                       }
                     },
       ],
-      // "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
       "order": [[0, "asc"]]
     });
 

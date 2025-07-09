@@ -110,7 +110,13 @@ body {
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0">Exam Details for <a href="<?php echo base_url() ?>home/facultyClassDetails/<?php print_r($detail['ClassId']) ?>"><?php print_r($detail['ClassName']) ?> - <?php print_r($detail['SubjectCode']) ?></a></h1>
+            <h1 class="m-0">
+              Exam Details for 
+              <a href="<?php echo base_url() ?>home/facultyClassDetails/<?php echo (is_array($detail) && isset($detail['ClassId'])) ? $detail['ClassId'] : ''; ?>">
+                <?php echo (is_array($detail) && isset($detail['ClassName'])) ? $detail['ClassName'] : 'N/A'; ?> - 
+                <?php echo (is_array($detail) && isset($detail['SubjectCode'])) ? $detail['SubjectCode'] : 'N/A'; ?>
+              </a>
+            </h1>
           </div>
         </div>
       </div>
@@ -129,19 +135,19 @@ body {
                 <div class="row">
                   <div class="col-md-3">
                     <label>Subject Code</label>
-                    <h6><?php print_r($detail['Code']) ?></h6>
+                    <h6><?php echo (is_array($detail) && isset($detail['Code'])) ? $detail['Code'] : 'N/A'; ?></h6>
                   </div>
                   <div class="col-md-3">
                     <label>Subject Name</label>
-                    <h6><?php print_r($detail['SubjectName']) ?></h6>
+                    <h6><?php echo (is_array($detail) && isset($detail['SubjectName'])) ? $detail['SubjectName'] : 'N/A'; ?></h6>
                   </div>
                   <div class="col-md-3">
                     <label>Subject Description</label>
-                    <h6><?php print_r($detail['SubjectDescription']) ?></h6>
+                    <h6><?php echo (is_array($detail) && isset($detail['SubjectDescription'])) ? $detail['SubjectDescription'] : 'N/A'; ?></h6>
                   </div>
                   <div class="col-md-3">
                     <label>Max no. of Students</label>
-                    <h6><?php print_r($detail['MaxStudents']) ?></h6>
+                    <h6><?php echo (is_array($detail) && isset($detail['MaxStudents'])) ? $detail['MaxStudents'] : 'N/A'; ?></h6>
                   </div>
                 </div>
               </div>
@@ -150,7 +156,7 @@ body {
           <div class="col-lg-12">
             <div class="card">
               <div class="card-header">
-                <h5 class="m-0">Details for Exam #<?php print_r($detail['ExamCode']); ?></h5>
+                <h5 class="m-0">Details for Exam #<?php echo (is_array($detail) && isset($detail['ExamCode'])) ? $detail['ExamCode'] : 'N/A'; ?></h5>
               </div>
               <div class="card-body">
                 <div class="row">
@@ -171,7 +177,7 @@ body {
                     <label><?php print_r($correctAnswer) ?></label>/<label id="lblTotalQuestionsPercentage"></label>
                   </div>
                 </div>
-                <form action="<?php echo base_url(); ?>admin_controller/insertExamAnswers/<?php print_r($this->uri->segment(3)); ?>" class="frminsert2" method="post">
+                <form>
                   <?php 
                     $rowNo = 1;
                     $isActive = '';
@@ -194,79 +200,52 @@ body {
                               <div class="card-body">
                       ';
 
-                      $subCategories = $this->admin_model->getExamSubCategories($value['CategoryId']);
-                      foreach ($subCategories as $key => $subcategory) 
-                      {
+                      // Get all questions for this category
+                      $questions = $this->admin_model->getCategoryQuestions($value['CategoryId']);
+                      foreach ($questions as $q) {
+                        // Get answer info for this question
+                        $answerOption = $this->admin_model->getExamAnswers($q['QuestionId']);
+                        if(is_array($answerOption) && ($answerOption['IsCorrect'] ?? 0) == 1)
+                        {
+                          $isCorrect = 'style="color:#08A133"';
+                        }
+                        else
+                        {
+                          $isCorrect = 'style="color:#D92323"';
+                        }
                         echo '
                           <table class="table table-bordered">
                           <tbody>
                             <tr>
-                              <td><label>'.strtoupper($subcategory['SubCategory']) .'</label><br><small>'.$subcategory['Instructions'].'</small></td>
-                            </tr>
-                        ';
-                        $subQuestions = $this->admin_model->getExamSubCategoryQuestions($subcategory['SubCategoryId']);
-                        foreach ($subQuestions as $key => $subquestion) 
-                        {
-                          $answerOption = $this->admin_model->getExamAnswers($subquestion['ID']);
-                          if(($answerOption['IsCorrect'] ?? 0) == 1)
-                          {
-                            $isCorrect = 'style="color:#08A133"';
+                              <td>
+                                <div '.$isCorrect.' class="question ml-sm-12 pl-sm-12 pt-2">
+                                  <div class="py-2 h6"><b>'.$rowQuestionNo.'. '.$q['Question'].'</b>
+                                    <input type="hidden" id="isAnswered'.$q['QuestionId'].'" class="classAnsweredSubCategory" value="0">
+                                    <input type="hidden" id="answerKey'.$q['QuestionId'].'" placeholder="Answer Key" value="" name="AnswerId[]">
+                                    <input type="hidden" id="subquestionoptionId'.$q['QuestionId'].'" value="'.$q['QuestionId'].'" name="questionId[]">
+                                  </div>
+                                  <div class="ml-md-3 ml-sm-3 pl-md-12 pt-sm-0 pt-3" id="options">';
+                        // Render options
+                        $options = $this->admin_model->getCategoryQuestionOptions($q['QuestionId']);
+                        foreach ($options as $opt) {
+                          // Highlight correct/wrong answers if needed
+                          $labelStyle = '';
+                          if(is_array($answerOption) && isset($answerOption['CorrectAnswer']) && $answerOption['CorrectAnswer'] == $opt['OptionNo'] && ($answerOption['IsCorrect'] ?? 0) == 1) {
+                            $labelStyle = 'style="color:#08A133"'; // correct
+                          } else if(is_array($answerOption) && isset($answerOption['AnswerId']) && $answerOption['AnswerId'] == $opt['OptionNo']) {
+                            $labelStyle = 'style="color:#D92323"'; // wrong
                           }
-                          else
-                          {
-                            $isCorrect = 'style="color:#D92323"';
-                          }
-                          echo '
-                              <tr>
-                                <td>
-                                  <div '.$isCorrect.' class="question ml-sm-12 pl-sm-12 pt-2">
-                                      <div class="py-2 h6"><b>'.$rowQuestionNo.'. '.$subquestion['Question'] .'</b> <input type="hidden" id="isAnswered'.$subquestion['ID'].'" class="classAnsweredSubCategory" value="0"> <input type="hidden" id="answerKey'.$subquestion['ID'].'" placeholder="Answer Key" value="" name="AnswerId[]"> <input type="hidden" id="subquestionoptionId'.$subquestion['ID'].'" value="'.$subquestion['ID'].'" name="questionId[]"></div>
-                                      <div class="ml-md-3 ml-sm-3 pl-md-12 pt-sm-0 pt-3" id="options"> 
-                          ';
-
-                          $subOptions = $this->admin_model->getExamSubCategoryOptions($subquestion['ID']);
-                          foreach ($subOptions as $key => $suboptions) 
-                          {
-                            // $answerOption = $this->admin_model->getExamAnswers($subquestion['ID']);
-                            // if($answerOption['CorrectAnswer'] == $suboptions['OptionNo'] && $answerOption['IsCorrect'] == 1) // correct answer
-                            // {
-                            //   echo '<label style="color:#08A133">'.$suboptions['OptionName'].'</label>';
-                            // }
-                            // else // get answer
-                            // {
-                            //   if($answerOption['AnswerId'] == $suboptions['OptionNo'])
-                            //   {
-                            //     echo '<label style="color:#D92323">'.$suboptions['OptionName'].'</label>';
-                            //   }
-                            //   else
-                            //   {
-                            //     if($subquestion['Answer'] == $suboptions['OptionNo'])
-                            //     {
-                            //       echo '<label style="color:#08A133">'.$suboptions['OptionName'].'</label>';
-                            //     }
-                            //     else
-                            //     {
-                            //       echo '<label>'.$suboptions['OptionName'].'</label>';
-                            //     }
-                            //   }
-                            // }
-
-
-                              echo '<label>'.$suboptions['OptionName'].'</label>';
-                                  
-                            $rowOption ++;
-                          }
-
-                          echo'   </div>
-                                </td>
-                              </tr>
-                          ';
-                          $rowQuestionNo++;
+                          echo '<label '.$labelStyle.'>'.$opt['OptionName'].'</label>';
+                          $rowOption++;
                         }
-                        echo '
-                            </tbody>
+                        echo '        </div>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
                           </table>
                         ';
+                        $rowQuestionNo++;
                       }
 
                       echo '</div>
@@ -317,57 +296,31 @@ body {
       TotalQuestions++;
     });
 
-    $('#lblAnswered').text(totalAnswers);
-    $('#lblUnanswered').text(totalUnAnswered);
     $('.lblTotalQuestions').text(TotalQuestions);
 
-    totalPercentage = ('<?php print_r($correctAnswer) ?>' / TotalQuestions) * 100;
-
-    if(totalPercentage >= 70)
-    {
-      examResult = '<label style="color:#08A133">Passed</label>';
-    }
-    else
-    {
-      examResult = '<label style="color:#D92323">Failed</label>';
-    }
-
-    $('#lblTotalQuestionsPercentage').html(TotalQuestions + ' = ' + totalPercentage + "% (" + examResult + ")");
-
-  }
-
-  $(function () {
-    optionClick(0)
-
-    $(".frminsert2").on('submit', function (e) {
-      e.preventDefault();
-      if(totalUnAnswered == 0)
+    // Prevent division by zero
+    var correctAnswer = Number('<?php print_r($correctAnswer) ?>');
+    var totalPercentage = 0;
+    var examResult = '';
+    if (TotalQuestions > 0) {
+      totalPercentage = (correctAnswer / TotalQuestions) * 100;
+      totalPercentage = Math.round(totalPercentage * 100) / 100; // round to 2 decimals
+      if(totalPercentage >= 70)
       {
-        swal({
-          title: 'Confirm',
-          text: 'Are you sure you want to confirm?',
-          type: 'info',
-          showCancelButton: true,
-          buttonsStyling: false,
-          confirmButtonClass: 'btn btn-success',
-          confirmButtonText: 'Confirm',
-          cancelButtonClass: 'btn btn-secondary'
-        }).then(function(){
-          e.currentTarget.submit();
-        });
+        examResult = '<label style="color:#08A133">Passed</label>';
       }
       else
       {
-        swal({
-          title: 'Warning',
-          text: 'You still have '+totalUnAnswered+' unanswered questions! Please make sure all questions are answered!',
-          type: 'warning',
-          buttonsStyling: false,
-          confirmButtonClass: 'btn btn-primary'
-        });
+        examResult = '<label style="color:#D92323">Failed</label>';
       }
-    });
+      $('#lblTotalQuestionsPercentage').html(TotalQuestions + ' = ' + totalPercentage + "% (" + examResult + ")");
+    } else {
+      $('#lblTotalQuestionsPercentage').html('0 = 0% (No questions)');
+    }
+  }
 
 
+  $(function () {
+    optionClick(0)
   });
 </script>

@@ -134,20 +134,23 @@
                             </div>
                             <div class="col-md-4">
                               <label>Status</label>
-                              <h6><?php 
-                                $totalPercentage = 0;
-                                $totalPercentage = ($correctAnswer/$totalQuestions)*100;
-
-                                if($totalPercentage >= 70)
-                                {
-                                  $examResult = '<label style="color:#08A133">Passed</label>';
-                                }
-                                else
-                                {
-                                  $examResult = '<label style="color:#D92323">Failed</label>';
-                                }
-                                print_r($totalPercentage . '% - ' .$examResult); 
-                              ?></h6>
+                                <h6><?php 
+                                  $totalPercentage = 0;
+                                  if ($totalQuestions > 0) {
+                                    $totalPercentage = ($correctAnswer/$totalQuestions)*100;
+                                    if($totalPercentage >= 70)
+                                    {
+                                      $examResult = '<label style="color:#08A133">Passed</label>';
+                                    }
+                                    else
+                                    {
+                                      $examResult = '<label style="color:#D92323">Failed</label>';
+                                    }
+                                    print_r($totalPercentage . '% - ' .$examResult); 
+                                  } else {
+                                    echo 'No questions in this exam.';
+                                  }
+                                ?></h6>
                             </div>
                           </div>
                           <br>
