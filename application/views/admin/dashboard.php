@@ -1,5 +1,4 @@
-  
-  <div class="modal fade show" id="modalRenew" data-keyboard="false" data-backdrop="static">
+<div class="modal fade show" id="modalRenew" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
@@ -244,11 +243,13 @@
                       <th>Grades</th>
                       <th>Exam Grade</th>
                       <th>Prediction</th>
+                      <th>Result</th>
                       <th>Action</th>
                     </tr>
                     </thead>
                     <tfoot>
                       <tr>
+                        <td></td>
                         <td></td>
                         <td></td>
                         <td></td>
@@ -498,119 +499,113 @@
     Grades = $('#example2').DataTable({
       "pageLength": 10,
       "ajax": { url: '<?php echo base_url()."/admin_controller/getStudentSubjectList/"; ?>', type: 'POST', "dataSrc": "" },
-      "columns": [  { data: "SubjectCode" }
-                    , { data: "Name" }
-                    , { data: "Faculty" }
-                    , { data: "Grade" }
-                    , {
-                      data: "ExamId", "render": function (data, type, row) {
-                        if(row.CreatedExamId !== null)
-                        {
-                          if(row.totalQuestions != 0 && row.StatusId == 1)
-                          {
-                            totalPercentage = (row.correctAnswer/row.totalQuestions) * 100;
+      "columns": [
+        { data: "SubjectCode" },
+        { data: "Name" },
+        { data: "Faculty" },
+        { data: "Grade" },
+        {
+          data: "ExamId", "render": function (data, type, row) {
+            // Your original Exam Grade logic
+            if(row.CreatedExamId !== null)
+            {
+              if(row.totalQuestions != 0 && row.StatusId == 1)
+              {
+                totalPercentage = (row.correctAnswer/row.totalQuestions) * 100;
+                if(totalPercentage >= 70)
+                {
+                  examResult = '<label style="color:#08A133">Passed</label>';
+                }
+                else
+                {
+                  examResult = '<label style="color:#D92323">Failed</label>';
+                }
+                return totalPercentage + '% - ' + examResult;
+              }
+              else
+              {
+                if(row.StatusId == 1)
+                {
+                  if(row.totalQuestions != 0)
+                  {
+                    totalPercentage = 0;
+                    return 'No exam taken';
+                  }
+                  else
+                  {
+                    totalPercentage = 0;
+                    return 'For re-taking';
+                  }
+                }
+                else
+                {
+                  totalPercentage = 0;
+                  return 'No exam taken';
+                }
+              }
+            }
+            else
+            {
+              return 'No exam has been created.';
+            }
+          }
+        },
+        // NEW: Prediction from analytics_results
+        {
+          data: "Prediction", render: function(data, type, row) {
+            return data !== null ? data : 0;
+          }
+        },
+        // NEW: Result from analytics_results
+        {
+          data: "Result", render: function(data, type, row) {
+            return data !== null ? data : 0;
+          }
+        },
+        // Action column (keep as is)
+        {
+          data: "ExamId", "render": function (data, type, row) {
+            // Your original Action logic
+            if(row.CreatedExamId !== null)
+            {
+              if(row.StatusId == 10)
+              {
+                return '<a href="<?php echo base_url() ?>home/TakeExam/'+row.CreatedExamId+'" class="btn btn-primary" title="Take Exam"><span class="fa fa-pen-square"></span></a> ';
+              }
+              else
+              {
+                if(row.StatusId == 1 && row.totalQuestions == 0)
+                {
+                  return '<a href="<?php echo base_url() ?>home/TakeExam/'+row.CreatedExamId+'" class="btn btn-primary" title="Take Exam"><span class="fa fa-pen-square"></span></a> ' ;
+                }
+                else
+                {
+                  if(totalPercentage <= 70)
+                  {
+                    retakeExam = '<a onclick="clickRetakeExam('+row.CreatedExamId+')" class="btn btn-primary" title="Request to retake exam"><span class="fa fa-money-check"></span></a>';
+                  }
+                  else
+                  {
+                    retakeExam = '';
+                  }
 
-                            if(totalPercentage >= 70)
-                            {
-                              examResult = '<label style="color:#08A133">Passed</label>';
-                            }
-                            else
-                            {
-                              examResult = '<label style="color:#D92323">Failed</label>';
-                            }
-                            return totalPercentage + '% - ' + examResult;
-                          }
-                          else
-                          {
-                            if(row.StatusId == 1) // may exam for retaking
-                            {
-                              if(row.totalQuestions != 0)
-                              {
-                                totalPercentage = 0;
-                                return 'No exam taken';
-                              }
-                              else
-                              {
-                                totalPercentage = 0;
-                                return 'For re-taking';
-                              }
-                            }
-                            else
-                            {
-                              totalPercentage = 0;
-                              return 'No exam taken';
-                            }
-                          }
-                        }
-                        else
-                        {
-                          return 'No exam has been created.';
-                        }
-                      }
-                    }
-                    , {
-                      data: "ExamId", "render": function (data, type, row) {
-                        if(row.totalQuestions != 0)
-                        {
-                          totalPercentage = (row.correctAnswer/row.totalQuestions)*100;
-                          finalPrediction = 0;
-
-                          finalPrediction = (parseFloat(row.Grade)+parseFloat(totalPercentage))/2;
-                          return finalPrediction + '% rate';
-                        }
-                        else
-                        {
-                          totalPercentage = 0;
-                          finalPrediction = 0;
-
-                          finalPrediction = (parseFloat(row.Grade)+parseFloat(totalPercentage))/2;
-                          return finalPrediction + '% rate';
-                        }
-                      }
-                    }
-                    , {
-                      data: "ExamId", "render": function (data, type, row) {
-                        if(row.CreatedExamId !== null)
-                        {
-                          if(row.StatusId == 10)
-                          {
-                            return '<a href="<?php echo base_url() ?>home/TakeExam/'+row.CreatedExamId+'" class="btn btn-primary" title="Take Exam"><span class="fa fa-pen-square"></span></a> ';
-                          }
-                          else
-                          {
-                            if(row.StatusId == 1 && row.totalQuestions == 0) // may exam for retaking
-                            {
-                              return '<a href="<?php echo base_url() ?>home/TakeExam/'+row.CreatedExamId+'" class="btn btn-primary" title="Take Exam"><span class="fa fa-pen-square"></span></a> ' ;
-                            }
-                            else
-                            {
-                              if(totalPercentage <= 70)
-                              {
-                                retakeExam = '<a onclick="clickRetakeExam('+row.CreatedExamId+')" class="btn btn-primary" title="Request to retake exam"><span class="fa fa-money-check"></span></a>';
-                              }
-                              else
-                              {
-                                retakeExam = '';
-                              }
-
-                              if(row.ExamId !== null){
-                                return '<a href="<?php echo base_url() ?>home/viewExam/'+row.CreatedExamId+'" class="btn btn-default" title="View Exam"><span class="fa fa-eye"></span></a> ' + retakeExam;
-                              }
-                              else
-                              {
-                                return '<a href="<?php echo base_url() ?>home/TakeExam/'+row.CreatedExamId+'" class="btn btn-primary" title="Take Exam"><span class="fa fa-pen-square"></span></a> ' ;
-                              }
-                            }
-                          }
-                        }
-                        else
-                        {
-                          return '<a href="<?php echo base_url() ?>home/subjectStudents/'+row.ClassSubjectId+'" class="btn btn-default" title="View Subject"><span class="fa fa-eye"></span></a> ' ;
-                        }
-                      }
-                    },
+                  if(row.ExamId !== null){
+                    return '<a href="<?php echo base_url() ?>home/viewExam/'+row.CreatedExamId+'" class="btn btn-default" title="View Exam"><span class="fa fa-eye"></span></a> ' + retakeExam;
+                  }
+                  else
+                  {
+                    return '<a href="<?php echo base_url() ?>home/TakeExam/'+row.CreatedExamId+'" class="btn btn-primary" title="Take Exam"><span class="fa fa-pen-square"></span></a> ' ;
+                  }
+                }
+              }
+            }
+            else
+            {
+              return '<a href="<?php echo base_url() ?>home/subjectStudents/'+row.ClassSubjectId+'" class="btn btn-default" title="View Subject"><span class="fa fa-eye"></span></a> ' ;
+            }
+          }
+        }
       ],
-      // "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
       "order": [[0, "asc"]]
     });
 

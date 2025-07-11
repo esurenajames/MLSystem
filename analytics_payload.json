@@ -1,0 +1,32 @@
+{
+    "students": [
+        {
+            "student_id": "SS-00002",
+            "name": "Gaden, John Arcega ",
+            "gwa": 0,
+            "exam_score": 0,
+            "class_subject_id": 12
+        },
+        {
+            "student_id": "SS-00002",
+            "name": "Gaden, John Arcega ",
+            "gwa": 0,
+            "exam_score": 66.67,
+            "class_subject_id": 14
+        },
+        {
+            "student_id": "SS-00003",
+            "name": "Gaden, Barbara  ",
+            "gwa": 0,
+            "exam_score": 0,
+            "class_subject_id": 12
+        },
+        {
+            "student_id": "SS-000004",
+            "name": "Sheeran, Edward  ",
+            "gwa": 33,
+            "exam_score": 0,
+            "class_subject_id": 12
+        }
+    ]
+}

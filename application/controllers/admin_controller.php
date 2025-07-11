@@ -2157,24 +2157,56 @@ class admin_controller extends CI_Controller {
     }
 
     function getStudentSubjectList()
+{
+    $result = $this->admin_model->getStudentSubjectList();
+
+    foreach ($result as $key => $value) 
     {
-      $result = $this->admin_model->getStudentSubjectList();
-      foreach ($result as $key => $value) 
-      {
-        // $result[$key]['ExamGrade'] = $this->admin_model->getExamGrade($value['ClassSubjectId']);
+      error_log("VALUE KEYS: " . print_r($value, true));
+        // Add exam grade info
         if(isset($value['CreatedExamId']))
         {
-          $result[$key]['correctAnswer'] = $this->admin_model->countCorrectAnswers($value['CreatedExamId']);
-          $result[$key]['totalQuestions'] = $this->admin_model->countQuestions($value['CreatedExamId']);
+            $result[$key]['correctAnswer'] = $this->admin_model->countCorrectAnswers($value['CreatedExamId']);
+            $result[$key]['totalQuestions'] = $this->admin_model->countQuestions($value['CreatedExamId']);
         }
         else
         {
-          $result[$key]['correctAnswer'] = 0;
-          $result[$key]['totalQuestions'] = 0;
+            $result[$key]['correctAnswer'] = 0;
+            $result[$key]['totalQuestions'] = 0;
         }
-      }
-      echo json_encode($result);
+
+        // JOIN analytics_results for Prediction and Result
+        $student_id = $value['student_number'] ?? null;
+        $class_subject_id = $value['ClassSubjectId'] ?? null;
+
+        // Add these lines for debugging:
+    error_log("Student: " . $student_id . " | ClassSubject: " . $class_subject_id);
+
+
+        
+
+        if ($student_id && $class_subject_id) {
+          $analytics = $this->db
+          ->where('student_id', $student_id)
+          ->where('class_subject_id', $class_subject_id)
+          ->order_by('created_at', 'DESC')
+          ->get('analytics_results')
+          ->row_array();
+
+          // Log the analytics row:
+        error_log("Analytics row: " . print_r($analytics, true));
+
+
+        $result[$key]['Prediction'] = isset($analytics['prediction']) ? $analytics['prediction'] : 0;
+        $result[$key]['Result'] = isset($analytics['result']) ? $analytics['result'] : 0;
+      } else {
+        $result[$key]['Prediction'] = 0;
+        $result[$key]['Result'] = 0;
+        }
     }
+
+    echo json_encode($result);
+}
 
     function requestRetakeExam()
     {
@@ -2600,24 +2632,27 @@ class admin_controller extends CI_Controller {
     // Only include students with valid gwa and exam_score
     $students = [];
     foreach ($students_raw as $s) {
-        // Check if both gwa and exam_score are numeric and not null
         if (
             isset($s['Grade'], $s['exam_score']) &&
             is_numeric($s['Grade']) &&
             is_numeric($s['exam_score'])
         ) {
             $students[] = [
-                'student_id'  => $s['student_number'] ?? '',
-                'name'        => $s['student_name'] ?? '',
-                'gwa'         => floatval($s['Grade']),
-                'exam_score'  => floatval($s['exam_score'])
-            ];
+          'student_id'       => $s['student_number'] ?? '',
+          'name'             => $s['student_name'] ?? '',
+          'gwa'              => floatval($s['Grade']),
+          'exam_score'       => floatval($s['exam_score']),
+          'class_subject_id' => intval($s['class_subject_id'] ?? 0) // Cast to int
+    ];
         }
     }
 
     $data = [
         "students" => $students
     ];
+
+    // Log the outgoing payload for debugging
+    file_put_contents(FCPATH . 'analytics_payload.json', json_encode($data, JSON_PRETTY_PRINT));
 
     $url = 'https://mlr-analytics-tsukkimen.replit.app/analyze';
 
@@ -2628,6 +2663,23 @@ class admin_controller extends CI_Controller {
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
     $response = curl_exec($ch);
     curl_close($ch);
+
+    // Decode the API response
+    $responseData = json_decode($response, true);
+
+    // Store analysis results in the database table
+    if (isset($responseData['analysis_results']['pass_fail_analysis']['students'])) {
+        foreach ($responseData['analysis_results']['pass_fail_analysis']['students'] as $student) {
+            $this->db->insert('analytics_results', [
+                'student_id'        => $student['student_id'],
+                'class_subject_id'  => intval($student['class_subject_id'] ?? 0), // <-- Add this line
+                'gwa'               => $student['current_gwa'],
+                'exam_score'        => $student['exam_score'],
+                'result'            => $student['likelihood'],
+                'prediction'        => $student['confidence_score']
+            ]);
+        }
+    }
 
     header('Content-Type: text/plain');
     echo $response ? $response : 'No response from analytics API.';

@@ -9,31 +9,36 @@ class admin_model extends CI_Model
       date_default_timezone_set('Asia/Manila');
     }
     public function get_all_student_scores()
-    {
-        $students = $this->db->query("
-            SELECT 
-                S.StudentNumber as student_number,
-                CONCAT(S.LastName, ', ', S.FirstName, ' ', COALESCE(S.MiddleName,'N/A'), ' ', COALESCE(S.ExtName, '')) as student_name,
-                CHS.Grade,
-                ClassExam.Id as ExamId
-            FROM classsubject_has_students CHS
-            INNER JOIN r_students S ON S.Id = CHS.StudentId
-            LEFT JOIN classsubject_has_exam ClassExam ON ClassExam.ClassSubjectId = CHS.ClassSubjectId
-            WHERE CHS.Grade IS NOT NULL
-        ")->result_array();
+{
+    $students = $this->db->query("
+        SELECT 
+            S.StudentNumber as student_number,
+            CONCAT(S.LastName, ', ', S.FirstName, ' ', COALESCE(S.MiddleName,'N/A'), ' ', COALESCE(S.ExtName, '')) as student_name,
+            CHS.Grade,
+            ClassExam.Id as ExamId,
+            CHS.ClassSubjectId as class_subject_id, -- Add this line
+            RS.Code as subject_code, -- Optional: subject code for clarity
+            RS.Name as subject_name  -- Optional: subject name for clarity
+        FROM classsubject_has_students CHS
+        INNER JOIN r_students S ON S.Id = CHS.StudentId
+        LEFT JOIN classsubject_has_exam ClassExam ON ClassExam.ClassSubjectId = CHS.ClassSubjectId
+        INNER JOIN class_has_subjects CHS2 ON CHS.ClassSubjectId = CHS2.Id
+        INNER JOIN r_subjects RS ON RS.Id = CHS2.SubjectId
+        WHERE CHS.Grade IS NOT NULL
+    ")->result_array();
 
-        foreach ($students as &$student) {
-            if (!empty($student['ExamId'])) {
-                $correct = $this->countCorrectAnswers($student['ExamId']);
-                $total = $this->countQuestions($student['ExamId']);
-                $student['exam_score'] = ($total > 0) ? round(($correct / $total) * 100, 2) : null;
-            } else {
-                $student['exam_score'] = null;
-            }
-            unset($student['ExamId']);
+    foreach ($students as &$student) {
+        if (!empty($student['ExamId'])) {
+            $correct = $this->countCorrectAnswers($student['ExamId']);
+            $total = $this->countQuestions($student['ExamId']);
+            $student['exam_score'] = ($total > 0) ? round(($correct / $total) * 100, 2) : null;
+        } else {
+            $student['exam_score'] = null;
         }
-        return $students;
+        unset($student['ExamId']);
     }
+    return $students;
+}
     
     function getEmployeeList()
     {
@@ -1280,34 +1285,31 @@ class admin_model extends CI_Model
     }
 
     function getStudentSubjectList()
-    {
-      $EmployeeNumber = $this->session->userdata('EmployeeNumber');
-      $StudentId = $this->session->userdata('EmployeeId');
-      $query = $this->db->query("SELECT  DISTINCT CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as Faculty
-                                          , S.Name
-                                          , CHS.Grade
-                                          , CONCAT(S.Code, '-', LPAD(CHS2.Id, 5, 0)) as SubjectCode
-                                          , CHS.ClassSubjectId
-                                          , CHS2.ClassId
-                                          , SHE.Id as ExamId
-                                          , CSExam.Id as CreatedExamId
-                                          , SHE.StatusId
-                                          FROM classsubject_has_students CHS
-                                            INNER JOIN class_has_subjects CHS2
-                                              ON CHS.ClassSubjectId = CHS2.ID
-                                            INNER JOIN r_subjects S
-                                              ON S.Id = CHS2.SubjectId
-                                            INNER JOIN r_employees EMP
-                                              ON EMP.EmployeeNumber = CHS2.FacultyId
-                                            LEFT JOIN classsubject_has_exam CSExam
-                                              ON CSExam.ClassSubjectId = CHS.ClassSubjectId
-                                            LEFT JOIN student_has_exam SHE
-                                              ON SHE.StudentId = CHS.StudentId
-                                              AND SHE.ExamId = CSExam.ID
-                                              WHERE CHS.StudentId = $StudentId
-      ");
-      return $query->result_array();
-    }
+{
+    $EmployeeNumber = $this->session->userdata('EmployeeNumber');
+    $StudentId = $this->session->userdata('EmployeeId');
+    $query = $this->db->query("SELECT DISTINCT 
+          RS.StudentNumber as student_number,  -- <-- FIX: get from r_students
+          CONCAT(EMP.LastName, ', ', EMP.FirstName, ' ', COALESCE(EMP.MiddleName,'N/A'), ' ', COALESCE(EMP.ExtName, '')) as Faculty,
+          S.Name,
+          CHS.Grade,
+          CONCAT(S.Code, '-', LPAD(CHS2.Id, 5, 0)) as SubjectCode,
+          CHS.ClassSubjectId,
+          CHS2.ClassId,
+          SHE.Id as ExamId,
+          CSExam.Id as CreatedExamId,
+          SHE.StatusId
+      FROM classsubject_has_students CHS
+        INNER JOIN class_has_subjects CHS2 ON CHS.ClassSubjectId = CHS2.ID
+        INNER JOIN r_subjects S ON S.Id = CHS2.SubjectId
+        INNER JOIN r_employees EMP ON EMP.EmployeeNumber = CHS2.FacultyId
+        INNER JOIN r_students RS ON RS.Id = CHS.StudentId  -- <-- ADD THIS JOIN
+        LEFT JOIN classsubject_has_exam CSExam ON CSExam.ClassSubjectId = CHS.ClassSubjectId
+        LEFT JOIN student_has_exam SHE ON SHE.StudentId = CHS.StudentId AND SHE.ExamId = CSExam.ID
+      WHERE CHS.StudentId = $StudentId
+    ");
+    return $query->result_array();
+}
 
     function getExamGrade()
     {
