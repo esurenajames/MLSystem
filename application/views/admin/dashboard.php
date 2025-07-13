@@ -242,9 +242,9 @@
                       <th>Subject</th>
                       <th>Faculty</th>
                       <th>Grades</th>
-                      <th>Exam Grade</th>
                       <th>Prediction</th>
                       <th>Prediction Analysis</th>
+                      <th>Exam Grade</th>
                       <th>Action</th>
                     </tr>
                     </thead>
@@ -253,10 +253,10 @@
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td></td>
                         <td style="font-weight: bold;">Total Average:</td>
                         <td id="predictionAverage" style="font-weight: bold;">0%</td>
                         <td id="predictionAnalysisAverage" style="font-weight: bold;">0%</td>
+                        <td></td>
                         <td></td>
                       </tr>
                     </tfoot>
@@ -507,36 +507,6 @@
         { data: "Grade" },
         {
           data: "ExamId", "render": function (data, type, row) {
-            if(row.CreatedExamId !== null) {
-              if(row.totalQuestions != 0 && row.StatusId == 1) {
-                totalPercentage = (row.correctAnswer/row.totalQuestions) * 100;
-                if(totalPercentage >= 70) {
-                  examResult = '<label style="color:#08A133">Passed</label>';
-                } else {
-                  examResult = '<label style="color:#D92323">Failed</label>';
-                }
-                return totalPercentage + '% - ' + examResult;
-              } else {
-                if(row.StatusId == 1) {
-                  if(row.totalQuestions != 0) {
-                    totalPercentage = 0;
-                    return 'No exam taken';
-                  } else {
-                    totalPercentage = 0;
-                    return 'For re-taking';
-                  }
-                } else {
-                  totalPercentage = 0;
-                  return 'No exam taken';
-                }
-              }
-            } else {
-              return 'No exam has been created.';
-            }
-          }
-        },
-        {
-          data: "ExamId", "render": function (data, type, row) {
             if(row.totalQuestions != 0) {
               totalPercentage = (row.correctAnswer/row.totalQuestions)*100;
               finalPrediction = (parseFloat(row.Grade)+parseFloat(totalPercentage))/2;
@@ -568,6 +538,36 @@
               if (grade < 80) return "Likely to Fail";
             }
             return "No Data";
+          }
+        }, 
+        {
+          data: "ExamId", "render": function (data, type, row) {
+            if(row.CreatedExamId !== null) {
+              if(row.totalQuestions != 0 && row.StatusId == 1) {
+                totalPercentage = (row.correctAnswer/row.totalQuestions) * 100;
+                if(totalPercentage >= 70) {
+                  examResult = '<label style="color:#08A133">Passed</label>';
+                } else {
+                  examResult = '<label style="color:#D92323">Failed</label>';
+                }
+                return totalPercentage + '% - ' + examResult;
+              } else {
+                if(row.StatusId == 1) {
+                  if(row.totalQuestions != 0) {
+                    totalPercentage = 0;
+                    return 'No exam taken';
+                  } else {
+                    totalPercentage = 0;
+                    return 'For re-taking';
+                  }
+                } else {
+                  totalPercentage = 0;
+                  return 'No exam taken';
+                }
+              }
+            } else {
+              return 'No exam has been created.';
+            }
           }
         },
         {
