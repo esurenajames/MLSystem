@@ -260,6 +260,7 @@
                       </tr>
                     </tfoot>
                   </table>
+                  <div id="preboard-result" style="margin-top:20px; font-weight:bold; font-size:1.2em;"></div>
                 </div>
               </div>
             </div>
@@ -298,6 +299,7 @@
   <?php $this->load->view('includes/footer'); ?>
 
 <script type="text/javascript">
+  var currentUserId = <?php echo json_encode($this->session->userdata('UserId')); ?>;
   var varStatus = 0;
   var varNewPassword = 0;
 
@@ -465,31 +467,33 @@
 
 
 
-    UserTable = $('#example1').DataTable({
-      "pageLength": 10,
-      "ajax": { url: '<?php echo base_url()."/admin_controller/getStudentClassList/"; ?>', type: 'POST', "dataSrc": "" },
-      "columns": [  { data: "ClassName" }
-                    , { data: "ClassDescription" }
-                    , {
-                      data: "StatusId", "render": function (data, type, row) {
-                        return "<span class='badge bg-"+row.Color+"'>"+row.StatusDescription+"</span>";
-                      }
-                    }
-                    , {
-                      data: "StatusId", "render": function (data, type, row) {
-                        if(row.StatusId == 1){
-                          return '<a href="<?php echo base_url() ?>home/viewClass/'+row.Id+'" class="btn btn-default" title="View"><span class="fa fa-eye"></span></a>';
-                        }
-                        else
-                        {
-                          return '<a href="<?php echo base_url() ?>home/viewClass/'+row.Id+'" class="btn btn-default" title="View"><span class="fa fa-eye"></span></a>';
-                        }
-                      }
-                    },
-      ],
-      // "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
-      "order": [[0, "asc"]]
-    });
+    if ( $.fn.DataTable.isDataTable('#example1') ) {
+    $('#example1').DataTable().clear().destroy();
+}
+
+UserTable = $('#example1').DataTable({
+  "pageLength": 10,
+  "ajax": { url: '<?php echo base_url()."/admin_controller/getStudentClassList/"; ?>', type: 'POST', "dataSrc": "" },
+  "columns": [  
+    { data: "ClassName" },
+    { data: "ClassDescription" },
+    {
+      data: "StatusId", "render": function (data, type, row) {
+        return "<span class='badge bg-"+row.Color+"'>"+row.StatusDescription+"</span>";
+      }
+    },
+    {
+      data: "StatusId", "render": function (data, type, row) {
+        if(row.StatusId == 1){
+          return '<a href="<?php echo base_url() ?>home/viewClass/'+row.Id+'" class="btn btn-default" title="View"><span class="fa fa-eye"></span></a>';
+        } else {
+          return '<a href="<?php echo base_url() ?>home/viewClass/'+row.Id+'" class="btn btn-default" title="View"><span class="fa fa-eye"></span></a>';
+        }
+      }
+    }
+  ],
+  "order": [[0, "asc"]]
+});
 
     var totalPercentage = 0;
     var finalPrediction = 0;
@@ -504,51 +508,45 @@
                     , { data: "Faculty" }
                     , { data: "Grade" }
                     , {
-                      data: "ExamId", "render": function (data, type, row) {
-                        if(row.CreatedExamId !== null)
-                        {
-                          if(row.totalQuestions != 0 && row.StatusId == 1)
-                          {
-                            totalPercentage = (row.correctAnswer/row.totalQuestions) * 100;
-
-                            if(totalPercentage >= 70)
-                            {
-                              examResult = '<label style="color:#08A133">Passed</label>';
-                            }
-                            else
-                            {
-                              examResult = '<label style="color:#D92323">Failed</label>';
-                            }
-                            return totalPercentage + '% - ' + examResult;
-                          }
-                          else
-                          {
-                            if(row.StatusId == 1) // may exam for retaking
-                            {
-                              if(row.totalQuestions != 0)
-                              {
-                                totalPercentage = 0;
-                                return 'No exam taken';
-                              }
-                              else
-                              {
-                                totalPercentage = 0;
-                                return 'For re-taking';
-                              }
-                            }
-                            else
-                            {
-                              totalPercentage = 0;
-                              return 'No exam taken';
-                            }
-                          }
-                        }
-                        else
-                        {
-                          return 'No exam has been created.';
-                        }
-                      }
-                    } 
+  data: "ExamId",
+  render: function (data, type, row) {
+    // Only show if this row is for the current user
+    if (row.UserId && row.UserId != currentUserId) return '';
+    if(row.CreatedExamId !== null)
+    {
+      if(row.totalQuestions != 0 && row.StatusId == 1)
+      {
+        var totalPercentage = (row.correctAnswer/row.totalQuestions) * 100;
+        var examResult = (totalPercentage >= 70)
+          ? '<label style="color:#08A133">Passed</label>'
+          : '<label style="color:#D92323">Failed</label>';
+        return totalPercentage + '% - ' + examResult;
+      }
+      else
+      {
+        if(row.StatusId == 1)
+        {
+          if(row.totalQuestions != 0)
+          {
+            return 'No exam taken';
+          }
+          else
+          {
+            return 'For re-taking';
+          }
+        }
+        else
+        {
+          return 'No exam taken';
+        }
+      }
+    }
+    else
+    {
+      return 'No exam has been created.';
+    }
+  }
+}
                     , {
                       data: "ExamId", "render": function (data, type, row) {
                         if(row.totalQuestions != 0)
@@ -635,6 +633,61 @@
       "order": [[0, "asc"]]
     });
 
+    // Place this AFTER the DataTable initialization:
+Grades.on('xhr', function () {
+    var data = Grades.ajax.json();
+    if (!data) return;
+
+    // Filter to only include the current user's records
+    data = data.filter(function(row) {
+        return row.UserId == currentUserId;
+    });
+
+    // Only include the four subjects for the MLR formula
+    const subjects = {
+        "Abnormal Psychology": 0.15,
+        "Developmental Psychology": 0.15,
+        "General Psychology": 0.40,
+        "Industrial Psychology": 0.15
+    };
+
+    let scores = {
+        "Abnormal Psychology": null,
+        "Developmental Psychology": null,
+        "General Psychology": null,
+        "Industrial Psychology": null
+    };
+
+    data.forEach(function(row) {
+        let subj = row.Name ? row.Name.trim() : "";
+        if (subjects.hasOwnProperty(subj)) {
+            let examGrade = 0;
+            if (row.CreatedExamId !== null && row.totalQuestions != 0 && row.StatusId == 1) {
+                examGrade = (row.correctAnswer / row.totalQuestions) * 100;
+                scores[subj] = examGrade;
+            }
+        }
+    });
+
+    let predictedScore = 0;
+    let totalWeight = 0;
+    Object.keys(subjects).forEach(function(subj) {
+        if (scores[subj] !== null && !isNaN(scores[subj])) {
+            predictedScore += scores[subj] * subjects[subj];
+            totalWeight += subjects[subj];
+        }
+    });
+
+    let finalScore = totalWeight > 0 ? (predictedScore / totalWeight) : 0;
+
+    let deliberation = "Most Likely to Fail";
+    if (finalScore >= 85) deliberation = "Most Likely to Pass";
+    else if (finalScore >= 75) deliberation = "Likely to Pass";
+    else if (finalScore >= 65) deliberation = "Likely to Fail";
+
+    document.getElementById('preboard-result').innerHTML =
+        `PREDICTED PRE BOARD EXAMINATION RESULT: <span style="color:#007bff">${finalScore.toFixed(2)}%</span> <span style="color:#444;background:#eee;padding:2px 8px;border-radius:4px">${deliberation}</span>`;
+});
     table3 = $('#example3').DataTable({
       "pageLength": 10,
       "ajax": { url: '<?php echo base_url()."/admin_controller/getFacultyClassList/"; ?>', type: 'POST', "dataSrc": "" },
