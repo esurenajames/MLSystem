@@ -242,9 +242,9 @@
                       <th>Subject</th>
                       <th>Faculty</th>
                       <th>Grades</th>
-                      <th>Exam Grade</th>
                       <th>Prediction</th>
-                      <th>Prediction Analysis</th>
+                      <th>Prediction</th>
+                      <th>Mock Exam Grade</th>
                       <th>Action</th>
                     </tr>
                     </thead>
@@ -254,13 +254,11 @@
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                        <td style="font-weight: bold;">Predicted Result:</td>
+                        <td style="font-weight: bold;" id="preboard-result" colspan="3"></td>
                       </tr>
                     </tfoot>
                   </table>
-                  <div id="preboard-result" style="margin-top:20px; font-weight:bold; font-size:1.2em;"></div>
                 </div>
               </div>
             </div>
@@ -503,191 +501,188 @@ UserTable = $('#example1').DataTable({
     Grades = $('#example2').DataTable({
       "pageLength": 10,
       "ajax": { url: '<?php echo base_url()."/admin_controller/getStudentSubjectList/"; ?>', type: 'POST', "dataSrc": "" },
-      "columns": [  { data: "SubjectCode" }
-                    , { data: "Name" }
-                    , { data: "Faculty" }
-                    , { data: "Grade" }
-                    , {
-  data: "ExamId",
-  render: function (data, type, row) {
-    // Only show if this row is for the current user
-    if (row.UserId && row.UserId != currentUserId) return '';
-    if(row.CreatedExamId !== null)
-    {
-      if(row.totalQuestions != 0 && row.StatusId == 1)
-      {
-        var totalPercentage = (row.correctAnswer/row.totalQuestions) * 100;
-        var examResult = (totalPercentage >= 70)
-          ? '<label style="color:#08A133">Passed</label>'
-          : '<label style="color:#D92323">Failed</label>';
-        return totalPercentage + '% - ' + examResult;
-      }
-      else
-      {
-        if(row.StatusId == 1)
-        {
-          if(row.totalQuestions != 0)
-          {
-            return 'No exam taken';
-          }
-          else
-          {
-            return 'For re-taking';
-          }
-        }
-        else
-        {
-          return 'No exam taken';
-        }
-      }
-    }
-    else
-    {
-      return 'No exam has been created.';
-    }
-  }
-}
-                    , {
-                      data: "ExamId", "render": function (data, type, row) {
-                        if(row.totalQuestions != 0)
-                        {
-                          totalPercentage = (row.correctAnswer/row.totalQuestions)*100;
-                          finalPrediction = 0;
-
-                          finalPrediction = (parseFloat(row.Grade)+parseFloat(totalPercentage))/2;
-                          return finalPrediction + '% rate';
-                        }
-                        else
-                        {
-                          totalPercentage = 0;
-                          finalPrediction = 0;
-
-                          finalPrediction = (parseFloat(row.Grade)+parseFloat(totalPercentage))/2;
-                          return finalPrediction + '% rate';
-                        }
-                      }
-                    },{data: null,
-  title: "Prediction Analysis",
-  render: function (data, type, row) {
-    // Calculate the prediction score as in the Prediction column
-    let totalPercentage = 0;
-    let finalPrediction = 0;
-
-    if (row.totalQuestions != 0) {
-      totalPercentage = (row.correctAnswer / row.totalQuestions) * 100;
-    }
-    finalPrediction = (parseFloat(row.Grade) + parseFloat(totalPercentage)) / 2;
-
-    let score = isNaN(finalPrediction) ? 0 : finalPrediction;
-
-    // Map to deliberation category
-    if (score >= 85) return "Most Likely to Pass";
-    if (score >= 75) return "Likely to Pass";
-    if (score >= 65) return "Likely to Fail";
-    return "Most Likely to Fail";
-  }
-  } 
-                    , {
-                      data: "ExamId", "render": function (data, type, row) {
-                        if(row.CreatedExamId !== null)
-                        {
-                          if(row.StatusId == 10)
-                          {
-                            return '<a href="<?php echo base_url() ?>home/TakeExam/'+row.CreatedExamId+'" class="btn btn-primary" title="Take Exam"><span class="fa fa-pen-square"></span></a> ';
-                          }
-                          else
-                          {
-                            if(row.StatusId == 1 && row.totalQuestions == 0) // may exam for retaking
+      "columns": [        { data: "SubjectCode" }
+                          , { data: "Name" }
+                          , { data: "Faculty" }
+                          , { data: "Grade" }
+                          , { data: "ExamId", "render": function (data, type, row) {
+                            if(row.totalQuestions != 0)
                             {
-                              return '<a href="<?php echo base_url() ?>home/TakeExam/'+row.CreatedExamId+'" class="btn btn-primary" title="Take Exam"><span class="fa fa-pen-square"></span></a> ' ;
+                              totalPercentage = (row.correctAnswer/row.totalQuestions)*100;
+                              finalPrediction = 0;
+
+                              finalPrediction = (parseFloat(row.Grade)+parseFloat(totalPercentage))/2;
+                              return finalPrediction + '% rate';
                             }
                             else
                             {
-                              if(totalPercentage <= 70)
-                              {
-                                retakeExam = '<a onclick="clickRetakeExam('+row.CreatedExamId+')" class="btn btn-primary" title="Request to retake exam"><span class="fa fa-money-check"></span></a>';
-                              }
-                              else
-                              {
-                                retakeExam = '';
-                              }
+                              totalPercentage = 0;
+                              finalPrediction = 0;
 
-                              if(row.ExamId !== null){
-                                return '<a href="<?php echo base_url() ?>home/viewExam/'+row.CreatedExamId+'" class="btn btn-default" title="View Exam"><span class="fa fa-eye"></span></a> ' + retakeExam;
+                              finalPrediction = (parseFloat(row.Grade)+parseFloat(totalPercentage))/2;
+                              return finalPrediction + '% rate';
+                            }
+                          }
+                          },{data: null,
+                            title: "Prediction Analysis",
+                            render: function (data, type, row) {
+                              // Calculate the prediction score as in the Prediction column
+                              let totalPercentage = 0;
+                              let finalPrediction = 0;
+
+                              if (row.totalQuestions != 0) {
+                                totalPercentage = (row.correctAnswer / row.totalQuestions) * 100;
+                              }
+                              finalPrediction = (parseFloat(row.Grade) + parseFloat(totalPercentage)) / 2;
+
+                              let score = isNaN(finalPrediction) ? 0 : finalPrediction;
+
+                              // Map to deliberation category
+                              if (score >= 85) return "Most Likely to Pass";
+                              if (score >= 75) return "Likely to Pass";
+                              if (score >= 65) return "Likely to Fail";
+                              return "Most Likely to Fail";
+                            }
+                            } , { data: "ExamId",
+                            render: function (data, type, row) {
+                              // Only show if this row is for the current user
+                              if (row.UserId && row.UserId != currentUserId) return '';
+                              if(row.CreatedExamId !== null)
+                              {
+                                if(row.totalQuestions != 0 && row.StatusId == 1)
+                                {
+                                  var totalPercentage = (row.correctAnswer/row.totalQuestions) * 100;
+                                  var examResult = (totalPercentage >= 70)
+                                    ? '<label style="color:#08A133">Passed</label>'
+                                    : '<label style="color:#D92323">Failed</label>';
+                                  return totalPercentage + '% - ' + examResult;
+                                }
+                                else
+                                {
+                                  if(row.StatusId == 1)
+                                  {
+                                    if(row.totalQuestions != 0)
+                                    {
+                                      return 'No exam taken';
+                                    }
+                                    else
+                                    {
+                                      return 'For re-taking';
+                                    }
+                                  }
+                                  else
+                                  {
+                                    return 'No exam taken';
+                                  }
+                                }
                               }
                               else
                               {
-                                return '<a href="<?php echo base_url() ?>home/TakeExam/'+row.CreatedExamId+'" class="btn btn-primary" title="Take Exam"><span class="fa fa-pen-square"></span></a> ' ;
+                                return 'No exam has been created.';
                               }
                             }
                           }
-                        }
-                        else
-                        {
-                          return '<a href="<?php echo base_url() ?>home/subjectStudents/'+row.ClassSubjectId+'" class="btn btn-default" title="View Subject"><span class="fa fa-eye"></span></a> ' ;
-                        }
-                      }
-                    },
-      ],
-      // "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
-      "order": [[0, "asc"]]
-    });
+                          , {
+                            data: "ExamId", "render": function (data, type, row) {
+                              if(row.CreatedExamId !== null)
+                              {
+                                if(row.StatusId == 10)
+                                {
+                                  return '<a href="<?php echo base_url() ?>home/TakeExam/'+row.CreatedExamId+'" class="btn btn-primary" title="Take Exam"><span class="fa fa-pen-square"></span></a> ';
+                                }
+                                else
+                                {
+                                  if(row.StatusId == 1 && row.totalQuestions == 0) // may exam for retaking
+                                  {
+                                    return '<a href="<?php echo base_url() ?>home/TakeExam/'+row.CreatedExamId+'" class="btn btn-primary" title="Take Exam"><span class="fa fa-pen-square"></span></a> ' ;
+                                  }
+                                  else
+                                  {
+                                    if(totalPercentage <= 70)
+                                    {
+                                      retakeExam = '<a onclick="clickRetakeExam('+row.CreatedExamId+')" class="btn btn-primary" title="Request to retake exam"><span class="fa fa-money-check"></span></a>';
+                                    }
+                                    else
+                                    {
+                                      retakeExam = '';
+                                    }
 
-    // Place this AFTER the DataTable initialization:
-Grades.on('xhr', function () {
-    var data = Grades.ajax.json();
-    if (!data) return;
+                                    if(row.ExamId !== null){
+                                      return '<a href="<?php echo base_url() ?>home/viewExam/'+row.CreatedExamId+'" class="btn btn-default" title="View Exam"><span class="fa fa-eye"></span></a> ' + retakeExam;
+                                    }
+                                    else
+                                    {
+                                      return '<a href="<?php echo base_url() ?>home/TakeExam/'+row.CreatedExamId+'" class="btn btn-primary" title="Take Exam"><span class="fa fa-pen-square"></span></a> ' ;
+                                    }
+                                  }
+                                }
+                              }
+                              else
+                              {
+                                return '<a href="<?php echo base_url() ?>home/subjectStudents/'+row.ClassSubjectId+'" class="btn btn-default" title="View Subject"><span class="fa fa-eye"></span></a> ' ;
+                              }
+                            }
+                          },
+                        ],
+                        // "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
+                        "order": [[0, "asc"]]
+                      });
 
-    // Filter to only include the current user's records
-    data = data.filter(function(row) {
-        return row.UserId == currentUserId;
-    });
+                      // Place this AFTER the DataTable initialization:
+                  Grades.on('xhr', function () {
+                      var data = Grades.ajax.json();
+                      if (!data) return;
 
-    // Only include the four subjects for the MLR formula
-    const subjects = {
-        "Abnormal Psychology": 0.15,
-        "Developmental Psychology": 0.15,
-        "General Psychology": 0.40,
-        "Industrial Psychology": 0.15
-    };
+                      // Filter to only include the current user's records
+                      data = data.filter(function(row) {
+                          return row.UserId == currentUserId;
+                      });
 
-    let scores = {
-        "Abnormal Psychology": null,
-        "Developmental Psychology": null,
-        "General Psychology": null,
-        "Industrial Psychology": null
-    };
+                      // Only include the four subjects for the MLR formula
+                      const subjects = {
+                          "Abnormal Psychology": 0.15,
+                          "Developmental Psychology": 0.15,
+                          "General Psychology": 0.40,
+                          "Industrial Psychology": 0.15
+                      };
 
-    data.forEach(function(row) {
-        let subj = row.Name ? row.Name.trim() : "";
-        if (subjects.hasOwnProperty(subj)) {
-            let examGrade = 0;
-            if (row.CreatedExamId !== null && row.totalQuestions != 0 && row.StatusId == 1) {
-                examGrade = (row.correctAnswer / row.totalQuestions) * 100;
-                scores[subj] = examGrade;
-            }
-        }
-    });
+                      let scores = {
+                          "Abnormal Psychology": null,
+                          "Developmental Psychology": null,
+                          "General Psychology": null,
+                          "Industrial Psychology": null
+                      };
 
-    let predictedScore = 0;
-    let totalWeight = 0;
-    Object.keys(subjects).forEach(function(subj) {
-        if (scores[subj] !== null && !isNaN(scores[subj])) {
-            predictedScore += scores[subj] * subjects[subj];
-            totalWeight += subjects[subj];
-        }
-    });
+                      data.forEach(function(row) {
+                          let subj = row.Name ? row.Name.trim() : "";
+                          if (subjects.hasOwnProperty(subj)) {
+                              let examGrade = 0;
+                              if (row.CreatedExamId !== null && row.totalQuestions != 0 && row.StatusId == 1) {
+                                  examGrade = (row.correctAnswer / row.totalQuestions) * 100;
+                                  scores[subj] = examGrade;
+                              }
+                          }
+                      });
 
-    let finalScore = totalWeight > 0 ? (predictedScore / totalWeight) : 0;
+                      let predictedScore = 0;
+                      let totalWeight = 0;
+                      Object.keys(subjects).forEach(function(subj) {
+                          if (scores[subj] !== null && !isNaN(scores[subj])) {
+                              predictedScore += scores[subj] * subjects[subj];
+                              totalWeight += subjects[subj];
+                          }
+                      });
 
-    let deliberation = "Most Likely to Fail";
-    if (finalScore >= 85) deliberation = "Most Likely to Pass";
-    else if (finalScore >= 75) deliberation = "Likely to Pass";
-    else if (finalScore >= 65) deliberation = "Likely to Fail";
+                      let finalScore = totalWeight > 0 ? (predictedScore / totalWeight) : 0;
 
-    document.getElementById('preboard-result').innerHTML =
-        `PREDICTED PRE BOARD EXAMINATION RESULT: <span style="color:#007bff">${finalScore.toFixed(2)}%</span> <span style="color:#444;background:#eee;padding:2px 8px;border-radius:4px">${deliberation}</span>`;
-});
+                      let deliberation = "Most Likely to Fail";
+                      if (finalScore >= 85) deliberation = "Most Likely to Pass";
+                      else if (finalScore >= 75) deliberation = "Likely to Pass";
+                      else if (finalScore >= 65) deliberation = "Likely to Fail";
+
+                      document.getElementById('preboard-result').innerHTML =
+                          `PREDICTED PRE BOARD EXAMINATION RESULT: <span style="color:#007bff">${finalScore.toFixed(2)}%</span> <span style="color:#444;background:#eee;padding:2px 8px;border-radius:4px">${deliberation}</span>`;
+                  });
     table3 = $('#example3').DataTable({
       "pageLength": 10,
       "ajax": { url: '<?php echo base_url()."/admin_controller/getFacultyClassList/"; ?>', type: 'POST', "dataSrc": "" },
