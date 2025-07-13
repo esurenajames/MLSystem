@@ -242,9 +242,9 @@
                       <th>Subject</th>
                       <th>Faculty</th>
                       <th>Grades</th>
-                      <th>Exam Grade</th>
                       <th>Prediction</th>
                       <th>Prediction Analysis</th>
+                      <th>Exam Grade</th>
                       <th>Action</th>
                     </tr>
                     </thead>
@@ -253,8 +253,9 @@
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td></td>
-                        <td></td>
+                        <td style="font-weight: bold;">Total Average:</td>
+                        <td id="predictionAverage" style="font-weight: bold;">0%</td>
+                        <td id="predictionAnalysisAverage" style="font-weight: bold;">0%</td>
                         <td></td>
                         <td></td>
                       </tr>
