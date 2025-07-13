@@ -254,7 +254,8 @@
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td></td>
+                        <td style="font-weight: bold;">Total Average:</td>
+                        <td id="predictionAverage" style="font-weight: bold;">0%</td>
                         <td></td>
                         <td></td>
                       </tr>
@@ -632,7 +633,30 @@
                     },
       ],
       // "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
-      "order": [[0, "asc"]]
+      "order": [[0, "asc"]],
+      "drawCallback": function(settings) {
+        var api = this.api();
+        var data = api.rows({ page: 'current' }).data();
+        var sum = 0;
+        var count = 0;
+
+        data.each(function(row) {
+          let pred = row.Grade;
+          let totalPercentage = 0;
+          if (row.totalQuestions != 0) {
+            totalPercentage = (row.correctAnswer / row.totalQuestions) * 100;
+          }
+          let finalPrediction = (parseFloat(row.Grade) + parseFloat(totalPercentage)) / 2;
+          if (!isNaN(finalPrediction)) {
+            sum += finalPrediction;
+            count++;
+          }
+        });
+
+        let avg = count > 0 ? (sum / count).toFixed(2) : 0;
+        $('#predictionAverage').text(avg + '%');
+      }
+      // create a function to calculate the exam score fro the 
     });
 
     table3 = $('#example3').DataTable({
