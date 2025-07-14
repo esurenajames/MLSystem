@@ -583,21 +583,21 @@
       });
 
       const subjects = {
-        "Psychological Assessment": 0.40,
-        "Developmental Psychology": 0.20,
-        "Abnormal Psychology": 0.20,
-        "Industrial Psychology": 0.20
+        "psychological assessment": 0.40,
+        "developmental psychology": 0.20,
+        "abnormal psychology": 0.20,
+        "industrial psychology": 0.20
       };
 
       let subjectScores = {
-        "Psychological Assessment": [],
-        "Developmental Psychology": [],
-        "Abnormal Psychology": [],
-        "Industrial Psychology": []
+        "psychological assessment": [],
+        "developmental psychology": [],
+        "abnormal psychology": [],
+        "industrial psychology": []
       };
 
       data.forEach(function (row) {
-        let subj = row.Name ? row.Name.trim() : "";
+        let subj = row.Name ? row.Name.trim().toLowerCase() : "";
         if (subjects.hasOwnProperty(subj)) {
           let grade = !isNaN(parseFloat(row.Grade)) ? parseFloat(row.Grade) : 0;
           let mock = 0;
